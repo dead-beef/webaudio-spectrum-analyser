@@ -1,0 +1,164 @@
+{
+  "version": 1,
+  "projects": {
+    "webaudio-spectrum-analyser": {
+      "projectType": "application",
+      "schematics": {
+        "@nrwl/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "apps/webaudio-spectrum-analyser",
+      "sourceRoot": "apps/webaudio-spectrum-analyser/src",
+      "prefix": "webaudio-spectrum-analyser",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/",
+            "index": "apps/webaudio-spectrum-analyser/src/index.html",
+            "main": "apps/webaudio-spectrum-analyser/src/main.ts",
+            "polyfills": "apps/webaudio-spectrum-analyser/src/polyfills.ts",
+            "tsConfig": "apps/webaudio-spectrum-analyser/tsconfig.app.json",
+            "aot": true,
+            "extractCss": true,
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "apps/webaudio-spectrum-analyser/src/img",
+                "output":  "img/"
+              }
+            ],
+            "styles": [
+              {
+                "input": "apps/webaudio-spectrum-analyser/src/css/vendor.scss",
+                "bundleName": "css/vendor",
+                "lazy": false
+              },
+              {
+                "input": "apps/webaudio-spectrum-analyser/src/css/styles.scss",
+                "bundleName": "css/styles",
+                "lazy": false
+              }
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "apps/webaudio-spectrum-analyser/src/environments/environment.ts",
+                  "with": "apps/webaudio-spectrum-analyser/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "none",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": true,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "webaudio-spectrum-analyser:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "webaudio-spectrum-analyser:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "webaudio-spectrum-analyser:build"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "apps/webaudio-spectrum-analyser/tsconfig.app.json",
+              "apps/webaudio-spectrum-analyser/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**",
+              "!apps/webaudio-spectrum-analyser/**"
+            ]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "options": {
+            "jestConfig": "apps/webaudio-spectrum-analyser/jest.config.js",
+            "tsConfig": "apps/webaudio-spectrum-analyser/tsconfig.spec.json",
+            "setupFile": "apps/webaudio-spectrum-analyser/src/test-setup.ts"
+          }
+        }
+      }
+    },
+    "webaudio-spectrum-analyser-e2e": {
+      "root": "apps/webaudio-spectrum-analyser-e2e",
+      "sourceRoot": "apps/webaudio-spectrum-analyser-e2e/src",
+      "projectType": "application",
+      "architect": {
+        "e2e": {
+          "builder": "@nrwl/cypress:cypress",
+          "options": {
+            "cypressConfig": "apps/webaudio-spectrum-analyser-e2e/cypress.json",
+            "tsConfig": "apps/webaudio-spectrum-analyser-e2e/tsconfig.e2e.json",
+            "devServerTarget": "webaudio-spectrum-analyser:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "webaudio-spectrum-analyser:serve:production"
+            }
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "apps/webaudio-spectrum-analyser-e2e/tsconfig.e2e.json"
+            ],
+            "exclude": [
+              "**/node_modules/**",
+              "!apps/webaudio-spectrum-analyser-e2e/**"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "defaultCollection": "@nrwl/angular"
+  },
+  "schematics": {
+    "@nrwl/angular:application": {
+      "unitTestRunner": "jest",
+      "e2eTestRunner": "cypress"
+    },
+    "@nrwl/angular:library": {
+      "unitTestRunner": "jest"
+    }
+  },
+  "defaultProject": "webaudio-spectrum-analyser"
+}

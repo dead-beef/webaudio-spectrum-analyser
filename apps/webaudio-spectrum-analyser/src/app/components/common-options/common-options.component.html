@@ -1,0 +1,22 @@
+<form clrForm clrLayout="vertical">
+  <clr-range-container>
+    <label>Delay: {{ graph.nodes.input.delayTime.value | units }}s</label>
+    <input clrRange name="delayRange"
+      type="range" min="0" [attr.max]="graph.maxDelay" step="0.01"
+      [(ngModel)]="graph.nodes.input.delayTime.value">
+  </clr-range-container>
+  <clr-select-container>
+    <label>FFT Size</label>
+    <select
+      clrSelect name="fftSize"
+      [(ngModel)]="graph.fftSize"
+    >
+      <option
+        *ngFor="let size of graph.fftSizes"
+        [ngValue]="size"
+      >
+        {{ size }}
+      </option>
+    </select>
+  </clr-select-container>
+</form>

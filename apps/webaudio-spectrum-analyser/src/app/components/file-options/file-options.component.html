@@ -1,0 +1,23 @@
+<form clrForm clrLayout="vertical">
+  <alert [(error)]="error"></alert>
+
+  <audio-controls [src]="url">
+  </audio-controls>
+
+  <clr-input-container>
+    <label>
+      File
+      <button
+        class="btn btn-icon btn-flat btn-inline"
+        inputFileUrl
+        (fileLoad)="setFile($event.url, $event.name)"
+        (fileError)="setError(error)"
+      >
+        <clr-icon shape="folder-open" size="24"></clr-icon>
+      </button>
+    </label>
+    <input
+      type="text" name="filename" readonly
+      clrInput [ngModel]="filename">
+  </clr-input-container>
+</form>

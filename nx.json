@@ -1,0 +1,18 @@
+{
+  "npmScope": "webaudio-spectrum-analyser",
+  "implicitDependencies": {
+    "angular.json": "*",
+    "package.json": "*",
+    "tsconfig.json": "*",
+    "tslint.json": "*",
+    "nx.json": "*"
+  },
+  "projects": {
+    "webaudio-spectrum-analyser-e2e": {
+      "tags": []
+    },
+    "webaudio-spectrum-analyser": {
+      "tags": []
+    }
+  }
+}

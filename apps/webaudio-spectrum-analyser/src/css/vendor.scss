@@ -1,0 +1,120 @@
+@import "vars";
+
+@import "@clr/ui/clr-ui-dark";
+@import "@clr/icons/clr-icons";
+@import "simplebar/dist/simplebar";
+
+html {
+  font-size: $font-size;
+}
+
+.main-container {
+  background: $bg;
+  color: $fg;
+  header, .header {
+    flex-direction: column;
+    height: $header-size;
+    flex: 0 0 $header-size;
+  }
+}
+
+header, .header {
+	.header-actions, .header-nav, .settings, .branding, .branding > a {
+		height: $header-size;
+		.nav-icon {
+			height: $header-size;
+			width: $header-size;
+		}
+	}
+	.branding {
+		padding: 0 0.5rem;
+		a:hover {
+			color: unset;
+		}
+	}
+}
+
+section, .section {
+	margin-top: $content-padding;
+}
+
+/*.clr-form-control {
+	margin-top: 0;
+	margin-bottom: 0.5rem;
+}*/
+
+.main-container .content-container .content-area {
+	padding: $content-padding;
+}
+
+.content-area .alert {
+	margin-top: 0;
+	margin-bottom: 0.25rem;
+}
+
+.alert-items {
+	max-width: calc(100% - #{$content-padding});
+}
+
+.alert-text {
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+clr-icon {
+	width: $icon-size;
+	height: $icon-size;
+
+	header .header-nav .nav-link & {
+		width: $icon-size-header;
+		height: $icon-size-header;
+	}
+
+	&.lg {
+		width: $icon-size-lg;
+		height: $icon-size-lg;
+	}
+}
+
+.nav-link {
+	cursor: pointer;
+}
+
+.header-nav, .content-container, .container {
+	display: flex;
+	width: 100%;
+	max-width: $content-max-width;
+	align-self: center;
+}
+
+.btn-icon.btn-flat {
+	border-color: transparent;
+}
+
+.btn.btn-inline {
+	height: auto;
+	line-height: unset;
+}
+
+input, select, .clr-select-wrapper, .clr-control-container {
+	width: 100%;
+}
+
+clr-range-container.clr-row {
+	width: 100%;
+	margin-left: 0;
+	margin-right: 0;
+	form > & {
+		margin-left: -.6rem;
+		margin-right: -.6rem;
+		width: auto;
+	}
+}
+
+input[type="range"] {
+  min-width: 200px;
+}
+
+.simplebar-track .simplebar-scrollbar::before {
+	background: $border-light;
+}

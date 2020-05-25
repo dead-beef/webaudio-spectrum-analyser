@@ -1,0 +1,17 @@
+{
+  "extends": "../../tslint.json",
+  "rules": {
+    "directive-selector": [
+      true,
+      "attribute",
+      "webaudioSpectrumAnalyser",
+      "camelCase"
+    ],
+    "component-selector": [
+      true,
+      "element",
+      "webaudio-spectrum-analyser",
+      "kebab-case"
+    ]
+  }
+}

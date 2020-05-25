@@ -1,0 +1,17 @@
+$content-max-width: 100%;
+$bg: #26262c;
+$bg-light: lighten($bg, 20%);
+$fg: #dddddd;
+$border: #495865;
+$border-light: lighten($border, 20%);
+$btn: #4aaed9;
+
+$width-md: 768px;
+$width-lg: 992px;
+
+$font-size: 30px;
+$header-size: 2rem;
+$content-padding: $header-size * 0.5;
+$icon-size: $header-size * 0.5;
+$icon-size-lg: $header-size * 0.75;
+$icon-size-header: $header-size * 0.625;

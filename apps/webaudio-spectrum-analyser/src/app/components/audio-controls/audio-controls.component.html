@@ -1,0 +1,32 @@
+<audio #audio
+  [src]="src | safeUrl"
+  (timeupdate)="timeUpdate()"
+  (play)="paused = false"
+  (pause)="paused = true"
+  (loadeddata)="loadedData()"
+>
+</audio>
+
+<alert [(error)]="error"></alert>
+
+<div class="clr-row">
+  <div class="clr-col-auto">
+    <button class="btn btn-icon btn-flat" (click)="toggle()" [disabled]="error">
+      <clr-icon shape="play" *ngIf="paused"></clr-icon>
+      <clr-icon shape="pause" *ngIf="!paused"></clr-icon>
+    </button>
+  </div>
+  <div class="clr-col-auto">
+    <div class="clr-row clr-align-items-center fill-height">
+      <div class="clr-col-12">
+        {{ time | time }} / {{ duration | time }}
+      </div>
+    </div>
+  </div>
+  <div class="clr-col">
+    <input clrRange type="range" name="time"
+      min="0" [max]="duration" step="0.1"
+      [disabled]="error"
+      [(ngModel)]="time">
+  </div>
+</div>

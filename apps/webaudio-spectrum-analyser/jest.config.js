@@ -1,0 +1,9 @@
+module.exports = {
+  name: 'webaudio-spectrum-analyser',
+  preset: '../../jest.config.js',
+  coverageDirectory: '../../coverage/apps/webaudio-spectrum-analyser',
+  snapshotSerializers: [
+    'jest-preset-angular/build/AngularSnapshotSerializer.js',
+    'jest-preset-angular/build/HTMLCommentSerializer.js'
+  ]
+};

@@ -1,0 +1,25 @@
+<form clrForm clrLayout="vertical">
+  <clr-select-container>
+    <label>Shape</label>
+    <select clrSelect name="shape" [(ngModel)]="node.type">
+      <option value="sine">Sine</option>
+      <option value="square">Square</option>
+      <option value="triangle">Triangle</option>
+      <option value="sawtooth">Sawtooth</option>
+    </select>
+  </clr-select-container>
+  <clr-input-container>
+    <label>Frequency</label>
+    <input clrInput name="frequency"
+      type="number" min="20" max="20000"
+      [ngModel]="node.frequency.value"
+      (ngModelChange)="setFrequency($event, false)">
+  </clr-input-container>
+  <clr-range-container>
+    <label>Log Frequency</label>
+    <input clrRange name="logFrequency"
+      type="range" min="1.301" max="4.301" step="0.0001"
+      [ngModel]="logFrequency"
+      (ngModelChange)="setFrequency($event, true)">
+  </clr-range-container>
+</form>

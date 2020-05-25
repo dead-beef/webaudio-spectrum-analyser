@@ -1,0 +1,11 @@
+<clr-alert *ngIf="error"
+  [clrAlertClosed]="false"
+  (clrAlertClosedChange)="clearError()"
+  [clrAlertType]="'danger'"
+>
+  <clr-alert-item>
+    <span class="alert-text">
+      {{ error | error }}
+    </span>
+  </clr-alert-item>
+</clr-alert>

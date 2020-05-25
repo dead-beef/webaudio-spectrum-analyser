@@ -1,0 +1,43 @@
+@import "vars";
+
+.fill-height {
+  height: 100%;
+}
+
+.float-right {
+  float: right;
+}
+
+.hide {
+  display: none !important;
+}
+
+.frequency-chart-container {
+  @media(max-width: $width-md - 1px) {
+    height: calc(40vh + 1.5rem);
+  }
+  & > * {
+    position: fixed;
+    background: $bg;
+    z-index: 999;
+    top: $header-size;
+    left: $content-padding;
+    right: $content-padding;
+    padding-top: $content-padding;
+    border-bottom: 1px solid $border;
+    @media(min-width: $width-md) {
+      right: 50%;
+    }
+    @media(min-width: $width-lg) {
+      right: calc(33% + 0.5rem);
+    }
+    canvas {
+      width: 100%;
+      height: 40vh;
+      border: 1px solid $border;
+      @media(min-width: $width-md) {
+        height: calc(100vh - 5.5rem);
+      }
+    }
+  }
+}

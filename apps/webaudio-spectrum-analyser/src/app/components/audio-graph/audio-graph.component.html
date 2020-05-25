@@ -1,0 +1,66 @@
+<audio #audio></audio>
+
+<div class="clr-row">
+  <div class="clr-col-12 clr-col-md-6 clr-col-lg-8">
+    <div class="frequency-chart-container">
+      <frequency-chart [graph]="graph">
+      </frequency-chart>
+    </div>
+  </div>
+
+  <div class="clr-col-12 clr-col-md-6 clr-col-lg-4">
+    <alert [(error)]="error"></alert>
+
+    <div class="clr-row" *ngIf="graph !== null">
+      <div class="clr-col-auto">
+        <button class="btn btn-icon btn-flat" (click)="toggle()" >
+          <clr-icon shape="play" *ngIf="graph.paused"></clr-icon>
+          <clr-icon shape="pause" *ngIf="!graph.paused"></clr-icon>
+        </button>
+        <button class="btn btn-icon btn-flat" (click)="reset()" >
+          <clr-icon shape="eraser"></clr-icon>
+        </button>
+      </div>
+      <div class="clr-col">
+        <input clrRange type="range"
+          min="0" max="1" step="0.01"
+          [(ngModel)]="volume">
+      </div>
+    </div>
+
+    <clr-tabs>
+      <clr-tab>
+        <button clrTabLink>Wave</button>
+        <clr-tab-content *clrIfActive>
+          <wave-options
+            [node]="graph.nodes?.wave"
+            (create)="graph.enable('wave')"
+            (destroy)="graph.disable('wave')">
+          </wave-options>
+        </clr-tab-content>
+      </clr-tab>
+      <clr-tab>
+        <button clrTabLink>File</button>
+        <clr-tab-content *clrIfActive>
+          <file-options
+            [graph]="graph"
+            (create)="graph.enable('file', $event.nativeElement)"
+            (destroy)="graph.disable('file')">
+          </file-options>
+        </clr-tab-content>
+      </clr-tab>
+      <clr-tab>
+        <button clrTabLink>Device</button>
+        <clr-tab-content *clrIfActive>
+          <device-options
+            [graph]="graph"
+            (create)="graph.enable('device')"
+            (destroy)="graph.disable('device')">
+          </device-options>
+        </clr-tab-content>
+      </clr-tab>
+    </clr-tabs>
+
+    <common-options [graph]="graph"></common-options>
+  </div>
+</div>

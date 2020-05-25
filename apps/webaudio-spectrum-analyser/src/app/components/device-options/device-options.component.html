@@ -1,0 +1,28 @@
+<form clrForm clrLayout="vertical">
+  <alert [(error)]="error"></alert>
+
+  <clr-select-container>
+    <label>
+      Device
+
+      <button type="button" class="btn btn-icon btn-flat btn-inline" [disabled]="loading" (click)="refresh()">
+        <clr-icon shape="refresh" size="24"></clr-icon>
+      </button>
+
+      <span class="spinner spinner-inline" *ngIf="loading">
+      </span>
+
+    </label>
+    <select clrSelect name="device"
+      [disabled]="loading"
+      [(ngModel)]="device"
+    >
+      <option [ngValue]="null">
+        None
+      </option>
+      <option *ngFor="let dev of devices" [ngValue]="dev">
+        {{ dev.label || dev.deviceId }}
+      </option>
+    </select>
+  </clr-select-container>
+</form>
