@@ -8,18 +8,11 @@
       <option value="sawtooth">Sawtooth</option>
     </select>
   </clr-select-container>
-  <clr-input-container>
-    <label>Frequency</label>
-    <input clrInput name="frequency"
-      type="number" min="20" max="20000"
-      [ngModel]="node.frequency.value"
-      (ngModelChange)="setFrequency($event, false)">
-  </clr-input-container>
-  <clr-range-container>
-    <label>Log Frequency</label>
-    <input clrRange name="logFrequency"
-      type="range" min="1.301" max="4.301" step="0.0001"
-      [ngModel]="logFrequency"
-      (ngModelChange)="setFrequency($event, true)">
-  </clr-range-container>
+
+  <input-frequency
+    [name]="'Frequency'"
+    [min]="20" [max]="20000"
+    [(value)]="node.frequency.value"
+  >
+  </input-frequency>
 </form>

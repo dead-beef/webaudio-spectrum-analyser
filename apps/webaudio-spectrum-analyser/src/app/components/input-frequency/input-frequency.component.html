@@ -1,0 +1,16 @@
+<clr-input-container>
+  <label>{{ name }}</label>
+  <input clrInput type="number"
+    [name]="name"
+    [min]="min" [max]="max"
+    [ngModel]="value"
+    (ngModelChange)="setValue($event)">
+</clr-input-container>
+<clr-range-container>
+  <label>Log {{ name }}</label>
+  <input clrRange type="range"
+    [name]="logName"
+    [min]="logMin" [max]="logMax" step="0.0001"
+    [ngModel]="log"
+    (ngModelChange)="setLogValue($event)">
+</clr-range-container>

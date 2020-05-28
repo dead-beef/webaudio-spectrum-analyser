@@ -24,6 +24,7 @@ import { WaveOptionsComponent } from './components/wave-options/wave-options.com
 import { FileOptionsComponent } from './components/file-options/file-options.component';
 import { DeviceOptionsComponent } from './components/device-options/device-options.component';
 import { AudioGraphComponent } from './components/audio-graph/audio-graph.component';
+import { InputFrequencyComponent } from './components/input-frequency/input-frequency.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { AudioGraphComponent } from './components/audio-graph/audio-graph.compon
     WaveOptionsComponent,
     FileOptionsComponent,
     DeviceOptionsComponent,
-    AudioGraphComponent
+    AudioGraphComponent,
+    InputFrequencyComponent
   ],
   imports: [
     BrowserModule,

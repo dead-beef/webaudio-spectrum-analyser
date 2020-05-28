@@ -14,7 +14,9 @@
     {{ pointFrequency | units }}Hz
     <span *ngFor="let value of pointValues"> {{ value }}dB</span>
     <span class="float-right">
-      Avg. {{ averageFrequency | units }}Hz
+      <span *ngFor="let p of graph.pitch" [class.hide]="!p.enabled">
+        {{ p.short }}: {{ p.value | units }}Hz
+      </span>
     </span>
   </div>
 </div>

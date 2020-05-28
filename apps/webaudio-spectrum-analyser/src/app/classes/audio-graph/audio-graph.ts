@@ -1,19 +1,23 @@
-export interface AudioGraphNodes {
-  wave: OscillatorNode,
-  element: MediaElementAudioSourceNode,
-  device: MediaStreamAudioSourceNode,
-  input: DelayNode,
-  analysers: AnalyserNode[],
-  output: MediaStreamAudioDestinationNode
-}
+import { AudioMath } from '../audio-math/audio-math';
+import { AudioGraphNodes, PitchDetection } from '../../interfaces';
+
 
 export class AudioGraph {
   public context: AudioContext = null;
   public nodes: AudioGraphNodes = null;
-  public stream: MediaStream = null;  public paused = true;
+  public stream: MediaStream = null;
+  public paused = true;
   public suspended = true;
   public deviceLoading = false;
   public deviceStream: MediaStream = null;
+
+  public fdata: Uint8Array[] = [];
+  public tdata: Uint8Array = new Uint8Array(1);
+  public autocorrdata: Float32Array = new Float32Array(1);
+
+  public minPitch = 20;
+  public maxPitch = 20000;
+  public debug = false;
 
   readonly minDecibels = -100;
   readonly maxDecibels = 0;
@@ -23,6 +27,41 @@ export class AudioGraph {
   readonly fftSizes: number[] = [
     32, 64, 128, 256, 512, 1024,
     2048, 4096, 8192, 16384, 32768
+  ];
+
+  readonly pitch: PitchDetection[] = [
+    {
+      name: 'Zero-crossing rate',
+      short: 'ZCR',
+      calc: this.zcr.bind(this),
+      smooth: true,
+      enabled: true,
+      value: 0.0
+    },
+    {
+      name: 'FFT max',
+      short: 'FFTM',
+      calc: this.fftmax.bind(this),
+      smooth: false,
+      enabled: false,
+      value: 0.0
+    },
+    {
+      name: 'FFT peak',
+      short: 'FFTP',
+      calc: this.fftpeak.bind(this),
+      smooth: false,
+      enabled: false,
+      value: 0.0
+    },
+    {
+      name: 'Autocorrelation',
+      short: 'AC',
+      calc: this.autocorr.bind(this),
+      smooth: true,
+      enabled: false,
+      value: 0.0
+    }
   ];
 
   private _fftSize = 2048;
@@ -36,6 +75,10 @@ export class AudioGraph {
       }
     }
     this._fftSize = size;
+  }
+
+  get sampleRate(): number {
+    return this.context.sampleRate;
   }
 
   constructor() {
@@ -137,7 +180,7 @@ export class AudioGraph {
     return this;
   }
 
-  createAnalysers() {
+  createAnalysers(): AudioGraph {
     if(this.nodes.analysers) {
       for(const node of this.nodes.analysers) {
         node.disconnect();
@@ -156,35 +199,28 @@ export class AudioGraph {
       this.nodes.input.connect(node);
     }
 
+    while(this.fdata.length < this.nodes.analysers.length) {
+      this.fdata.push(new Uint8Array(this.fftSize / 2));
+    }
+
     this.nodes.analysers[0].smoothingTimeConstant = this.fastAnalyserSmoothing;
     this.nodes.analysers[1].smoothingTimeConstant = this.slowAnalyserSmoothing;
 
     this.nodes.analysers[0].connect(this.nodes.output);
     //this.nodes.analysers[1].connect(this.nodes.output);
+
+    return this;
   }
 
-  getFrequencyData(analyser: number, dst?: Uint8Array): Uint8Array {
-    const node = this.nodes.analysers[analyser];
-    const length = node.frequencyBinCount;
-    if(!dst || dst.length !== length) {
-      dst = new Uint8Array(length);
+  clearData(): AudioGraph {
+    this.tdata.fill(0);
+    for(const d of this.fdata) {
+      d.fill(0);
     }
-    node.getByteFrequencyData(dst);
-    return dst;
-  }
-
-  getAverageFrequency(data: Uint8Array) {
-    const sampleRate = this.context.sampleRate;
-    const fftSize = data.length * 2;
-    let sum = 0;
-    let res = 0;
-    for(let i = 0; i < data.length; ++i) {
-      const frequency = i * sampleRate / fftSize;
-      const value = data[i] / 255.0;
-      sum += value;
-      res += value * frequency;
+    for(const p of this.pitch) {
+      p.value = 0;
     }
-    return res / sum;
+    return this;
   }
 
   byteToDecibels(d: number): number {
@@ -235,15 +271,85 @@ export class AudioGraph {
     return res;
   }
 
-  setElement(el: HTMLAudioElement) {
+  setElement(el: HTMLAudioElement): AudioGraph {
     if(this.nodes.element) {
       this.nodes.element.disconnect();
       this.nodes.element = null;
     }
-    if(!el) {
-      return;
+    if(el) {
+      this.nodes.element = this.context.createMediaElementSource(el);
+      this.nodes.element.connect(this.nodes.input);
     }
-    this.nodes.element = this.context.createMediaElementSource(el);
-    this.nodes.element.connect(this.nodes.input);
+    return this;
   }
+
+  analyse(): AudioGraph {
+    if(!this.paused) {
+      for(let i = 0; i < this.nodes.analysers.length; ++i) {
+        const node = this.nodes.analysers[i];
+        if(i === 0) {
+          this.tdata = AudioMath.resize(this.tdata, node.fftSize);
+          node.getByteTimeDomainData(this.tdata);
+        }
+        this.fdata[i] = AudioMath.resize(
+          this.fdata[i],
+          node.frequencyBinCount
+        );
+        node.getByteFrequencyData(this.fdata[i]);
+      }
+    }
+
+    for(const pd of this.pitch) {
+      if(pd.enabled) {
+        pd.value = pd.calc();
+      }
+      else {
+        pd.value = 0;
+      }
+    }
+
+    return this;
+  }
+
+  zcr(): number {
+    let res: number = AudioMath.zcr(this.tdata);
+    res *= this.sampleRate;
+    return res;
+  }
+
+  fftmax(): number {
+    const fscale: number = this.fftSize / this.sampleRate;
+    let res: number = AudioMath.indexOfMax(this.fdata[this.fdata.length - 1]);
+    res /= fscale;
+    return res;
+  }
+
+  fftpeak(): number {
+    const fscale: number = this.fftSize / this.sampleRate;
+    const start: number = Math.floor(this.minPitch * fscale);
+    const end: number = Math.floor(this.maxPitch * fscale) + 1;
+    let res: number = AudioMath.indexOfPeak(
+      this.fdata[this.fdata.length - 1],
+      start, end
+    );
+    res /= fscale;
+    return res;
+  }
+
+  autocorr(): number {
+    const start = Math.floor(this.sampleRate / this.maxPitch);
+    const end = Math.floor(this.sampleRate / this.minPitch) + 1;
+    this.autocorrdata = AudioMath.autocorr(
+      this.tdata,
+      start, end,
+      this.autocorrdata
+    );
+    let res: number = AudioMath.indexOfAutocorrPeak(
+      this.autocorrdata,
+      start, end
+    );
+    res = this.sampleRate / res;
+    return res;
+  }
+
 }

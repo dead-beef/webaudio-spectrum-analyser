@@ -14,7 +14,7 @@
 
 .frequency-chart-container {
   @media(max-width: $width-md - 1px) {
-    height: calc(40vh + 1.5rem);
+    height: calc(40vh + 2.5rem);
   }
   & > * {
     position: fixed;
@@ -36,7 +36,7 @@
       height: 40vh;
       border: 1px solid $border;
       @media(min-width: $width-md) {
-        height: calc(100vh - 5.5rem);
+        height: calc(100vh - 6.5rem);
       }
     }
   }
