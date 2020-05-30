@@ -82,24 +82,30 @@ export class AudioGraph {
   }
 
   constructor() {
-    /*if(window.PREVIEW) {
+    // @ts-ignore
+    if(window.PREVIEW) {
       console.warn('preview');
+      // @ts-ignore
       this.context = {
         sampleRate: 44000
       };
+      // @ts-ignore
       this.nodes = {
         wave: {
+          // @ts-ignore
           frequency: {value: 440},
           type: 'sine',
+          // @ts-ignore
           connect: () => {}
         },
         input: {
+          // @ts-ignore
           delayTime: {value: 0}
         },
         analysers: [null, null]
       };
       return;
-    }*/
+    }
 
     if(!window.AudioContext) {
       throw new Error('Web Audio API is not supported');

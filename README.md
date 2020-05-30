@@ -22,6 +22,10 @@ ng build
 ng build --prod
 ```
 
+```bash
+./tools/shell/build-codepen
+```
+
 ## Testing
 
 ```bash

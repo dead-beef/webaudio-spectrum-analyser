@@ -1,0 +1,45 @@
+#!/bin/bash
+
+
+SRC_DIR='apps/webaudio-spectrum-analyser/src'
+
+DIST_DIR='dist/codepen'
+DIST_HTML="${DIST_DIR}/index.html"
+DIST_CSS="${DIST_DIR}/style.scss"
+DIST_TS="${DIST_DIR}/script.ts"
+
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+cd ../..
+
+
+[[ -e $DIST_DIR ]] && rm -rfv "${DIST_DIR}/*"
+mkdir -pv "$DIST_DIR" || exit 1
+
+echo 'building html...' >&2
+exec 3>"$DIST_HTML" || exit 1
+echo '<webaudio-spectrum-analyser-root></webaudio-spectrum-analyser-root>' >&3 \
+  || exit 1
+while read path; do
+  id="$(basename $path)"
+  echo -e "\\n\\n<script type=\"text/ng-template\" id=\"${id}\">" >&3 \
+    && cat "$path" >&3 \
+    && echo '</script>' >&3 \
+    || exit 1
+done < <(find "${SRC_DIR}" -iname '*.component.html');
+exec 3>&- || exit 1
+
+echo 'building css...' >&2
+cat "${SRC_DIR}/css/"{_vars,vendor,styles}".scss" \
+  | egrep -v '^\s*@import' >"$DIST_CSS" \
+  || exit 1
+
+echo 'building ts...' >&2
+find "$SRC_DIR" \
+     -iname '*.ts' \
+     -not -iname '*.spec.ts' \
+     -not -iname 'test-setup.ts' \
+     -not -iname '*.prod.ts' \
+     -not -iname 'polyfills.ts' \
+  | xargs ./tools/shell/ts-concat ./tools/shell/modules.json >"$DIST_TS" \
+  || exit 1
