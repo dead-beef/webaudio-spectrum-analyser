@@ -7,6 +7,10 @@ export class AudioMath {
     return Math.max(min, Math.min(max, x));
   }
 
+  static smooth(factor: number, prev: number, cur: number): number {
+    return factor * prev + (1 - factor) * cur;
+  }
+
   static resize<T extends TypedArray>(arr: T, size: number): T {
     if(arr.length !== size) {
       arr = new (arr.constructor as TypedArrayConstructor<T>)(size);
