@@ -307,7 +307,11 @@ export class AudioGraph {
 
     for(const pd of this.pitch) {
       if(pd.enabled) {
-        pd.value = pd.calc();
+        let value: number = pd.calc();
+        if(pd.smooth && pd.value > 1) {
+          value = AudioMath.smooth(this.slowAnalyserSmoothing, pd.value, value);
+        }
+        pd.value = value;
       }
       else {
         pd.value = 0;
