@@ -132,8 +132,10 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
   drawFrequencyData(data: Uint8Array, yMin: number, yMax: number): number {
     const ctx = this.context;
     const yScale = (yMax - yMin) / 255.0;
-    const sampleRate = this.graph.context.sampleRate;
+    const sampleRate = this.graph.sampleRate;
     const fftSize = data.length * 2;
+    const binSize = sampleRate / fftSize;
+    const halfBinSize = binSize / 2;
 
     let prevF = 20;
     let prevX = 0;
@@ -145,13 +147,15 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
     ctx.lineWidth = 0;
 
     for(let i = 0; i < data.length; ++i) {
-      const f = i * sampleRate / fftSize;
+      const f = i * binSize;
       if(f < prevF) {
         continue;
       }
-      const x = this.frequencyToCanvas(f);
-      const y = yScale * data[i];
-      ctx.fillRect(prevX, yMax - y, x - prevX, y);
+      const x = this.frequencyToCanvas(f + halfBinSize);
+      if(data[i]) {
+        const y = yScale * data[i];
+        ctx.fillRect(prevX, yMax - y, x - prevX, y);
+      }
       if(this.pointFrequency >= prevF && this.pointFrequency <= f) {
          pointValue = data[i];
       }
