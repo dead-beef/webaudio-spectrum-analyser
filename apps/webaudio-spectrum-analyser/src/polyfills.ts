@@ -63,3 +63,6 @@ import 'zone.js/dist/zone'; // Included with Angular CLI.
 
 import '@clr/icons/clr-icons.min';
 import 'simplebar/dist/simplebar';
+
+import { default as Stats } from 'stats.js/src/Stats';
+window['Stats'] = Stats;

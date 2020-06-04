@@ -12,6 +12,12 @@
   display: none !important;
 }
 
+.stats {
+  top: calc(#{$header-size / 2} - 24px) !important;
+  left: auto !important;
+  right: 0.5rem !important;
+}
+
 .frequency-chart-container {
   @media(max-width: $width-md - 1px) {
     height: calc(40vh + 2.5rem);

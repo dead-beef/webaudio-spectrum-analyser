@@ -8,6 +8,8 @@ import { CommonModule } from '@angular/common';
 import { ClarityModule } from '@clr/angular';
 import { SimplebarAngularModule } from 'simplebar-angular';
 
+import { StatsModule } from './modules/stats/stats.module';
+
 import { ROUTES } from './app.routes';
 
 import { AppComponent } from './app.component';
@@ -25,6 +27,7 @@ import { FileOptionsComponent } from './components/file-options/file-options.com
 import { DeviceOptionsComponent } from './components/device-options/device-options.component';
 import { AudioGraphComponent } from './components/audio-graph/audio-graph.component';
 import { InputFrequencyComponent } from './components/input-frequency/input-frequency.component';
+
 
 @NgModule({
   declarations: [
@@ -52,7 +55,8 @@ import { InputFrequencyComponent } from './components/input-frequency/input-freq
     ReactiveFormsModule,
 		RouterModule.forRoot(ROUTES, {useHash: true}),
     ClarityModule,
-    SimplebarAngularModule
+    SimplebarAngularModule,
+    StatsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
