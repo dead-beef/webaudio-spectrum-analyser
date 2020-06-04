@@ -11,6 +11,16 @@ export class AudioMath {
     return factor * prev + (1 - factor) * cur;
   }
 
+  static interpolatePeak(peak: number, left: number, right: number): number {
+    const c = peak;
+    const b = (right - left) / 2;
+    const a = left + b - c;
+    if(Math.abs(a) < 1e-3) {
+      return 0;
+    }
+    return -b / (2 * a);
+  }
+
   static resize<T extends TypedArray>(arr: T, size: number): T {
     if(arr.length !== size) {
       arr = new (arr.constructor as TypedArrayConstructor<T>)(size);

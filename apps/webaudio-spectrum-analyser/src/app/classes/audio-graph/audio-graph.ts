@@ -328,20 +328,33 @@ export class AudioGraph {
   }
 
   fftmax(): number {
+    const fdata = this.fdata[this.fdata.length - 1];
     const fscale: number = this.fftSize / this.sampleRate;
-    let res: number = AudioMath.indexOfMax(this.fdata[this.fdata.length - 1]);
+    let res: number = AudioMath.indexOfMax(fdata);
+    if(res > 0 && res < fdata.length - 1) {
+      res += AudioMath.interpolatePeak(
+        fdata[res],
+        fdata[res - 1],
+        fdata[res + 1]
+      );
+    }
     res /= fscale;
     return res;
   }
 
   fftpeak(): number {
+    const fdata = this.fdata[this.fdata.length - 1];
     const fscale: number = this.fftSize / this.sampleRate;
     const start: number = Math.floor(this.minPitch * fscale);
     const end: number = Math.floor(this.maxPitch * fscale) + 1;
-    let res: number = AudioMath.indexOfPeak(
-      this.fdata[this.fdata.length - 1],
-      start, end
-    );
+    let res: number = AudioMath.indexOfPeak(fdata, start, end);
+    if(res > 0 && res < fdata.length - 1) {
+      res += AudioMath.interpolatePeak(
+        fdata[res],
+        fdata[res - 1],
+        fdata[res + 1]
+      );
+    }
     res /= fscale;
     return res;
   }
