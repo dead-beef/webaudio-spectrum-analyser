@@ -1,8 +1,10 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "sourceMap": false,
-    "outDir": "../../dist/out-tsc"
+    "outDir": "../../dist/out-tsc",
+    "sourceMap": false
   },
-  "include": ["src/**/*.ts"]
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/**/*.ts"
+  ]
 }

@@ -25,6 +25,10 @@
 !.vscode/extensions.json
 
 # misc
+/mochawesome_report/
+/coverage
+/documentation
+/changelog
 /.sass-cache
 /connect.lock
 /coverage

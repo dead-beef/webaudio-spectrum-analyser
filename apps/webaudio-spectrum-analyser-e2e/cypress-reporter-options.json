@@ -1,0 +1,10 @@
+{
+  "mochawesomeReporterOptions": {
+    "html": false,
+    "json": true,
+    "overwrite": false,
+    "quiet": false,
+    "reportDir": "../../dist/cypress/apps/webaudio-spectrum-analyser/mochawesome/json"
+  },
+  "reporterEnabled": "mochawesome"
+}
