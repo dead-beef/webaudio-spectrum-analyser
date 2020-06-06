@@ -7,10 +7,9 @@ describe('CommonOptionsComponent', () => {
   let fixture: ComponentFixture<CommonOptionsComponent>;
 
   beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ CommonOptionsComponent ]
-    })
-    .compileComponents();
+    void TestBed.configureTestingModule({
+      declarations: [CommonOptionsComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

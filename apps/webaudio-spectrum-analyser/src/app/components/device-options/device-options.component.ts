@@ -1,64 +1,80 @@
-import {
-  Component, OnInit, OnDestroy,
-  Input, Output, EventEmitter
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 
 @Component({
-  selector: 'device-options',
-  templateUrl: './device-options.component.html'
+  selector: 'app-device-options',
+  templateUrl: './device-options.component.html',
 })
 export class DeviceOptionsComponent implements OnInit, OnDestroy {
+  @Input() public graph: AudioGraph;
 
-	@Input() graph: AudioGraph;
-	@Output() create = new EventEmitter<void>();
-	@Output() destroy = new EventEmitter<void>();
+  @Output() public readonly create = new EventEmitter<void>();
 
-	public loading = true;
-	public error: Error = null;
-	public devices: MediaDeviceInfo[] = [];
+  @Output() public readonly destroy = new EventEmitter<void>();
 
-	private _device: MediaDeviceInfo = null;
-	get device(): MediaDeviceInfo {
-		return this._device;
-	}
-	set device(dev: MediaDeviceInfo) {
-		this.loading = true;
-		this._device = dev;
-		this.graph.setDevice(dev)
-			.then(() => this.error = null)
-			.catch(err => {
-				this.error = err;
-				this._device = null;
-			})
-			.finally(() => this.loading = false);
-	}
+  public loading = true;
 
-	constructor() {
-	}
+  public error: Error = null;
 
-	ngOnInit() {
-		this.refresh();
-		this.create.emit();
-	}
-	ngOnDestroy() {
-		this.destroy.emit();
-	}
+  public devices: MediaDeviceInfo[] = [];
 
-	refresh() {
-		this.loading = true;
-		this.graph.setDevice(null)
-			.then(() => {
-				this.device = null;
-				return this.graph.getDevices();
-			})
-			.then(devices => {
-				this.devices = devices;
-				this.error = null;
-			})
-			.catch(err => this.error = err)
-			.finally(() => this.loading = false);
-	}
+  private deviceValue: MediaDeviceInfo = null;
 
+  /**
+   * Device getter.
+   */
+  public get device(): MediaDeviceInfo {
+    return this.deviceValue;
+  }
+
+  /**
+   * Device setter.
+   */
+  public set device(dev: MediaDeviceInfo) {
+    this.loading = true;
+    this.deviceValue = dev;
+    this.graph
+      .setDevice(dev)
+      .then(() => (this.error = null))
+      .catch(err => {
+        this.error = err;
+        this.deviceValue = null;
+      })
+      .finally(() => (this.loading = false));
+  }
+
+  /**
+   * Lifecycle hook.
+   */
+  public ngOnInit() {
+    this.refresh();
+    this.create.emit();
+  }
+
+  /**
+   * Lifecycle hook.
+   */
+  public ngOnDestroy() {
+    this.destroy.emit();
+  }
+
+  /**
+   * Refreshes device options.
+   */
+  public refresh() {
+    this.loading = true;
+    this.graph
+      .setDevice(null)
+      .then(() => {
+        this.device = null;
+        return this.graph.getDevices();
+      })
+      .then(devices => {
+        this.devices = devices;
+        this.error = null;
+      })
+      .catch(err => (this.error = err))
+      .finally(() => (this.loading = false));
+  }
 }

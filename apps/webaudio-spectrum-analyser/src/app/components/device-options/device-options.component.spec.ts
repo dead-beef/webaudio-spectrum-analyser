@@ -7,10 +7,9 @@ describe('DeviceOptionsComponent', () => {
   let fixture: ComponentFixture<DeviceOptionsComponent>;
 
   beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ DeviceOptionsComponent ]
-    })
-    .compileComponents();
+    void TestBed.configureTestingModule({
+      declarations: [DeviceOptionsComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

@@ -1,13 +1,13 @@
-<audio #audio
+<audio
+  #audio
   [src]="src | safeUrl"
   (timeupdate)="timeUpdate()"
   (play)="paused = false"
   (pause)="paused = true"
   (loadeddata)="loadedData()"
->
-</audio>
+></audio>
 
-<alert [(error)]="error"></alert>
+<app-alert [(error)]="error"></app-alert>
 
 <div class="clr-row">
   <div class="clr-col-auto">
@@ -18,15 +18,19 @@
   </div>
   <div class="clr-col-auto">
     <div class="clr-row clr-align-items-center fill-height">
-      <div class="clr-col-12">
-        {{ time | time }} / {{ duration | time }}
-      </div>
+      <div class="clr-col-12">{{ time | time }} / {{ duration | time }}</div>
     </div>
   </div>
   <div class="clr-col">
-    <input clrRange type="range" name="time"
-      min="0" [max]="duration" step="0.1"
+    <input
+      clrRange
+      type="range"
+      name="time"
+      min="0"
+      [max]="duration"
+      step="0.1"
       [disabled]="error"
-      [(ngModel)]="time">
+      [(ngModel)]="time"
+    />
   </div>
 </div>

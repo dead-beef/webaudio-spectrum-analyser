@@ -7,10 +7,9 @@ describe('FileOptionsComponent', () => {
   let fixture: ComponentFixture<FileOptionsComponent>;
 
   beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ FileOptionsComponent ]
-    })
-    .compileComponents();
+    void TestBed.configureTestingModule({
+      declarations: [FileOptionsComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

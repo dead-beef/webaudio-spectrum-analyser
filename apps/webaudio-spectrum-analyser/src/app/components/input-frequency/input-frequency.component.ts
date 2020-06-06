@@ -1,53 +1,64 @@
-import {
-  Component,
-  OnInit, OnChanges, SimpleChanges,
-  Input, Output,
-  EventEmitter
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
 @Component({
-  selector: 'input-frequency',
-  templateUrl: './input-frequency.component.html'
+  selector: 'app-input-frequency',
+  templateUrl: './input-frequency.component.html',
 })
 export class InputFrequencyComponent implements OnChanges {
+  @Input() public name: string;
 
-  @Input() name: string;
-  @Input() min: number;
-  @Input() max: number;
-  @Input() value: number;
-  @Output() valueChange = new EventEmitter<number>();
+  @Input() public min: number;
+
+  @Input() public max: number;
+
+  @Input() public value: number;
+
+  @Output() public readonly valueChange = new EventEmitter<number>();
 
   public log = 0;
+
   public logMin = 0;
+
   public logMax = 0;
+
   public logName = '';
 
-  constructor() {}
-
-  ngOnChanges(changes: SimpleChanges): void {
+  /**
+   * Lifecycle hook.
+   * @param changes
+   */
+  public ngOnChanges(changes: SimpleChanges): void {
     //console.log(changes);
-    if(changes.min) {
+    if (Boolean(changes.min)) {
       this.logMin = Math.log2(changes.min.currentValue);
     }
-    if(changes.max) {
+    if (Boolean(changes.max)) {
       this.logMax = Math.log2(changes.max.currentValue);
     }
-    if(changes.value) {
+    if (Boolean(changes.value)) {
       this.log = Math.log2(changes.value.currentValue);
     }
-    if(changes.name) {
-      this.logName = 'log' + changes.name.currentValue;
+    if (Boolean(changes.name)) {
+      this.logName = `log${changes.name.currentValue}`;
     }
   }
 
-  setLogValue(lv: number): void {
+  /**
+   * Sets log value.
+   * @param lv
+   */
+  public setLogValue(lv: number): void {
     this.log = lv;
-    this.valueChange.emit(Math.round(Math.pow(2, lv)));
+    const base = 2;
+    this.valueChange.emit(Math.round(Math.pow(base, lv)));
   }
 
-  setValue(v: number): void {
+  /**
+   * Sets value.
+   * @param v
+   */
+  public setValue(v: number): void {
     this.log = Math.log2(v);
     this.valueChange.emit(v);
   }
-
 }

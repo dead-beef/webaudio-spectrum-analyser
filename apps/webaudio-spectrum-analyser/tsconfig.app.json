@@ -3,16 +3,8 @@
     "outDir": "../../dist/out-tsc",
     "types": []
   },
-  "exclude": [
-    "src/test-setup.ts",
-    "**/*.spec.ts"
-  ],
+  "exclude": ["src/test-setup.ts", "**/*.spec.ts"],
   "extends": "./tsconfig.json",
-  "files": [
-    "src/main.ts",
-    "src/polyfills.ts"
-  ],
-  "include": [
-    "**/*.ts"
-  ]
+  "files": ["src/main.ts", "src/polyfills.ts"],
+  "include": ["**/*.d.ts"]
 }

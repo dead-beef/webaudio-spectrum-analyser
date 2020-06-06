@@ -1,21 +1,20 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'time'
+  name: 'time',
 })
 export class TimePipe implements PipeTransform {
-
   format(x: number): string {
-    if(x < 10) {
+    if (x < 10) {
       return '0' + x;
     }
     return x.toString();
   }
 
   transform(value: any, ...args: any[]): string {
-    let s: number = Math.floor(+value || 0);
+    let s: number = Math.floor(Number(value) || 0);
     let sign = '';
-    if(s < 0) {
+    if (s < 0) {
       s = -s;
       sign = '-';
     }
@@ -23,10 +22,9 @@ export class TimePipe implements PipeTransform {
     const h: number = Math.floor(s / 3600);
     s %= 60;
     const parts: number[] = [m, s];
-    if(h) {
+    if (h) {
       parts.unshift(h);
     }
     return sign + parts.map(x => this.format(x)).join(':');
   }
-
 }

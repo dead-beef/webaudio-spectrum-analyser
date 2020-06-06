@@ -9,10 +9,11 @@
     </select>
   </clr-select-container>
 
-  <input-frequency
+  <app-input-frequency
     [name]="'Frequency'"
-    [min]="20" [max]="20000"
+    [min]="20"
+    [max]="20000"
     [(value)]="node.frequency.value"
   >
-  </input-frequency>
+  </app-input-frequency>
 </form>

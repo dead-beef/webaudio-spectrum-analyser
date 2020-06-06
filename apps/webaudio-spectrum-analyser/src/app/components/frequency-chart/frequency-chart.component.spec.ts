@@ -7,10 +7,9 @@ describe('FrequencyChartComponent', () => {
   let fixture: ComponentFixture<FrequencyChartComponent>;
 
   beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ FrequencyChartComponent ]
-    })
-    .compileComponents();
+    void TestBed.configureTestingModule({
+      declarations: [FrequencyChartComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

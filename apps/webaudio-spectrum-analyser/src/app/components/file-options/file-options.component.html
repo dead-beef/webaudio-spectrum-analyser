@@ -1,8 +1,7 @@
 <form clrForm clrLayout="vertical">
-  <alert [(error)]="error"></alert>
+  <app-alert [(error)]="error"></app-alert>
 
-  <audio-controls [src]="url">
-  </audio-controls>
+  <app-audio-controls [src]="url"> </app-audio-controls>
 
   <clr-input-container>
     <label>
@@ -16,8 +15,6 @@
         <clr-icon shape="folder-open" size="24"></clr-icon>
       </button>
     </label>
-    <input
-      type="text" name="filename" readonly
-      clrInput [ngModel]="filename">
+    <input type="text" name="filename" readonly clrInput [ngModel]="filename" />
   </clr-input-container>
 </form>

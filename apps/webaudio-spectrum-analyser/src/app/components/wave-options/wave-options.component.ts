@@ -1,25 +1,27 @@
-import {
-  Component, OnInit, OnDestroy,
-  Input, Output, EventEmitter
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
 @Component({
-  selector: 'wave-options',
-  templateUrl: './wave-options.component.html'
+  selector: 'app-wave-options',
+  templateUrl: './wave-options.component.html',
 })
 export class WaveOptionsComponent implements OnInit, OnDestroy {
+  @Input() public node: OscillatorNode;
 
-  @Input() node: OscillatorNode;
-  @Output() create = new EventEmitter<void>();
-  @Output() destroy = new EventEmitter<void>();
+  @Output() public readonly create = new EventEmitter<void>();
 
-  constructor() {}
+  @Output() public readonly destroy = new EventEmitter<void>();
 
-  ngOnInit() {
+  /**
+   * Lifecycle hook.
+   */
+  public ngOnInit() {
     this.create.emit();
   }
-  ngOnDestroy() {
+
+  /**
+   * Lifecycle hook.
+   */
+  public ngOnDestroy() {
     this.destroy.emit();
   }
-
 }

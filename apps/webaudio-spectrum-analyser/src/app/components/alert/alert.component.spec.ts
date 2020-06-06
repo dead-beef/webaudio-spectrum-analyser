@@ -7,10 +7,9 @@ describe('AlertComponent', () => {
   let fixture: ComponentFixture<AlertComponent>;
 
   beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ AlertComponent ]
-    })
-    .compileComponents();
+    void TestBed.configureTestingModule({
+      declarations: [AlertComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

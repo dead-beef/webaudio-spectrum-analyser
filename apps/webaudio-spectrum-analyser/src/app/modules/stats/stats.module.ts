@@ -1,19 +1,17 @@
-import { NgModule, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { NgModule, NgZone } from '@angular/core';
 
 @NgModule({
   declarations: [],
-  imports: [
-    CommonModule
-  ]
+  imports: [CommonModule],
 })
 export class StatsModule {
   // @ts-ignore
-  private stats = new Stats();
-  private update = this._update.bind(this);
+  private readonly stats = new Stats();
 
-  constructor(private zone: NgZone) {
+  private readonly update = this._update.bind(this);
+
+  constructor(private readonly zone: NgZone) {
     this.stats.dom.classList.add('stats');
     document.body.appendChild(this.stats.dom);
     this.zone.runOutsideAngular(() => {

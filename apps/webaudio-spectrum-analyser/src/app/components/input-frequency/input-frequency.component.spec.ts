@@ -7,10 +7,9 @@ describe('InputFrequencyComponent', () => {
   let fixture: ComponentFixture<InputFrequencyComponent>;
 
   beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ InputFrequencyComponent ]
-    })
-    .compileComponents();
+    void TestBed.configureTestingModule({
+      declarations: [InputFrequencyComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

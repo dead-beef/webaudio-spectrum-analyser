@@ -3,28 +3,25 @@
 <div class="clr-row">
   <div class="clr-col-12 clr-col-md-6 clr-col-lg-8">
     <div class="frequency-chart-container">
-      <frequency-chart [graph]="graph">
-      </frequency-chart>
+      <app-frequency-chart [graph]="graph"> </app-frequency-chart>
     </div>
   </div>
 
   <div class="clr-col-12 clr-col-md-6 clr-col-lg-4">
-    <alert [(error)]="error"></alert>
+    <app-alert [(error)]="error"></app-alert>
 
     <div class="clr-row" *ngIf="graph !== null">
       <div class="clr-col-auto">
-        <button class="btn btn-icon btn-flat" (click)="toggle()" >
+        <button class="btn btn-icon btn-flat" (click)="toggle()">
           <clr-icon shape="play" *ngIf="graph.paused"></clr-icon>
           <clr-icon shape="pause" *ngIf="!graph.paused"></clr-icon>
         </button>
-        <button class="btn btn-icon btn-flat" (click)="reset()" >
+        <button class="btn btn-icon btn-flat" (click)="reset()">
           <clr-icon shape="eraser"></clr-icon>
         </button>
       </div>
       <div class="clr-col">
-        <input clrRange type="range"
-          min="0" max="1" step="0.01"
-          [(ngModel)]="volume">
+        <input clrRange type="range" min="0" max="1" step="0.01" [(ngModel)]="volume" />
       </div>
     </div>
 
@@ -32,37 +29,40 @@
       <clr-tab>
         <button clrTabLink>Wave</button>
         <clr-tab-content *clrIfActive>
-          <wave-options
+          <app-wave-options
             [node]="graph.nodes?.wave"
             (create)="graph.enable('wave')"
-            (destroy)="graph.disable('wave')">
-          </wave-options>
+            (destroy)="graph.disable('wave')"
+          >
+          </app-wave-options>
         </clr-tab-content>
       </clr-tab>
       <clr-tab>
         <button clrTabLink>File</button>
         <clr-tab-content *clrIfActive>
-          <file-options
+          <app-file-options
             [graph]="graph"
             (create)="graph.enable('file', $event.nativeElement)"
-            (destroy)="graph.disable('file')">
-          </file-options>
+            (destroy)="graph.disable('file')"
+          >
+          </app-file-options>
         </clr-tab-content>
       </clr-tab>
       <clr-tab>
         <button clrTabLink>Device</button>
         <clr-tab-content *clrIfActive>
-          <device-options
+          <app-device-options
             [graph]="graph"
             (create)="graph.enable('device')"
-            (destroy)="graph.disable('device')">
-          </device-options>
+            (destroy)="graph.disable('device')"
+          >
+          </app-device-options>
         </clr-tab-content>
       </clr-tab>
     </clr-tabs>
 
     <div class="section">
-      <common-options [graph]="graph"></common-options>
+      <app-common-options [graph]="graph"></app-common-options>
     </div>
   </div>
 </div>
