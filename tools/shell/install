@@ -1,0 +1,99 @@
+#!/bin/bash
+
+cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+source tools/shell/common.sh
+
+TITLE="<< USAGE >>"
+USAGE="
+${LIGHT_BLUE} ${TITLE}\n
+${DEFAULT} - ${YELLOW} $0 --help${DEFAULT} (print usage)
+${DEFAULT} - ${YELLOW} $0${DEFAULT} (install project dependencies only)
+${DEFAULT} - ${YELLOW} $0 local${DEFAULT} (install project dependencies only)
+${DEFAULT} - ${YELLOW} $0 global${DEFAULT} (install global dependencies only)
+${DEFAULT} - ${YELLOW} $0 all${DEFAULT} (install projects dependencies, global dependencies, shellcheck (linux))
+${DEFAULT} - ${YELLOW} $0 all ci${DEFAULT} (install projects dependencies, global dependencies, shellcheck (linux) in ci environment)
+${DEFAULT} - ${YELLOW} $0 shellcheck${DEFAULT} (install shellcheck on linux)
+${DEFAULT} - ${YELLOW} $0 shellcheck ci${DEFAULT} (install shellcheck on linux in ci environment)
+${DEFAULT}\n\n"
+
+##
+# Installs dependencies in project root folder as well as in /functions if no arguments are provided.
+# Installs global dependencies with sudo if first argument equals 'global'.
+##
+
+##
+# Installs project dependencies,
+##
+installProjectDependencies() {
+  log 'installing project dependencies...'
+  if [[ -n $YARN ]]; then
+    cmd yarn install
+  else
+    cmd npm install
+  fi
+}
+
+##
+# Installs global npm dependencies.
+##
+installGlobalDependencies() {
+  log 'installing global dependencies...'
+  # sudo
+  cmd npm install -g @angular/cli@latest @nestjs/cli@latest @nrwl/schematics@latest typescript@latest firebase-tools@latest @compodoc/compodoc@latest commitizen@latest cz-conventional-changelog@latest clang-format@latest yarn@latest
+  YARN=1
+}
+
+##
+# Installs Shellcheck on Linux.
+##
+installShellcheckLinux() {
+  log 'installing shellcheck...'
+
+  if [[ -n $CI ]]; then
+    # don't use sudo in CI environment
+    cmd apt -y install shellcheck
+  else
+    cmd sudo apt -y install shellcheck
+  fi
+}
+
+##
+# Dependencies installation control flow.
+##
+if (( $# == 0 )); then
+  INSTALL='local'
+else
+  INSTALL="$1"
+fi
+
+if [[ $# -gt 1 && $2 == 'ci' ]]; then
+  CI=1
+else
+  CI=
+fi
+
+if which yarn >/dev/null 2>&1; then
+  YARN=1
+else
+  YARN=
+fi
+
+case "$INSTALL" in
+  all)
+    installGlobalDependencies
+    installProjectDependencies
+    installShellcheckLinux
+    ;;
+  local)
+    installProjectDependencies
+    ;;
+  global)
+    installGlobalDependencies
+    ;;
+  shellcheck)
+    installShellcheckLinux
+    ;;
+  *)
+    usage
+    ;;
+esac
