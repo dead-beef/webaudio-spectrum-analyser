@@ -1,11 +1,11 @@
 {
-  "@angular/core": "ng.core",
   "@angular/common": "ng.common",
+  "@angular/core": "ng.core",
   "@angular/forms": "ng.forms",
-  "@angular/router": "ng.router",
   "@angular/platform-browser": "ng.platformBrowser",
-  "@angular/platform-browser/animations": "ng.platformBrowser.animations",
   "@angular/platform-browser-dynamic": "ng.platformBrowserDynamic",
+  "@angular/platform-browser/animations": "ng.platformBrowser.animations",
+  "@angular/router": "ng.router",
   "@clr/angular": "clr.angular",
   "simplebar-angular": "window['simplebar-angular']"
 }

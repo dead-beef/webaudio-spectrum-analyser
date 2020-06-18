@@ -7,10 +7,9 @@ describe('AudioControlsComponent', () => {
   let fixture: ComponentFixture<AudioControlsComponent>;
 
   beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ AudioControlsComponent ]
-    })
-    .compileComponents();
+    void TestBed.configureTestingModule({
+      declarations: [AudioControlsComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

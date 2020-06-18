@@ -9,10 +9,20 @@
   },
   "projects": {
     "webaudio-spectrum-analyser-e2e": {
-      "tags": []
+      "tags": ["scope:webaudio-spectrum-analyser-e2e"]
     },
     "webaudio-spectrum-analyser": {
-      "tags": []
+      "tags": ["scope:webaudio-spectrum-analyser", "type:application", "platform:browser"]
+    }
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@nrwl/workspace/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["build", "lint", "test", "e2e"],
+        "runtimeCacheInputs": ["node -v", "echo $IMPORTANT_ENV_VAR"],
+        "cacheDirectory": "/tmp/nx/webaudio-spectrum-analyser"
+      }
     }
   }
 }

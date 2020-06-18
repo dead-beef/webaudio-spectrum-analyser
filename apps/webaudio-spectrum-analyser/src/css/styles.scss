@@ -1,4 +1,4 @@
-@import "vars";
+@import 'vars';
 
 .fill-height {
   height: 100%;
@@ -14,34 +14,36 @@
 
 .stats {
   top: calc(#{$header-size / 2} - 24px) !important;
-  left: auto !important;
   right: 0.5rem !important;
+  left: auto !important;
 }
 
 .frequency-chart-container {
-  @media(max-width: $width-md - 1px) {
+  @media (max-width: $width-md - 1px) {
     height: calc(40vh + 2.5rem);
   }
+
   & > * {
     position: fixed;
-    background: $bg;
-    z-index: 999;
     top: $header-size;
-    left: $content-padding;
     right: $content-padding;
+    left: $content-padding;
+    z-index: 999;
     padding-top: $content-padding;
+    background: $bg;
     border-bottom: 1px solid $border;
-    @media(min-width: $width-md) {
+    @media (min-width: $width-md) {
       right: 50%;
     }
-    @media(min-width: $width-lg) {
+    @media (min-width: $width-lg) {
       right: calc(33% + 0.5rem);
     }
+
     canvas {
       width: 100%;
       height: 40vh;
       border: 1px solid $border;
-      @media(min-width: $width-md) {
+      @media (min-width: $width-md) {
         height: calc(100vh - 6.5rem);
       }
     }

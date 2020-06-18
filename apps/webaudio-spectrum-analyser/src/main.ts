@@ -12,5 +12,5 @@ platformBrowserDynamic()
   .bootstrapModule(AppModule)
   .catch(err => {
     console.error(err);
-    document.body.textContent = err.toString();
+    document.body.textContent = String(err);
   });

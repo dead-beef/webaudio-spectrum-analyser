@@ -1,94 +1,126 @@
 import {
-  Component, OnInit, AfterViewInit, OnDestroy,
-  ViewChild, ElementRef
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
 } from '@angular/core';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
 
 @Component({
-  selector: 'audio-graph',
-  templateUrl: './audio-graph.component.html'
+  selector: 'app-audio-graph',
+  templateUrl: './audio-graph.component.html',
 })
 export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild(FrequencyChartComponent) public chart: FrequencyChartComponent;
 
-  @ViewChild(FrequencyChartComponent) chart: FrequencyChartComponent;
-  @ViewChild('audio') audioRef: ElementRef;
+  @ViewChild('audio') public audioRef: ElementRef<HTMLAudioElement>;
 
   public graph: AudioGraph = null;
+
   public audio: HTMLAudioElement;
+
   public error: Error = null;
 
-  private _volume: number;
-  private _logVolume: number;
+  /**
+   * TODO: revise if this value is needed, it is currently not used.
+   */
+  private volumeValue: number;
 
-  get volume(): number {
-    return this._logVolume;
+  private logVolumeValue: number;
+
+  /**
+   * Volume getter.
+   */
+  public get volume(): number {
+    return this.logVolumeValue;
   }
-  set volume(logVolume: number) {
-    const volume: number = Math.pow(2.0, logVolume) - 1.0;
-    this._volume = volume;
-    this._logVolume = logVolume;
-    if(this.audio) {
-      this.audio.volume = volume;
+
+  /**
+   * Volume setter.
+   */
+  public set volume(logVolume: number) {
+    const base = 2.0;
+    const volume: number = Math.pow(base, logVolume) - 1.0;
+    this.volumeValue = volume;
+    this.logVolumeValue = logVolume;
+    if (this.audio) {
+      this.audio.volume = this.volumeValue;
     }
   }
 
-  constructor() {
-  }
-
-  ngOnInit() {
+  /**
+   * Lifecycle hook.
+   */
+  public ngOnInit() {
     try {
       this.graph = new AudioGraph();
       this.volume = 0.25;
-    }
-    catch(err) {
+    } catch (err) {
       console.error(err);
       this.error = err;
     }
   }
 
-  ngAfterViewInit() {
+  /**
+   * Lifecycle hook.
+   */
+  public ngAfterViewInit() {
     try {
       this.audio = this.audioRef.nativeElement;
       this.audio.srcObject = this.graph.stream;
       this.audio.volume = this.volume;
-    }
-    catch(err) {
+    } catch (err) {
       console.error(err);
       this.error = err;
     }
   }
 
-  ngOnDestroy() {
-    if(this.graph) {
+  /**
+   * Lifecycle hook.
+   */
+  public ngOnDestroy() {
+    if (Boolean(this.graph)) {
       this.graph.destroy();
     }
     this.audio = null;
   }
 
-  play() {
+  /**
+   * Plays audio.
+   */
+  public play() {
     this.graph.play();
-    this.audio.play();
+    void this.audio.play();
   }
 
-  pause() {
+  /**
+   * Pauses audio.
+   */
+  public pause() {
     this.graph.pause();
     this.audio.pause();
   }
 
-  toggle() {
-    if(this.graph.paused) {
+  /**
+   * Toggles playback.
+   */
+  public toggle() {
+    if (this.graph.paused) {
       this.play();
-    }
-    else {
+    } else {
       this.pause();
     }
   }
 
-  reset() {
+  /**
+   * Resets chart.
+   */
+  public reset() {
     this.graph.createAnalysers();
     this.chart.clear();
   }
-
 }

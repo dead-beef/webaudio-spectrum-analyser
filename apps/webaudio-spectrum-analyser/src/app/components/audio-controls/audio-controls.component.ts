@@ -1,52 +1,82 @@
-import { Component, Input, ViewChild, ElementRef } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  ViewChild,
+} from '@angular/core';
 
 @Component({
-  selector: 'audio-controls',
-  templateUrl: './audio-controls.component.html'
+  selector: 'app-audio-controls',
+  templateUrl: './audio-controls.component.html',
 })
-export class AudioControlsComponent {
+export class AudioControlsComponent implements AfterViewInit {
+  @Input() public src: string;
 
-  @Input() src: URL;
-  @ViewChild('audio') audio: ElementRef;
+  @ViewChild('audio') public audio: ElementRef;
 
   public error: MediaError = null;
+
   public paused = true;
+
   public duration = 0;
 
-  private _time = 0;
-  get time(): number {
-    return this._time;
-  }
-  set time(time: number) {
-    this.audio.nativeElement.currentTime = time;
-    this._time = time;
+  private timeValue = 0;
+
+  private nativeElement: HTMLAudioElement;
+
+  /**
+   * Time getter.
+   */
+  public get time(): number {
+    return this.timeValue;
   }
 
-  constructor() {}
+  /**
+   * Time setter.
+   */
+  public set time(time: number) {
+    this.nativeElement.currentTime = time;
+    this.timeValue = time;
+  }
 
-  loadedData() {
+  /**
+   * Loaded data handler.
+   */
+  public loadedData() {
     //console.log('loaded data', this.audio.nativeElement);
-    this.error = this.audio.nativeElement.error;
+    this.error = this.nativeElement.error;
     this.paused = true;
     this.time = 0;
-    this.duration = this.audio.nativeElement.duration;
-    this.audio.nativeElement.pause();
+    this.duration = this.nativeElement.duration;
+    this.nativeElement.pause();
   }
 
-  timeUpdate() {
-    this._time = this.audio.nativeElement.currentTime;
+  /**
+   * Time update handler.
+   */
+  public timeUpdate() {
+    this.timeValue = this.nativeElement.currentTime;
   }
 
-  toggle() {
-    if(this.paused) {
-      if(this.audio.nativeElement.ended) {
+  /**
+   * Play/ause toggler.
+   */
+  public toggle() {
+    if (this.paused) {
+      if (this.nativeElement.ended) {
         this.time = 0;
       }
-      this.audio.nativeElement.play();
-    }
-    else {
-      this.audio.nativeElement.pause();
+      void this.nativeElement.play();
+    } else {
+      this.nativeElement.pause();
     }
   }
 
+  /**
+   * Lifecycle hook.
+   */
+  public ngAfterViewInit() {
+    this.nativeElement = this.audio.nativeElement;
+  }
 }

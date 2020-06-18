@@ -1,10 +1,22 @@
 module.exports = {
   testMatch: ['**/+(*.)+(spec|test).+(ts|js)?(x)'],
-  transform: {
-    '^.+\\.(ts|js|html)$': 'ts-jest'
+  globals: {
+    'ts-jest': {
+      tsConfig: '<rootDir>/tsconfig.spec.json',
+      stringifyContentPathRegex: '\\.html$',
+      astTransformers: [
+        'jest-preset-angular/build/InlineFilesTransformer',
+        'jest-preset-angular/build/StripStylesTransformer',
+      ],
+    },
   },
+  transform: {
+    '^.+\\.(ts|js|html)$': 'ts-jest',
+  },
+  transformIgnorePatterns: ['node_modules/(?!@ngrx)'],
+  moduleFileExtensions: ['ts', 'html', 'js', 'json'],
   resolver: '@nrwl/jest/plugins/resolver',
-  moduleFileExtensions: ['ts', 'js', 'html'],
   coverageReporters: ['html'],
-  passWithNoTests: true
+  collectCoverage: true,
+  cacheDirectory: '/tmp/jest_rs/tn',
 };

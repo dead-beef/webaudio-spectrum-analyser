@@ -1,18 +1,25 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
 
 @Component({
-  selector: 'alert',
-  templateUrl: './alert.component.html'
+  selector: 'app-alert',
+  templateUrl: './alert.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AlertComponent {
+  @Input() public error: Error;
 
-  @Input() error: Error;
-  @Output() errorChange = new EventEmitter<Error>();
+  @Output() public readonly errorChange = new EventEmitter<Error>();
 
-  constructor() {}
-
-  clearError() {
+  /**
+   * Dismisses alert.
+   */
+  public clearError() {
     this.errorChange.emit(null);
   }
-
 }

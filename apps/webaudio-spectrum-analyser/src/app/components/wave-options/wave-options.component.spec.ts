@@ -7,10 +7,9 @@ describe('WaveOptionsComponent', () => {
   let fixture: ComponentFixture<WaveOptionsComponent>;
 
   beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ WaveOptionsComponent ]
-    })
-    .compileComponents();
+    void TestBed.configureTestingModule({
+      declarations: [WaveOptionsComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

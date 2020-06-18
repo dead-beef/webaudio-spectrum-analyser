@@ -1,76 +1,124 @@
-import { TypedArray } from '../../interfaces';
-import { TypedArrayConstructor } from '../../interfaces';
+import { TypedArray, TypedArrayConstructor } from '../../interfaces';
 
 export class AudioMath {
-
-  static clamp(x: number, min: number, max: number): number {
+  /**
+   * TODO: description
+   * @param x
+   * @param min
+   * @param max
+   */
+  public static clamp(x: number, min: number, max: number): number {
     return Math.max(min, Math.min(max, x));
   }
 
-  static smooth(factor: number, prev: number, cur: number): number {
+  /**
+   * TODO: description
+   * @param factor
+   * @param prev
+   * @param cur
+   */
+  public static smooth(factor: number, prev: number, cur: number): number {
     return factor * prev + (1 - factor) * cur;
   }
 
-  static interpolatePeak(peak: number, left: number, right: number): number {
+  /**
+   * TODO: description
+   * @param peak
+   * @param left
+   * @param right
+   */
+  public static interpolatePeak(
+    peak: number,
+    left: number,
+    right: number
+  ): number {
     const c = peak;
     const b = (right - left) / 2;
     const a = left + b - c;
-    if(Math.abs(a) < 1e-3) {
+    if (Math.abs(a) < 1e-3) {
       return 0;
     }
     return -b / (2 * a);
   }
 
-  static resize<T extends TypedArray>(arr: T, size: number): T {
-    if(arr.length !== size) {
+  /**
+   * TODO: description
+   * @param arr
+   * @param size
+   */
+  public static resize<T extends TypedArray>(arr: T, size: number): T {
+    if (arr.length !== size) {
       arr = new (arr.constructor as TypedArrayConstructor<T>)(size);
     }
     return arr;
   }
 
-  static mean<T extends TypedArray>(data: T): number {
-    if(!data.length) {
+  /**
+   * TODO: description
+   * @param data
+   */
+  public static mean<T extends TypedArray>(data: T): number {
+    if (!data.length) {
       return 0;
     }
-    return data.reduce((s, x) => s + x) / data.length;
+    return data.reduce((s: number, x: number) => s + x) / data.length;
   }
 
-  static variance<T extends TypedArray>(data: T, mean?: number) {
-    if(!data.length) {
+  /**
+   * TODO: description
+   * @param data
+   * @param mean
+   */
+  public static variance<T extends TypedArray>(data: T, mean?: number) {
+    if (!data.length) {
       return 0;
     }
-    if(mean === null || mean === undefined) {
-      mean = AudioMath.mean(data);
+    let meanValue = mean;
+    if (mean === null || typeof mean === 'undefined') {
+      meanValue = AudioMath.mean(data);
     }
-    return data.reduce((s, x) => s + Math.pow(x - mean, 2)) / data.length;
+    return (
+      data.reduce((s: number, x: number) => s + Math.pow(x - meanValue, 2)) /
+      data.length
+    );
   }
 
-  static center<T extends TypedArray>(data: T): number {
+  /**
+   * TODO: description
+   * @param data
+   */
+  public static center<T extends TypedArray>(data: T): number {
     let sum = 0;
     let res = 0;
-    for(let i = 0; i < data.length; ++i) {
+    for (let i = 0; i < data.length; i += 1) {
       sum += data[i];
       res += data[i] * i;
     }
     return res / sum;
   }
 
-  static indexOfMax<T extends TypedArray>(
+  /**
+   * TODO: description
+   * @param data
+   * @param start
+   * @param end
+   */
+  public static indexOfMax<T extends TypedArray>(
     data: T,
     start?: number,
     end?: number
   ): number {
-    if(!data.length) {
+    if (!data.length) {
       return -1;
     }
 
-    start = AudioMath.clamp(+start || 0, 0, data.length);
-    end = AudioMath.clamp(+end || data.length, 0, data.length);
+    start = AudioMath.clamp(Number(start) || 0, 0, data.length);
+    end = AudioMath.clamp(Number(end) || data.length, 0, data.length);
 
     let res = -1;
     let max = -Infinity;
-    for(let i = start; i < end; ++i) {
-      if(max < data[i]) {
+    for (let i = start; i < end; i += 1) {
+      if (max < data[i]) {
         res = i;
         max = data[i];
       }
@@ -78,24 +126,30 @@ export class AudioMath {
     return res;
   }
 
-  static indexOfPeak<T extends TypedArray>(
+  /**
+   * TODO: description
+   * @param data
+   * @param start
+   * @param end
+   */
+  public static indexOfPeak<T extends TypedArray>(
     data: T,
     start?: number,
     end?: number
   ): number {
-    if(data.length < 3) {
+    if (data.length < 3) {
       return -1;
     }
 
-    start = AudioMath.clamp(+start || 0, 1, data.length);
-    end = AudioMath.clamp(+end || data.length - 1, 2, data.length - 1);
+    start = AudioMath.clamp(Number(start) || 0, 1, data.length);
+    end = AudioMath.clamp(Number(end) || data.length - 1, 2, data.length - 1);
 
     let res = -1;
     let max = -Infinity;
 
-    for(let i = start; i < end; ++i) {
-      if(data[i] >= Math.max(data[i - 1], data[i + 1])) {
-        if(max < data[i]) {
+    for (let i = start; i < end; i += 1) {
+      if (data[i] >= Math.max(data[i - 1], data[i + 1])) {
+        if (max < data[i]) {
           res = i;
           max = data[i];
         }
@@ -104,17 +158,23 @@ export class AudioMath {
     return res;
   }
 
-  static indexOfAutocorrPeak<T extends TypedArray>(
+  /**
+   * TODO: description
+   * @param data
+   * @param start
+   * @param end
+   */
+  public static indexOfAutocorrPeak<T extends TypedArray>(
     data: T,
     start?: number,
     end?: number
   ): number {
-    if(data.length < 4) {
+    if (data.length < 4) {
       return -1;
     }
 
-    start = AudioMath.clamp(+start || 0, 0, data.length);
-    end = AudioMath.clamp(+end || data.length, 0, data.length);
+    start = AudioMath.clamp(Number(start) || 0, 0, data.length);
+    end = AudioMath.clamp(Number(end) || data.length, 0, data.length);
 
     const eps = 0.01;
 
@@ -126,23 +186,22 @@ export class AudioMath {
     start += 1;
     end -= 1;
 
-    for(let i = start; i < end; ++i) {
+    for (let i = start; i < end; ++i) {
       const c = data[i];
       const p = data[i - 1];
       const n = data[i + 1];
       /*if(c === p && c === n) {
         continue;
       }*/
-      if(min) {
-        if(c >= p && c >= n) {
-          if(max < data[i] - eps) {
+      if (min) {
+        if (c >= p && c >= n) {
+          if (max < data[i] - eps) {
             //console.log('max', i, p, c, n);
             res = i;
             max = data[i];
           }
         }
-      }
-      else if(c <= p && c <= n && c < 0) {
+      } else if (c <= p && c <= n && c < 0) {
         //console.log('min', i, p, c, n);
         min = true;
       }
@@ -150,60 +209,77 @@ export class AudioMath {
     return res;
   }
 
-  static zcr<T extends TypedArray>(data: T): number {
-    if(!data.length) {
+  /**
+   * TODO: description
+   * @param data
+   */
+  public static zcr<T extends TypedArray>(data: T): number {
+    if (!data.length) {
       return 0;
     }
     const mean = AudioMath.mean(data);
     let res = 0;
     let prevSign = data[0] > mean;
-    for(let i = 1; i < data.length; ++i) {
+    for (let i = 1; i < data.length; i += 1) {
       const sign = data[i] > mean;
-      res += +(sign !== prevSign);
-      prevSign = sign
+      res += Number(sign !== prevSign);
+      prevSign = sign;
     }
     return res / (2 * data.length);
   }
 
-  static autocorr1<T extends TypedArray>(
+  /**
+   * TODO: description
+   * @param data
+   * @param mean
+   * @param variance
+   * @param offset
+   */
+  public static autocorr1<T extends TypedArray>(
     data: T,
     mean: number,
-    var_: number,
+    variance: number,
     offset: number
   ): number {
     let res = 0;
-    for(let i = offset; i < data.length; ++i) {
+    for (let i = offset; i < data.length; i += 1) {
       res += (data[i] - mean) * (data[i - offset] - mean);
     }
     res /= data.length - offset;
-    return AudioMath.clamp(res / var_, -1, 1);
+    return AudioMath.clamp(res / variance, -1, 1);
   }
 
-  static autocorr<T extends TypedArray, U extends TypedArray>(
+  /**
+   * TODO: description
+   * @param data
+   * @param minOffset
+   * @param maxOffset
+   * @param output
+   */
+  public static autocorr<T extends TypedArray, U extends TypedArray>(
     data: T,
     minOffset: number,
     maxOffset: number,
     output: U
   ): U {
-
     maxOffset = AudioMath.clamp(maxOffset, 0, data.length - 1);
     minOffset = AudioMath.clamp(minOffset, 0, maxOffset - 1);
 
-    if(output.length < data.length) {
-      output = new (output.constructor as TypedArrayConstructor<U>)(data.length);
-    }
-    else {
+    if (output.length < data.length) {
+      output = new (output.constructor as TypedArrayConstructor<U>)(
+        data.length
+      );
+    } else {
       output.fill(0);
     }
 
     const mean = AudioMath.mean(data);
-    const var_ = AudioMath.variance(data, mean);
+    const variance = AudioMath.variance(data, mean);
 
-    for(let i = minOffset; i < maxOffset; ++i) {
-      output[i] = AudioMath.autocorr1(data, mean, var_, i);
+    for (let i = minOffset; i < maxOffset; i += 1) {
+      output[i] = AudioMath.autocorr1(data, mean, variance, i);
     }
 
     return output;
   }
-
 }

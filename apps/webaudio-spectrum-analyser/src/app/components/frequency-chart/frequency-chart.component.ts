@@ -1,109 +1,155 @@
 import {
-  Component, OnInit, OnDestroy, AfterViewInit,
-  Input, ViewChild, ElementRef, NgZone
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
 } from '@angular/core';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
-import { AudioMath } from '../../classes/audio-math/audio-math';
+// import { AudioMath } from '../../classes/audio-math/audio-math';
 import { Point } from '../../interfaces';
 
-
 @Component({
-  selector: 'frequency-chart',
-  templateUrl: './frequency-chart.component.html'
+  selector: 'app-frequency-chart',
+  templateUrl: './frequency-chart.component.html',
 })
-export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy {
+export class FrequencyChartComponent
+  implements OnInit, AfterViewInit, OnDestroy {
+  @Input() public graph: AudioGraph;
 
-  @Input() graph: AudioGraph;
-  @ViewChild('canvas') canvas: ElementRef;
+  @ViewChild('canvas') public canvas: ElementRef<HTMLCanvasElement>;
 
   private context: CanvasRenderingContext2D = null;
+
   private frame = 0;
-  private animate = this._animate.bind(this);
+
+  private readonly animate = this.animateCanvas.bind(this);
 
   public error: Error = null;
+
   public width = 0;
+
   public height = 0;
 
   public eps = 1;
 
   public showPoint = false;
-  public point: Point = {x: 0, y: 0};
+
+  public point: Point = { x: 0, y: 0 };
+
   public pointFrequency = 0;
+
   public pointValues: number[] = [];
 
+  /**
+   * Constructor.
+   * @param zone
+   */
+  constructor(private readonly zone: NgZone) {}
 
-  constructor(private dom: ElementRef, private zone: NgZone) {}
-
-  ngOnInit() {
+  /**
+   * Lifecycle hook.
+   */
+  public ngOnInit() {
     try {
-      this.pointValues = this.graph.fdata.map(_ => 0);
-    }
-    catch(err) {
+      this.pointValues = this.graph.fdata.map(d => 0);
+    } catch (err) {
       this.error = err;
     }
   }
 
-  ngAfterViewInit() {
+  /**
+   * Lifecycle hook.
+   */
+  public ngAfterViewInit() {
     try {
       this.context = this.canvas.nativeElement.getContext('2d');
       this.zone.runOutsideAngular(() => {
         this.frame = requestAnimationFrame(this.animate);
       });
-    }
-    catch(err) {
+    } catch (err) {
       this.error = err;
     }
   }
 
-  ngOnDestroy() {
+  /**
+   * Lifecycle hook.
+   */
+  public ngOnDestroy() {
     this.context = null;
     cancelAnimationFrame(this.frame);
   }
 
-  setPoint(ev) {
+  /**
+   * Sets point
+   * @param ev
+   */
+  public setPoint(ev: { offsetX: number; offsetY: number }) {
     this.point.x = ev.offsetX;
     this.point.y = ev.offsetY;
     this.pointFrequency = this.canvasToFrequency(this.point.x);
   }
 
-  resize() {
+  /**
+   * Resizes canvas.
+   */
+  private resize() {
     const canvas = this.canvas.nativeElement;
     this.width = canvas.clientWidth;
     this.height = canvas.clientHeight;
-    if(canvas.width !== this.width) {
+    if (canvas.width !== this.width) {
       //console.log('set canvas width');
       canvas.width = this.width;
     }
-    if(canvas.height !== this.height) {
+    if (canvas.height !== this.height) {
       //console.log('set canvas height');
       canvas.height = this.height;
     }
   }
 
-  clear() {
+  /**
+   * Clears graph.
+   * TODO: this is currently not used anywhere.
+   */
+  public clear() {
     this.graph.clearData();
   }
 
-  canvasToFrequency(x: number): number {
-    return Math.pow(10, 1.301 + x / this.width * 3);
+  /**
+   * Converts canvas value to frequency.
+   * @param x
+   */
+  private canvasToFrequency(x: number): number {
+    return Math.pow(10, 1.301 + (x / this.width) * 3);
   }
 
-  frequencyToCanvas(f: number): number {
-    return (Math.log10(f) - 1.301) / 3 * this.width;
+  /**
+   * Converts frequency to canvas value.
+   * @param f
+   */
+  private frequencyToCanvas(f: number): number {
+    return ((Math.log10(f) - 1.301) / 3) * this.width;
   }
 
-  drawGrid(plotCount: number): void {
+  /**
+   * Draws grid.
+   * @param plotCount
+   */
+  private drawGrid(plotCount: number): void {
     const ctx = this.context;
     ctx.strokeStyle = '#495865';
     ctx.fillStyle = '#495865';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    for(let i = 20, j = 10; i <= 20000; i += j) {
+    for (let i = 20, j = 10; i <= 20000; i += j) {
       const x = this.frequencyToCanvas(i);
       ctx.moveTo(x, 0);
       ctx.lineTo(x, this.height);
-      switch(i) {
+      switch (i) {
         case 10:
         case 100:
         case 1000:
@@ -112,14 +158,14 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
           break;
       }
     }
-    for(let i = 1; i < plotCount; ++i) {
-      const y = i * this.height / plotCount;
+    for (let i = 1; i < plotCount; i += 1) {
+      const y = (i * this.height) / plotCount;
       ctx.moveTo(0, y);
       ctx.lineTo(this.width, y);
     }
     ctx.stroke();
 
-    if(this.showPoint) {
+    if (this.showPoint) {
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -129,7 +175,17 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
     }
   }
 
-  drawFrequencyData(data: Uint8Array, yMin: number, yMax: number): number {
+  /**
+   * Draws frequency data.
+   * @param data
+   * @param yMin
+   * @param yMax
+   */
+  private drawFrequencyData(
+    data: Uint8Array,
+    yMin: number,
+    yMax: number
+  ): number {
     const ctx = this.context;
     const yScale = (yMax - yMin) / 255.0;
     const sampleRate = this.graph.sampleRate;
@@ -146,18 +202,18 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
     ctx.fillStyle = '#4aaed9';
     ctx.lineWidth = 0;
 
-    for(let i = 0; i < data.length; ++i) {
+    for (let i = 0; i < data.length; i += 1) {
       const f = i * binSize;
-      if(f < prevF) {
+      if (f < prevF) {
         continue;
       }
       const x = this.frequencyToCanvas(f + halfBinSize);
-      if(data[i]) {
+      if (data[i]) {
         const y = yScale * data[i];
         ctx.fillRect(prevX, yMax - y, x - prevX, y);
       }
-      if(this.pointFrequency >= prevF && this.pointFrequency <= f) {
-         pointValue = data[i];
+      if (this.pointFrequency >= prevF && this.pointFrequency <= f) {
+        pointValue = data[i];
       }
       prevF = f;
       prevX = x;
@@ -167,7 +223,17 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
     return pointValue;
   }
 
-  drawAutocorrelationData(data: Float32Array, yMin: number, yMax: number) {
+  /**
+   * Draws autocorrelation data.
+   * @param data
+   * @param yMin
+   * @param yMax
+   */
+  private drawAutocorrelationData(
+    data: Float32Array,
+    yMin: number,
+    yMax: number
+  ) {
     const ctx = this.context;
     const yMid = (yMin + yMax) / 2;
     const yScale = yMin - yMid;
@@ -175,7 +241,7 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(this.width + 10, yMid);
-    for(let i = 2; i < data.length; ++i) {
+    for (let i = 2; i < data.length; i += 1) {
       const f = this.graph.sampleRate / i;
       const x = this.frequencyToCanvas(f);
       const y = yMid + yScale * data[i];
@@ -184,8 +250,11 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
     ctx.stroke();
   }
 
-  _animate() {
-    if(this.context === null) {
+  /**
+   * Animates canvas.
+   */
+  private animateCanvas() {
+    if (this.context === null) {
       console.log('canvas destroyed');
       return;
     }
@@ -200,7 +269,7 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
 
       let changes = false;
       const update = (prev: number, next: number): number => {
-        if(Math.abs(next - prev) > this.eps) {
+        if (Math.abs(next - prev) > this.eps) {
           changes = true;
           return next;
         }
@@ -217,14 +286,15 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
       });
       this.drawGrid(plotCount);
 
-      if(this.graph.debug) {
-        for(const pd of this.graph.pitch) {
-          if(pd.enabled) {
-            switch(pd.short) {
+      if (this.graph.debug) {
+        for (const pd of this.graph.pitch) {
+          if (pd.enabled) {
+            switch (pd.short) {
               case 'AC':
                 this.drawAutocorrelationData(
                   this.graph.autocorrdata,
-                  0, plotHeight
+                  0,
+                  plotHeight
                 );
                 break;
               default:
@@ -236,13 +306,11 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
 
       this.frame = requestAnimationFrame(this.animate);
 
-      if(changes) {
-        this.zone.run(() => {});
+      if (changes) {
+        this.zone.run(() => null);
       }
-    }
-    catch(err) {
-      this.zone.run(() => this.error = err);
+    } catch (err) {
+      this.zone.run(() => (this.error = err));
     }
   }
-
 }

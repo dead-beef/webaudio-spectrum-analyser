@@ -26,7 +26,7 @@
               {
                 "glob": "**/*",
                 "input": "apps/webaudio-spectrum-analyser/src/img",
-                "output":  "img/"
+                "output": "img/"
               }
             ],
             "styles": [
@@ -44,6 +44,17 @@
             "scripts": []
           },
           "configurations": {
+            "analyze-bundle": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": true,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": true,
+              "buildOptimizer": true
+            },
             "production": {
               "fileReplacements": [
                 {
@@ -93,16 +104,14 @@
           }
         },
         "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
+          "builder": "@angular-eslint/builder:lint",
           "options": {
+            "eslintConfig": "apps/webaudio-spectrum-analyser/.eslintrc",
             "tsConfig": [
               "apps/webaudio-spectrum-analyser/tsconfig.app.json",
               "apps/webaudio-spectrum-analyser/tsconfig.spec.json"
             ],
-            "exclude": [
-              "**/node_modules/**",
-              "!apps/webaudio-spectrum-analyser/**"
-            ]
+            "exclude": ["**/node_modules/**", "!apps/webaudio-spectrum-analyser/**"]
           }
         },
         "test": {
@@ -134,15 +143,11 @@
           }
         },
         "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
+          "builder": "@angular-eslint/builder:lint",
           "options": {
-            "tsConfig": [
-              "apps/webaudio-spectrum-analyser-e2e/tsconfig.e2e.json"
-            ],
-            "exclude": [
-              "**/node_modules/**",
-              "!apps/webaudio-spectrum-analyser-e2e/**"
-            ]
+            "eslintConfig": "apps/webaudio-spectrum-analyser-e2e/.eslintrc",
+            "tsConfig": ["apps/webaudio-spectrum-analyser-e2e/tsconfig.e2e.json"],
+            "exclude": ["**/node_modules/**", "!apps/webaudio-spectrum-analyser-e2e/**"]
           }
         }
       }
@@ -153,11 +158,18 @@
   },
   "schematics": {
     "@nrwl/angular:application": {
-      "unitTestRunner": "jest",
-      "e2eTestRunner": "cypress"
+      "e2eTestRunner": "cypress",
+      "unitTestRunner": "jest"
     },
     "@nrwl/angular:library": {
       "unitTestRunner": "jest"
+    },
+    "@nrwl/schematics:application": {
+      "framework": "angular",
+      "style": "scss"
+    },
+    "@nrwl/schematics:library": {
+      "style": "scss"
     }
   },
   "defaultProject": "webaudio-spectrum-analyser"

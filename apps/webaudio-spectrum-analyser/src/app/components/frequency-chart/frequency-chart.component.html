@@ -1,4 +1,4 @@
-<alert [(error)]="error"></alert>
+<app-alert [(error)]="error"></app-alert>
 <div class="clr-row">
   <div class="clr-col-12">
     <canvas
@@ -7,7 +7,8 @@
       (mouseenter)="showPoint = true"
       (mouseleave)="showPoint = false"
       (mousemove)="setPoint($event)"
-      (click)="setPoint($event)">
+      (click)="setPoint($event)"
+    >
     </canvas>
   </div>
   <div class="clr-col-12">
