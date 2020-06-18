@@ -19,7 +19,7 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
-    "lib": ["es2018", "dom", "es2018.promise", "esnext.asynciterable"],
+    "lib": ["es2018", "dom", "esnext.asynciterable"],
     "module": "esnext",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
