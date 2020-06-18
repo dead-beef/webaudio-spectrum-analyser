@@ -1,3 +1,6 @@
+#!/usr/bin/env node
+// -*- mode: js -*-
+
 /**
  * This file decorate the Angular CLI with the Nx CLI to enable features such as computation caching,
  * and faster execution of tasks.
@@ -28,14 +31,11 @@ const isWindows = os.platform() === 'win32';
 const { output } = require('@nrwl/workspace');
 
 /**
- * Paths to files being patched
- */
-const angularCLIInitPath = 'node_modules/@angular/cli/lib/cli/index.js';
-
-/**
  * Patch index.js to warn you if you invoke the undecorated Angular CLI.
  */
-function patchAngularCLI(initPath) {
+function patchAngularCLI() {
+  const initPath = require.resolve('@angular/cli');
+
   const angularCLIInit = fs.readFileSync(initPath, 'utf-8').toString();
 
   if (!angularCLIInit.includes('NX_CLI_SET')) {
@@ -43,8 +43,7 @@ function patchAngularCLI(initPath) {
       initPath,
       `
 if (!process.env['NX_CLI_SET']) {
-  const { output } = require('@nrwl/workspace');
-  output.warn({ title: 'The Angular CLI was invoked instead of the Nx CLI. Use "npx ng [command]" or "nx [command]" instead.' });
+  console.warn('\\nThe Angular CLI was invoked instead of the Nx CLI. Use "nx [command]" instead.\\n');
 }
 ${angularCLIInit}
     `
@@ -83,13 +82,14 @@ function symlinkNgCLItoNxCLI() {
 }
 
 try {
-  symlinkNgCLItoNxCLI();
-  patchAngularCLI(angularCLIInitPath);
+  //symlinkNgCLItoNxCLI();
+  patchAngularCLI();
   output.log({
     title: 'Angular CLI has been decorated to enable computation caching.',
   });
 } catch (e) {
   output.error({
     title: 'Decoration of the Angular CLI did not complete successfully',
+    bodyLines: [e.stack]
   });
 }

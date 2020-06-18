@@ -25,7 +25,7 @@
     "format:write": "nx format:write",
     "help": "nx help",
     "preinstall": "rm -rf node_modules/*",
-    "postinstall": "npx sort-package-json && npm run ngcc && node ./decorate-angular-cli.js",
+    "postinstall": "npx sort-package-json && npm run ngcc && ./tools/shell/decorate-angular-cli",
     "install:all": "./tools/shell/install all",
     "install:global": "./tools/shell/install global",
     "install:shellcheck": "./tools/shell/install shellcheck",
