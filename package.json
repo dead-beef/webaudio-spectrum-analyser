@@ -26,7 +26,6 @@
     "help": "nx help",
     "preinstall": "rm -rf node_modules/*",
     "postinstall": "npx sort-package-json && npm run ngcc",
-    "install": "./tools/shell/install",
     "install:all": "./tools/shell/install all",
     "install:global": "./tools/shell/install global",
     "install:shellcheck": "./tools/shell/install shellcheck",
@@ -61,7 +60,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run affected:lint; echo \"TODO: lint sources and remove this echo to enable precommit hook\"",
+      "pre-commit": "npm run affected:lint",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },

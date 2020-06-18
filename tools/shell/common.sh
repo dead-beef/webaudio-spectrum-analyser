@@ -53,8 +53,8 @@ COLOR_NAMES=(
 
 
 USAGE="Usage: $0 [-h]\n"
-CMD_COLOR="${WHITE}"
-LOG_COLOR="${WHITE}"
+CMD_COLOR="${PURPLE}"
+LOG_COLOR="${LIGHT_BLUE}"
 ERROR_COLOR="${LIGHT_RED}"
 
 
@@ -86,7 +86,7 @@ cmd() {
   printf "${CMD_COLOR}>" >&2
   printf " %s" "$@" >&2
   printf "${DEFAULT}\n" >&2
-  "$@"
+  eval "$@"
   local rc=$?
   if (( rc )); then
     error "%s " "process exited with status ${rc}:" "$@"
