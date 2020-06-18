@@ -100,7 +100,7 @@ export class AudioGraph {
    * FFT size setter.
    */
   public set fftSize(size: number) {
-    if (this.nodes && this.nodes.analysers) {
+    if (this?.nodes?.analysers) {
       for (const node of this.nodes.analysers) {
         node.fftSize = size;
       }
@@ -319,7 +319,7 @@ export class AudioGraph {
    * TODO: description
    */
   public getDevices(): Promise<MediaDeviceInfo[]> {
-    if (!(navigator.mediaDevices && navigator.mediaDevices.enumerateDevices)) {
+    if (!navigator?.mediaDevices?.enumerateDevices) {
       return Promise.reject(new Error('enumerateDevices is not supported'));
     }
     return navigator.mediaDevices
@@ -343,7 +343,7 @@ export class AudioGraph {
     if (dev === null) {
       return Promise.resolve();
     }
-    if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
+    if (!navigator?.mediaDevices?.getUserMedia) {
       return Promise.reject(new Error('getUserMedia is not supported'));
     }
     if (this.deviceLoading) {
