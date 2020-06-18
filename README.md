@@ -34,14 +34,12 @@ yarn install:all
 #### Local
 
 ```bash
-yarn install:proto
 yarn install:shellcheck
 ```
 
 #### CI
 
 ```bash
-yarn install:proto:ci
 yarn install:shellcheck:ci
 ```
 
