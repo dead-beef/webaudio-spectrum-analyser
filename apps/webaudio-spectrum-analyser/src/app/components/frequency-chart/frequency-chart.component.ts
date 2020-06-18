@@ -17,10 +17,11 @@ import { Point } from '../../interfaces';
   selector: 'app-frequency-chart',
   templateUrl: './frequency-chart.component.html',
 })
-export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy {
+export class FrequencyChartComponent
+  implements OnInit, AfterViewInit, OnDestroy {
   @Input() public graph: AudioGraph;
 
-  @ViewChild('canvas') public canvas: ElementRef;
+  @ViewChild('canvas') public canvas: ElementRef<HTMLCanvasElement>;
 
   private context: CanvasRenderingContext2D = null;
 
@@ -55,7 +56,7 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
    */
   public ngOnInit() {
     try {
-      this.pointValues = this.graph.fdata.map(_ => 0);
+      this.pointValues = this.graph.fdata.map(d => 0);
     } catch (err) {
       this.error = err;
     }
@@ -180,7 +181,11 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
    * @param yMin
    * @param yMax
    */
-  private drawFrequencyData(data: Uint8Array, yMin: number, yMax: number): number {
+  private drawFrequencyData(
+    data: Uint8Array,
+    yMin: number,
+    yMax: number,
+  ): number {
     const ctx = this.context;
     const yScale = (yMax - yMin) / 255.0;
     const sampleRate = this.graph.sampleRate;
@@ -224,7 +229,11 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
    * @param yMin
    * @param yMax
    */
-  private drawAutocorrelationData(data: Float32Array, yMin: number, yMax: number) {
+  private drawAutocorrelationData(
+    data: Float32Array,
+    yMin: number,
+    yMax: number,
+  ) {
     const ctx = this.context;
     const yMid = (yMin + yMax) / 2;
     const yScale = yMin - yMid;
@@ -282,7 +291,11 @@ export class FrequencyChartComponent implements OnInit, AfterViewInit, OnDestroy
           if (pd.enabled) {
             switch (pd.short) {
               case 'AC':
-                this.drawAutocorrelationData(this.graph.autocorrdata, 0, plotHeight);
+                this.drawAutocorrelationData(
+                  this.graph.autocorrdata,
+                  0,
+                  plotHeight,
+                );
                 break;
               default:
                 break;

@@ -4,11 +4,15 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'error',
 })
 export class ErrorPipe implements PipeTransform {
-  transform(value: any, ...args: any[]): string {
-    let res: string = value.toString();
+  /**
+   * TODO: description
+   * @param value
+   */
+  public transform(value: any): string {
+    let res = String(value);
     if (typeof value === 'object') {
-      if (value.stack) {
-        res += '\n' + value.stack.toString();
+      if ((value as Error).stack) {
+        res += '\n' + String((value as Error).stack);
       }
     }
     return res;

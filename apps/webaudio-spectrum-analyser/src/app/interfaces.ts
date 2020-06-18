@@ -30,6 +30,13 @@ export interface TypedArrayConstructor<T> {
   new (buffer: ArrayBuffer): T;
 }
 
+export interface Stats {
+  dom: HTMLElement;
+  update: () => void;
+  begin: () => void;
+  end: () => void;
+}
+
 export interface PitchDetection {
   name: string;
   short: string;

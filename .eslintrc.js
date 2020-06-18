@@ -65,7 +65,7 @@ module.exports = {
       { default: ['static-field', 'instance-field', 'static-method', 'instance-method'] },
     ],
     '@typescript-eslint/naming-convention': [
-      'error', // TODO: refactor sources and turn on error; rule reference https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/naming-convention.md
+      'warn',
       {
         selector: 'default',
         format: ['camelCase'],
@@ -86,7 +86,7 @@ module.exports = {
       },
       {
         selector: 'property',
-        format: ['camelCase'],
+        format: ['camelCase', 'UPPER_CASE'],
         leadingUnderscore: 'forbid',
         trailingUnderscore: 'forbid',
       },
@@ -117,7 +117,6 @@ module.exports = {
       },
       {
         selector: 'typeAlias',
-        prefix: ['T'],
         format: ['StrictPascalCase'],
         leadingUnderscore: 'forbid',
         trailingUnderscore: 'forbid',
@@ -130,7 +129,6 @@ module.exports = {
       },
       {
         selector: 'interface',
-        prefix: ['I'],
         format: ['StrictPascalCase'],
         leadingUnderscore: 'forbid',
         trailingUnderscore: 'forbid',
@@ -157,7 +155,7 @@ module.exports = {
     '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: true }],
     '@typescript-eslint/no-inferrable-types': 'error',
     '@typescript-eslint/no-magic-numbers': [
-      'error',
+      'off',
       {
         ignoreNumericLiteralTypes: true,
         ignoreReadonlyClassProperties: true,
@@ -184,7 +182,7 @@ module.exports = {
     ],
     '@typescript-eslint/no-require-imports': 'error',
     '@typescript-eslint/no-use-before-define': ['error', { functions: false, classes: false }],
-    '@typescript-eslint/no-explicit-any': ['error', { ignoreRestArgs: true }],
+    '@typescript-eslint/no-explicit-any': ['off', { ignoreRestArgs: true }],
     '@typescript-eslint/no-var-requires': 'error',
     '@typescript-eslint/prefer-function-type': 'error',
     '@typescript-eslint/prefer-readonly': ['error'],
@@ -203,7 +201,7 @@ module.exports = {
     '@typescript-eslint/promise-function-async': 'off',
     '@typescript-eslint/require-await': 'off',
     '@typescript-eslint/restrict-plus-operands': 'error',
-    '@typescript-eslint/strict-boolean-expressions': 'error',
+    '@typescript-eslint/strict-boolean-expressions': 'off',
     '@typescript-eslint/triple-slash-reference': [
       'error',
       { path: 'never', types: 'never', lib: 'never' },
@@ -214,7 +212,7 @@ module.exports = {
     'compat/compat': 'error',
     'comma-spacing': 'off', // handled by @typescript-eslint rule
     'constructor-super': 'error',
-    complexity: ['error', 10],
+    complexity: ['warn', 10],
     'default-param-last': 'off', // handled by @typescript-eslint rule
     'deprecation/deprecation': 'off',
     eqeqeq: 'error',
@@ -234,19 +232,19 @@ module.exports = {
         ignoreTrailingComments: true,
       },
     ],
-    'max-lines': ['error', { max: 1100, skipBlankLines: true }],
-    'max-lines-per-function': ['error', { max: 50, skipBlankLines: true, skipComments: true }],
-    'max-nested-callbacks': ['error', 4],
-    'max-params': ['error', 12],
+    'max-lines': ['warn', { max: 1100, skipBlankLines: true }],
+    'max-lines-per-function': ['warn', { max: 75, skipBlankLines: true, skipComments: true }],
+    'max-nested-callbacks': ['warn', 4],
+    'max-params': ['warn', 12],
     'no-alert': 'error',
     'no-await-in-loop': 'error',
     'no-bitwise': 'error',
     'no-dupe-class-members': 'error',
     'no-caller': 'error',
     'no-confusing-arrow': 'error',
-    'no-console': 'error',
+    'no-console': 'off',
     'no-constructor-return': 'error',
-    'no-continue': 'error',
+    'no-continue': 'off',
     'no-debugger': 'error',
     'no-duplicate-case': 'error',
     'no-duplicate-imports': 'error',
@@ -266,8 +264,8 @@ module.exports = {
     'no-loop-func': 'error',
     'no-magic-numbers': 'off', // handled by typescript-eslint rule
     'no-new-wrappers': 'error',
-    'no-param-reassign': 'error',
-    'no-plusplus': 'error',
+    'no-param-reassign': 'off',
+    'no-plusplus': 'off',
     'no-restricted-imports': ['error', 'rxjs/Rx'],
     'no-return-assign': 'error',
     'no-return-await': 'error',
@@ -322,6 +320,13 @@ module.exports = {
     yoda: ['error', 'never'],
   },
 
+  settings: {
+    polyfills: [
+      'Promise',
+      'navigator.mediaDevices'
+    ]
+  },
+
   overrides: [
     {
       files: '**/main.ts',
@@ -336,10 +341,14 @@ module.exports = {
       },
     },
     {
-      files: '**/*.spec.ts',
+      files: ['**/*.spec.ts', '**/*.po.ts'],
       rules: {
+        'require-jsdoc': 'off',
         'max-lines-per-function': 'off',
         'compat/compat': 'off',
+        'quotes': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/no-floating-promises': 'off'
       },
     },
     {

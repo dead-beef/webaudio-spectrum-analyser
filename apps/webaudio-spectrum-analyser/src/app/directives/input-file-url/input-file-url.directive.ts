@@ -1,9 +1,16 @@
-import { Directive, ElementRef, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
 
 import { FileData } from '../../interfaces';
 
 @Directive({
-  selector: '[inputFileUrl]',
+  selector: '[appInputFileUrl]',
 })
 export class InputFileUrlDirective implements OnInit, OnDestroy {
   @Output() public readonly fileLoad = new EventEmitter<FileData>();
@@ -18,7 +25,7 @@ export class InputFileUrlDirective implements OnInit, OnDestroy {
    * Constructor.
    * @param dom
    */
-  constructor(private readonly dom: ElementRef) {}
+  constructor(private readonly dom: ElementRef<HTMLElement>) {}
 
   /**
    * Lifecycle hook.
@@ -39,8 +46,10 @@ export class InputFileUrlDirective implements OnInit, OnDestroy {
    * TODO: description
    */
   public destroyInput() {
-    const input: HTMLInputElement = document.getElementById(this.id) as HTMLInputElement;
-    if (Boolean(input)) {
+    const input: HTMLInputElement = document.getElementById(
+      this.id,
+    ) as HTMLInputElement;
+    if (input !== null) {
       input.remove();
     }
   }

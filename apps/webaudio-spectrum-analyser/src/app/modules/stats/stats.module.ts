@@ -1,26 +1,34 @@
 import { CommonModule } from '@angular/common';
 import { NgModule, NgZone } from '@angular/core';
 
+import { Stats } from '../../interfaces';
+
 @NgModule({
   declarations: [],
   imports: [CommonModule],
 })
 export class StatsModule {
-  // @ts-ignore
-  private readonly stats = new Stats();
+  private readonly stats: Stats = new Stats();
 
-  private readonly update = this._update.bind(this);
+  private readonly updateBound = this.update.bind(this);
 
+  /**
+   * Constructor.
+   * @param zone
+   */
   constructor(private readonly zone: NgZone) {
     this.stats.dom.classList.add('stats');
     document.body.appendChild(this.stats.dom);
     this.zone.runOutsideAngular(() => {
-      requestAnimationFrame(this.update);
+      requestAnimationFrame(this.updateBound);
     });
   }
 
-  _update() {
+  /**
+   * TODO: description
+   */
+  public update() {
     this.stats.update();
-    requestAnimationFrame(this.update);
+    requestAnimationFrame(this.updateBound);
   }
 }

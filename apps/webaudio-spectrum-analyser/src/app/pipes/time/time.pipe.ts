@@ -4,14 +4,22 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'time',
 })
 export class TimePipe implements PipeTransform {
-  format(x: number): string {
+  /**
+   * TODO: description
+   * @param x
+   */
+  private format(x: number): string {
     if (x < 10) {
-      return '0' + x;
+      return '0' + x.toString();
     }
     return x.toString();
   }
 
-  transform(value: any, ...args: any[]): string {
+  /**
+   * TODO: description
+   * @param value
+   */
+  public transform(value: any): string {
     let s: number = Math.floor(Number(value) || 0);
     let sign = '';
     if (s < 0) {

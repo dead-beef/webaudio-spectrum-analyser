@@ -27,7 +27,11 @@ export class AudioMath {
    * @param left
    * @param right
    */
-  public static interpolatePeak(peak: number, left: number, right: number): number {
+  public static interpolatePeak(
+    peak: number,
+    left: number,
+    right: number,
+  ): number {
     const c = peak;
     const b = (right - left) / 2;
     const a = left + b - c;
@@ -57,7 +61,7 @@ export class AudioMath {
     if (!data.length) {
       return 0;
     }
-    return data.reduce((s, x) => s + x) / data.length;
+    return data.reduce((s: number, x: number) => s + x) / data.length;
   }
 
   /**
@@ -73,7 +77,10 @@ export class AudioMath {
     if (mean === null || typeof mean === 'undefined') {
       meanValue = AudioMath.mean(data);
     }
-    return data.reduce((s, x) => s + Math.pow(x - meanValue, 2)) / data.length;
+    return (
+      data.reduce((s: number, x: number) => s + Math.pow(x - meanValue, 2)) /
+      data.length
+    );
   }
 
   /**
@@ -96,7 +103,11 @@ export class AudioMath {
    * @param start
    * @param end
    */
-  public static indexOfMax<T extends TypedArray>(data: T, start?: number, end?: number): number {
+  public static indexOfMax<T extends TypedArray>(
+    data: T,
+    start?: number,
+    end?: number,
+  ): number {
     if (!data.length) {
       return -1;
     }
@@ -121,7 +132,11 @@ export class AudioMath {
    * @param start
    * @param end
    */
-  public static indexOfPeak<T extends TypedArray>(data: T, start?: number, end?: number): number {
+  public static indexOfPeak<T extends TypedArray>(
+    data: T,
+    start?: number,
+    end?: number,
+  ): number {
     if (data.length < 3) {
       return -1;
     }
@@ -217,13 +232,13 @@ export class AudioMath {
    * TODO: description
    * @param data
    * @param mean
-   * @param var_
+   * @param variance
    * @param offset
    */
   public static autocorr1<T extends TypedArray>(
     data: T,
     mean: number,
-    var_: number,
+    variance: number,
     offset: number,
   ): number {
     let res = 0;
@@ -231,7 +246,7 @@ export class AudioMath {
       res += (data[i] - mean) * (data[i - offset] - mean);
     }
     res /= data.length - offset;
-    return AudioMath.clamp(res / var_, -1, 1);
+    return AudioMath.clamp(res / variance, -1, 1);
   }
 
   /**
@@ -251,16 +266,18 @@ export class AudioMath {
     minOffset = AudioMath.clamp(minOffset, 0, maxOffset - 1);
 
     if (output.length < data.length) {
-      output = new (output.constructor as TypedArrayConstructor<U>)(data.length);
+      output = new (output.constructor as TypedArrayConstructor<U>)(
+        data.length,
+      );
     } else {
       output.fill(0);
     }
 
     const mean = AudioMath.mean(data);
-    const var_ = AudioMath.variance(data, mean);
+    const variance = AudioMath.variance(data, mean);
 
     for (let i = minOffset; i < maxOffset; i += 1) {
-      output[i] = AudioMath.autocorr1(data, mean, var_, i);
+      output[i] = AudioMath.autocorr1(data, mean, variance, i);
     }
 
     return output;

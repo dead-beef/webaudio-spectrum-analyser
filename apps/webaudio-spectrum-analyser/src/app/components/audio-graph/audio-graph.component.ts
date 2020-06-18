@@ -1,4 +1,11 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
@@ -10,7 +17,7 @@ import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.comp
 export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(FrequencyChartComponent) public chart: FrequencyChartComponent;
 
-  @ViewChild('audio') public audioRef: ElementRef;
+  @ViewChild('audio') public audioRef: ElementRef<HTMLAudioElement>;
 
   public graph: AudioGraph = null;
 
@@ -40,7 +47,7 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
     const volume: number = Math.pow(base, logVolume) - 1.0;
     this.volumeValue = volume;
     this.logVolumeValue = logVolume;
-    if (Boolean(this.audio)) {
+    if (this.audio) {
       this.audio.volume = this.volumeValue;
     }
   }

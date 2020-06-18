@@ -23,7 +23,8 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
 
   @Output() public readonly destroy = new EventEmitter<void>();
 
-  @ViewChild(AudioControlsComponent) public audioControls: AudioControlsComponent;
+  @ViewChild(AudioControlsComponent)
+  public audioControls: AudioControlsComponent;
 
   public loading = true;
 

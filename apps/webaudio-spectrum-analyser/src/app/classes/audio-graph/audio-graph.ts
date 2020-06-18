@@ -225,8 +225,11 @@ export class AudioGraph {
       case 'file':
         this.setElement(data);
         break;
+      case 'wave':
+        this.nodes.wave.connect(this.nodes.input);
+        break;
       default:
-        this.nodes[node].connect(this.nodes.input);
+        throw new Error('invalid node ' + node);
     }
     return this;
   }
@@ -244,8 +247,11 @@ export class AudioGraph {
       case 'file':
         this.setElement(null);
         break;
+      case 'wave':
+        this.nodes.wave.disconnect();
+        break;
       default:
-        this.nodes[node].disconnect();
+        throw new Error('invalid node ' + node);
     }
     return this;
   }
@@ -261,7 +267,10 @@ export class AudioGraph {
       this.nodes.input.disconnect();
     }
 
-    this.nodes.analysers = [this.context.createAnalyser(), this.context.createAnalyser()];
+    this.nodes.analysers = [
+      this.context.createAnalyser(),
+      this.context.createAnalyser(),
+    ];
     for (const node of this.nodes.analysers) {
       node.fftSize = this.fftSize;
       node.maxDecibels = this.maxDecibels;
@@ -301,7 +310,9 @@ export class AudioGraph {
    * @param d
    */
   public byteToDecibels(d: number): number {
-    return (d / 255.0) * (this.maxDecibels - this.minDecibels) + this.minDecibels;
+    return (
+      (d / 255.0) * (this.maxDecibels - this.minDecibels) + this.minDecibels
+    );
   }
 
   /**
@@ -347,7 +358,9 @@ export class AudioGraph {
       })
       .then(stream => {
         this.deviceStream = stream;
-        this.nodes.device = this.context.createMediaStreamSource(this.deviceStream);
+        this.nodes.device = this.context.createMediaStreamSource(
+          this.deviceStream,
+        );
         this.nodes.device.connect(this.nodes.input);
       })
       .finally(() => {
@@ -421,7 +434,11 @@ export class AudioGraph {
     const fscale: number = this.fftSize / this.sampleRate;
     let res: number = AudioMath.indexOfMax(fdata);
     if (res > 0 && res < fdata.length - 1) {
-      res += AudioMath.interpolatePeak(fdata[res], fdata[res - 1], fdata[res + 1]);
+      res += AudioMath.interpolatePeak(
+        fdata[res],
+        fdata[res - 1],
+        fdata[res + 1],
+      );
     }
     res /= fscale;
     return res;
@@ -437,7 +454,11 @@ export class AudioGraph {
     const end: number = Math.floor(this.maxPitch * fscale) + 1;
     let res: number = AudioMath.indexOfPeak(fdata, start, end);
     if (res > 0 && res < fdata.length - 1) {
-      res += AudioMath.interpolatePeak(fdata[res], fdata[res - 1], fdata[res + 1]);
+      res += AudioMath.interpolatePeak(
+        fdata[res],
+        fdata[res - 1],
+        fdata[res + 1],
+      );
     }
     res /= fscale;
     return res;
@@ -449,8 +470,17 @@ export class AudioGraph {
   public autocorr(): number {
     const start = Math.floor(this.sampleRate / this.maxPitch);
     const end = Math.floor(this.sampleRate / this.minPitch) + 1;
-    this.autocorrdata = AudioMath.autocorr(this.tdata, start, end, this.autocorrdata);
-    let res: number = AudioMath.indexOfAutocorrPeak(this.autocorrdata, start, end);
+    this.autocorrdata = AudioMath.autocorr(
+      this.tdata,
+      start,
+      end,
+      this.autocorrdata,
+    );
+    let res: number = AudioMath.indexOfAutocorrPeak(
+      this.autocorrdata,
+      start,
+      end,
+    );
     res = this.sampleRate / res;
     return res;
   }
