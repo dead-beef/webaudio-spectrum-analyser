@@ -8,7 +8,8 @@ import { Stats } from '../../interfaces';
   imports: [CommonModule],
 })
 export class StatsModule {
-  private readonly stats: Stats = new Stats();
+  // @ts-ignore
+  private readonly stats: Stats = new window.Stats();
 
   private readonly updateBound = this.update.bind(this);
 
