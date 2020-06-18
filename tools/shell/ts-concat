@@ -34,7 +34,7 @@ function parse(file) {
     if(!match) {
       throw new Error('!import.match ' + imp);
     }
-    let vars = match[1].split(',').map(s => s.trim());
+    let vars = match[1].split(',').map(s => s.trim()).filter(s => s.length);
     let matchPath = match[2];
     if(matchPath.startsWith('.')) {
       matchPath = path.basename(matchPath);
