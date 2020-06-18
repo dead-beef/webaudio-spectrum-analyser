@@ -47,7 +47,7 @@ export class InputFileUrlDirective implements OnInit, OnDestroy {
    */
   public destroyInput() {
     const input: HTMLInputElement = document.getElementById(
-      this.id,
+      this.id
     ) as HTMLInputElement;
     if (input !== null) {
       input.remove();

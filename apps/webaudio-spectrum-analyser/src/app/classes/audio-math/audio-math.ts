@@ -30,7 +30,7 @@ export class AudioMath {
   public static interpolatePeak(
     peak: number,
     left: number,
-    right: number,
+    right: number
   ): number {
     const c = peak;
     const b = (right - left) / 2;
@@ -106,7 +106,7 @@ export class AudioMath {
   public static indexOfMax<T extends TypedArray>(
     data: T,
     start?: number,
-    end?: number,
+    end?: number
   ): number {
     if (!data.length) {
       return -1;
@@ -135,7 +135,7 @@ export class AudioMath {
   public static indexOfPeak<T extends TypedArray>(
     data: T,
     start?: number,
-    end?: number,
+    end?: number
   ): number {
     if (data.length < 3) {
       return -1;
@@ -167,7 +167,7 @@ export class AudioMath {
   public static indexOfAutocorrPeak<T extends TypedArray>(
     data: T,
     start?: number,
-    end?: number,
+    end?: number
   ): number {
     if (data.length < 4) {
       return -1;
@@ -239,7 +239,7 @@ export class AudioMath {
     data: T,
     mean: number,
     variance: number,
-    offset: number,
+    offset: number
   ): number {
     let res = 0;
     for (let i = offset; i < data.length; i += 1) {
@@ -260,14 +260,14 @@ export class AudioMath {
     data: T,
     minOffset: number,
     maxOffset: number,
-    output: U,
+    output: U
   ): U {
     maxOffset = AudioMath.clamp(maxOffset, 0, data.length - 1);
     minOffset = AudioMath.clamp(minOffset, 0, maxOffset - 1);
 
     if (output.length < data.length) {
       output = new (output.constructor as TypedArrayConstructor<U>)(
-        data.length,
+        data.length
       );
     } else {
       output.fill(0);

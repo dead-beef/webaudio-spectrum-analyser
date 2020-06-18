@@ -359,7 +359,7 @@ export class AudioGraph {
       .then(stream => {
         this.deviceStream = stream;
         this.nodes.device = this.context.createMediaStreamSource(
-          this.deviceStream,
+          this.deviceStream
         );
         this.nodes.device.connect(this.nodes.input);
       })
@@ -437,7 +437,7 @@ export class AudioGraph {
       res += AudioMath.interpolatePeak(
         fdata[res],
         fdata[res - 1],
-        fdata[res + 1],
+        fdata[res + 1]
       );
     }
     res /= fscale;
@@ -457,7 +457,7 @@ export class AudioGraph {
       res += AudioMath.interpolatePeak(
         fdata[res],
         fdata[res - 1],
-        fdata[res + 1],
+        fdata[res + 1]
       );
     }
     res /= fscale;
@@ -474,12 +474,12 @@ export class AudioGraph {
       this.tdata,
       start,
       end,
-      this.autocorrdata,
+      this.autocorrdata
     );
     let res: number = AudioMath.indexOfAutocorrPeak(
       this.autocorrdata,
       start,
-      end,
+      end
     );
     res = this.sampleRate / res;
     return res;

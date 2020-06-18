@@ -184,7 +184,7 @@ export class FrequencyChartComponent
   private drawFrequencyData(
     data: Uint8Array,
     yMin: number,
-    yMax: number,
+    yMax: number
   ): number {
     const ctx = this.context;
     const yScale = (yMax - yMin) / 255.0;
@@ -232,7 +232,7 @@ export class FrequencyChartComponent
   private drawAutocorrelationData(
     data: Float32Array,
     yMin: number,
-    yMax: number,
+    yMax: number
   ) {
     const ctx = this.context;
     const yMid = (yMin + yMax) / 2;
@@ -280,7 +280,7 @@ export class FrequencyChartComponent
         const pointValue: number = this.drawFrequencyData(
           data,
           i * plotHeight,
-          (i + 1) * plotHeight,
+          (i + 1) * plotHeight
         );
         this.pointValues[i] = update(this.pointValues[i], pointValue);
       });
@@ -294,7 +294,7 @@ export class FrequencyChartComponent
                 this.drawAutocorrelationData(
                   this.graph.autocorrdata,
                   0,
-                  plotHeight,
+                  plotHeight
                 );
                 break;
               default:
