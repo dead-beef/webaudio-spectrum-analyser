@@ -59,14 +59,11 @@ yarn install
 
 The following dependencies should not be updated by now, this specific versions should be fixed
 
-| Name                | Version | Note regarding newer versions (but it may be outdated, and should be confirmed over time) |
-| ------------------- | ------- | ----------------------------------------------------------------------------------------- |
-| eslint              | 6.8.0   | incompatible with NX                                                                      |
-| eslint-watch        | 6.0.1   | incompatible with NX                                                                      |
-| jest                | 25.3.0  | caching issues; tests take forever                                                        |
-| jest-preset-angular | 8.1.3   | may be incompatible with currently used jest version                                      |
-| ts-jest             | 25.3.1  | may be incompatible with currently used jest version                                      |
-| typescript          | 3.8.3   | currently installed is the latest version @angular/cli supports                           |
+| Name         | Version | Note regarding newer versions (but it may be outdated, and should be confirmed over time) |
+| ------------ | ------- | ----------------------------------------------------------------------------------------- |
+| eslint       | 6.8.0   | incompatible with NX                                                                      |
+| eslint-watch | 6.0.1   | incompatible with NX                                                                      |
+| typescript   | 3.8.3   | currently installed is the latest version @angular/cli supports                           |
 
 ## Building
 
