@@ -4,13 +4,15 @@
  *
  * ESLint Rules: https://eslint.org/docs/rules/
  */
+const path = require('path');
+
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
-    project: './tsconfig.json',
+    project: path.join(path.dirname(__filename), 'tsconfig.json'),
   },
   extends: [
     'plugin:@typescript-eslint/recommended',
