@@ -83,7 +83,7 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
    * Lifecycle hook.
    */
   public ngOnDestroy() {
-    if (Boolean(this.graph)) {
+    if (this.graph) {
       this.graph.destroy();
     }
     this.audio = null;

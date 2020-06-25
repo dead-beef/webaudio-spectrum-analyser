@@ -12,15 +12,17 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
-    project: path.join(path.dirname(__filename), 'tsconfig.json'),
+    project: path.join(path.dirname(__filename), 'tsconfig.base.json'),
   },
   extends: [
+    'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'prettier/@typescript-eslint',
     'plugin:prettier/recommended',
     'plugin:@angular-eslint/recommended',
   ],
   plugins: [
+    'prettier',
     '@typescript-eslint', // https://github.com/typescript-eslint/typescript-eslint
     '@angular-eslint', // https://github.com/angular-eslint/angular-eslint
     'deprecation', // https://github.com/gund/eslint-plugin-deprecation
@@ -62,7 +64,14 @@ module.exports = {
     ],
     '@typescript-eslint/member-ordering': [
       'error',
-      { default: ['static-field', 'instance-field', 'static-method', 'instance-method'] },
+      {
+        default: [
+          'static-field',
+          'instance-field',
+          'static-method',
+          'instance-method',
+        ],
+      },
     ],
     '@typescript-eslint/naming-convention': [
       'warn',
@@ -173,7 +182,10 @@ module.exports = {
     '@typescript-eslint/no-this-alias': 'error',
     '@typescript-eslint/no-throw-literal': 'error',
     '@typescript-eslint/no-unnecessary-type-arguments': 'error',
-    '@typescript-eslint/no-unnecessary-type-assertion': ['error', { typesToIgnore: [''] }],
+    '@typescript-eslint/no-unnecessary-type-assertion': [
+      'error',
+      { typesToIgnore: [''] },
+    ],
     '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
     '@typescript-eslint/no-unsafe-member-access': 'error',
     '@typescript-eslint/no-unused-vars': [
@@ -181,7 +193,10 @@ module.exports = {
       { vars: 'all', args: 'none', ignoreRestSiblings: false },
     ],
     '@typescript-eslint/no-require-imports': 'error',
-    '@typescript-eslint/no-use-before-define': ['error', { functions: false, classes: false }],
+    '@typescript-eslint/no-use-before-define': [
+      'error',
+      { functions: false, classes: false },
+    ],
     '@typescript-eslint/no-explicit-any': ['off', { ignoreRestArgs: true }],
     '@typescript-eslint/no-var-requires': 'error',
     '@typescript-eslint/prefer-function-type': 'error',
@@ -233,7 +248,10 @@ module.exports = {
       },
     ],
     'max-lines': ['warn', { max: 1100, skipBlankLines: true }],
-    'max-lines-per-function': ['warn', { max: 75, skipBlankLines: true, skipComments: true }],
+    'max-lines-per-function': [
+      'warn',
+      { max: 75, skipBlankLines: true, skipComments: true },
+    ],
     'max-nested-callbacks': ['warn', 4],
     'max-params': ['warn', 12],
     'no-alert': 'error',
@@ -279,7 +297,10 @@ module.exports = {
     'no-unmodified-loop-condition': 'error',
     'no-unreachable': 'error',
     'no-unsafe-finally': 'error',
-    'no-unused-expressions': ['error', { allowShortCircuit: true, allowTernary: true }],
+    'no-unused-expressions': [
+      'error',
+      { allowShortCircuit: true, allowTernary: true },
+    ],
     'no-unused-labels': 'error',
     'no-useless-catch': 'error',
     'no-useless-concat': 'error',
@@ -321,10 +342,7 @@ module.exports = {
   },
 
   settings: {
-    polyfills: [
-      'Promise',
-      'navigator.mediaDevices'
-    ]
+    polyfills: ['Promise', 'navigator.mediaDevices'],
   },
 
   overrides: [
@@ -346,9 +364,9 @@ module.exports = {
         'require-jsdoc': 'off',
         'max-lines-per-function': 'off',
         'compat/compat': 'off',
-        'quotes': 'off',
+        quotes: 'off',
         '@typescript-eslint/no-unsafe-member-access': 'off',
-        '@typescript-eslint/no-floating-promises': 'off'
+        '@typescript-eslint/no-floating-promises': 'off',
       },
     },
     {

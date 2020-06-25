@@ -36,16 +36,16 @@ export class InputFrequencyComponent implements OnChanges {
    */
   public ngOnChanges(changes: SimpleChanges): void {
     //console.log(changes);
-    if (Boolean(changes.min)) {
+    if (changes.min) {
       this.logMin = Math.log2(changes.min.currentValue);
     }
-    if (Boolean(changes.max)) {
+    if (changes.max) {
       this.logMax = Math.log2(changes.max.currentValue);
     }
-    if (Boolean(changes.value)) {
+    if (changes.value) {
       this.log = Math.log2(changes.value.currentValue);
     }
-    if (Boolean(changes.name)) {
+    if (changes.name) {
       this.logName = `log${changes.name.currentValue}`;
     }
   }
