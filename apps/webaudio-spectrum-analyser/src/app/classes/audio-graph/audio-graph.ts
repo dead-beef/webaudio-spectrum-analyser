@@ -119,7 +119,7 @@ export class AudioGraph {
    * Constructor.
    */
   constructor() {
-    if (Boolean(window['PREVIEW'])) {
+    if (window['PREVIEW']) {
       console.warn('preview');
 
       Object.defineProperty(this.context, 'sampleRate', {
@@ -174,12 +174,12 @@ export class AudioGraph {
    * TODO: description
    */
   public destroy() {
-    if (Boolean(this.context)) {
+    if (this.context) {
       void this.context.close();
       this.context = null;
       this.nodes = null;
     }
-    if (Boolean(this.stream)) {
+    if (this.stream) {
       this.stream.getTracks().forEach(track => track.stop());
       this.stream = null;
     }
@@ -260,7 +260,7 @@ export class AudioGraph {
    * TODO: description
    */
   public createAnalysers(): AudioGraph {
-    if (Boolean(this.nodes.analysers)) {
+    if (this.nodes.analysers) {
       for (const node of this.nodes.analysers) {
         node.disconnect();
       }
@@ -332,11 +332,11 @@ export class AudioGraph {
    * @param dev
    */
   public setDevice(dev: MediaDeviceInfo): Promise<void> {
-    if (Boolean(this.deviceStream)) {
+    if (this.deviceStream) {
       this.deviceStream.getTracks().forEach(track => track.stop());
       this.deviceStream = null;
     }
-    if (Boolean(this.nodes.device)) {
+    if (this.nodes.device) {
       this.nodes.device.disconnect();
       this.nodes.device = null;
     }
@@ -375,7 +375,7 @@ export class AudioGraph {
    * @param el
    */
   public setElement(el: HTMLAudioElement): AudioGraph {
-    if (Boolean(this.nodes.element)) {
+    if (this.nodes.element) {
       this.nodes.element.disconnect();
       this.nodes.element = null;
     }
