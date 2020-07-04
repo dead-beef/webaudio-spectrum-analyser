@@ -1,5 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { SafeUrlPipe } from '../../pipes/safe-url/safe-url.pipe';
+import { AlertComponent } from '../alert/alert.component';
 import { AudioControlsComponent } from './audio-controls.component';
 
 describe('AudioControlsComponent', () => {
@@ -8,7 +10,7 @@ describe('AudioControlsComponent', () => {
 
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
-      declarations: [AudioControlsComponent],
+      declarations: [AudioControlsComponent, AlertComponent, SafeUrlPipe],
     }).compileComponents();
   }));
 

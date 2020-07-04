@@ -1,5 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ClarityModule } from '@clr/angular';
 
+import { SafeUrlPipe } from '../../pipes/safe-url/safe-url.pipe';
+import { AlertComponent } from '../alert/alert.component';
+import { AudioControlsComponent } from '../audio-controls/audio-controls.component';
 import { FileOptionsComponent } from './file-options.component';
 
 describe('FileOptionsComponent', () => {
@@ -8,7 +12,13 @@ describe('FileOptionsComponent', () => {
 
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
-      declarations: [FileOptionsComponent],
+      imports: [ClarityModule],
+      declarations: [
+        FileOptionsComponent,
+        AlertComponent,
+        AudioControlsComponent,
+        SafeUrlPipe,
+      ],
     }).compileComponents();
   }));
 

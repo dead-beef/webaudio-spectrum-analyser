@@ -1,5 +1,7 @@
+import { NgZone } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { AlertComponent } from '../alert/alert.component';
 import { FrequencyChartComponent } from './frequency-chart.component';
 
 describe('FrequencyChartComponent', () => {
@@ -8,7 +10,16 @@ describe('FrequencyChartComponent', () => {
 
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
-      declarations: [FrequencyChartComponent],
+      declarations: [FrequencyChartComponent, AlertComponent],
+      providers: [
+        {
+          provide: NgZone,
+          useValue: {
+            runOutsideAngular: (...args) => null,
+            run: (...args) => null,
+          },
+        },
+      ],
     }).compileComponents();
   }));
 

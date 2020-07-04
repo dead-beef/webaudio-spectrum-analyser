@@ -18,5 +18,5 @@ module.exports = {
   resolver: '@nrwl/jest/plugins/resolver',
   coverageReporters: ['html'],
   collectCoverage: true,
-  cacheDirectory: '/tmp/jest_rs/tn',
+  cacheDirectory: '/tmp/jest_rs/webaudio-spectrum-analyser',
 };

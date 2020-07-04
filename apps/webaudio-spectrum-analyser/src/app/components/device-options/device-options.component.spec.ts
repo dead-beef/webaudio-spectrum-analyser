@@ -1,5 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ClarityModule } from '@clr/angular';
 
+import { AlertComponent } from '../alert/alert.component';
 import { DeviceOptionsComponent } from './device-options.component';
 
 describe('DeviceOptionsComponent', () => {
@@ -8,7 +10,8 @@ describe('DeviceOptionsComponent', () => {
 
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
-      declarations: [DeviceOptionsComponent],
+      imports: [ClarityModule],
+      declarations: [DeviceOptionsComponent, AlertComponent],
     }).compileComponents();
   }));
 
