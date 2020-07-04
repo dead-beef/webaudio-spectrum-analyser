@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClarityModule } from '@clr/angular';
 
+import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { CommonOptionsComponent } from './common-options.component';
 
 describe('CommonOptionsComponent', () => {
@@ -10,7 +11,7 @@ describe('CommonOptionsComponent', () => {
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
       imports: [ClarityModule],
-      declarations: [CommonOptionsComponent],
+      declarations: [CommonOptionsComponent, UnitsPipe],
     })
       .compileComponents()
       .then(() => {

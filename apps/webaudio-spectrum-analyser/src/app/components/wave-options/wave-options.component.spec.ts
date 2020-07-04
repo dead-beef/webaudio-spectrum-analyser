@@ -9,14 +9,16 @@ describe('WaveOptionsComponent', () => {
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
       declarations: [WaveOptionsComponent],
-    }).compileComponents();
+    })
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(WaveOptionsComponent);
+        component = fixture.componentInstance;
+        const baseAudioContext = new BaseAudioContext();
+        component.node = new OscillatorNode(baseAudioContext);
+        fixture.detectChanges();
+      });
   }));
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(WaveOptionsComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
 
   it('should create', () => {
     expect(component).toBeTruthy();

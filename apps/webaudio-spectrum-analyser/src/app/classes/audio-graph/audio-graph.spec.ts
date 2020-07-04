@@ -13,8 +13,16 @@ describe('AudioGraph', () => {
     value: () => {
       return {
         suspend: () => null,
-        createOscillator: () => null,
+        createOscillator: () => ({
+          start: () => null,
+          fftSize: 0,
+          maxDecibels: 0,
+          minDecibels: 0,
+          input: { connect: () => null },
+        }),
         createDelay: (...args) => null,
+        createMediaStreamDestination: () => null,
+        createAnalyser: () => null,
       };
     },
     writable: false,
