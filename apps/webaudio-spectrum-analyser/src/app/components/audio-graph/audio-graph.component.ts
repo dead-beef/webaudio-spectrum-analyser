@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
+import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
 
 @Component({
@@ -31,6 +32,8 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
   private volumeValue: number;
 
   private logVolumeValue: number;
+
+  constructor(private readonly audioGraphService: AudioGraphService) {}
 
   /**
    * Volume getter.
@@ -57,7 +60,7 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   public ngOnInit() {
     try {
-      this.graph = new AudioGraph();
+      this.graph = new AudioGraph(this.audioGraphService);
       this.volume = 0.25;
     } catch (err) {
       console.error(err);

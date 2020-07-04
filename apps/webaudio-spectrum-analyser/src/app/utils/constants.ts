@@ -1,0 +1,7 @@
+export enum TIMEOUT {
+  SHORTEST = 250,
+  SHORTER = 500,
+  SHORT = 1000,
+  MEDUIM = 2500,
+  LONG = 5000,
+}

@@ -1,12 +1,17 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { ClarityModule } from '@clr/angular';
+import { NgxsFormPluginModule } from '@ngxs/form-plugin';
+import { NgxsLoggerPluginModule } from '@ngxs/logger-plugin';
+import { NgxsRouterPluginModule } from '@ngxs/router-plugin';
+import { NgxsModule } from '@ngxs/store';
 import { SimplebarAngularModule } from 'simplebar-angular';
 
+import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { ROUTES } from './app.routes';
 import { AlertComponent } from './components/alert/alert.component';
@@ -24,6 +29,8 @@ import { ErrorPipe } from './pipes/error/error.pipe';
 import { SafeUrlPipe } from './pipes/safe-url/safe-url.pipe';
 import { TimePipe } from './pipes/time/time.pipe';
 import { UnitsPipe } from './pipes/units/units.pipe';
+import { AudioGraphStoreModule } from './state/audio-graph/audio-graph.module';
+import { APP_ENV, getDocument, getWindow, WINDOW } from './utils';
 
 @NgModule({
   declarations: [
@@ -49,12 +56,24 @@ import { UnitsPipe } from './pipes/units/units.pipe';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterModule.forRoot(ROUTES, { useHash: true }),
     ClarityModule,
     SimplebarAngularModule,
     StatsModule,
+    NgxsModule.forRoot([], { developmentMode: !environment.production }),
+    NgxsLoggerPluginModule.forRoot({
+      disabled: environment.production,
+      collapsed: true,
+    }),
+    NgxsRouterPluginModule.forRoot(),
+    NgxsFormPluginModule.forRoot(),
+    AudioGraphStoreModule,
+    RouterModule.forRoot(ROUTES, { useHash: true }),
   ],
-  providers: [],
+  providers: [
+    { provide: WINDOW, useFactory: getWindow },
+    { provide: DOCUMENT, useFactory: getDocument },
+    { provide: APP_ENV, useValue: environment },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

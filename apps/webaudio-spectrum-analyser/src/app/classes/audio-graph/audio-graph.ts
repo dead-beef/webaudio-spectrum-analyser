@@ -1,4 +1,5 @@
 import { AudioGraphNodes, PitchDetection } from '../../interfaces';
+import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioMath } from '../audio-math/audio-math';
 
 export class AudioGraph {
@@ -8,9 +9,19 @@ export class AudioGraph {
 
   public stream: MediaStream = null;
 
+  /**
+   * TODO: this should be replaced with paused$ stream
+   */
   public paused = true;
 
+  public paused$ = this.storeService.paused$;
+
+  /**
+   * TODO: this should be replaced with suspended$ stream
+   */
   public suspended = true;
+
+  public suspended$ = this.storeService.suspended$;
 
   public deviceLoading = false;
 
@@ -118,7 +129,7 @@ export class AudioGraph {
   /**
    * Constructor.
    */
-  constructor() {
+  constructor(private readonly storeService: AudioGraphService) {
     if (window['PREVIEW']) {
       console.warn('preview');
 
@@ -191,12 +202,14 @@ export class AudioGraph {
   public play(): AudioGraph {
     if (this.suspended) {
       void this.context.resume();
-      this.suspended = false;
+      this.suspended = false; // TODO: this should be remove after migrating to suspended$ stream from boolean flag
+      void this.storeService.setState({ suspended: false }).subscribe();
     }
     if (this.paused) {
       // TODO
     }
-    this.paused = false;
+    this.paused = false; // TODO: this should be remove after migrating to paused$ stream from boolean flag
+    void this.storeService.setState({ paused: false }).subscribe();
     return this;
   }
 
@@ -207,7 +220,8 @@ export class AudioGraph {
     if (!this.paused) {
       // TODO
     }
-    this.paused = true;
+    this.paused = true; // TODO: this should be remove after migrating to paused$ stream from boolean flag
+    void this.storeService.setState({ paused: true }).subscribe();
     return this;
   }
 
