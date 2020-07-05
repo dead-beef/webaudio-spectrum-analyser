@@ -25,7 +25,7 @@ export class AudioGraphService implements IAudioGraphService {
 
   /**
    * Sets AudioGraph playback state
-   * @param playback
+   * @param newStateValues
    */
   public setState(newStateValues: Partial<IAudioGraphStateModel>) {
     return this.store.dispatch(
