@@ -3,13 +3,13 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  Input,
   OnDestroy,
   Output,
   ViewChild,
 } from '@angular/core';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
+import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioControlsComponent } from '../audio-controls/audio-controls.component';
 
 @Component({
@@ -17,14 +17,14 @@ import { AudioControlsComponent } from '../audio-controls/audio-controls.compone
   templateUrl: './file-options.component.html',
 })
 export class FileOptionsComponent implements AfterViewInit, OnDestroy {
-  @Input() public graph: AudioGraph;
-
   @Output() public readonly create = new EventEmitter<ElementRef>();
 
   @Output() public readonly destroy = new EventEmitter<void>();
 
   @ViewChild(AudioControlsComponent)
   public audioControls: AudioControlsComponent;
+
+  public readonly graph: AudioGraph = this.graphService.graph;
 
   public loading = true;
 
@@ -33,6 +33,12 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
   public url = '';
 
   public filename = 'None';
+
+  /**
+   * Constructor.
+   * @param graphService
+   */
+  constructor(private readonly graphService: AudioGraphService) {}
 
   /**
    * Lifecycle hook.

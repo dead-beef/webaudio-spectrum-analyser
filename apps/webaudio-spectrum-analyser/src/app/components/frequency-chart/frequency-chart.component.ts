@@ -2,7 +2,6 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  Input,
   NgZone,
   OnDestroy,
   OnInit,
@@ -11,6 +10,7 @@ import {
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 // import { AudioMath } from '../../classes/audio-math/audio-math';
+import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { Point } from '../../interfaces';
 
 @Component({
@@ -19,8 +19,6 @@ import { Point } from '../../interfaces';
 })
 export class FrequencyChartComponent
   implements OnInit, AfterViewInit, OnDestroy {
-  @Input() public graph: AudioGraph;
-
   @ViewChild('canvas') public canvas: ElementRef<HTMLCanvasElement>;
 
   private context: CanvasRenderingContext2D = null;
@@ -28,6 +26,8 @@ export class FrequencyChartComponent
   private frame = 0;
 
   private readonly animate = this.animateCanvas.bind(this);
+
+  public readonly graph: AudioGraph = this.graphService.graph;
 
   public error: Error = null;
 
@@ -48,8 +48,12 @@ export class FrequencyChartComponent
   /**
    * Constructor.
    * @param zone
+   * @param graphService
    */
-  constructor(private readonly zone: NgZone) {}
+  constructor(
+    private readonly zone: NgZone,
+    private readonly graphService: AudioGraphService
+  ) {}
 
   /**
    * Lifecycle hook.

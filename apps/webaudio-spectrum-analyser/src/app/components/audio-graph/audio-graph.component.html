@@ -3,7 +3,7 @@
 <div class="clr-row">
   <div class="clr-col-12 clr-col-md-6 clr-col-lg-8">
     <div class="frequency-chart-container">
-      <app-frequency-chart [graph]="graph"> </app-frequency-chart>
+      <app-frequency-chart></app-frequency-chart>
     </div>
   </div>
 
@@ -30,7 +30,6 @@
         <button clrTabLink>Wave</button>
         <clr-tab-content *clrIfActive>
           <app-wave-options
-            [node]="graph.nodes?.wave"
             (create)="graph.enable('wave')"
             (destroy)="graph.disable('wave')"
           >
@@ -41,7 +40,6 @@
         <button clrTabLink>File</button>
         <clr-tab-content *clrIfActive>
           <app-file-options
-            [graph]="graph"
             (create)="graph.enable('file', $event.nativeElement)"
             (destroy)="graph.disable('file')"
           >
@@ -52,7 +50,6 @@
         <button clrTabLink>Device</button>
         <clr-tab-content *clrIfActive>
           <app-device-options
-            [graph]="graph"
             (create)="graph.enable('device')"
             (destroy)="graph.disable('device')"
           >
@@ -62,7 +59,7 @@
     </clr-tabs>
 
     <div class="section">
-      <app-common-options [graph]="graph"></app-common-options>
+      <app-common-options></app-common-options>
     </div>
   </div>
 </div>

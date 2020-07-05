@@ -20,20 +20,21 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('audio') public audioRef: ElementRef<HTMLAudioElement>;
 
-  public graph: AudioGraph = null;
+  public graph: AudioGraph = this.graphService.graph;
 
   public audio: HTMLAudioElement;
 
   public error: Error = null;
 
-  /**
-   * TODO: revise if this value is needed, it is currently not used.
-   */
   private volumeValue: number;
 
   private logVolumeValue: number;
 
-  constructor(private readonly audioGraphService: AudioGraphService) {}
+  /**
+   * Constructor.
+   * @param graphService
+   */
+  constructor(private readonly graphService: AudioGraphService) {}
 
   /**
    * Volume getter.
@@ -60,7 +61,6 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   public ngOnInit() {
     try {
-      this.graph = new AudioGraph(this.audioGraphService);
       this.volume = 0.25;
     } catch (err) {
       console.error(err);
@@ -86,9 +86,6 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
    * Lifecycle hook.
    */
   public ngOnDestroy() {
-    if (this.graph) {
-      this.graph.destroy();
-    }
     this.audio = null;
   }
 

@@ -4,18 +4,18 @@ import { Action, Selector, State, StateContext, StateToken } from '@ngxs/store';
 import { setAudioGraphState } from './audio-graph.actions';
 import {
   AudioGraphPayload,
-  IAudioGraphStateModel,
+  AudioGraphStateModel,
 } from './audio-graph.interface';
 
 export const audioGraphAction = {
   setAudioGraphState,
 };
 
-export const AUDIO_GRAPH_STATE_TOKEN = new StateToken<IAudioGraphStateModel>(
+export const AUDIO_GRAPH_STATE_TOKEN = new StateToken<AudioGraphStateModel>(
   'AudioGraph'
 );
 
-@State<IAudioGraphStateModel>({
+@State<AudioGraphStateModel>({
   name: AUDIO_GRAPH_STATE_TOKEN,
   defaults: {
     paused: true,
@@ -30,7 +30,7 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static getState(state: IAudioGraphStateModel) {
+  public static getState(state: AudioGraphStateModel) {
     return state;
   }
 
@@ -39,7 +39,7 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static getPaused(state: IAudioGraphStateModel) {
+  public static getPaused(state: AudioGraphStateModel) {
     return state.paused;
   }
 
@@ -48,7 +48,7 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static getSuspended(state: IAudioGraphStateModel) {
+  public static getSuspended(state: AudioGraphStateModel) {
     return state.suspended;
   }
 
@@ -59,7 +59,7 @@ export class AudioGraphState {
    */
   @Action(setAudioGraphState)
   public setAudioGraphState(
-    ctx: StateContext<IAudioGraphStateModel>,
+    ctx: StateContext<AudioGraphStateModel>,
     { payload }: AudioGraphPayload
   ) {
     return ctx.patchState(payload);

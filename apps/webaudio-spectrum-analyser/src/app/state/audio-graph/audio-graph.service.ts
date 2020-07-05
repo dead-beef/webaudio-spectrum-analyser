@@ -1,21 +1,22 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
 
-import {
-  IAudioGraphService,
-  IAudioGraphStateModel,
-} from './audio-graph.interface';
 import { audioGraphAction, AudioGraphState } from './audio-graph.store';
+import { AudioGraphStateModel } from './audio-graph.interface';
+
+import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AudioGraphService implements IAudioGraphService {
+export class AudioGraphService {
   /**
    * Constructor
    * @param store
    */
   constructor(private readonly store: Store) {}
+
+  public readonly graph = new AudioGraph();
 
   public readonly state$ = this.store.select(AudioGraphState.getState);
 
@@ -27,7 +28,7 @@ export class AudioGraphService implements IAudioGraphService {
    * Sets AudioGraph playback state
    * @param newStateValues
    */
-  public setState(newStateValues: Partial<IAudioGraphStateModel>) {
+  public setState(newStateValues: Partial<AudioGraphStateModel>) {
     return this.store.dispatch(
       new audioGraphAction.setAudioGraphState(newStateValues)
     );
