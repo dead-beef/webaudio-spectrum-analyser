@@ -1,40 +1,53 @@
-import { async, TestBed } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/compiler';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClarityModule } from '@clr/angular';
 import { NgxsModule } from '@ngxs/store';
-import { SimplebarAngularModule } from 'simplebar-angular';
 
 import { AppComponent } from './app.component';
-import { AudioGraph } from './classes/audio-graph/audio-graph';
+import { AlertComponent } from './components/alert/alert.component';
+import { AudioGraphComponent } from './components/audio-graph/audio-graph.component';
+import { CommonOptionsComponent } from './components/common-options/common-options.component';
+import { FrequencyChartComponent } from './components/frequency-chart/frequency-chart.component';
+import { WaveOptionsComponent } from './components/wave-options/wave-options.component';
+import { UnitsPipe } from './pipes/units/units.pipe';
 import { AudioGraphStoreModule } from './state/audio-graph/audio-graph.module';
 
 describe('AppComponent', () => {
+  let fixture: ComponentFixture<AppComponent>;
+  let component: AppComponent;
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [
-        ClarityModule,
-        SimplebarAngularModule,
-        NgxsModule.forRoot([]),
-        AudioGraphStoreModule,
+      imports: [ClarityModule, NgxsModule.forRoot([]), AudioGraphStoreModule],
+      declarations: [
+        AppComponent,
+        AudioGraphComponent,
+        FrequencyChartComponent,
+        AlertComponent,
+        CommonOptionsComponent,
+        WaveOptionsComponent,
+        UnitsPipe,
       ],
-      declarations: [AppComponent, AudioGraph],
-    }).compileComponents();
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    })
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(AppComponent);
+        component = fixture.debugElement.componentInstance;
+        fixture.detectChanges();
+      });
   }));
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 
   it("should have as title 'webaudio-spectrum-analyser'", () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('webaudio-spectrum-analyser');
+    const adebugElComponent = fixture.debugElement.componentInstance;
+    expect(adebugElComponent.title).toEqual('webaudio-spectrum-analyser');
   });
 
   it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
     expect(compiled.querySelector('h1').textContent).toContain(
       'Welcome to webaudio-spectrum-analyser!'

@@ -1,4 +1,4 @@
-<clr-tabs>
+<clr-tabs *ngIf="graph">
   <clr-tab>
     <button clrTabLink>Graph</button>
     <clr-tab-content *clrIfActive>
@@ -32,15 +32,25 @@
     <clr-tab-content *clrIfActive>
       <form clrForm clrLayout="vertical">
         <clr-checkbox-container>
-          <clr-checkbox-wrapper *ngFor="let pd of this.graph.pitch">
-            <input type="checkbox" clrCheckbox [name]="pd.short" [(ngModel)]="pd.enabled" />
+          <clr-checkbox-wrapper *ngFor="let pd of graph.pitch">
+            <input
+              type="checkbox"
+              clrCheckbox
+              [name]="pd.short"
+              [(ngModel)]="pd.enabled"
+            />
             <label>{{ pd.name }}</label>
           </clr-checkbox-wrapper>
         </clr-checkbox-container>
 
         <clr-checkbox-container>
           <clr-checkbox-wrapper>
-            <input type="checkbox" clrCheckbox name="debug" [(ngModel)]="graph.debug" />
+            <input
+              type="checkbox"
+              clrCheckbox
+              name="debug"
+              [(ngModel)]="graph.debug"
+            />
             <label>Debug</label>
           </clr-checkbox-wrapper>
         </clr-checkbox-container>

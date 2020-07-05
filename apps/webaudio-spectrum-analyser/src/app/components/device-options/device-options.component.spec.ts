@@ -1,4 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
 import { ClarityModule } from '@clr/angular';
 
 import { AlertComponent } from '../alert/alert.component';
@@ -10,7 +12,7 @@ describe('DeviceOptionsComponent', () => {
 
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
-      imports: [ClarityModule],
+      imports: [BrowserModule, FormsModule, ReactiveFormsModule, ClarityModule],
       declarations: [DeviceOptionsComponent, AlertComponent],
     }).compileComponents();
   }));

@@ -1,5 +1,6 @@
 import { async, TestBed } from '@angular/core/testing';
 import { NgxsModule, Store } from '@ngxs/store';
+import { of } from 'rxjs';
 
 import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
@@ -18,11 +19,17 @@ describe('AudioGraph', () => {
           fftSize: 0,
           maxDecibels: 0,
           minDecibels: 0,
-          input: { connect: () => null },
+          connect: (...args) => null,
         }),
-        createDelay: (...args) => null,
-        createMediaStreamDestination: () => null,
-        createAnalyser: () => null,
+        createDelay: (...args) => ({ connect: (...args1) => null }),
+        createMediaStreamDestination: () => ({ stream: of() }),
+        createAnalyser: () => ({
+          start: () => null,
+          fftSize: 0,
+          maxDecibels: 0,
+          minDecibels: 0,
+          connect: (...args) => null,
+        }),
       };
     },
     writable: false,

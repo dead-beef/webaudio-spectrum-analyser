@@ -41,14 +41,16 @@ export class DeviceOptionsComponent implements OnInit, OnDestroy {
   public set device(dev: MediaDeviceInfo) {
     this.loading = true;
     this.deviceValue = dev;
-    this.graph
-      .setDevice(dev)
-      .then(() => (this.error = null))
-      .catch(err => {
-        this.error = err;
-        this.deviceValue = null;
-      })
-      .finally(() => (this.loading = false));
+    if (this.graph) {
+      this.graph
+        .setDevice(dev)
+        .then(() => (this.error = null))
+        .catch(err => {
+          this.error = err;
+          this.deviceValue = null;
+        })
+        .finally(() => (this.loading = false));
+    }
   }
 
   /**
@@ -71,17 +73,19 @@ export class DeviceOptionsComponent implements OnInit, OnDestroy {
    */
   public refresh() {
     this.loading = true;
-    this.graph
-      .setDevice(null)
-      .then(() => {
-        this.device = null;
-        return this.graph.getDevices();
-      })
-      .then(devices => {
-        this.devices = devices;
-        this.error = null;
-      })
-      .catch(err => (this.error = err))
-      .finally(() => (this.loading = false));
+    if (this.graph) {
+      this.graph
+        .setDevice(null)
+        .then(() => {
+          this.device = null;
+          return this.graph.getDevices();
+        })
+        .then(devices => {
+          this.devices = devices;
+          this.error = null;
+        })
+        .catch(err => (this.error = err))
+        .finally(() => (this.loading = false));
+    }
   }
 }

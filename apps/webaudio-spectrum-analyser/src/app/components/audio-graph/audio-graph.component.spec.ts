@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClarityModule } from '@clr/angular';
 import { NgxsModule } from '@ngxs/store';
+import { of } from 'rxjs';
 
 import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
@@ -23,11 +24,17 @@ describe('AudioGraphComponent', () => {
           fftSize: 0,
           maxDecibels: 0,
           minDecibels: 0,
-          input: { connect: () => null },
+          connect: (...args) => null,
         }),
-        createDelay: (...args) => null,
-        createMediaStreamDestination: () => null,
-        createAnalyser: () => null,
+        createDelay: (...args) => ({ connect: (...args1) => null }),
+        createMediaStreamDestination: () => ({ stream: of() }),
+        createAnalyser: () => ({
+          start: () => null,
+          fftSize: 0,
+          maxDecibels: 0,
+          minDecibels: 0,
+          connect: (...args) => null,
+        }),
       };
     },
     writable: false,

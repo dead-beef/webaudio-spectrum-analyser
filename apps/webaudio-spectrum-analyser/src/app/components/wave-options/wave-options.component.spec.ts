@@ -14,8 +14,6 @@ describe('WaveOptionsComponent', () => {
       .then(() => {
         fixture = TestBed.createComponent(WaveOptionsComponent);
         component = fixture.componentInstance;
-        const baseAudioContext = new BaseAudioContext();
-        component.node = new OscillatorNode(baseAudioContext);
         fixture.detectChanges();
       });
   }));

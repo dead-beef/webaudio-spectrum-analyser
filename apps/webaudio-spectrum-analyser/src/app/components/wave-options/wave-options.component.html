@@ -1,4 +1,4 @@
-<form clrForm clrLayout="vertical">
+<form clrForm clrLayout="vertical" *ngIf="node">
   <clr-select-container>
     <label>Shape</label>
     <select clrSelect name="shape" [(ngModel)]="node.type">
