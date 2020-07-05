@@ -1,23 +1,14 @@
-import {
-  Component,
-  EventEmitter,
-  OnDestroy,
-  OnInit,
-  Output,
-} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
+import { AudioGraphSourceNode } from '../../interfaces';
 
 @Component({
   selector: 'app-device-options',
   templateUrl: './device-options.component.html',
 })
-export class DeviceOptionsComponent implements OnInit, OnDestroy {
-  @Output() public readonly create = new EventEmitter<void>();
-
-  @Output() public readonly destroy = new EventEmitter<void>();
-
+export class DeviceOptionsComponent implements OnInit {
   public readonly graph: AudioGraph = this.graphService.graph;
 
   public loading = true;
@@ -63,15 +54,9 @@ export class DeviceOptionsComponent implements OnInit, OnDestroy {
    * Lifecycle hook.
    */
   public ngOnInit() {
-    this.refresh();
-    this.create.emit();
-  }
-
-  /**
-   * Lifecycle hook.
-   */
-  public ngOnDestroy() {
-    this.destroy.emit();
+    void this.graphService
+      .setSourceNode(AudioGraphSourceNode.DEVICE)
+      .subscribe(() => this.refresh());
   }
 
   /**

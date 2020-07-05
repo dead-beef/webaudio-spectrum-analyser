@@ -6,8 +6,12 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
+import { Select } from '@ngxs/store';
+import { Observable } from 'rxjs';
+import { withLatestFrom } from 'rxjs/operators';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
+import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
 
@@ -19,6 +23,8 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(FrequencyChartComponent) public chart: FrequencyChartComponent;
 
   @ViewChild('audio') public audioRef: ElementRef<HTMLAudioElement>;
+
+  @Select(AudioGraphState.getPaused) public paused$: Observable<boolean>;
 
   public graph: AudioGraph = this.graphService.graph;
 
@@ -90,37 +96,25 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Plays audio.
-   */
-  public play() {
-    this.graph.play();
-    void this.audio.play();
-  }
-
-  /**
-   * Pauses audio.
-   */
-  public pause() {
-    this.graph.pause();
-    this.audio.pause();
-  }
-
-  /**
    * Toggles playback.
    */
   public toggle() {
-    if (this.graph.paused) {
-      this.play();
-    } else {
-      this.pause();
-    }
+    void this.graphService
+      .toggle()
+      .pipe(withLatestFrom(this.paused$))
+      .subscribe(([_, paused]) => {
+        if (paused) {
+          this.audio.pause();
+        } else {
+          void this.audio.play();
+        }
+      });
   }
 
   /**
    * Resets chart.
    */
   public reset() {
-    this.graph.createAnalysers();
-    this.chart.clear();
+    this.graphService.reset();
   }
 }

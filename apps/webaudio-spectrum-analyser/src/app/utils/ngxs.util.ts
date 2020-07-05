@@ -1,41 +1,26 @@
 import { ActionDef } from '@ngxs/store/src/actions/symbols';
 
-export interface IActionPayload<T = void> {
-  payload: T;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class BaseStoreAction<
-  T extends IActionPayload<any> = { payload: void }
-> {
+export class StoreAction<T> {
   public static readonly type: string;
 
   // eslint-disable-next-line require-jsdoc
-  constructor(public payload: T['payload']) {}
+  constructor(public payload: T) {}
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type StoreAction<
-  T extends IActionPayload<any> = { payload: void }
-> = BaseStoreAction<T>;
+export type StoreActionDef<T> = ActionDef<T, StoreAction<T>>;
+
+export interface StoreActions {
+  [key: string]: StoreActionDef<any>;
+}
 
 /**
  * Store action constructor.
  * @param actionScope action scope
  */
-export const actionConstructor = (actionScope: string) => <
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  T extends IActionPayload<any> = { payload: void }
->(
-  actionName: string
-) =>
-  class extends BaseStoreAction<T> {
-    public static readonly type: string = `[${actionScope}]: ${actionName}`;
+export const actionConstructor = (scope: string) => <T>(name: string) =>
+  class {
+    public static readonly type: string = `[${scope}]: ${name}`;
 
     // eslint-disable-next-line require-jsdoc
-    constructor(public payload: T['payload']) {
-      super(payload);
-    }
-  } as ActionDef<T['payload'], StoreAction<T>>;
-
-export type EmptyPayload = IActionPayload<null>;
+    constructor(public payload: T) {}
+  } as StoreActionDef<T>;

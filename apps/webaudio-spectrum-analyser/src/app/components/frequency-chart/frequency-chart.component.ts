@@ -116,14 +116,6 @@ export class FrequencyChartComponent
   }
 
   /**
-   * Clears graph.
-   * TODO: this is currently not used anywhere.
-   */
-  public clear() {
-    this.graph.clearData();
-  }
-
-  /**
    * Converts canvas value to frequency.
    * @param x
    */

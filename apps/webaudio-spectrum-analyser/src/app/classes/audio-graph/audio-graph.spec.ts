@@ -3,7 +3,8 @@ import { NgxsModule, Store } from '@ngxs/store';
 import { of } from 'rxjs';
 
 import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
-import { getWindow, WINDOW } from '../../utils';
+import { getWindow } from '../../utils/factories';
+import { WINDOW } from '../../utils/injection-tokens';
 import { AudioGraph } from './audio-graph';
 
 describe('AudioGraph', () => {

@@ -30,7 +30,8 @@ import { SafeUrlPipe } from './pipes/safe-url/safe-url.pipe';
 import { TimePipe } from './pipes/time/time.pipe';
 import { UnitsPipe } from './pipes/units/units.pipe';
 import { AudioGraphStoreModule } from './state/audio-graph/audio-graph.module';
-import { APP_ENV, getDocument, getWindow, WINDOW } from './utils';
+import { APP_ENV, WINDOW, AUDIO_GRAPH } from './utils/injection-tokens';
+import { getDocument, getWindow, getAudioGraph } from './utils/factories';
 
 @NgModule({
   declarations: [
@@ -73,6 +74,7 @@ import { APP_ENV, getDocument, getWindow, WINDOW } from './utils';
     { provide: WINDOW, useFactory: getWindow },
     { provide: DOCUMENT, useFactory: getDocument },
     { provide: APP_ENV, useValue: environment },
+    { provide: AUDIO_GRAPH, useFactory: getAudioGraph }
   ],
   bootstrap: [AppComponent],
 })

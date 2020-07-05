@@ -10,11 +10,13 @@
   <div class="clr-col-12 clr-col-md-6 clr-col-lg-4">
     <app-alert [(error)]="error"></app-alert>
 
-    <div class="clr-row" *ngIf="graph !== null">
+    <div class="clr-row">
       <div class="clr-col-auto">
         <button class="btn btn-icon btn-flat" (click)="toggle()">
-          <clr-icon shape="play" *ngIf="graph.paused"></clr-icon>
-          <clr-icon shape="pause" *ngIf="!graph.paused"></clr-icon>
+          <clr-icon shape="play" *ngIf="(paused$ | async) else pause"></clr-icon>
+          <ng-template #pause>
+            <clr-icon shape="pause"></clr-icon>
+          </ng-template>
         </button>
         <button class="btn btn-icon btn-flat" (click)="reset()">
           <clr-icon shape="eraser"></clr-icon>
@@ -29,30 +31,21 @@
       <clr-tab>
         <button clrTabLink>Wave</button>
         <clr-tab-content *clrIfActive>
-          <app-wave-options
-            (create)="graph.enable('wave')"
-            (destroy)="graph.disable('wave')"
-          >
+          <app-wave-options>
           </app-wave-options>
         </clr-tab-content>
       </clr-tab>
       <clr-tab>
         <button clrTabLink>File</button>
         <clr-tab-content *clrIfActive>
-          <app-file-options
-            (create)="graph.enable('file', $event.nativeElement)"
-            (destroy)="graph.disable('file')"
-          >
+          <app-file-options>
           </app-file-options>
         </clr-tab-content>
       </clr-tab>
       <clr-tab>
         <button clrTabLink>Device</button>
         <clr-tab-content *clrIfActive>
-          <app-device-options
-            (create)="graph.enable('device')"
-            (destroy)="graph.disable('device')"
-          >
+          <app-device-options>
           </app-device-options>
         </clr-tab-content>
       </clr-tab>

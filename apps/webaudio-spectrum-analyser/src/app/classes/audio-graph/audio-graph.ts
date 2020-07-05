@@ -1,4 +1,8 @@
-import { AudioGraphNodes, PitchDetection } from '../../interfaces';
+import {
+  AudioGraphNodes,
+  AudioGraphSourceNode,
+  PitchDetection,
+} from '../../interfaces';
 import { AudioMath } from '../audio-math/audio-math';
 
 export class AudioGraph {
@@ -216,20 +220,20 @@ export class AudioGraph {
    * @param node
    * @param data
    */
-  public enable(node: string, data?: any): AudioGraph {
+  public enable(node: AudioGraphSourceNode, data?: any): AudioGraph {
     console.log('enable', node /*, data*/);
     switch (node) {
-      case 'device':
+      case AudioGraphSourceNode.DEVICE:
         //this.setDevice(null);
         break;
-      case 'file':
+      case AudioGraphSourceNode.FILE:
         this.setElement(data);
         break;
-      case 'wave':
+      case AudioGraphSourceNode.WAVE:
         this.nodes.wave.connect(this.nodes.input);
         break;
       default:
-        throw new Error('invalid node ' + node);
+        throw new Error('invalid node ' + String(node));
     }
     return this;
   }
@@ -238,20 +242,20 @@ export class AudioGraph {
    * TODO: description
    * @param node
    */
-  public disable(node: string): AudioGraph {
+  public disable(node: AudioGraphSourceNode): AudioGraph {
     console.log('disable', node);
     switch (node) {
-      case 'device':
+      case AudioGraphSourceNode.DEVICE:
         void this.setDevice(null);
         break;
-      case 'file':
+      case AudioGraphSourceNode.FILE:
         this.setElement(null);
         break;
-      case 'wave':
+      case AudioGraphSourceNode.WAVE:
         this.nodes.wave.disconnect();
         break;
       default:
-        throw new Error('invalid node ' + node);
+        throw new Error('invalid node ' + String(node));
     }
     return this;
   }

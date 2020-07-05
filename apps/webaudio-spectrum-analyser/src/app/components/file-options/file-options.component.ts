@@ -1,26 +1,15 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  EventEmitter,
-  OnDestroy,
-  Output,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioControlsComponent } from '../audio-controls/audio-controls.component';
+import { AudioGraphSourceNode } from '../../interfaces';
 
 @Component({
   selector: 'app-file-options',
   templateUrl: './file-options.component.html',
 })
 export class FileOptionsComponent implements AfterViewInit, OnDestroy {
-  @Output() public readonly create = new EventEmitter<ElementRef>();
-
-  @Output() public readonly destroy = new EventEmitter<void>();
-
   @ViewChild(AudioControlsComponent)
   public audioControls: AudioControlsComponent;
 
@@ -44,7 +33,10 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
    * Lifecycle hook.
    */
   public ngAfterViewInit() {
-    this.create.emit(this.audioControls.audio);
+    void this.graphService.setSource({
+      node: AudioGraphSourceNode.FILE,
+      data: this.audioControls.audio
+    });
   }
 
   /**
@@ -52,7 +44,6 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
    */
   public ngOnDestroy() {
     this.setFile('');
-    this.destroy.emit();
   }
 
   /**

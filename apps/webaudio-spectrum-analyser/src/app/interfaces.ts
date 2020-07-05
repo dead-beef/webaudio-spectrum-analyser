@@ -54,3 +54,14 @@ export interface AudioGraphNodes {
   analysers: AnalyserNode[];
   output: MediaStreamAudioDestinationNode;
 }
+
+export enum AudioGraphSourceNode {
+  WAVE,
+  FILE,
+  DEVICE,
+}
+
+export interface AudioGraphSource {
+  node: AudioGraphSourceNode;
+  data?: any;
+}
