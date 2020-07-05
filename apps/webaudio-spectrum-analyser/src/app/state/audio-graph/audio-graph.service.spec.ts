@@ -3,6 +3,8 @@ import { NgxsModule } from '@ngxs/store';
 
 import { AudioGraphStoreModule } from './audio-graph.module';
 import { AudioGraphService } from './audio-graph.service';
+import { AUDIO_GRAPH } from '../../utils/injection-tokens';
+import { getAudioGraph } from '../../utils/factories';
 
 describe('AudioGraphService', () => {
   let service: AudioGraphService;
@@ -10,6 +12,12 @@ describe('AudioGraphService', () => {
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
       imports: [NgxsModule.forRoot([]), AudioGraphStoreModule],
+      providers: [
+        {
+          provide: AUDIO_GRAPH,
+          useFactory: getAudioGraph,
+        },
+      ],
     })
       .compileComponents()
       .then(() => {

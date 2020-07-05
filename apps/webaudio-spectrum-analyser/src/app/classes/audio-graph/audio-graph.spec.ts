@@ -1,5 +1,5 @@
 import { async, TestBed } from '@angular/core/testing';
-import { NgxsModule, Store } from '@ngxs/store';
+import { NgxsModule } from '@ngxs/store';
 import { of } from 'rxjs';
 
 import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
@@ -41,6 +41,6 @@ describe('AudioGraph', () => {
   }));
 
   it('should create an instance', () => {
-    expect(new AudioGraph(service)).toBeTruthy();
+    expect(new AudioGraph()).toBeTruthy();
   });
 });

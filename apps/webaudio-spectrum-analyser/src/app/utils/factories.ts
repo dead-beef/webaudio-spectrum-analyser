@@ -20,3 +20,10 @@ export function getDocument() {
 export function getAudioGraph() {
   return new AudioGraph();
 }
+
+/**
+ * Audio graph factory
+ */
+export function getMockAudioGraph() {
+  return new AudioGraph(true);
+}

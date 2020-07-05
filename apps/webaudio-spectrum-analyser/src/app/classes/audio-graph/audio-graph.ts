@@ -122,9 +122,12 @@ export class AudioGraph {
   /**
    * Constructor.
    */
-  constructor() {
-    if (window['PREVIEW']) {
-      console.warn('preview');
+  constructor(mock: boolean = window['PREVIEW']) {
+    if (mock) {
+      console.warn('creating mock audio graph');
+
+      this.context = {} as any;
+      this.nodes = {} as any;
 
       Object.defineProperty(this.context, 'sampleRate', {
         value: 44000,
@@ -136,6 +139,7 @@ export class AudioGraph {
           frequency: { value: 440 },
           type: 'sine',
           connect: () => null,
+          disconnect: () => null,
         },
         writable: true,
       });
@@ -147,7 +151,7 @@ export class AudioGraph {
         writable: true,
       });
 
-      Object.defineProperty(this.nodes, 'input', {
+      Object.defineProperty(this.nodes, 'analysers', {
         value: [null, null],
         writable: true,
       });

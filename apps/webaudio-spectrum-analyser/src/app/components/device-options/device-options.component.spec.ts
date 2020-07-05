@@ -2,7 +2,9 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { ClarityModule } from '@clr/angular';
+import { Observable } from 'rxjs';
 
+import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AlertComponent } from '../alert/alert.component';
 import { DeviceOptionsComponent } from './device-options.component';
 
@@ -14,6 +16,18 @@ describe('DeviceOptionsComponent', () => {
     void TestBed.configureTestingModule({
       imports: [BrowserModule, FormsModule, ReactiveFormsModule, ClarityModule],
       declarations: [DeviceOptionsComponent, AlertComponent],
+      providers: [
+        {
+          provide: AudioGraphService,
+          useValue: {
+            graph: {
+              setDevice: (...args) => Promise.resolve(),
+              getDevices: (...args) => [],
+            },
+            setSourceNode: (...args) => Observable.create(o => o.complete()),
+          },
+        },
+      ],
     }).compileComponents();
   }));
 

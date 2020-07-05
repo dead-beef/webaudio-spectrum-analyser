@@ -144,6 +144,7 @@
     "eslint-watch": "6.0.1",
     "husky": "4.2.5",
     "jest": "26.1.0",
+    "jest-canvas-mock": "^2.2.0",
     "jest-preset-angular": "8.2.1",
     "prettier": "2.0.5",
     "prettier-stylelint": "0.4.2",

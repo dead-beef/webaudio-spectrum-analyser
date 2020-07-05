@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
 
-import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioControlsComponent } from '../audio-controls/audio-controls.component';
 import { AudioGraphSourceNode } from '../../interfaces';
@@ -12,8 +11,6 @@ import { AudioGraphSourceNode } from '../../interfaces';
 export class FileOptionsComponent implements AfterViewInit, OnDestroy {
   @ViewChild(AudioControlsComponent)
   public audioControls: AudioControlsComponent;
-
-  public readonly graph: AudioGraph = this.graphService.graph;
 
   public loading = true;
 
@@ -35,7 +32,7 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
   public ngAfterViewInit() {
     void this.graphService.setSource({
       node: AudioGraphSourceNode.FILE,
-      data: this.audioControls.audio
+      data: this.audioControls.audio,
     });
   }
 

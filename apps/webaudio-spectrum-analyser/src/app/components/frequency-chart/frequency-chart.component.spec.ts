@@ -1,8 +1,13 @@
-import { NgZone } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ClarityModule } from '@clr/angular';
+import { NgxsModule } from '@ngxs/store';
 
+import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
+import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { AlertComponent } from '../alert/alert.component';
 import { FrequencyChartComponent } from './frequency-chart.component';
+import { AUDIO_GRAPH } from '../../utils/injection-tokens';
+import { getAudioGraph } from '../../utils/factories';
 
 describe('FrequencyChartComponent', () => {
   let component: FrequencyChartComponent;
@@ -10,24 +15,22 @@ describe('FrequencyChartComponent', () => {
 
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
-      declarations: [FrequencyChartComponent, AlertComponent],
+      imports: [NgxsModule.forRoot([]), AudioGraphStoreModule, ClarityModule],
+      declarations: [FrequencyChartComponent, AlertComponent, UnitsPipe],
       providers: [
         {
-          provide: NgZone,
-          useValue: {
-            runOutsideAngular: (...args) => null,
-            run: (...args) => null,
-          },
+          provide: AUDIO_GRAPH,
+          useFactory: getAudioGraph,
         },
       ],
-    })
-      .compileComponents()
-      .then(() => {
-        fixture = TestBed.createComponent(FrequencyChartComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-      });
+    }).compileComponents();
   }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(FrequencyChartComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
   it('should create', () => {
     expect(component).toBeTruthy();
