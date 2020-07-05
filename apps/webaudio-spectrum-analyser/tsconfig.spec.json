@@ -7,5 +7,6 @@
   },
   "extends": "./tsconfig.json",
   "files": ["src/test-setup.ts"],
-  "include": ["**/*.spec.ts", "**/*.d.ts"]
+  "include": ["**/*.spec.ts", "**/*.d.ts"],
+  "exclude": ["**/.#*"]
 }
