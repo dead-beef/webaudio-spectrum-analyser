@@ -5,14 +5,14 @@ import { NgxsModule } from '@ngxs/store';
 
 import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
+import { getAudioGraph } from '../../utils/factories';
+import { AUDIO_GRAPH } from '../../utils/injection-tokens';
 import { AlertComponent } from '../alert/alert.component';
 import { CommonOptionsComponent } from '../common-options/common-options.component';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
 import { InputFrequencyComponent } from '../input-frequency/input-frequency.component';
 import { WaveOptionsComponent } from '../wave-options/wave-options.component';
 import { AudioGraphComponent } from './audio-graph.component';
-import { AUDIO_GRAPH } from '../../utils/injection-tokens';
-import { getAudioGraph } from '../../utils/factories';
 
 describe('AudioGraphComponent', () => {
   let component: AudioGraphComponent;

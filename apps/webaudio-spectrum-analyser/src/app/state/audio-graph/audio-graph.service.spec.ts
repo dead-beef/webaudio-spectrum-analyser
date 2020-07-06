@@ -1,10 +1,10 @@
 import { async, TestBed } from '@angular/core/testing';
 import { NgxsModule } from '@ngxs/store';
 
+import { getAudioGraph } from '../../utils/factories';
+import { AUDIO_GRAPH } from '../../utils/injection-tokens';
 import { AudioGraphStoreModule } from './audio-graph.module';
 import { AudioGraphService } from './audio-graph.service';
-import { AUDIO_GRAPH } from '../../utils/injection-tokens';
-import { getAudioGraph } from '../../utils/factories';
 
 describe('AudioGraphService', () => {
   let service: AudioGraphService;

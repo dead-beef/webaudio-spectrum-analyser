@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
-import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphSourceNode } from '../../interfaces';
+import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 
 @Component({
   selector: 'app-device-options',

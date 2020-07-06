@@ -1,6 +1,6 @@
+import { AudioGraphSource, AudioGraphSourceNode } from '../../interfaces';
 import { actionConstructor, StoreActions } from '../../utils/ngxs.util';
 import { AudioGraphStateModel } from './audio-graph.model';
-import { AudioGraphSource, AudioGraphSourceNode } from '../../interfaces';
 
 const action = actionConstructor('AudioGraph');
 

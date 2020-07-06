@@ -1,16 +1,16 @@
 import { Inject, Injectable } from '@angular/core';
 import { Action, Selector, State, StateContext } from '@ngxs/store';
 
-import { audioGraphAction } from './audio-graph.actions';
-import {
-  AudioGraphStateModel,
-  audioGraphStateDefaults,
-  AUDIO_GRAPH_STATE_TOKEN,
-} from './audio-graph.model';
-import { AudioGraphSource, AudioGraphSourceNode } from '../../interfaces';
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
+import { AudioGraphSource, AudioGraphSourceNode } from '../../interfaces';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
 import { StoreAction } from '../../utils/ngxs.util';
+import { audioGraphAction } from './audio-graph.actions';
+import {
+  AUDIO_GRAPH_STATE_TOKEN,
+  audioGraphStateDefaults,
+  AudioGraphStateModel,
+} from './audio-graph.model';
 
 @State<AudioGraphStateModel>({
   name: AUDIO_GRAPH_STATE_TOKEN,

@@ -1,7 +1,7 @@
 import { InjectionToken } from '@angular/core';
 
-import { AudioGraph } from '../classes/audio-graph/audio-graph';
 import { environment } from '../../environments/environment';
+import { AudioGraph } from '../classes/audio-graph/audio-graph';
 
 export const WINDOW = new InjectionToken<Window>('Window');
 

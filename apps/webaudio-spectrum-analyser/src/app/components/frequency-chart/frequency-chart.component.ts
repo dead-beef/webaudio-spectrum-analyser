@@ -9,9 +9,9 @@ import {
 } from '@angular/core';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
+import { Point } from '../../interfaces';
 // import { AudioMath } from '../../classes/audio-math/audio-math';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
-import { Point } from '../../interfaces';
 
 @Component({
   selector: 'app-frequency-chart',

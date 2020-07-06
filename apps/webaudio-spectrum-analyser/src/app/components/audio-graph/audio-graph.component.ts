@@ -11,8 +11,8 @@ import { Observable } from 'rxjs';
 import { withLatestFrom } from 'rxjs/operators';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
-import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
+import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
 
 @Component({
@@ -115,6 +115,6 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
    * Resets chart.
    */
   public reset() {
-    this.graphService.reset();
+    void this.graphService.reset();
   }
 }

@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 
+/**
+ * TODO: description
+ */
 export function mockAudioContext() {
   Object.defineProperty(window, 'AudioContext', {
     value: () => {
@@ -37,7 +40,12 @@ export function mockAudioContext() {
   });
 }
 
-export function mockComponent(selector) {
+/**
+ * TODO: description
+ * @param selector
+ */
+export function mockComponent(selector: string) {
+  // eslint-disable-next-line @angular-eslint/use-component-selector
   @Component({
     selector: selector,
     template: '',

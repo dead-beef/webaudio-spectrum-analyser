@@ -2,8 +2,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClarityModule } from '@clr/angular';
 
 import { AppComponent } from './app.component';
-import { AUDIO_GRAPH } from './utils/injection-tokens';
 import { getAudioGraph } from './utils/factories';
+import { AUDIO_GRAPH } from './utils/injection-tokens';
 import { mockComponent } from './utils/test';
 
 describe('AppComponent', () => {

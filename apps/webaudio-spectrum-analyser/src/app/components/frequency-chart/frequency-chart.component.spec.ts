@@ -2,12 +2,12 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClarityModule } from '@clr/angular';
 import { NgxsModule } from '@ngxs/store';
 
-import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
 import { UnitsPipe } from '../../pipes/units/units.pipe';
+import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
+import { getAudioGraph } from '../../utils/factories';
+import { AUDIO_GRAPH } from '../../utils/injection-tokens';
 import { AlertComponent } from '../alert/alert.component';
 import { FrequencyChartComponent } from './frequency-chart.component';
-import { AUDIO_GRAPH } from '../../utils/injection-tokens';
-import { getAudioGraph } from '../../utils/factories';
 
 describe('FrequencyChartComponent', () => {
   let component: FrequencyChartComponent;
