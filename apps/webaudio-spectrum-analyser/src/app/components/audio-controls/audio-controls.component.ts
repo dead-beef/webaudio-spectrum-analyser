@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   Input,
@@ -9,6 +10,7 @@ import {
 @Component({
   selector: 'app-audio-controls',
   templateUrl: './audio-controls.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AudioControlsComponent implements AfterViewInit {
   @Input() public src: string;

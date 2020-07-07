@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   OnDestroy,
@@ -10,7 +11,6 @@ import { Select } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { withLatestFrom } from 'rxjs/operators';
 
-import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
@@ -18,6 +18,7 @@ import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.comp
 @Component({
   selector: 'app-audio-graph',
   templateUrl: './audio-graph.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(FrequencyChartComponent) public chart: FrequencyChartComponent;
@@ -25,8 +26,6 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('audio') public audioRef: ElementRef<HTMLAudioElement>;
 
   @Select(AudioGraphState.getPaused) public paused$: Observable<boolean>;
-
-  public graph: AudioGraph = this.graphService.graph;
 
   public audio: HTMLAudioElement;
 
@@ -38,9 +37,9 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Constructor.
-   * @param graphService
+   * @param graph
    */
-  constructor(private readonly graphService: AudioGraphService) {}
+  constructor(private readonly graph: AudioGraphService) {}
 
   /**
    * Volume getter.
@@ -80,7 +79,7 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
   public ngAfterViewInit() {
     try {
       this.audio = this.audioRef.nativeElement;
-      this.audio.srcObject = this.graph.stream;
+      this.audio.srcObject = this.graph.getOutputStream();
       this.audio.volume = this.volume;
     } catch (err) {
       console.error(err);
@@ -99,7 +98,7 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
    * Toggles playback.
    */
   public toggle() {
-    void this.graphService
+    void this.graph
       .toggle()
       .pipe(withLatestFrom(this.paused$))
       .subscribe(([_, paused]) => {
@@ -115,6 +114,6 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
    * Resets chart.
    */
   public reset() {
-    void this.graphService.reset();
+    void this.graph.reset().subscribe();
   }
 }

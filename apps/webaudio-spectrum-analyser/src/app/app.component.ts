@@ -1,4 +1,9 @@
-import { AfterViewInit, ApplicationRef, Component } from '@angular/core';
+import {
+  AfterViewInit,
+  ApplicationRef,
+  ChangeDetectionStrategy,
+  Component,
+} from '@angular/core';
 import { enableDebugTools } from '@angular/platform-browser';
 
 import { environment } from '../environments/environment';
@@ -6,6 +11,7 @@ import { environment } from '../environments/environment';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements AfterViewInit {
   /**

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import { AudioGraphSourceNode } from '../../interfaces';
@@ -7,6 +7,7 @@ import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 @Component({
   selector: 'app-device-options',
   templateUrl: './device-options.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeviceOptionsComponent implements OnInit {
   public readonly graph: AudioGraph = this.graphService.graph;

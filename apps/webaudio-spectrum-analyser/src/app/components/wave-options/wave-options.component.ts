@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
 import { AudioGraphSourceNode } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
@@ -6,6 +6,7 @@ import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 @Component({
   selector: 'app-wave-options',
   templateUrl: './wave-options.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WaveOptionsComponent implements OnInit {
   public readonly node = this.graphService.graph.nodes.wave;

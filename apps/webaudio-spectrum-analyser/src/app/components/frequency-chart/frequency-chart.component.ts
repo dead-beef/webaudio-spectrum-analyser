@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   NgZone,
@@ -16,6 +17,7 @@ import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 @Component({
   selector: 'app-frequency-chart',
   templateUrl: './frequency-chart.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FrequencyChartComponent
   implements OnInit, AfterViewInit, OnDestroy {

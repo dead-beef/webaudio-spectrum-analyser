@@ -1,4 +1,10 @@
-import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  ViewChild,
+} from '@angular/core';
 
 import { AudioGraphSourceNode } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
@@ -7,6 +13,7 @@ import { AudioControlsComponent } from '../audio-controls/audio-controls.compone
 @Component({
   selector: 'app-file-options',
   templateUrl: './file-options.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FileOptionsComponent implements AfterViewInit, OnDestroy {
   @ViewChild(AudioControlsComponent)

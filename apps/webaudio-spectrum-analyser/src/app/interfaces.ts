@@ -37,9 +37,11 @@ export interface Stats {
   end: () => void;
 }
 
+export type PitchDetectionId = 'ZCR' | 'FFTM' | 'FFTP' | 'AC';
+
 export interface PitchDetection {
   name: string;
-  short: string;
+  short: PitchDetectionId;
   calc: () => number;
   smooth: boolean;
   enabled: boolean;
