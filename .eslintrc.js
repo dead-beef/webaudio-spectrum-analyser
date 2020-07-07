@@ -158,7 +158,7 @@ module.exports = {
     ],
     '@typescript-eslint/no-empty-interface': 'error',
     '@typescript-eslint/no-extraneous-class': [
-      'error',
+      'off',
       { allowEmpty: true, allowStaticOnly: true, allowWithDecorator: true },
     ],
     '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: true }],
