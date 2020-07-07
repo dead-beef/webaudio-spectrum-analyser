@@ -1,10 +1,12 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClarityModule } from '@clr/angular';
+import { NgxsModule } from '@ngxs/store';
 
-import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { InputFrequencyComponent } from '../input-frequency/input-frequency.component';
 import { WaveOptionsComponent } from './wave-options.component';
+import { getAudioGraph } from '../../utils/factories';
+import { AUDIO_GRAPH } from '../../utils/injection-tokens';
 
 describe('WaveOptionsComponent', () => {
   let component: WaveOptionsComponent;
@@ -12,24 +14,17 @@ describe('WaveOptionsComponent', () => {
 
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
-      imports: [ClarityModule, FormsModule, ReactiveFormsModule],
+      imports: [
+        ClarityModule,
+        FormsModule,
+        ReactiveFormsModule,
+        NgxsModule.forRoot([]),
+      ],
       declarations: [InputFrequencyComponent, WaveOptionsComponent],
       providers: [
         {
-          provide: AudioGraphService,
-          useValue: {
-            graph: {
-              nodes: {
-                wave: {
-                  frequency: {
-                    type: 'sine',
-                    value: 440,
-                  },
-                },
-              },
-            },
-            setSourceNode: (...args) => null,
-          },
+          provide: AUDIO_GRAPH,
+          useFactory: getAudioGraph,
         },
       ],
     })

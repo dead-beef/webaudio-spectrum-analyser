@@ -44,12 +44,21 @@ export function mockAudioContext() {
  * TODO: description
  * @param selector
  */
-export function mockComponent(selector: string) {
+export function mockComponent(selector: string, props?: Record<string, any>) {
   // eslint-disable-next-line @angular-eslint/use-component-selector
   @Component({
     selector: selector,
     template: '',
   })
-  class MockComponent {}
+  class MockComponent {
+    /**
+     * Constructor
+     */
+    constructor() {
+      if (props) {
+        Object.assign(this, props);
+      }
+    }
+  }
   return MockComponent;
 }
