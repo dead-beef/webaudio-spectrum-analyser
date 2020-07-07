@@ -70,8 +70,8 @@ export function stateFormControl<T>(
  */
 export function select<T>(
   store: Store,
-  varName: keyof AudioGraphStateModel
+  getter: (AudioGraphStateModel) => T
 ): Observable<T> {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  return store.select(state => state.AudioGraph[varName]);
+  return store.select(state => getter(state.AudioGraph));
 }

@@ -1,5 +1,12 @@
 import { Inject, Injectable } from '@angular/core';
-import { Action, Selector, State, StateContext } from '@ngxs/store';
+import {
+  Action,
+  Selector,
+  State,
+  StateContext,
+  createSelector,
+} from '@ngxs/store';
+import { patch } from '@ngxs/store/operators';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import {
@@ -35,7 +42,7 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static getState(state: AudioGraphStateModel) {
+  public static state(state: AudioGraphStateModel) {
     return state;
   }
 
@@ -44,7 +51,7 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static getPaused(state: AudioGraphStateModel) {
+  public static paused(state: AudioGraphStateModel) {
     return state.paused || state.suspended;
   }
 
@@ -53,7 +60,7 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static getSuspended(state: AudioGraphStateModel) {
+  public static suspended(state: AudioGraphStateModel) {
     return state.suspended;
   }
 
@@ -62,7 +69,7 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static getSourceNode(state: AudioGraphStateModel) {
+  public static sourceNode(state: AudioGraphStateModel) {
     return state.sourceNode;
   }
 
@@ -71,7 +78,7 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static getDelay(state: AudioGraphStateModel) {
+  public static delay(state: AudioGraphStateModel) {
     return state.delay;
   }
 
@@ -80,7 +87,7 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static getFftSize(state: AudioGraphStateModel) {
+  public static fftSize(state: AudioGraphStateModel) {
     return state.fftSize;
   }
 
@@ -89,8 +96,8 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static getMinPitch(state: AudioGraphStateModel) {
-    return state.minPitch;
+  public static minPitch(state: AudioGraphStateModel) {
+    return state.pitch.min;
   }
 
   /**
@@ -98,8 +105,8 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static getMaxPitch(state: AudioGraphStateModel) {
-    return state.maxPitch;
+  public static maxPitch(state: AudioGraphStateModel) {
+    return state.pitch.max;
   }
 
   /**
@@ -107,8 +114,37 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static getDebug(state: AudioGraphStateModel) {
+  public static debug(state: AudioGraphStateModel) {
     return state.debug;
+  }
+
+  /**
+   * Selector
+   * @param id
+   */
+  public static pitchEnabled(id: PitchDetectionId) {
+    return createSelector(
+      [AudioGraphState],
+      (state: AudioGraphStateModel) => state.pitch[id]
+    );
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static waveShape(state: AudioGraphStateModel) {
+    return state.wave.shape;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static waveFrequency(state: AudioGraphStateModel) {
+    return state.wave.frequency;
   }
 
   /**
@@ -234,9 +270,8 @@ export class AudioGraphState {
     ctx: StateContext<AudioGraphStateModel>,
     { payload }: StoreAction<number>
   ) {
-    const delay: number = payload;
-    this.graph.nodes.input.delayTime.value = delay;
-    return ctx.patchState({ delay });
+    this.graph.nodes.input.delayTime.value = payload;
+    return ctx.patchState({ delay: payload });
   }
 
   /**
@@ -249,9 +284,8 @@ export class AudioGraphState {
     ctx: StateContext<AudioGraphStateModel>,
     { payload }: StoreAction<number>
   ) {
-    const fftSize: number = payload;
-    this.graph.fftSize = fftSize;
-    return ctx.patchState({ fftSize });
+    this.graph.fftSize = payload;
+    return ctx.patchState({ fftSize: payload });
   }
 
   /**
@@ -264,9 +298,12 @@ export class AudioGraphState {
     ctx: StateContext<AudioGraphStateModel>,
     { payload }: StoreAction<number>
   ) {
-    const minPitch: number = payload;
-    this.graph.minPitch = minPitch;
-    return ctx.patchState({ minPitch });
+    this.graph.minPitch = payload;
+    return ctx.setState(
+      patch({
+        pitch: patch({ min: payload }),
+      })
+    );
   }
 
   /**
@@ -279,9 +316,12 @@ export class AudioGraphState {
     ctx: StateContext<AudioGraphStateModel>,
     { payload }: StoreAction<number>
   ) {
-    const maxPitch: number = payload;
-    this.graph.maxPitch = maxPitch;
-    return ctx.patchState({ maxPitch });
+    this.graph.maxPitch = payload;
+    return ctx.setState(
+      patch({
+        pitch: patch({ max: payload }),
+      })
+    );
   }
 
   /**
@@ -293,9 +333,8 @@ export class AudioGraphState {
     ctx: StateContext<AudioGraphStateModel>,
     { payload }: StoreAction<boolean>
   ) {
-    const debug: boolean = payload;
-    this.graph.debug = debug;
-    return ctx.patchState({ debug });
+    this.graph.debug = payload;
+    return ctx.patchState({ debug: payload });
   }
 
   /**
@@ -307,16 +346,51 @@ export class AudioGraphState {
     ctx: StateContext<AudioGraphStateModel>,
     { payload }: StoreAction<PitchDetectionState>
   ) {
-    const id: PitchDetectionId = payload.id;
-    const enabled: boolean = payload.enabled;
-    const patch = {};
-    patch[id] = enabled;
+    const { id, enabled } = payload;
+    const data = {};
+    data[id] = enabled;
     for (const pd of this.graph.pitch) {
       if (pd.short === id) {
         pd.enabled = enabled;
         break;
       }
     }
-    return ctx.patchState(patch);
+    return ctx.setState(patch({ pitch: patch(data) }));
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setWaveShape)
+  public setWaveShape(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<OscillatorType>
+  ) {
+    this.graph.nodes.wave.type = payload;
+    return ctx.setState(
+      patch({
+        wave: patch({ shape: payload }),
+      })
+    );
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setWaveFrequency)
+  public setWaveFrequency(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    this.graph.nodes.wave.frequency.value = payload;
+    return ctx.setState(
+      patch({
+        wave: patch({ frequency: payload }),
+      })
+    );
   }
 }

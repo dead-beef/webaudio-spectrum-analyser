@@ -30,6 +30,10 @@ export interface TypedArrayConstructor<T> {
   new (buffer: ArrayBuffer): T;
 }
 
+export type MethodOf<T> = {
+  [P in keyof T]-?: T[P] extends (...args: any[]) => any ? P : never;
+}[keyof T];
+
 export interface Stats {
   dom: HTMLElement;
   update: () => void;

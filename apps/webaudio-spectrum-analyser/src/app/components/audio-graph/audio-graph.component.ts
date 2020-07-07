@@ -7,12 +7,11 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { Select } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { withLatestFrom } from 'rxjs/operators';
 
-import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
+import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
 
 @Component({
@@ -25,7 +24,9 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('audio') public audioRef: ElementRef<HTMLAudioElement>;
 
-  @Select(AudioGraphState.getPaused) public paused$: Observable<boolean>;
+  public paused$: Observable<boolean> = this.graph.select(
+    AudioGraphState.paused
+  );
 
   public audio: HTMLAudioElement;
 
@@ -99,7 +100,7 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   public toggle() {
     void this.graph
-      .toggle()
+      .dispatch('toggle')
       .pipe(withLatestFrom(this.paused$))
       .subscribe(([_, paused]) => {
         if (paused) {
@@ -114,6 +115,6 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
    * Resets chart.
    */
   public reset() {
-    void this.graph.reset().subscribe();
+    void this.graph.dispatch('reset');
   }
 }

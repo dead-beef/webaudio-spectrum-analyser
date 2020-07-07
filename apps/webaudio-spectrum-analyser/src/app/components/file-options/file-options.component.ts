@@ -5,9 +5,11 @@ import {
   OnDestroy,
   ViewChild,
 } from '@angular/core';
+import { Observable } from 'rxjs';
 
 import { AudioGraphSourceNode } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
+import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { AudioControlsComponent } from '../audio-controls/audio-controls.component';
 
 @Component({
@@ -19,6 +21,10 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
   @ViewChild(AudioControlsComponent)
   public audioControls: AudioControlsComponent;
 
+  public paused$: Observable<boolean> = this.graph.select(
+    AudioGraphState.paused
+  );
+
   public loading = true;
 
   public error: Error = null;
@@ -29,17 +35,17 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
 
   /**
    * Constructor.
-   * @param graphService
+   * @param graph
    */
-  constructor(private readonly graphService: AudioGraphService) {}
+  constructor(private readonly graph: AudioGraphService) {}
 
   /**
    * Lifecycle hook.
    */
   public ngAfterViewInit() {
-    void this.graphService.setSource({
+    void this.graph.dispatch('setSource', {
       node: AudioGraphSourceNode.FILE,
-      data: this.audioControls.audio,
+      data: this.audioControls.audio.nativeElement,
     });
   }
 
@@ -75,5 +81,16 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
   public setError(error: Error) {
     this.setFile('');
     this.error = error;
+  }
+
+  /**
+   * TODO: description
+   */
+  public setPaused(paused: boolean) {
+    if (paused) {
+      void this.graph.dispatch('pause');
+    } else {
+      void this.graph.dispatch('play');
+    }
   }
 }

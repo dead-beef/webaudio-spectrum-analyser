@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { Store } from '@ngxs/store';
 
-import { AudioGraph } from '../../classes/audio-graph/audio-graph';
+import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
-import { select, stateFormControl } from '../../utils/ngxs.util';
+import { stateFormControl } from '../../utils/ngxs.util';
 
 @UntilDestroy()
 @Component({
@@ -14,30 +13,28 @@ import { select, stateFormControl } from '../../utils/ngxs.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CommonOptionsComponent {
-  public delay$ = select<number>(this.store, 'delay');
+  public delay$ = this.graph.select(AudioGraphState.delay);
 
   private readonly destroyed$ = untilDestroyed(this);
 
-  public readonly fftSizes: number[] = this.graphService.getFftSizes();
+  public readonly fftSizes: number[] = this.graph.getFftSizes();
 
-  public readonly maxDelay: number = this.graphService.getMaxDelay();
+  public readonly maxDelay: number = this.graph.getMaxDelay();
 
-  public readonly pitch = this.graphService.listPitchDetection();
-
-  public readonly graph: AudioGraph = this.graphService.graph;
+  public readonly pitch = this.graph.listPitchDetection();
 
   public readonly graphForm = new FormGroup({
     delay: stateFormControl(
       null,
       this.delay$,
-      (d: number) => this.graphService.setDelay(d),
+      (d: number) => this.graph.dispatch('setDelay', d),
       this.destroyed$,
       20
     ),
     fftSize: stateFormControl(
       null,
-      select<number>(this.store, 'fftSize'),
-      (s: number) => this.graphService.setFftSize(s),
+      this.graph.select(AudioGraphState.fftSize),
+      (s: number) => this.graph.dispatch('setFftSize', s),
       this.destroyed$
     ),
   });
@@ -49,8 +46,12 @@ export class CommonOptionsComponent {
           pd.short,
           stateFormControl(
             null,
-            select<boolean>(this.store, pd.short),
-            (e: boolean) => this.graphService.setPitchDetection(pd.short, e),
+            this.graph.select(AudioGraphState.pitchEnabled(pd.short)),
+            (e: boolean) =>
+              this.graph.dispatch('setPitchDetection', {
+                id: pd.short,
+                enabled: e,
+              }),
             this.destroyed$
           ),
         ])
@@ -58,21 +59,21 @@ export class CommonOptionsComponent {
     ),
     debug: stateFormControl(
       null,
-      select<boolean>(this.store, 'debug'),
-      (d: boolean) => this.graphService.setDebug(d),
+      this.graph.select(AudioGraphState.debug),
+      (d: boolean) => this.graph.dispatch('setDebug', d),
       this.destroyed$
     ),
     minPitch: stateFormControl(
       null,
-      select<number>(this.store, 'minPitch'),
-      (p: number) => this.graphService.setMinPitch(p),
+      this.graph.select(AudioGraphState.minPitch),
+      (p: number) => this.graph.dispatch('setMinPitch', p),
       this.destroyed$,
       20
     ),
     maxPitch: stateFormControl(
       null,
-      select<number>(this.store, 'maxPitch'),
-      (p: number) => this.graphService.setMaxPitch(p),
+      this.graph.select(AudioGraphState.maxPitch),
+      (p: number) => this.graph.dispatch('setMaxPitch', p),
       this.destroyed$,
       20
     ),
@@ -80,10 +81,7 @@ export class CommonOptionsComponent {
 
   /**
    * Constructor.
-   * @param graphService
+   * @param graph
    */
-  constructor(
-    private readonly graphService: AudioGraphService,
-    private readonly store: Store
-  ) {}
+  constructor(private readonly graph: AudioGraphService) {}
 }

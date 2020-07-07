@@ -18,9 +18,12 @@ export const audioGraphAction: StoreActions = {
 
   setDelay: action<number>('set delay'),
   setFftSize: action<number>('set fft size'),
-  setMinPitch: action<number>('set min pitch'),
-  setMaxPitch: action<number>('set max pitch'),
   setDebug: action<boolean>('set debug mode'),
 
+  setMinPitch: action<number>('set min pitch'),
+  setMaxPitch: action<number>('set max pitch'),
   setPitchDetection: action<PitchDetectionState>('set pitch detection state'),
+
+  setWaveShape: action<string>('set wave shape'),
+  setWaveFrequency: action<number>('set wave frequency'),
 };

@@ -6,15 +6,21 @@ export interface AudioGraphStateModel {
   paused: boolean;
   suspended: boolean;
   debug: boolean;
-  ZCR: boolean;
-  FFTM: boolean;
-  FFTP: boolean;
-  AC: boolean;
   sourceNode: AudioGraphSourceNode;
   delay: number;
   fftSize: number;
-  minPitch: number;
-  maxPitch: number;
+  pitch: {
+    min: number;
+    max: number;
+    ZCR: boolean;
+    FFTM: boolean;
+    FFTP: boolean;
+    AC: boolean;
+  };
+  wave: {
+    shape: OscillatorType;
+    frequency: number;
+  };
 }
 
 export interface PitchDetectionState {
@@ -26,15 +32,21 @@ export const audioGraphStateDefaults: AudioGraphStateModel = {
   paused: true,
   suspended: true,
   debug: false,
-  ZCR: true,
-  FFTM: false,
-  FFTP: false,
-  AC: false,
   sourceNode: AudioGraphSourceNode.WAVE,
   delay: 0,
   fftSize: 2048,
-  minPitch: 20,
-  maxPitch: 20000,
+  pitch: {
+    min: 20,
+    max: 20000,
+    ZCR: true,
+    FFTM: false,
+    FFTP: false,
+    AC: false,
+  },
+  wave: {
+    shape: 'sine',
+    frequency: 440,
+  },
 };
 
 export const AUDIO_GRAPH_STATE_TOKEN = new StateToken<AudioGraphStateModel>(

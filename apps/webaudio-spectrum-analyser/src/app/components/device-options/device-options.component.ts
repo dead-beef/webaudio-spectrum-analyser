@@ -56,7 +56,7 @@ export class DeviceOptionsComponent implements OnInit {
    */
   public ngOnInit() {
     void this.graphService
-      .setSourceNode(AudioGraphSourceNode.DEVICE)
+      .dispatch('setSourceNode', AudioGraphSourceNode.DEVICE)
       .subscribe(() => this.refresh());
   }
 
