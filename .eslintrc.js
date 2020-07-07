@@ -151,7 +151,7 @@ module.exports = {
     ],
     '@typescript-eslint/no-dynamic-delete': 'error',
     '@typescript-eslint/no-empty-function': [
-      'error',
+      'off',
       {
         allow: ['constructors'],
       },
@@ -224,7 +224,7 @@ module.exports = {
     '@typescript-eslint/unbound-method': ['error', { ignoreStatic: true }],
     'arrow-parens': ['error', 'as-needed'],
     'brace-style': 'off', // handled by @typescript-eslint rule
-    'compat/compat': 'error',
+    'compat/compat': 'warn',
     'comma-spacing': 'off', // handled by @typescript-eslint rule
     'constructor-super': 'error',
     complexity: ['warn', 10],
