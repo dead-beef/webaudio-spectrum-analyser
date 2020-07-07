@@ -4,10 +4,10 @@ import { BrowserModule } from '@angular/platform-browser';
 import { ClarityModule } from '@clr/angular';
 import { NgxsModule } from '@ngxs/store';
 
-import { AlertComponent } from '../alert/alert.component';
-import { DeviceOptionsComponent } from './device-options.component';
 import { getAudioGraph } from '../../utils/factories';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
+import { AlertComponent } from '../alert/alert.component';
+import { DeviceOptionsComponent } from './device-options.component';
 
 describe('DeviceOptionsComponent', () => {
   let component: DeviceOptionsComponent;

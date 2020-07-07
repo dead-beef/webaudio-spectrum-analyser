@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@angular/core';
 import {
   Action,
+  createSelector,
   Selector,
   State,
   StateContext,
-  createSelector,
 } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
 

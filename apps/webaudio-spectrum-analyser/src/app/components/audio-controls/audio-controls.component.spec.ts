@@ -5,9 +5,9 @@ import { ClarityModule } from '@clr/angular';
 
 import { SafeUrlPipe } from '../../pipes/safe-url/safe-url.pipe';
 import { TimePipe } from '../../pipes/time/time.pipe';
+import { mockComponent } from '../../utils/test';
 import { AlertComponent } from '../alert/alert.component';
 import { AudioControlsComponent } from './audio-controls.component';
-import { mockComponent } from '../../utils/test';
 
 describe('AudioControlsComponent', () => {
   let component: AudioControlsComponent;

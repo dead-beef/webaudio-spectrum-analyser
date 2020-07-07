@@ -6,12 +6,12 @@ import { NgxsModule } from '@ngxs/store';
 
 import { SafeUrlPipe } from '../../pipes/safe-url/safe-url.pipe';
 import { TimePipe } from '../../pipes/time/time.pipe';
-import { AlertComponent } from '../alert/alert.component';
-import { FileOptionsComponent } from './file-options.component';
-import { AudioControlsComponent } from '../audio-controls/audio-controls.component';
 import { getAudioGraph } from '../../utils/factories';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
 import { mockComponent } from '../../utils/test';
+import { AlertComponent } from '../alert/alert.component';
+import { AudioControlsComponent } from '../audio-controls/audio-controls.component';
+import { FileOptionsComponent } from './file-options.component';
 
 describe('FileOptionsComponent', () => {
   let component: FileOptionsComponent;

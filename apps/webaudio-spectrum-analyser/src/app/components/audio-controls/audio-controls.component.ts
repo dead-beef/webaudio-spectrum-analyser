@@ -3,12 +3,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
-  ViewChild,
   OnChanges,
   Output,
-  EventEmitter,
   SimpleChanges,
+  ViewChild,
 } from '@angular/core';
 
 @Component({
@@ -19,7 +19,7 @@ import {
 export class AudioControlsComponent implements AfterViewInit, OnChanges {
   @Input() public src: string;
 
-  @Input() public paused: boolean = true;
+  @Input() public paused = true;
 
   @Output() public readonly pausedChange = new EventEmitter<boolean>();
 

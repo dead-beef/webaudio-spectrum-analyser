@@ -1,9 +1,7 @@
 import { FormControl } from '@angular/forms';
-import { Store } from '@ngxs/store';
+//import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-
-import { AudioGraphStateModel } from '../state/audio-graph/audio-graph.model';
 
 export class StoreAction<T> {
   public static readonly type: string;
@@ -61,17 +59,4 @@ export function stateFormControl<T>(
   void valueChanges$.subscribe((value: T) => setState(value));
   void value$.subscribe((value: T) => fc.setValue(value));
   return fc;
-}
-
-/**
- * TODO: description
- * @param store
- * @param varName
- */
-export function select<T>(
-  store: Store,
-  getter: (AudioGraphStateModel) => T
-): Observable<T> {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  return store.select(state => getter(state.AudioGraph));
 }

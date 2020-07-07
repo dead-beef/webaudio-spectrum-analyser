@@ -3,10 +3,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClarityModule } from '@clr/angular';
 import { NgxsModule } from '@ngxs/store';
 
-import { InputFrequencyComponent } from '../input-frequency/input-frequency.component';
-import { WaveOptionsComponent } from './wave-options.component';
 import { getAudioGraph } from '../../utils/factories';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
+import { InputFrequencyComponent } from '../input-frequency/input-frequency.component';
+import { WaveOptionsComponent } from './wave-options.component';
 
 describe('WaveOptionsComponent', () => {
   let component: WaveOptionsComponent;
