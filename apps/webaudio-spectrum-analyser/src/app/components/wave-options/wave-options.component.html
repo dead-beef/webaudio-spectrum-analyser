@@ -1,7 +1,7 @@
-<form clrForm clrLayout="vertical">
+<form clrForm clrLayout="vertical" [formGroup]="form">
   <clr-select-container>
     <label>Shape</label>
-    <select clrSelect name="shape" [(ngModel)]="node.type">
+    <select clrSelect formControlName="shape">
       <option value="sine">Sine</option>
       <option value="square">Square</option>
       <option value="triangle">Triangle</option>
@@ -13,7 +13,7 @@
     [name]="'Frequency'"
     [min]="20"
     [max]="20000"
-    [(value)]="node.frequency.value"
+    formControlName="frequency"
   >
   </app-input-frequency>
 </form>

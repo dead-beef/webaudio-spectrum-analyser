@@ -1,4 +1,8 @@
-import { AudioGraphNodes, PitchDetection } from '../../interfaces';
+import {
+  AudioGraphNodes,
+  AudioGraphSourceNode,
+  PitchDetection,
+} from '../../interfaces';
 import { AudioMath } from '../audio-math/audio-math';
 
 export class AudioGraph {
@@ -118,9 +122,12 @@ export class AudioGraph {
   /**
    * Constructor.
    */
-  constructor() {
-    if (window['PREVIEW']) {
-      console.warn('preview');
+  constructor(mock: boolean = window['PREVIEW']) {
+    if (mock) {
+      console.warn('creating mock audio graph');
+
+      this.context = {} as any;
+      this.nodes = {} as any;
 
       Object.defineProperty(this.context, 'sampleRate', {
         value: 44000,
@@ -132,6 +139,7 @@ export class AudioGraph {
           frequency: { value: 440 },
           type: 'sine',
           connect: () => null,
+          disconnect: () => null,
         },
         writable: true,
       });
@@ -143,7 +151,7 @@ export class AudioGraph {
         writable: true,
       });
 
-      Object.defineProperty(this.nodes, 'input', {
+      Object.defineProperty(this.nodes, 'analysers', {
         value: [null, null],
         writable: true,
       });
@@ -216,20 +224,20 @@ export class AudioGraph {
    * @param node
    * @param data
    */
-  public enable(node: string, data?: any): AudioGraph {
+  public enable(node: AudioGraphSourceNode, data?: any): AudioGraph {
     console.log('enable', node /*, data*/);
     switch (node) {
-      case 'device':
+      case AudioGraphSourceNode.DEVICE:
         //this.setDevice(null);
         break;
-      case 'file':
+      case AudioGraphSourceNode.FILE:
         this.setElement(data);
         break;
-      case 'wave':
+      case AudioGraphSourceNode.WAVE:
         this.nodes.wave.connect(this.nodes.input);
         break;
       default:
-        throw new Error('invalid node ' + node);
+        throw new Error('invalid node ' + String(node));
     }
     return this;
   }
@@ -238,20 +246,20 @@ export class AudioGraph {
    * TODO: description
    * @param node
    */
-  public disable(node: string): AudioGraph {
+  public disable(node: AudioGraphSourceNode): AudioGraph {
     console.log('disable', node);
     switch (node) {
-      case 'device':
+      case AudioGraphSourceNode.DEVICE:
         void this.setDevice(null);
         break;
-      case 'file':
+      case AudioGraphSourceNode.FILE:
         this.setElement(null);
         break;
-      case 'wave':
+      case AudioGraphSourceNode.WAVE:
         this.nodes.wave.disconnect();
         break;
       default:
-        throw new Error('invalid node ' + node);
+        throw new Error('invalid node ' + String(node));
     }
     return this;
   }
@@ -331,7 +339,8 @@ export class AudioGraph {
    * TODO: description
    * @param dev
    */
-  public setDevice(dev: MediaDeviceInfo): Promise<void> {
+  public setDevice(dev: MediaDeviceInfo | string): Promise<void> {
+    let deviceId: string;
     if (this.deviceStream) {
       this.deviceStream.getTracks().forEach(track => track.stop());
       this.deviceStream = null;
@@ -342,6 +351,10 @@ export class AudioGraph {
     }
     if (dev === null) {
       return Promise.resolve();
+    } else if (typeof dev === 'string') {
+      deviceId = dev;
+    } else {
+      deviceId = dev.deviceId;
     }
     if (!navigator?.mediaDevices?.getUserMedia) {
       return Promise.reject(new Error('getUserMedia is not supported'));
@@ -352,9 +365,7 @@ export class AudioGraph {
     const res = navigator.mediaDevices
       .getUserMedia({
         video: false,
-        audio: {
-          deviceId: dev.deviceId,
-        },
+        audio: { deviceId },
       })
       .then(stream => {
         this.deviceStream = stream;
@@ -404,11 +415,19 @@ export class AudioGraph {
 
     for (const pd of this.pitch) {
       if (pd.enabled) {
-        let value: number = pd.calc();
-        if (pd.smooth && pd.value > 1) {
-          value = AudioMath.smooth(this.slowAnalyserSmoothing, pd.value, value);
+        if (!this.paused) {
+          let value: number = pd.calc();
+          if (pd.smooth && pd.value > 1) {
+            value = AudioMath.smooth(
+              this.slowAnalyserSmoothing,
+              pd.value,
+              value
+            );
+          }
+          pd.value = value;
+        } else if (pd.value === 0) {
+          pd.value = pd.calc();
         }
-        pd.value = value;
       } else {
         pd.value = 0;
       }

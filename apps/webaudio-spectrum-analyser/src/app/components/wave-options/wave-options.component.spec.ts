@@ -1,5 +1,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ClarityModule } from '@clr/angular';
+import { NgxsModule } from '@ngxs/store';
 
+import { getAudioGraph } from '../../utils/factories';
+import { AUDIO_GRAPH } from '../../utils/injection-tokens';
+import { InputFrequencyComponent } from '../input-frequency/input-frequency.component';
 import { WaveOptionsComponent } from './wave-options.component';
 
 describe('WaveOptionsComponent', () => {
@@ -8,15 +14,27 @@ describe('WaveOptionsComponent', () => {
 
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
-      declarations: [WaveOptionsComponent],
-    }).compileComponents();
+      imports: [
+        ClarityModule,
+        FormsModule,
+        ReactiveFormsModule,
+        NgxsModule.forRoot([]),
+      ],
+      declarations: [InputFrequencyComponent, WaveOptionsComponent],
+      providers: [
+        {
+          provide: AUDIO_GRAPH,
+          useFactory: getAudioGraph,
+        },
+      ],
+    })
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(WaveOptionsComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
   }));
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(WaveOptionsComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
 
   it('should create', () => {
     expect(component).toBeTruthy();

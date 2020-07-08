@@ -1,32 +1,39 @@
-import { async, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ClarityModule } from '@clr/angular';
 
 import { AppComponent } from './app.component';
+import { getAudioGraph } from './utils/factories';
+import { AUDIO_GRAPH } from './utils/injection-tokens';
+import { mockComponent } from './utils/test';
 
 describe('AppComponent', () => {
+  let fixture: ComponentFixture<AppComponent>;
+  let component: AppComponent;
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [AppComponent],
-    }).compileComponents();
+      imports: [ClarityModule],
+      declarations: [
+        AppComponent,
+        mockComponent('ngx-simplebar'),
+        mockComponent('app-audio-graph'),
+      ],
+      providers: [
+        {
+          provide: AUDIO_GRAPH,
+          useFactory: getAudioGraph,
+        },
+      ],
+    })
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(AppComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
   }));
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it("should have as title 'webaudio-spectrum-analyser'", () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('webaudio-spectrum-analyser');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain(
-      'Welcome to webaudio-spectrum-analyser!'
-    );
+    expect(component).toBeTruthy();
   });
 });

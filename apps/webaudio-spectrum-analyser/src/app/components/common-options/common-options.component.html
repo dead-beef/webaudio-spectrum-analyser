@@ -2,23 +2,22 @@
   <clr-tab>
     <button clrTabLink>Graph</button>
     <clr-tab-content *clrIfActive>
-      <form clrForm clrLayout="vertical">
+      <form clrForm clrLayout="vertical" [formGroup]="graphForm">
         <clr-range-container>
-          <label>Delay: {{ graph.nodes.input.delayTime.value | units }}s</label>
+          <label>Delay: {{ delay$ | async }}s</label>
           <input
             clrRange
-            name="delayRange"
             type="range"
             min="0"
-            [attr.max]="graph.maxDelay"
+            [attr.max]="maxDelay"
             step="0.01"
-            [(ngModel)]="graph.nodes.input.delayTime.value"
+            formControlName="delay"
           />
         </clr-range-container>
         <clr-select-container>
           <label>FFT Size</label>
-          <select clrSelect name="fftSize" [(ngModel)]="graph.fftSize">
-            <option *ngFor="let size of graph.fftSizes" [ngValue]="size">
+          <select clrSelect formControlName="fftSize">
+            <option *ngFor="let size of fftSizes" [ngValue]="size">
               {{ size }}
             </option>
           </select>
@@ -30,17 +29,25 @@
   <clr-tab>
     <button clrTabLink>Pitch detection</button>
     <clr-tab-content *clrIfActive>
-      <form clrForm clrLayout="vertical">
-        <clr-checkbox-container>
-          <clr-checkbox-wrapper *ngFor="let pd of this.graph.pitch">
-            <input type="checkbox" clrCheckbox [name]="pd.short" [(ngModel)]="pd.enabled" />
+      <form clrForm clrLayout="vertical" [formGroup]="pitchForm">
+        <clr-checkbox-container formGroupName="enabled">
+          <clr-checkbox-wrapper *ngFor="let pd of pitch">
+            <input
+              type="checkbox"
+              clrCheckbox
+              [formControlName]="pd.short"
+            />
             <label>{{ pd.name }}</label>
           </clr-checkbox-wrapper>
         </clr-checkbox-container>
 
         <clr-checkbox-container>
           <clr-checkbox-wrapper>
-            <input type="checkbox" clrCheckbox name="debug" [(ngModel)]="graph.debug" />
+            <input
+              type="checkbox"
+              clrCheckbox
+              formControlName="debug"
+            />
             <label>Debug</label>
           </clr-checkbox-wrapper>
         </clr-checkbox-container>
@@ -49,14 +56,14 @@
           [name]="'Min Pitch'"
           [min]="20"
           [max]="20000"
-          [(value)]="graph.minPitch"
+          formControlName="minPitch"
         >
         </app-input-frequency>
         <app-input-frequency
           [name]="'Max Pitch'"
           [min]="20"
           [max]="20000"
-          [(value)]="graph.maxPitch"
+          formControlName="maxPitch"
         >
         </app-input-frequency>
       </form>

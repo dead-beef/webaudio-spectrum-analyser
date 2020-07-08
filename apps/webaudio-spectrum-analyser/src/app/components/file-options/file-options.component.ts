@@ -1,30 +1,29 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
-  ElementRef,
-  EventEmitter,
-  Input,
   OnDestroy,
-  Output,
   ViewChild,
 } from '@angular/core';
+import { Observable } from 'rxjs';
 
-import { AudioGraph } from '../../classes/audio-graph/audio-graph';
+import { AudioGraphSourceNode } from '../../interfaces';
+import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
+import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { AudioControlsComponent } from '../audio-controls/audio-controls.component';
 
 @Component({
   selector: 'app-file-options',
   templateUrl: './file-options.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FileOptionsComponent implements AfterViewInit, OnDestroy {
-  @Input() public graph: AudioGraph;
-
-  @Output() public readonly create = new EventEmitter<ElementRef>();
-
-  @Output() public readonly destroy = new EventEmitter<void>();
-
   @ViewChild(AudioControlsComponent)
   public audioControls: AudioControlsComponent;
+
+  public paused$: Observable<boolean> = this.graph.select(
+    AudioGraphState.paused
+  );
 
   public loading = true;
 
@@ -35,10 +34,19 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
   public filename = 'None';
 
   /**
+   * Constructor.
+   * @param graph
+   */
+  constructor(private readonly graph: AudioGraphService) {}
+
+  /**
    * Lifecycle hook.
    */
   public ngAfterViewInit() {
-    this.create.emit(this.audioControls.audio);
+    void this.graph.dispatch('setSource', {
+      node: AudioGraphSourceNode.FILE,
+      data: this.audioControls.audio.nativeElement,
+    });
   }
 
   /**
@@ -46,7 +54,6 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
    */
   public ngOnDestroy() {
     this.setFile('');
-    this.destroy.emit();
   }
 
   /**
@@ -74,5 +81,16 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
   public setError(error: Error) {
     this.setFile('');
     this.error = error;
+  }
+
+  /**
+   * TODO: description
+   */
+  public setPaused(paused: boolean) {
+    if (paused) {
+      void this.graph.dispatch('pause');
+    } else {
+      void this.graph.dispatch('play');
+    }
   }
 }

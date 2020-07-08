@@ -1,87 +1,103 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { finalize, map, tap } from 'rxjs/operators';
 
-import { AudioGraph } from '../../classes/audio-graph/audio-graph';
+import { AudioGraphSourceNode } from '../../interfaces';
+import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
+import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
+import { UntilDestroy } from '../../utils/angular.util';
+import { stateFormControl } from '../../utils/ngxs.util';
 
 @Component({
   selector: 'app-device-options',
   templateUrl: './device-options.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeviceOptionsComponent implements OnInit, OnDestroy {
-  @Input() public graph: AudioGraph;
-
-  @Output() public readonly create = new EventEmitter<void>();
-
-  @Output() public readonly destroy = new EventEmitter<void>();
-
+export class DeviceOptionsComponent extends UntilDestroy implements OnInit {
   public loading = true;
 
   public error: Error = null;
 
   public devices: MediaDeviceInfo[] = [];
 
-  private deviceValue: MediaDeviceInfo = null;
+  public readonly device: FormControl = new FormControl();
+
+  public readonly form: FormGroup = new FormGroup({ device: this.device });
+
+  public readonly disabled$ = this.device.statusChanges.pipe(
+    map(status => status === 'DISABLED')
+  );
 
   /**
-   * Device getter.
+   * Constructor.
+   * @param graphService
    */
-  public get device(): MediaDeviceInfo {
-    return this.deviceValue;
+  constructor(private readonly graph: AudioGraphService) {
+    super();
+    stateFormControl(
+      this.device,
+      this.graph.select(AudioGraphState.deviceId),
+      (id: string) => this.setDeviceId(id),
+      this.destroyed$
+    );
   }
 
   /**
    * Device setter.
    */
-  public set device(dev: MediaDeviceInfo) {
-    this.loading = true;
-    this.deviceValue = dev;
-    this.graph
-      .setDevice(dev)
-      .then(() => (this.error = null))
-      .catch(err => {
-        this.error = err;
-        this.deviceValue = null;
+  public setDeviceId(dev: string): Observable<void> {
+    this.device.disable();
+    return this.graph.dispatch('setDeviceId', dev).pipe(
+      tap(
+        () => {
+          this.error = null;
+        },
+        err => {
+          this.error = err;
+          this.device.setValue(null);
+        }
+      ),
+      finalize(() => {
+        this.device.enable();
       })
-      .finally(() => (this.loading = false));
+    );
   }
 
   /**
    * Lifecycle hook.
    */
   public ngOnInit() {
-    this.refresh();
-    this.create.emit();
-  }
-
-  /**
-   * Lifecycle hook.
-   */
-  public ngOnDestroy() {
-    this.destroy.emit();
+    void this.graph
+      .dispatch('setSourceNode', AudioGraphSourceNode.DEVICE)
+      .subscribe(() => this.refresh());
   }
 
   /**
    * Refreshes device options.
    */
   public refresh() {
-    this.loading = true;
+    this.device.disable();
     this.graph
-      .setDevice(null)
-      .then(() => {
-        this.device = null;
-        return this.graph.getDevices();
-      })
+      .getDevices()
       .then(devices => {
         this.devices = devices;
         this.error = null;
+        const id = this.device.value;
+        if (id) {
+          const found = this.devices.some(dev => dev.deviceId === id);
+          if (!found) {
+            this.device.setValue(null);
+          }
+        }
       })
-      .catch(err => (this.error = err))
-      .finally(() => (this.loading = false));
+      .catch(err => {
+        console.log('error');
+        this.error = err;
+      })
+      .finally(() => {
+        console.log('finally');
+        this.device.enable();
+      });
   }
 }

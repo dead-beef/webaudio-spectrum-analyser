@@ -1,23 +1,33 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 
 @Component({
   selector: 'app-audio-controls',
   templateUrl: './audio-controls.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AudioControlsComponent implements AfterViewInit {
+export class AudioControlsComponent implements AfterViewInit, OnChanges {
   @Input() public src: string;
+
+  @Input() public paused = true;
+
+  @Output() public readonly pausedChange = new EventEmitter<boolean>();
 
   @ViewChild('audio') public audio: ElementRef;
 
-  public error: MediaError = null;
+  public _playing = false;
 
-  public paused = true;
+  public error: MediaError = null;
 
   public duration = 0;
 
@@ -41,15 +51,31 @@ export class AudioControlsComponent implements AfterViewInit {
   }
 
   /**
+   * Lifecycle hook.
+   */
+  public ngAfterViewInit() {
+    this.nativeElement = this.audio.nativeElement;
+    this.updateElement();
+  }
+
+  /**
+   * Lifecycle hook.
+   */
+  public ngOnChanges(changes: SimpleChanges) {
+    if (changes.paused && this.nativeElement) {
+      this.updateElement();
+    }
+  }
+
+  /**
    * Loaded data handler.
    */
   public loadedData() {
     //console.log('loaded data', this.audio.nativeElement);
     this.error = this.nativeElement.error;
-    this.paused = true;
     this.time = 0;
     this.duration = this.nativeElement.duration;
-    this.nativeElement.pause();
+    this.updateElement();
   }
 
   /**
@@ -57,6 +83,25 @@ export class AudioControlsComponent implements AfterViewInit {
    */
   public timeUpdate() {
     this.timeValue = this.nativeElement.currentTime;
+  }
+
+  /**
+   * TODO: description
+   */
+  public setPaused(value: boolean) {
+    this.paused = value;
+    this.pausedChange.emit(value);
+  }
+
+  /**
+   * TODO: description
+   */
+  public updateElement() {
+    if (this.paused) {
+      this.nativeElement.pause();
+    } else {
+      void this.nativeElement.play();
+    }
   }
 
   /**
@@ -71,12 +116,5 @@ export class AudioControlsComponent implements AfterViewInit {
     } else {
       this.nativeElement.pause();
     }
-  }
-
-  /**
-   * Lifecycle hook.
-   */
-  public ngAfterViewInit() {
-    this.nativeElement = this.audio.nativeElement;
   }
 }

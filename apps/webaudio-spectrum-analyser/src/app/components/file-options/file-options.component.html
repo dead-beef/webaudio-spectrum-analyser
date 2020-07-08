@@ -1,7 +1,12 @@
 <form clrForm clrLayout="vertical">
   <app-alert [(error)]="error"></app-alert>
 
-  <app-audio-controls [src]="url"> </app-audio-controls>
+  <app-audio-controls
+    [src]="url"
+    [paused]="paused$ | async"
+    (pausedChange)="setPaused($event)"
+  >
+  </app-audio-controls>
 
   <clr-input-container>
     <label>

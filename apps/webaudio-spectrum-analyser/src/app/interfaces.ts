@@ -30,6 +30,10 @@ export interface TypedArrayConstructor<T> {
   new (buffer: ArrayBuffer): T;
 }
 
+export type MethodOf<T> = {
+  [P in keyof T]-?: T[P] extends (...args: any[]) => any ? P : never;
+}[keyof T];
+
 export interface Stats {
   dom: HTMLElement;
   update: () => void;
@@ -37,9 +41,11 @@ export interface Stats {
   end: () => void;
 }
 
+export type PitchDetectionId = 'ZCR' | 'FFTM' | 'FFTP' | 'AC';
+
 export interface PitchDetection {
   name: string;
-  short: string;
+  short: PitchDetectionId;
   calc: () => number;
   smooth: boolean;
   enabled: boolean;
@@ -53,4 +59,15 @@ export interface AudioGraphNodes {
   input: DelayNode;
   analysers: AnalyserNode[];
   output: MediaStreamAudioDestinationNode;
+}
+
+export enum AudioGraphSourceNode {
+  WAVE,
+  FILE,
+  DEVICE,
+}
+
+export interface AudioGraphSource {
+  node: AudioGraphSourceNode;
+  data?: any;
 }

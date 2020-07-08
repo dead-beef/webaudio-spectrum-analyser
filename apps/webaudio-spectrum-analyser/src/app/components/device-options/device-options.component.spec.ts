@@ -1,5 +1,12 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
+import { ClarityModule } from '@clr/angular';
+import { NgxsModule } from '@ngxs/store';
 
+import { getAudioGraph } from '../../utils/factories';
+import { AUDIO_GRAPH } from '../../utils/injection-tokens';
+import { AlertComponent } from '../alert/alert.component';
 import { DeviceOptionsComponent } from './device-options.component';
 
 describe('DeviceOptionsComponent', () => {
@@ -8,7 +15,20 @@ describe('DeviceOptionsComponent', () => {
 
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
-      declarations: [DeviceOptionsComponent],
+      imports: [
+        BrowserModule,
+        FormsModule,
+        ReactiveFormsModule,
+        NgxsModule.forRoot([]),
+        ClarityModule,
+      ],
+      declarations: [DeviceOptionsComponent, AlertComponent],
+      providers: [
+        {
+          provide: AUDIO_GRAPH,
+          useFactory: getAudioGraph,
+        },
+      ],
     }).compileComponents();
   }));
 

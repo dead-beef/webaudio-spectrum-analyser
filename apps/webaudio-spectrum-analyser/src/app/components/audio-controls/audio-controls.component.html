@@ -2,8 +2,8 @@
   #audio
   [src]="src | safeUrl"
   (timeupdate)="timeUpdate()"
-  (play)="paused = false"
-  (pause)="paused = true"
+  (play)="setPaused(false)"
+  (pause)="setPaused(true)"
   (loadeddata)="loadedData()"
 ></audio>
 
@@ -12,8 +12,10 @@
 <div class="clr-row">
   <div class="clr-col-auto">
     <button class="btn btn-icon btn-flat" (click)="toggle()" [disabled]="error">
-      <clr-icon shape="play" *ngIf="paused"></clr-icon>
-      <clr-icon shape="pause" *ngIf="!paused"></clr-icon>
+      <clr-icon shape="play" *ngIf="paused else pause"></clr-icon>
+      <ng-template #pause>
+        <clr-icon shape="pause"></clr-icon>
+      </ng-template>
     </button>
   </div>
   <div class="clr-col-auto">
@@ -25,7 +27,6 @@
     <input
       clrRange
       type="range"
-      name="time"
       min="0"
       [max]="duration"
       step="0.1"

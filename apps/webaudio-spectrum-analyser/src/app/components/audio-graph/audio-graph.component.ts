@@ -1,36 +1,49 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   OnDestroy,
-  OnInit,
   ViewChild,
 } from '@angular/core';
+import { Observable } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
-import { AudioGraph } from '../../classes/audio-graph/audio-graph';
+import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
+import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
+import { UntilDestroy } from '../../utils/angular.util';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
 
 @Component({
   selector: 'app-audio-graph',
   templateUrl: './audio-graph.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
+export class AudioGraphComponent extends UntilDestroy
+  implements AfterViewInit, OnDestroy {
   @ViewChild(FrequencyChartComponent) public chart: FrequencyChartComponent;
 
   @ViewChild('audio') public audioRef: ElementRef<HTMLAudioElement>;
 
-  public graph: AudioGraph = null;
+  public paused$: Observable<boolean> = this.graph.select(
+    AudioGraphState.paused
+  );
 
   public audio: HTMLAudioElement;
 
   public error: Error = null;
 
-  /**
-   * TODO: revise if this value is needed, it is currently not used.
-   */
   private volumeValue: number;
 
   private logVolumeValue: number;
+
+  /**
+   * Constructor.
+   * @param graph
+   */
+  constructor(private readonly graph: AudioGraphService) {
+    super();
+  }
 
   /**
    * Volume getter.
@@ -55,24 +68,18 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Lifecycle hook.
    */
-  public ngOnInit() {
-    try {
-      this.graph = new AudioGraph();
-      this.volume = 0.25;
-    } catch (err) {
-      console.error(err);
-      this.error = err;
-    }
-  }
-
-  /**
-   * Lifecycle hook.
-   */
   public ngAfterViewInit() {
     try {
       this.audio = this.audioRef.nativeElement;
-      this.audio.srcObject = this.graph.stream;
-      this.audio.volume = this.volume;
+      this.audio.srcObject = this.graph.getOutputStream();
+      this.volume = 0.25;
+      void this.paused$.pipe(takeUntil(this.destroyed$)).subscribe(paused => {
+        if (paused) {
+          this.audio.pause();
+        } else {
+          void this.audio.play();
+        }
+      });
     } catch (err) {
       console.error(err);
       this.error = err;
@@ -83,44 +90,20 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
    * Lifecycle hook.
    */
   public ngOnDestroy() {
-    if (this.graph) {
-      this.graph.destroy();
-    }
     this.audio = null;
-  }
-
-  /**
-   * Plays audio.
-   */
-  public play() {
-    this.graph.play();
-    void this.audio.play();
-  }
-
-  /**
-   * Pauses audio.
-   */
-  public pause() {
-    this.graph.pause();
-    this.audio.pause();
   }
 
   /**
    * Toggles playback.
    */
   public toggle() {
-    if (this.graph.paused) {
-      this.play();
-    } else {
-      this.pause();
-    }
+    void this.graph.dispatch('toggle');
   }
 
   /**
    * Resets chart.
    */
   public reset() {
-    this.graph.createAnalysers();
-    this.chart.clear();
+    void this.graph.dispatch('reset');
   }
 }

@@ -1,65 +1,92 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
-  Input,
-  NgZone,
   OnDestroy,
-  OnInit,
   ViewChild,
 } from '@angular/core';
+import { BehaviorSubject, fromEvent } from 'rxjs';
+import { distinctUntilChanged, map, merge, takeUntil } from 'rxjs/operators';
 
+import { environment } from '../../../environments/environment';
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
-// import { AudioMath } from '../../classes/audio-math/audio-math';
 import { Point } from '../../interfaces';
+import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
+import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
+import { UntilDestroy } from '../../utils/angular.util';
+import { throttleTime_ } from '../../utils/rxjs.util';
 
 @Component({
   selector: 'app-frequency-chart',
   templateUrl: './frequency-chart.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FrequencyChartComponent
-  implements OnInit, AfterViewInit, OnDestroy {
-  @Input() public graph: AudioGraph;
-
+export class FrequencyChartComponent extends UntilDestroy
+  implements AfterViewInit, OnDestroy {
   @ViewChild('canvas') public canvas: ElementRef<HTMLCanvasElement>;
 
   private context: CanvasRenderingContext2D = null;
 
   private frame = 0;
 
-  private readonly animate = this.animateCanvas.bind(this);
+  private point: Point = { x: 0, y: 0 };
 
-  public error: Error = null;
+  private readonly animate = this._animate.bind(this);
+
+  public readonly graph: AudioGraph = this.graphService.graph;
+
+  private readonly error = new BehaviorSubject<Error>(null);
+
+  public readonly error$ = this.error.asObservable();
+
+  private readonly pointFrequency = new BehaviorSubject<number>(0);
+
+  public readonly pointFrequency$ = this.pointFrequency
+    .asObservable()
+    .pipe(throttleTime_(environment.throttle));
+
+  private readonly pointValues = this.graph.fdata.map(
+    _ => new BehaviorSubject<number>(-100)
+  );
+
+  public readonly pointValues$ = this.pointValues.map(subject => {
+    return subject
+      .asObservable()
+      .pipe(distinctUntilChanged(), throttleTime_(environment.throttle));
+  });
+
+  public readonly pitch = this.graph.pitch.map(pd => pd.short);
+
+  private readonly pitchValue = this.pitch.map(
+    _ => new BehaviorSubject<number>(0)
+  );
+
+  public readonly pitchValue$ = this.pitchValue.map(subject => {
+    return subject.asObservable().pipe(
+      distinctUntilChanged(
+        (prev: number, cur: number) => Math.abs(cur - prev) < 0.1
+      ),
+      throttleTime_(environment.throttle)
+    );
+  });
+
+  public readonly pitchEnabled$ = this.pitch.map(id => {
+    return this.graphService.select(AudioGraphState.pitchEnabled(id));
+  });
 
   public width = 0;
 
   public height = 0;
 
-  public eps = 1;
-
   public showPoint = false;
-
-  public point: Point = { x: 0, y: 0 };
-
-  public pointFrequency = 0;
-
-  public pointValues: number[] = [];
 
   /**
    * Constructor.
-   * @param zone
+   * @param graphService
    */
-  constructor(private readonly zone: NgZone) {}
-
-  /**
-   * Lifecycle hook.
-   */
-  public ngOnInit() {
-    try {
-      this.pointValues = this.graph.fdata.map(d => 0);
-    } catch (err) {
-      this.error = err;
-    }
+  constructor(private readonly graphService: AudioGraphService) {
+    super();
   }
 
   /**
@@ -67,12 +94,28 @@ export class FrequencyChartComponent
    */
   public ngAfterViewInit() {
     try {
-      this.context = this.canvas.nativeElement.getContext('2d');
-      this.zone.runOutsideAngular(() => {
-        this.frame = requestAnimationFrame(this.animate);
-      });
+      const canvas = this.canvas.nativeElement;
+      this.context = canvas.getContext('2d');
+      this.frame = requestAnimationFrame(this.animate);
+      void fromEvent(canvas, 'click')
+        .pipe(
+          merge(fromEvent(canvas, 'mousemove')),
+          takeUntil(this.destroyed$),
+          map(
+            (ev: MouseEvent): Point => {
+              return {
+                x: ev.offsetX,
+                y: ev.offsetY,
+              };
+            }
+          )
+        )
+        .subscribe((p: Point) => {
+          this.point = p;
+          this.pointFrequency.next(this.canvasToFrequency(this.point.x));
+        });
     } catch (err) {
-      this.error = err;
+      this.setError(err);
     }
   }
 
@@ -80,18 +123,21 @@ export class FrequencyChartComponent
    * Lifecycle hook.
    */
   public ngOnDestroy() {
-    this.context = null;
     cancelAnimationFrame(this.frame);
+    this.context = null;
+    this.error.complete();
+    this.pointFrequency.complete();
+    for (const subject of this.pointValues) {
+      subject.complete();
+    }
   }
 
   /**
-   * Sets point
-   * @param ev
+   * Set error
+   * @param err
    */
-  public setPoint(ev: { offsetX: number; offsetY: number }) {
-    this.point.x = ev.offsetX;
-    this.point.y = ev.offsetY;
-    this.pointFrequency = this.canvasToFrequency(this.point.x);
+  public setError(err: Error) {
+    this.error.next(err);
   }
 
   /**
@@ -109,14 +155,6 @@ export class FrequencyChartComponent
       //console.log('set canvas height');
       canvas.height = this.height;
     }
-  }
-
-  /**
-   * Clears graph.
-   * TODO: this is currently not used anywhere.
-   */
-  public clear() {
-    this.graph.clearData();
   }
 
   /**
@@ -196,6 +234,7 @@ export class FrequencyChartComponent
     let prevF = 20;
     let prevX = 0;
 
+    const point = this.pointFrequency.getValue();
     let pointValue = 0;
 
     ctx.strokeStyle = '#4aaed9';
@@ -212,7 +251,7 @@ export class FrequencyChartComponent
         const y = yScale * data[i];
         ctx.fillRect(prevX, yMax - y, x - prevX, y);
       }
-      if (this.pointFrequency >= prevF && this.pointFrequency <= f) {
+      if (point >= prevF && point <= f) {
         pointValue = data[i];
       }
       prevF = f;
@@ -253,7 +292,7 @@ export class FrequencyChartComponent
   /**
    * Animates canvas.
    */
-  private animateCanvas() {
+  private _animate() {
     if (this.context === null) {
       console.log('canvas destroyed');
       return;
@@ -267,24 +306,19 @@ export class FrequencyChartComponent
 
       this.context.clearRect(0, 0, this.width, this.height);
 
-      let changes = false;
-      const update = (prev: number, next: number): number => {
-        if (Math.abs(next - prev) > this.eps) {
-          changes = true;
-          return next;
-        }
-        return prev;
-      };
-
       this.graph.fdata.forEach((data, i) => {
         const pointValue: number = this.drawFrequencyData(
           data,
           i * plotHeight,
           (i + 1) * plotHeight
         );
-        this.pointValues[i] = update(this.pointValues[i], pointValue);
+        this.pointValues[i].next(pointValue);
       });
       this.drawGrid(plotCount);
+
+      for (let i = 0; i < this.pitch.length; ++i) {
+        this.pitchValue[i].next(this.graph.pitch[i].value);
+      }
 
       if (this.graph.debug) {
         for (const pd of this.graph.pitch) {
@@ -305,12 +339,8 @@ export class FrequencyChartComponent
       }
 
       this.frame = requestAnimationFrame(this.animate);
-
-      if (changes) {
-        this.zone.run(() => null);
-      }
     } catch (err) {
-      this.zone.run(() => (this.error = err));
+      this.setError(err);
     }
   }
 }
