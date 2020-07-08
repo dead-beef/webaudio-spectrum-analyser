@@ -6,6 +6,7 @@ import { AudioGraphSourceNode } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { stateFormControl } from '../../utils/ngxs.util';
+import { environment } from '../../../environments/environment';
 
 @UntilDestroy()
 @Component({
@@ -28,7 +29,7 @@ export class WaveOptionsComponent implements OnInit {
       this.graph.select(AudioGraphState.waveFrequency),
       (f: number) => this.graph.dispatch('setWaveFrequency', f),
       this.destroyed$,
-      100
+      environment.throttle
     ),
   });
 

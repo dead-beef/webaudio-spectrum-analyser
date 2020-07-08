@@ -6,6 +6,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { stateFormControl } from '../../utils/ngxs.util';
+import { environment } from '../../../environments/environment';
 
 @UntilDestroy()
 @Component({
@@ -30,7 +31,7 @@ export class CommonOptionsComponent {
       this.delay$,
       (d: number) => this.graph.dispatch('setDelay', d),
       this.destroyed$,
-      100
+      environment.throttle
     ),
     fftSize: stateFormControl(
       null,
@@ -69,14 +70,14 @@ export class CommonOptionsComponent {
       this.graph.select(AudioGraphState.minPitch),
       (p: number) => this.graph.dispatch('setMinPitch', p),
       this.destroyed$,
-      100
+      environment.throttle
     ),
     maxPitch: stateFormControl(
       null,
       this.graph.select(AudioGraphState.maxPitch),
       (p: number) => this.graph.dispatch('setMaxPitch', p),
       this.destroyed$,
-      100
+      environment.throttle
     ),
   });
 
