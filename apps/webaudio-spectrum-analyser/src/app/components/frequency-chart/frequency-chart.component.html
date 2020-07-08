@@ -1,22 +1,27 @@
-<app-alert [(error)]="error"></app-alert>
+<app-alert
+  [error]="error$ | async"
+  (errorChange)="setError($event)"
+>
+</app-alert>
 <div class="clr-row">
   <div class="clr-col-12">
     <canvas
       #canvas
-      [class.hide]="error !== null"
+      [class.hide]="error$ | async"
       (mouseenter)="showPoint = true"
       (mouseleave)="showPoint = false"
-      (mousemove)="setPoint($event)"
-      (click)="setPoint($event)"
     >
     </canvas>
   </div>
   <div class="clr-col-12">
-    {{ pointFrequency | units }}Hz
-    <span *ngFor="let value of pointValues"> {{ value }}dB</span>
+    {{ pointFrequency$ | async | units }}Hz
+    <span *ngFor="let value$ of pointValues$"> {{ value$ | async }}dB</span>
     <span class="float-right">
-      <span *ngFor="let p of graph.pitch" [class.hide]="!p.enabled">
-        {{ p.short }}: {{ p.value | units }}Hz
+      <span
+        *ngFor="let p of pitch; let i = index"
+        [class.hide]="!(pitchEnabled$[i] | async)"
+      >
+        {{ p }}: {{ pitchValue$[i] | async | units }}Hz
       </span>
     </span>
   </div>
