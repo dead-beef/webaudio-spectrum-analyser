@@ -3,10 +3,10 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
+import { environment } from '../../../environments/environment';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { stateFormControl } from '../../utils/ngxs.util';
-import { environment } from '../../../environments/environment';
 
 @UntilDestroy()
 @Component({

@@ -418,7 +418,11 @@ export class AudioGraph {
         if (!this.paused) {
           let value: number = pd.calc();
           if (pd.smooth && pd.value > 1) {
-            value = AudioMath.smooth(this.slowAnalyserSmoothing, pd.value, value);
+            value = AudioMath.smooth(
+              this.slowAnalyserSmoothing,
+              pd.value,
+              value
+            );
           }
           pd.value = value;
         } else if (pd.value === 0) {

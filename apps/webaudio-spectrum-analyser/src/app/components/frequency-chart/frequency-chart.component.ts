@@ -6,15 +6,15 @@ import {
   OnDestroy,
   ViewChild,
 } from '@angular/core';
-import { BehaviorSubject, fromEvent } from 'rxjs';
-import { merge, map, distinctUntilChanged } from 'rxjs/operators';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { BehaviorSubject, fromEvent } from 'rxjs';
+import { distinctUntilChanged, map, merge } from 'rxjs/operators';
 
-import { Point } from '../../interfaces';
+import { environment } from '../../../environments/environment';
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
+import { Point } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
-import { environment } from '../../../environments/environment';
 import { throttleTime_ } from '../../utils/rxjs.util';
 
 @UntilDestroy()
