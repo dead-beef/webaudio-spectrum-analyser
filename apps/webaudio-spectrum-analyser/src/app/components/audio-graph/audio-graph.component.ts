@@ -6,20 +6,21 @@ import {
   OnDestroy,
   ViewChild,
 } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Observable } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
+import { UntilDestroy } from '../../utils/angular.util';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
 
-@UntilDestroy()
 @Component({
   selector: 'app-audio-graph',
   templateUrl: './audio-graph.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AudioGraphComponent implements AfterViewInit, OnDestroy {
+export class AudioGraphComponent extends UntilDestroy
+  implements AfterViewInit, OnDestroy {
   @ViewChild(FrequencyChartComponent) public chart: FrequencyChartComponent;
 
   @ViewChild('audio') public audioRef: ElementRef<HTMLAudioElement>;
@@ -40,7 +41,9 @@ export class AudioGraphComponent implements AfterViewInit, OnDestroy {
    * Constructor.
    * @param graph
    */
-  constructor(private readonly graph: AudioGraphService) {}
+  constructor(private readonly graph: AudioGraphService) {
+    super();
+  }
 
   /**
    * Volume getter.
@@ -70,7 +73,7 @@ export class AudioGraphComponent implements AfterViewInit, OnDestroy {
       this.audio = this.audioRef.nativeElement;
       this.audio.srcObject = this.graph.getOutputStream();
       this.volume = 0.25;
-      void this.paused$.pipe(untilDestroyed(this)).subscribe(paused => {
+      void this.paused$.pipe(takeUntil(this.destroyed$)).subscribe(paused => {
         if (paused) {
           this.audio.pause();
         } else {

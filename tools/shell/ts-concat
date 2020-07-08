@@ -109,8 +109,8 @@ const PREVIEW = document.body.hasAttribute('onload');
 }
 
 function writeModules(modules) {
+  const maxDepth = Object.keys(modules).length;
   let stack = [ 'main' ];
-  modules.main.used = true;
   modules.main.depth = 0;
   while(stack.length) {
     let mod = stack.pop();
@@ -118,20 +118,24 @@ function writeModules(modules) {
       throw new Error('module not found: ' + mod);
     }
     let depth = modules[mod].depth + 1;
+    if(depth > maxDepth) {
+      throw new Error('circular dependency: ' + mod);
+    }
     let imports = modules[mod].localImports;
     for(let imp of imports) {
       if(!modules[imp]) {
         throw new Error('module not found: ' + imp);
       }
-      modules[imp].depth = Math.max(+modules[imp].depth || 0, depth);
-      if(!modules[imp].used) {
-        modules[imp].used = true;
+      if((+modules[imp].depth || 0) < depth) {
+        modules[imp].depth = depth;
         stack.push(imp);
       }
     }
   }
 
-  let order = Object.values(modules).sort((x, y) => y.depth - x.depth);
+  let order = Object.values(modules)
+    .filter(m => typeof m.depth === 'number')
+    .sort((x, y) => y.depth - x.depth);
   //console.error(order.map(m=>m.path));
 
   for(let m of order) {

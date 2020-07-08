@@ -5,9 +5,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { ClarityModule } from '@clr/angular';
-import { NgxsFormPluginModule } from '@ngxs/form-plugin';
 import { NgxsLoggerPluginModule } from '@ngxs/logger-plugin';
-import { NgxsRouterPluginModule } from '@ngxs/router-plugin';
 import { NgxsModule } from '@ngxs/store';
 import { SimplebarAngularModule } from 'simplebar-angular';
 
@@ -65,8 +63,6 @@ import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
       disabled: environment.production,
       collapsed: true,
     }),
-    NgxsRouterPluginModule.forRoot(),
-    NgxsFormPluginModule.forRoot(),
     AudioGraphStoreModule,
     RouterModule.forRoot(ROUTES, { useHash: true }),
   ],

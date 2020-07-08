@@ -13,6 +13,7 @@ import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.comp
 import { InputFrequencyComponent } from '../input-frequency/input-frequency.component';
 import { WaveOptionsComponent } from '../wave-options/wave-options.component';
 import { AudioGraphComponent } from './audio-graph.component';
+import { mockComponent } from '../../utils/test';
 
 describe('AudioGraphComponent', () => {
   let component: AudioGraphComponent;
@@ -35,6 +36,12 @@ describe('AudioGraphComponent', () => {
         WaveOptionsComponent,
         UnitsPipe,
         InputFrequencyComponent,
+        mockComponent('audio', {
+          nativeElement: {
+            play: () => null,
+            pause: () => null,
+          },
+        }),
       ],
       providers: [
         {

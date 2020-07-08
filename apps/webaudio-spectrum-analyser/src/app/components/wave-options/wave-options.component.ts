@@ -1,22 +1,19 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { environment } from '../../../environments/environment';
 import { AudioGraphSourceNode } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
+import { UntilDestroy } from '../../utils/angular.util';
 import { stateFormControl } from '../../utils/ngxs.util';
 
-@UntilDestroy()
 @Component({
   selector: 'app-wave-options',
   templateUrl: './wave-options.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WaveOptionsComponent implements OnInit {
-  private readonly destroyed$ = untilDestroyed(this);
-
+export class WaveOptionsComponent extends UntilDestroy implements OnInit {
   public readonly form = new FormGroup({
     shape: stateFormControl(
       null,
@@ -37,7 +34,9 @@ export class WaveOptionsComponent implements OnInit {
    * Constructor.
    * @param graphService
    */
-  constructor(private readonly graph: AudioGraphService) {}
+  constructor(private readonly graph: AudioGraphService) {
+    super();
+  }
 
   /**
    * Lifecycle hook.

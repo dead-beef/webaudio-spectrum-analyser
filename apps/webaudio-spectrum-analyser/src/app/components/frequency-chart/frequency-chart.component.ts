@@ -6,24 +6,24 @@ import {
   OnDestroy,
   ViewChild,
 } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BehaviorSubject, fromEvent } from 'rxjs';
-import { distinctUntilChanged, map, merge } from 'rxjs/operators';
+import { distinctUntilChanged, map, merge, takeUntil } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import { Point } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
+import { UntilDestroy } from '../../utils/angular.util';
 import { throttleTime_ } from '../../utils/rxjs.util';
 
-@UntilDestroy()
 @Component({
   selector: 'app-frequency-chart',
   templateUrl: './frequency-chart.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
+export class FrequencyChartComponent extends UntilDestroy
+  implements AfterViewInit, OnDestroy {
   @ViewChild('canvas') public canvas: ElementRef<HTMLCanvasElement>;
 
   private context: CanvasRenderingContext2D = null;
@@ -85,7 +85,9 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
    * Constructor.
    * @param graphService
    */
-  constructor(private readonly graphService: AudioGraphService) {}
+  constructor(private readonly graphService: AudioGraphService) {
+    super();
+  }
 
   /**
    * Lifecycle hook.
@@ -98,7 +100,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
       void fromEvent(canvas, 'click')
         .pipe(
           merge(fromEvent(canvas, 'mousemove')),
-          untilDestroyed(this),
+          takeUntil(this.destroyed$),
           map(
             (ev: MouseEvent): Point => {
               return {

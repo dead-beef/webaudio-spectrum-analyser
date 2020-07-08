@@ -1,6 +1,11 @@
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { catchError, distinctUntilChanged, flatMap } from 'rxjs/operators';
+import {
+  catchError,
+  distinctUntilChanged,
+  flatMap,
+  takeUntil,
+} from 'rxjs/operators';
 
 import { throttleTime_ } from './rxjs.util';
 
@@ -19,13 +24,21 @@ export interface StoreActions {
  * Store action constructor.
  * @param actionScope action scope
  */
-export const actionConstructor = (scope: string) => <T>(name: string) =>
-  class {
-    public static readonly type: string = `[${scope}]: ${name}`;
+export function actionConstructor(scope: string) {
+  /**
+   * TODO: description
+   * @param name
+   */
+  function createAction<T>(name: string) {
+    return class {
+      public static readonly type: string = `[${scope}]: ${name}`;
 
-    // eslint-disable-next-line require-jsdoc
-    constructor(public payload: T) {}
-  };
+      // eslint-disable-next-line require-jsdoc
+      constructor(public payload: T) {}
+    };
+  }
+  return createAction;
+}
 
 /**
  * TODO: description
@@ -39,7 +52,7 @@ export function stateFormControl<T>(
   formControlOrState: FormControl | any,
   value$: Observable<T>,
   setState: (value: T) => Observable<any>,
-  untilDestroyed: <U>(o: Observable<U>) => Observable<U>,
+  destroyed$: Observable<any>,
   throttle?: number
 ): FormControl {
   let fc: FormControl;
@@ -56,7 +69,7 @@ export function stateFormControl<T>(
   }
   void valueChanges$
     .pipe(
-      untilDestroyed,
+      takeUntil(destroyed$),
       distinctUntilChanged(),
       flatMap(setState),
       catchError((err, caught) => {
@@ -66,7 +79,7 @@ export function stateFormControl<T>(
     )
     .subscribe();
   void value$
-    .pipe(untilDestroyed, distinctUntilChanged())
+    .pipe(takeUntil(destroyed$), distinctUntilChanged())
     .subscribe(fc.setValue.bind(fc));
   return fc;
 }

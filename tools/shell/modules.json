@@ -7,5 +7,10 @@
   "@angular/platform-browser/animations": "ng.platformBrowser.animations",
   "@angular/router": "ng.router",
   "@clr/angular": "clr.angular",
-  "simplebar-angular": "window['simplebar-angular']"
+  "simplebar-angular": "window['simplebar-angular']",
+  "@ngxs/store": "ngxs.store",
+  "@ngxs/store/operators": "ngxs.store.operators",
+  "@ngxs/logger-plugin": "ngxs['logger-plugin']",
+  "rxjs": "rxjs",
+  "rxjs/operators": "rxjs.operators"
 }

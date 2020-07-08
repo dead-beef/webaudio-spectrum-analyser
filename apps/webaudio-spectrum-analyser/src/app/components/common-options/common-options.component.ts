@@ -1,23 +1,20 @@
 /* eslint-disable compat/compat */
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { environment } from '../../../environments/environment';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
+import { UntilDestroy } from '../../utils/angular.util';
 import { stateFormControl } from '../../utils/ngxs.util';
 
-@UntilDestroy()
 @Component({
   selector: 'app-common-options',
   templateUrl: './common-options.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CommonOptionsComponent {
+export class CommonOptionsComponent extends UntilDestroy {
   public delay$ = this.graph.select(AudioGraphState.delay);
-
-  private readonly destroyed$ = untilDestroyed(this);
 
   public readonly fftSizes: number[] = this.graph.getFftSizes();
 
@@ -85,5 +82,7 @@ export class CommonOptionsComponent {
    * Constructor.
    * @param graph
    */
-  constructor(private readonly graph: AudioGraphService) {}
+  constructor(private readonly graph: AudioGraphService) {
+    super();
+  }
 }

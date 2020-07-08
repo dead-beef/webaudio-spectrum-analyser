@@ -1,23 +1,20 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Observable } from 'rxjs';
 import { finalize, map, tap } from 'rxjs/operators';
 
 import { AudioGraphSourceNode } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
+import { UntilDestroy } from '../../utils/angular.util';
 import { stateFormControl } from '../../utils/ngxs.util';
 
-@UntilDestroy()
 @Component({
   selector: 'app-device-options',
   templateUrl: './device-options.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeviceOptionsComponent implements OnInit {
-  private readonly destroyed$ = untilDestroyed(this);
-
+export class DeviceOptionsComponent extends UntilDestroy implements OnInit {
   public loading = true;
 
   public error: Error = null;
@@ -37,6 +34,7 @@ export class DeviceOptionsComponent implements OnInit {
    * @param graphService
    */
   constructor(private readonly graph: AudioGraphService) {
+    super();
     stateFormControl(
       this.device,
       this.graph.select(AudioGraphState.deviceId),
