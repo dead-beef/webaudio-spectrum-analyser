@@ -21,6 +21,9 @@ export interface AudioGraphStateModel {
     shape: OscillatorType;
     frequency: number;
   };
+  device: {
+    id: string;
+  };
 }
 
 export interface PitchDetectionState {
@@ -46,6 +49,9 @@ export const audioGraphStateDefaults: AudioGraphStateModel = {
   wave: {
     shape: 'sine',
     frequency: 440,
+  },
+  device: {
+    id: null,
   },
 };
 

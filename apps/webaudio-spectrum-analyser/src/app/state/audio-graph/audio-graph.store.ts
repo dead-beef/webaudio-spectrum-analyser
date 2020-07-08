@@ -148,6 +148,15 @@ export class AudioGraphState {
   }
 
   /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static deviceId(state: AudioGraphStateModel) {
+    return state.device.id;
+  }
+
+  /**
    * Set AudioGraph state action
    * @param ctx
    * @param payload
@@ -392,5 +401,30 @@ export class AudioGraphState {
         wave: patch({ frequency: payload }),
       })
     );
+  }
+
+  /**
+   * Action
+   * @param ctx
+   */
+  @Action(audioGraphAction.setDeviceId)
+  public setDeviceId(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<string>
+  ) {
+    if (this.graph.deviceLoading) {
+      console.log('device loading');
+      return;
+    }
+    let deviceId: string = payload;
+    return this.graph
+      .setDevice(payload)
+      .catch(err => {
+        deviceId = null;
+        throw err;
+      })
+      .finally(() => {
+        return ctx.setState(patch({ device: patch({ id: deviceId }) }));
+      });
   }
 }

@@ -57,6 +57,13 @@ export class AudioGraphService {
   /**
    * TODO: description
    */
+  public getDevices(): Promise<MediaDeviceInfo[]> {
+    return this.graph.getDevices();
+  }
+
+  /**
+   * TODO: description
+   */
   public select<T extends (...args: any[]) => any>(
     selector: T
   ): Observable<ReturnType<T>> {

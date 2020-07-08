@@ -339,7 +339,8 @@ export class AudioGraph {
    * TODO: description
    * @param dev
    */
-  public setDevice(dev: MediaDeviceInfo): Promise<void> {
+  public setDevice(dev: MediaDeviceInfo | string): Promise<void> {
+    let deviceId: string;
     if (this.deviceStream) {
       this.deviceStream.getTracks().forEach(track => track.stop());
       this.deviceStream = null;
@@ -350,6 +351,10 @@ export class AudioGraph {
     }
     if (dev === null) {
       return Promise.resolve();
+    } else if (typeof dev === 'string') {
+      deviceId = dev;
+    } else {
+      deviceId = dev.deviceId;
     }
     if (!navigator?.mediaDevices?.getUserMedia) {
       return Promise.reject(new Error('getUserMedia is not supported'));
@@ -360,9 +365,7 @@ export class AudioGraph {
     const res = navigator.mediaDevices
       .getUserMedia({
         video: false,
-        audio: {
-          deviceId: dev.deviceId,
-        },
+        audio: { deviceId },
       })
       .then(stream => {
         this.deviceStream = stream;

@@ -26,4 +26,6 @@ export const audioGraphAction: StoreActions = {
 
   setWaveShape: action<string>('set wave shape'),
   setWaveFrequency: action<number>('set wave frequency'),
+
+  setDeviceId: action<string>('set device id'),
 };
