@@ -415,11 +415,15 @@ export class AudioGraph {
 
     for (const pd of this.pitch) {
       if (pd.enabled) {
-        let value: number = pd.calc();
-        if (pd.smooth && pd.value > 1) {
-          value = AudioMath.smooth(this.slowAnalyserSmoothing, pd.value, value);
+        if (!this.paused) {
+          let value: number = pd.calc();
+          if (pd.smooth && pd.value > 1) {
+            value = AudioMath.smooth(this.slowAnalyserSmoothing, pd.value, value);
+          }
+          pd.value = value;
+        } else if (pd.value === 0) {
+          pd.value = pd.calc();
         }
-        pd.value = value;
       } else {
         pd.value = 0;
       }
