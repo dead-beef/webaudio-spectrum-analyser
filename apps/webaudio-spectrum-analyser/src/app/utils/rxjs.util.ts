@@ -17,20 +17,26 @@ export function throttleTime_<T>(
 ): MonoTypeOperatorFunction<T> {
   return (source: Observable<T>) =>
     new Observable<T>(observer => {
+      let source_: Subscription = null;
       let timeout: Subscription = null;
       let hasNext = false;
       let next: T = null;
 
-      const reset = () => {
+      function unsubscribe() {
+        //console.log('throttle unsubscribe');
         if (timeout !== null) {
           timeout.unsubscribe();
           timeout = null;
         }
+        if (source_ !== null) {
+          source_.unsubscribe();
+          source_ = null;
+        }
         hasNext = false;
         next = null;
-      };
+      }
 
-      return source.subscribe({
+      source_ = source.subscribe({
         next(value: T) {
           if (timeout === null) {
             hasNext = false;
@@ -50,13 +56,18 @@ export function throttleTime_<T>(
           }
         },
         error(err) {
-          reset();
+          unsubscribe();
           observer.error(err);
         },
         complete() {
-          reset();
+          if (hasNext) {
+            observer.next(next);
+          }
+          unsubscribe();
           observer.complete();
         },
       });
+
+      return unsubscribe;
     });
 }
