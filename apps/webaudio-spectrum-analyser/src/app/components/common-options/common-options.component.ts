@@ -30,7 +30,7 @@ export class CommonOptionsComponent {
       this.delay$,
       (d: number) => this.graph.dispatch('setDelay', d),
       this.destroyed$,
-      20
+      100
     ),
     fftSize: stateFormControl(
       null,
@@ -69,14 +69,14 @@ export class CommonOptionsComponent {
       this.graph.select(AudioGraphState.minPitch),
       (p: number) => this.graph.dispatch('setMinPitch', p),
       this.destroyed$,
-      20
+      100
     ),
     maxPitch: stateFormControl(
       null,
       this.graph.select(AudioGraphState.maxPitch),
       (p: number) => this.graph.dispatch('setMaxPitch', p),
       this.destroyed$,
-      20
+      100
     ),
   });
 

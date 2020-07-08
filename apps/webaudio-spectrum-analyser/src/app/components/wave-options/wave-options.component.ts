@@ -27,7 +27,8 @@ export class WaveOptionsComponent implements OnInit {
       null,
       this.graph.select(AudioGraphState.waveFrequency),
       (f: number) => this.graph.dispatch('setWaveFrequency', f),
-      this.destroyed$
+      this.destroyed$,
+      100
     ),
   });
 

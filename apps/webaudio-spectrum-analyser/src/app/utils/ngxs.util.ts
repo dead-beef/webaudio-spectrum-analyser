@@ -1,7 +1,8 @@
 import { FormControl } from '@angular/forms';
-//import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, flatMap } from 'rxjs/operators';
+
+import { throttleTime_ } from './rxjs.util';
 
 export class StoreAction<T> {
   public static readonly type: string;
@@ -32,14 +33,14 @@ export const actionConstructor = (scope: string) => <T>(name: string) =>
  * @param value$
  * @param setState
  * @param untilDestroyed
- * @param debounce
+ * @param throttle
  */
 export function stateFormControl<T>(
   formControlOrState: FormControl | any,
   value$: Observable<T>,
   setState: (value: T) => Observable<any>,
   untilDestroyed: <U>(o: Observable<U>) => Observable<U>,
-  debounce?: number
+  throttle?: number
 ): FormControl {
   let fc: FormControl;
   if (formControlOrState instanceof FormControl) {
@@ -47,16 +48,25 @@ export function stateFormControl<T>(
   } else {
     fc = new FormControl(formControlOrState);
   }
-  let valueChanges$: Observable<T> = fc.valueChanges.pipe(
-    untilDestroyed,
-    distinctUntilChanged()
-  );
-  value$ = value$.pipe(untilDestroyed, distinctUntilChanged());
-  if (debounce) {
-    value$ = value$.pipe(debounceTime(debounce));
-    valueChanges$ = valueChanges$.pipe(debounceTime(debounce));
+  let valueChanges$: Observable<T> = fc.valueChanges;
+  if (throttle) {
+    const op: (o: Observable<T>) => Observable<T> = throttleTime_(throttle);
+    value$ = value$.pipe(op);
+    valueChanges$ = valueChanges$.pipe(op);
   }
-  void valueChanges$.subscribe((value: T) => setState(value));
-  void value$.subscribe((value: T) => fc.setValue(value));
+  void valueChanges$
+    .pipe(
+      untilDestroyed,
+      distinctUntilChanged(),
+      flatMap(setState),
+      catchError((err, caught) => {
+        console.error(err);
+        return caught;
+      })
+    )
+    .subscribe();
+  void value$
+    .pipe(untilDestroyed, distinctUntilChanged())
+    .subscribe(fc.setValue.bind(fc));
   return fc;
 }
