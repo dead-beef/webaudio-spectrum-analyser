@@ -4,22 +4,22 @@ import {
   Component,
   ElementRef,
   OnDestroy,
-  OnInit,
   ViewChild,
 } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Observable } from 'rxjs';
-import { withLatestFrom } from 'rxjs/operators';
 
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
 
+@UntilDestroy()
 @Component({
   selector: 'app-audio-graph',
   templateUrl: './audio-graph.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
+export class AudioGraphComponent implements AfterViewInit, OnDestroy {
   @ViewChild(FrequencyChartComponent) public chart: FrequencyChartComponent;
 
   @ViewChild('audio') public audioRef: ElementRef<HTMLAudioElement>;
@@ -65,23 +65,18 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Lifecycle hook.
    */
-  public ngOnInit() {
-    try {
-      this.volume = 0.25;
-    } catch (err) {
-      console.error(err);
-      this.error = err;
-    }
-  }
-
-  /**
-   * Lifecycle hook.
-   */
   public ngAfterViewInit() {
     try {
       this.audio = this.audioRef.nativeElement;
       this.audio.srcObject = this.graph.getOutputStream();
-      this.audio.volume = this.volume;
+      this.volume = 0.25;
+      void this.paused$.pipe(untilDestroyed(this)).subscribe(paused => {
+        if (paused) {
+          this.audio.pause();
+        } else {
+          void this.audio.play();
+        }
+      });
     } catch (err) {
       console.error(err);
       this.error = err;
@@ -99,16 +94,7 @@ export class AudioGraphComponent implements OnInit, AfterViewInit, OnDestroy {
    * Toggles playback.
    */
   public toggle() {
-    void this.graph
-      .dispatch('toggle')
-      .pipe(withLatestFrom(this.paused$))
-      .subscribe(([_, paused]) => {
-        if (paused) {
-          this.audio.pause();
-        } else {
-          void this.audio.play();
-        }
-      });
+    void this.graph.dispatch('toggle');
   }
 
   /**
