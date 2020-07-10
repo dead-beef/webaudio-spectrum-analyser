@@ -3,17 +3,8 @@
     <button clrTabLink>Graph</button>
     <clr-tab-content *clrIfActive>
       <form clrForm clrLayout="vertical" [formGroup]="graphForm">
-        <clr-range-container>
-          <label>Delay: {{ delay$ | async }}s</label>
-          <input
-            clrRange
-            type="range"
-            min="0"
-            [attr.max]="maxDelay"
-            step="0.01"
-            formControlName="delay"
-          />
-        </clr-range-container>
+        <app-input-range name="Delay" min="0" [max]="maxDelay" formControlName="delay">
+        </app-input-range>
         <clr-select-container>
           <label>FFT Size</label>
           <select clrSelect formControlName="fftSize">
@@ -52,19 +43,9 @@
           </clr-checkbox-wrapper>
         </clr-checkbox-container>
 
-        <app-input-frequency
-          [name]="'Min Pitch'"
-          [min]="20"
-          [max]="20000"
-          formControlName="minPitch"
-        >
+        <app-input-frequency name="Min Pitch" min="20" max="20000" formControlName="minPitch">
         </app-input-frequency>
-        <app-input-frequency
-          [name]="'Max Pitch'"
-          [min]="20"
-          [max]="20000"
-          formControlName="maxPitch"
-        >
+        <app-input-frequency name="Max Pitch" min="20" max="20000" formControlName="maxPitch">
         </app-input-frequency>
       </form>
     </clr-tab-content>

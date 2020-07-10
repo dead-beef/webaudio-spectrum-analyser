@@ -1,0 +1,13 @@
+<clr-input-container>
+  <label>{{ name }}</label>
+  <input clrInput type="number"
+    [name]="name"
+    [min]="min" [max]="max"
+    [(ngModel)]="value">
+</clr-input-container>
+<clr-range-container>
+  <input clrRange type="range"
+    [name]="rangeName"
+    [min]="min" [max]="max" step="0.0001"
+    [(ngModel)]="value">
+</clr-range-container>
