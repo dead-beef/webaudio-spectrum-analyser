@@ -1,13 +1,13 @@
 <audio #audio></audio>
 
 <div class="clr-row">
-  <div class="clr-col-12 clr-col-md-6 clr-col-lg-8">
+  <div class="clr-col-12 clr-col-md-6 clr-col-lg-7 clr-col-xl-8">
     <div class="frequency-chart-container">
       <app-frequency-chart></app-frequency-chart>
     </div>
   </div>
 
-  <div class="clr-col-12 clr-col-md-6 clr-col-lg-4">
+  <div class="clr-col-12 clr-col-md-6 clr-col-lg-5 clr-col-xl-4">
     <app-alert [(error)]="error"></app-alert>
 
     <div class="clr-row">
@@ -47,6 +47,13 @@
         <clr-tab-content *clrIfActive>
           <app-device-options>
           </app-device-options>
+        </clr-tab-content>
+      </clr-tab>
+      <clr-tab>
+        <button clrTabLink>Worklet</button>
+        <clr-tab-content *clrIfActive>
+          <app-worklet-options>
+          </app-worklet-options>
         </clr-tab-content>
       </clr-tab>
     </clr-tabs>

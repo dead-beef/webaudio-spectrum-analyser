@@ -1,0 +1,7 @@
+<form clrForm clrLayout="vertical" [formGroup]="form">
+  <app-alert
+    [error]="error$ | async"
+    (errorChange)="setError($event)"
+  >
+  </app-alert>
+</form>

@@ -21,6 +21,7 @@ import { FileOptionsComponent } from './components/file-options/file-options.com
 import { FrequencyChartComponent } from './components/frequency-chart/frequency-chart.component';
 import { InputFrequencyComponent } from './components/input-frequency/input-frequency.component';
 import { WaveOptionsComponent } from './components/wave-options/wave-options.component';
+import { WorkletOptionsComponent } from './components/worklet-options/worklet-options.component';
 import { InputFileUrlDirective } from './directives/input-file-url/input-file-url.directive';
 import { StatsModule } from './modules/stats/stats.module';
 import { ErrorPipe } from './pipes/error/error.pipe';
@@ -48,6 +49,7 @@ import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
     DeviceOptionsComponent,
     AudioGraphComponent,
     InputFrequencyComponent,
+    WorkletOptionsComponent,
   ],
   imports: [
     BrowserModule,

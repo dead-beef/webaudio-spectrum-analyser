@@ -56,6 +56,7 @@ export interface AudioGraphNodes {
   wave: OscillatorNode;
   element: MediaElementAudioSourceNode;
   device: MediaStreamAudioSourceNode;
+  worklet: AudioWorkletNode;
   input: DelayNode;
   analysers: AnalyserNode[];
   output: MediaStreamAudioDestinationNode;
@@ -65,6 +66,7 @@ export enum AudioGraphSourceNode {
   WAVE,
   FILE,
   DEVICE,
+  WORKLET,
 }
 
 export interface AudioGraphSource {

@@ -232,15 +232,16 @@ export class AudioGraphState {
    * @param node
    * @param data
    */
-  private doSetSource(
+  private _setSource(
     ctx: StateContext<AudioGraphStateModel>,
     node: AudioGraphSourceNode,
     data?: any
   ) {
     const state: AudioGraphStateModel = ctx.getState();
     this.graph.disable(state.sourceNode);
-    this.graph.enable(node, data);
-    return ctx.patchState({ sourceNode: node });
+    return this.graph.enable(node, data).then(() => {
+      return ctx.patchState({ sourceNode: node });
+    });
   }
 
   /**
@@ -253,7 +254,7 @@ export class AudioGraphState {
     ctx: StateContext<AudioGraphStateModel>,
     { payload }: StoreAction<AudioGraphSourceNode>
   ) {
-    return this.doSetSource(ctx, payload);
+    return this._setSource(ctx, payload);
   }
 
   /**
@@ -266,7 +267,7 @@ export class AudioGraphState {
     ctx: StateContext<AudioGraphStateModel>,
     { payload }: StoreAction<AudioGraphSource>
   ) {
-    return this.doSetSource(ctx, payload.node, payload.data);
+    return this._setSource(ctx, payload.node, payload.data);
   }
 
   /**

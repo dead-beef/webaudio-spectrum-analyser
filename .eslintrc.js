@@ -263,6 +263,7 @@ module.exports = {
     'no-console': 'off',
     'no-constructor-return': 'error',
     'no-continue': 'off',
+    'no-class-assign': 'off',
     'no-debugger': 'error',
     'no-duplicate-case': 'error',
     'no-duplicate-imports': 'error',

@@ -36,6 +36,9 @@
       right: 50%;
     }
     @media (min-width: $width-lg) {
+      right: calc(42% + 0.5rem);
+    }
+    @media (min-width: $width-xl) {
       right: calc(33% + 0.5rem);
     }
 

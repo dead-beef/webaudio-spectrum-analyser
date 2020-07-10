@@ -4,6 +4,7 @@ import {
   PitchDetection,
 } from '../../interfaces';
 import { AudioMath } from '../audio-math/audio-math';
+import { WorkletNode } from '../worklet-node/worklet-node';
 
 export class AudioGraph {
   public context: AudioContext = null;
@@ -11,6 +12,8 @@ export class AudioGraph {
   public nodes: AudioGraphNodes = null;
 
   public stream: MediaStream = null;
+
+  public workletReady: Promise<void> = null;
 
   public paused = true;
 
@@ -128,6 +131,7 @@ export class AudioGraph {
 
       this.context = {} as any;
       this.nodes = {} as any;
+      this.workletReady = Promise.resolve();
 
       Object.defineProperty(this.context, 'sampleRate', {
         value: 44000,
@@ -138,6 +142,14 @@ export class AudioGraph {
         value: {
           frequency: { value: 440 },
           type: 'sine',
+          connect: () => null,
+          disconnect: () => null,
+        },
+        writable: true,
+      });
+
+      Object.defineProperty(this.nodes, 'worklet', {
+        value: {
           connect: () => null,
           disconnect: () => null,
         },
@@ -167,6 +179,7 @@ export class AudioGraph {
 
     this.nodes = {
       wave: this.context.createOscillator(),
+      worklet: null,
       device: null,
       element: null,
       input: this.context.createDelay(this.maxDelay),
@@ -176,6 +189,11 @@ export class AudioGraph {
     this.nodes.wave.start();
     this.createAnalysers();
     this.stream = this.nodes.output.stream;
+
+    this.workletReady = WorkletNode.register(this.context).then(() => {
+      this.nodes.worklet = WorkletNode.create(this.context);
+    });
+    this.workletReady.catch(err => console.warn(err));
   }
 
   /**
@@ -224,22 +242,31 @@ export class AudioGraph {
    * @param node
    * @param data
    */
-  public enable(node: AudioGraphSourceNode, data?: any): AudioGraph {
-    console.log('enable', node /*, data*/);
-    switch (node) {
-      case AudioGraphSourceNode.DEVICE:
-        //this.setDevice(null);
-        break;
-      case AudioGraphSourceNode.FILE:
-        this.setElement(data);
-        break;
-      case AudioGraphSourceNode.WAVE:
-        this.nodes.wave.connect(this.nodes.input);
-        break;
-      default:
-        throw new Error('invalid node ' + String(node));
+  public enable(node: AudioGraphSourceNode, data?: any): Promise<void> {
+    try {
+      console.log('enable', node /*, data*/);
+      switch (node) {
+        case AudioGraphSourceNode.DEVICE:
+          //this.setDevice(null);
+          break;
+        case AudioGraphSourceNode.FILE:
+          this.setElement(data);
+          break;
+        case AudioGraphSourceNode.WAVE:
+          this.nodes.wave.connect(this.nodes.input);
+          break;
+        case AudioGraphSourceNode.WORKLET:
+          return this.workletReady.then(() => {
+            console.log(this.nodes.worklet);
+            this.nodes.worklet.connect(this.nodes.input);
+          });
+        default:
+          throw new Error('invalid node ' + String(node));
+      }
+      return Promise.resolve();
+    } catch (err) {
+      return Promise.reject(err);
     }
-    return this;
   }
 
   /**
@@ -257,6 +284,11 @@ export class AudioGraph {
         break;
       case AudioGraphSourceNode.WAVE:
         this.nodes.wave.disconnect();
+        break;
+      case AudioGraphSourceNode.WORKLET:
+        if (this.nodes.worklet) {
+          this.nodes.worklet.disconnect();
+        }
         break;
       default:
         throw new Error('invalid node ' + String(node));
