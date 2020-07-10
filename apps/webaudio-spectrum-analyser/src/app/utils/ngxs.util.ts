@@ -45,7 +45,7 @@ export function actionConstructor(scope: string) {
  * @param formControlOrState
  * @param value$
  * @param setState
- * @param untilDestroyed
+ * @param destroyed$
  * @param throttle
  */
 export function stateFormControl<T>(
