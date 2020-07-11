@@ -1,6 +1,8 @@
 import {
   AudioGraphNodes,
+  AudioGraphFilters,
   AudioGraphSourceNode,
+  AudioGraphFilterNode,
   PitchDetection,
 } from '../../interfaces';
 import { AudioMath } from '../audio-math/audio-math';
@@ -14,6 +16,8 @@ export class AudioGraph {
   public stream: MediaStream = null;
 
   public workletReady: Promise<void> = null;
+
+  public filter: AudioGraphFilterNode = AudioGraphFilterNode.NONE;
 
   public paused = true;
 
@@ -133,39 +137,38 @@ export class AudioGraph {
       this.nodes = {} as any;
       this.workletReady = Promise.resolve();
 
-      Object.defineProperty(this.context, 'sampleRate', {
-        value: 44000,
-        writable: true,
-      });
+      const prop = (obj, key, value) => {
+        Object.defineProperty(obj, key, {
+          value: value,
+          enumerable: true,
+          writable: true,
+        });
+      };
 
-      Object.defineProperty(this.nodes, 'wave', {
-        value: {
-          frequency: { value: 440 },
-          type: 'sine',
-          connect: () => null,
-          disconnect: () => null,
-        },
-        writable: true,
+      prop(this.context, 'sampleRate', 44000);
+      prop(this.nodes, 'wave', {
+        frequency: { value: 440 },
+        type: 'sine',
+        connect: () => null,
+        disconnect: () => null,
       });
-
-      Object.defineProperty(this.nodes, 'worklet', {
-        value: {
-          connect: () => null,
-          disconnect: () => null,
-        },
-        writable: true,
+      prop(this.nodes, 'worklet', {
+        connect: () => null,
+        disconnect: () => null,
       });
-
-      Object.defineProperty(this.nodes, 'input', {
-        value: {
-          delayTime: { value: 0 },
-        },
-        writable: true,
+      prop(this.nodes, 'input', {
+        delayTime: { value: 0 },
+        connect: () => null,
+        disconnect: () => null,
       });
-
-      Object.defineProperty(this.nodes, 'analysers', {
-        value: [null, null],
-        writable: true,
+      prop(this.nodes, 'analysers', []);
+      prop(this.nodes, 'filteredInput', {
+        connect: () => null,
+        disconnect: () => null,
+      });
+      prop(this.nodes, 'output', {
+        connect: () => null,
+        disconnect: () => null,
       });
 
       return;
@@ -183,10 +186,17 @@ export class AudioGraph {
       device: null,
       element: null,
       input: this.context.createDelay(this.maxDelay),
+      filter: {
+        iir: this.context.createIIRFilter([1, 0, 0], [1, 0, 0]),
+        biquad: this.context.createBiquadFilter(),
+        convolver: this.context.createConvolver(),
+      },
+      filteredInput: this.context.createGain(),
       analysers: null,
       output: this.context.createMediaStreamDestination(),
     };
     this.nodes.wave.start();
+    this.nodes.input.connect(this.nodes.filteredInput);
     this.createAnalysers();
     this.stream = this.nodes.output.stream;
 
@@ -298,13 +308,69 @@ export class AudioGraph {
 
   /**
    * TODO: description
+   * @param filter
+   */
+  public setFilter(filter: AudioGraphFilterNode): AudioGraph {
+    console.log('set filter', filter);
+    let node: AudioNode = null;
+    switch (filter) {
+      case AudioGraphFilterNode.NONE:
+        break;
+      case AudioGraphFilterNode.IIR:
+        node = this.nodes.filter.iir;
+        break;
+      case AudioGraphFilterNode.BIQUAD:
+        node = this.nodes.filter.biquad;
+        break;
+      case AudioGraphFilterNode.CONVOLVER:
+        node = this.nodes.filter.convolver;
+        break;
+      default:
+        throw new Error('invalid filter ' + String(node));
+    }
+
+    this.nodes.input.disconnect();
+    for (const k in this.nodes.filter) {
+      if (Object.prototype.hasOwnProperty.call(this.nodes.filter, k)) {
+        this.nodes.filter[k as keyof AudioGraphFilters].disconnect();
+      }
+    }
+
+    if (node === null) {
+      this.nodes.input.connect(this.nodes.filteredInput);
+    } else {
+      this.nodes.input.connect(node);
+      node.connect(this.nodes.filteredInput);
+    }
+    this.filter = filter;
+
+    return this;
+  }
+
+  /**
+   * TODO: description
+   */
+  public setIir(feedforward: number[], feedback: number[]): AudioGraph {
+    const node = this.context.createIIRFilter(feedforward, feedback);
+    if (this.filter === AudioGraphFilterNode.IIR) {
+      this.nodes.input.disconnect();
+      this.nodes.filter.iir.disconnect();
+      this.nodes.input.connect(node);
+      node.connect(this.nodes.filteredInput);
+    }
+    this.nodes.filter.iir = node;
+    return this;
+  }
+
+  /**
+   * TODO: description
    */
   public createAnalysers(): AudioGraph {
     if (this.nodes.analysers) {
       for (const node of this.nodes.analysers) {
         node.disconnect();
       }
-      this.nodes.input.disconnect();
+      this.nodes.filteredInput.disconnect();
     }
 
     this.nodes.analysers = [
@@ -315,7 +381,7 @@ export class AudioGraph {
       node.fftSize = this.fftSize;
       node.maxDecibels = this.maxDecibels;
       node.minDecibels = this.minDecibels;
-      this.nodes.input.connect(node);
+      this.nodes.filteredInput.connect(node);
     }
 
     while (this.fdata.length < this.nodes.analysers.length) {

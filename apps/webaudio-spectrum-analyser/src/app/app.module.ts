@@ -31,6 +31,7 @@ import { UnitsPipe } from './pipes/units/units.pipe';
 import { AudioGraphStoreModule } from './state/audio-graph/audio-graph.module';
 import { getAudioGraph, getDocument, getWindow } from './utils/factories';
 import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
+import { InputRangeComponent } from './components/input-range/input-range.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
     AudioGraphComponent,
     InputFrequencyComponent,
     WorkletOptionsComponent,
+    InputRangeComponent,
   ],
   imports: [
     BrowserModule,

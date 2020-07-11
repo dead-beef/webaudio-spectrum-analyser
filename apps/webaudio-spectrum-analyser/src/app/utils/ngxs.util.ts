@@ -1,4 +1,4 @@
-import { FormControl } from '@angular/forms';
+import { AbstractControl, FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import {
   catchError,
@@ -49,14 +49,15 @@ export function actionConstructor(scope: string) {
  * @param throttle
  */
 export function stateFormControl<T>(
-  formControlOrState: FormControl | any,
+  formControlOrState: AbstractControl | any,
   value$: Observable<T>,
   setState: (value: T) => Observable<any>,
   destroyed$: Observable<any>,
-  throttle?: number
-): FormControl {
-  let fc: FormControl;
-  if (formControlOrState instanceof FormControl) {
+  throttle?: number,
+  compare?: (prev: T, next: T) => boolean
+): AbstractControl {
+  let fc: AbstractControl;
+  if (formControlOrState instanceof AbstractControl) {
     fc = formControlOrState;
   } else {
     fc = new FormControl(formControlOrState);
@@ -70,7 +71,7 @@ export function stateFormControl<T>(
   void valueChanges$
     .pipe(
       takeUntil(destroyed$),
-      distinctUntilChanged(),
+      distinctUntilChanged(compare),
       flatMap(setState),
       catchError((err, caught) => {
         console.error(err);
@@ -79,7 +80,7 @@ export function stateFormControl<T>(
     )
     .subscribe();
   void value$
-    .pipe(takeUntil(destroyed$), distinctUntilChanged())
+    .pipe(takeUntil(destroyed$), distinctUntilChanged(compare))
     .subscribe(fc.setValue.bind(fc));
   return fc;
 }
