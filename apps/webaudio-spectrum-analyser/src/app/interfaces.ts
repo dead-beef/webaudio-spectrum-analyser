@@ -52,12 +52,20 @@ export interface PitchDetection {
   value: number;
 }
 
+export interface AudioGraphFilters {
+  iir: IIRFilterNode;
+  biquad: BiquadFilterNode;
+  convolver: ConvolverNode;
+}
+
 export interface AudioGraphNodes {
   wave: OscillatorNode;
   element: MediaElementAudioSourceNode;
   device: MediaStreamAudioSourceNode;
   worklet: AudioWorkletNode;
   input: DelayNode;
+  filter: AudioGraphFilters;
+  filteredInput: GainNode;
   analysers: AnalyserNode[];
   output: MediaStreamAudioDestinationNode;
 }
@@ -67,6 +75,13 @@ export enum AudioGraphSourceNode {
   FILE,
   DEVICE,
   WORKLET,
+}
+
+export enum AudioGraphFilterNode {
+  NONE,
+  IIR,
+  BIQUAD,
+  CONVOLVER,
 }
 
 export interface AudioGraphSource {

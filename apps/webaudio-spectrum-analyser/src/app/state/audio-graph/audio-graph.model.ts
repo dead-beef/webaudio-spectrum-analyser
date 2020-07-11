@@ -1,6 +1,35 @@
 import { StateToken } from '@ngxs/store';
 
-import { AudioGraphSourceNode, PitchDetectionId } from '../../interfaces';
+import {
+  AudioGraphFilterNode,
+  AudioGraphSourceNode,
+  PitchDetectionId,
+} from '../../interfaces';
+
+export interface PitchDetectionState {
+  id: PitchDetectionId;
+  enabled: boolean;
+}
+
+export interface IirState {
+  feedforward: number[];
+  feedback: number[];
+}
+
+export interface ConvolverState {
+  duration: number;
+  decay: number;
+  frequency: number;
+  overtones: number;
+}
+
+export interface BiquadState {
+  type: BiquadFilterType;
+  frequency: number;
+  detune: number;
+  q: number;
+  gain: number;
+}
 
 export interface AudioGraphStateModel {
   paused: boolean;
@@ -24,11 +53,12 @@ export interface AudioGraphStateModel {
   device: {
     id: string;
   };
-}
-
-export interface PitchDetectionState {
-  id: PitchDetectionId;
-  enabled: boolean;
+  filter: {
+    id: AudioGraphFilterNode;
+    convolver: ConvolverState;
+    biquad: BiquadState;
+    iir: IirState;
+  };
 }
 
 export const audioGraphStateDefaults: AudioGraphStateModel = {
@@ -52,6 +82,26 @@ export const audioGraphStateDefaults: AudioGraphStateModel = {
   },
   device: {
     id: null,
+  },
+  filter: {
+    id: AudioGraphFilterNode.NONE,
+    convolver: {
+      duration: 0.5,
+      decay: 1,
+      frequency: 440,
+      overtones: 0,
+    },
+    biquad: {
+      type: 'lowpass',
+      frequency: 440,
+      detune: 0,
+      q: 0.5,
+      gain: 0,
+    },
+    iir: {
+      feedforward: [1, 0, 0],
+      feedback: [1, 0, 0],
+    },
   },
 };
 

@@ -1,4 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
+import { ClarityModule } from '@clr/angular';
 
 import { InputRangeComponent } from './input-range.component';
 
@@ -8,9 +11,9 @@ describe('InputRangeComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ InputRangeComponent ]
-    })
-    .compileComponents();
+      imports: [BrowserModule, FormsModule, ReactiveFormsModule, ClarityModule],
+      declarations: [InputRangeComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

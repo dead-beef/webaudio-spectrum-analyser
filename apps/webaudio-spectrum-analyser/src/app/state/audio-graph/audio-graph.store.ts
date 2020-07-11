@@ -10,6 +10,7 @@ import { patch } from '@ngxs/store/operators';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import {
+  AudioGraphFilterNode,
   AudioGraphSource,
   AudioGraphSourceNode,
   PitchDetectionId,
@@ -21,6 +22,8 @@ import {
   AUDIO_GRAPH_STATE_TOKEN,
   audioGraphStateDefaults,
   AudioGraphStateModel,
+  ConvolverState,
+  IirState,
   PitchDetectionState,
 } from './audio-graph.model';
 
@@ -154,6 +157,87 @@ export class AudioGraphState {
   @Selector()
   public static deviceId(state: AudioGraphStateModel) {
     return state.device.id;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static filter(state: AudioGraphStateModel) {
+    return state.filter.id;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static convolverFrequency(state: AudioGraphStateModel) {
+    return state.filter.convolver.frequency;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static biquadType(state: AudioGraphStateModel) {
+    return state.filter.biquad.type;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static biquadFrequency(state: AudioGraphStateModel) {
+    return state.filter.biquad.frequency;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static biquadDetune(state: AudioGraphStateModel) {
+    return state.filter.biquad.detune;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static biquadQ(state: AudioGraphStateModel) {
+    return state.filter.biquad.q;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static biquadGain(state: AudioGraphStateModel) {
+    return state.filter.biquad.gain;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static iirState(state: AudioGraphStateModel) {
+    return state.filter.iir;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static convolverState(state: AudioGraphStateModel) {
+    return state.filter.convolver;
   }
 
   /**
@@ -427,5 +511,163 @@ export class AudioGraphState {
       .finally(() => {
         return ctx.setState(patch({ device: patch({ id: deviceId }) }));
       });
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setFilter)
+  public setFilter(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<AudioGraphFilterNode>
+  ) {
+    this.graph.setFilter(payload);
+    return ctx.setState(patch({ filter: patch({ id: payload }) }));
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setIirState)
+  public setIirState(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<IirState>
+  ) {
+    const { feedforward, feedback } = payload;
+    this.graph.setIir(feedforward, feedback);
+    return ctx.setState(patch({ filter: patch({ iir: payload }) }));
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setConvolverState)
+  public setConvolverState(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<ConvolverState>
+  ) {
+    this.graph.setConvolver(
+      payload.duration,
+      payload.decay,
+      payload.frequency,
+      payload.overtones
+    );
+    return ctx.setState(patch({ filter: patch({ convolver: payload }) }));
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setBiquadType)
+  public setBiquadType(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<BiquadFilterType>
+  ) {
+    this.graph.nodes.filter.biquad.type = payload;
+    return ctx.setState(
+      patch({
+        filter: patch({
+          biquad: patch({
+            type: payload,
+          }),
+        }),
+      })
+    );
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setBiquadFrequency)
+  public setBiquadFrequency(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    this.graph.nodes.filter.biquad.frequency.value = payload;
+    return ctx.setState(
+      patch({
+        filter: patch({
+          biquad: patch({
+            frequency: payload,
+          }),
+        }),
+      })
+    );
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setBiquadDetune)
+  public setBiquadDetune(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    this.graph.nodes.filter.biquad.detune.value = payload;
+    return ctx.setState(
+      patch({
+        filter: patch({
+          biquad: patch({
+            detune: payload,
+          }),
+        }),
+      })
+    );
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setBiquadGain)
+  public setBiquadGain(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    this.graph.nodes.filter.biquad.gain.value = payload;
+    return ctx.setState(
+      patch({
+        filter: patch({
+          biquad: patch({
+            gain: payload,
+          }),
+        }),
+      })
+    );
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setBiquadQ)
+  public setBiquadQ(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    this.graph.nodes.filter.biquad.Q.value = payload;
+    return ctx.setState(
+      patch({
+        filter: patch({
+          biquad: patch({
+            q: payload,
+          }),
+        }),
+      })
+    );
   }
 }

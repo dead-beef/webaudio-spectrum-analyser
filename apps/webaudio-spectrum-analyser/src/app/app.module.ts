@@ -20,6 +20,7 @@ import { DeviceOptionsComponent } from './components/device-options/device-optio
 import { FileOptionsComponent } from './components/file-options/file-options.component';
 import { FrequencyChartComponent } from './components/frequency-chart/frequency-chart.component';
 import { InputFrequencyComponent } from './components/input-frequency/input-frequency.component';
+import { InputRangeComponent } from './components/input-range/input-range.component';
 import { WaveOptionsComponent } from './components/wave-options/wave-options.component';
 import { WorkletOptionsComponent } from './components/worklet-options/worklet-options.component';
 import { InputFileUrlDirective } from './directives/input-file-url/input-file-url.directive';
@@ -50,6 +51,7 @@ import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
     AudioGraphComponent,
     InputFrequencyComponent,
     WorkletOptionsComponent,
+    InputRangeComponent,
   ],
   imports: [
     BrowserModule,

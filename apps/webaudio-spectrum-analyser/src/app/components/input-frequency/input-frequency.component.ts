@@ -24,15 +24,15 @@ export class InputFrequencyComponent
   implements ControlValueAccessor, OnChanges {
   @Input() public name: string;
 
-  @Input() public min: number;
+  @Input() public min = 20;
 
-  @Input() public max: number;
+  @Input() public max = 20000;
 
   public log = 0;
 
-  public logMin = 0;
+  public logMin = Math.log2(this.min);
 
-  public logMax = 0;
+  public logMax = Math.log2(this.max);
 
   public logName = '';
 

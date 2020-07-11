@@ -12,6 +12,7 @@ import { AlertComponent } from '../alert/alert.component';
 import { CommonOptionsComponent } from '../common-options/common-options.component';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
 import { InputFrequencyComponent } from '../input-frequency/input-frequency.component';
+import { InputRangeComponent } from '../input-range/input-range.component';
 import { WaveOptionsComponent } from '../wave-options/wave-options.component';
 import { AudioGraphComponent } from './audio-graph.component';
 
@@ -36,6 +37,7 @@ describe('AudioGraphComponent', () => {
         WaveOptionsComponent,
         UnitsPipe,
         InputFrequencyComponent,
+        InputRangeComponent,
         mockComponent('audio', {
           nativeElement: {
             play: () => null,

@@ -1,6 +1,15 @@
-import { AudioGraphSource, AudioGraphSourceNode } from '../../interfaces';
+import {
+  AudioGraphFilterNode,
+  AudioGraphSource,
+  AudioGraphSourceNode,
+} from '../../interfaces';
 import { actionConstructor, StoreActions } from '../../utils/ngxs.util';
-import { AudioGraphStateModel, PitchDetectionState } from './audio-graph.model';
+import {
+  AudioGraphStateModel,
+  ConvolverState,
+  IirState,
+  PitchDetectionState,
+} from './audio-graph.model';
 
 const action = actionConstructor('AudioGraph');
 
@@ -28,4 +37,13 @@ export const audioGraphAction: StoreActions = {
   setWaveFrequency: action<number>('set wave frequency'),
 
   setDeviceId: action<string>('set device id'),
+
+  setFilter: action<AudioGraphFilterNode>('set filter'),
+  setConvolverState: action<ConvolverState>('set convolver filter state'),
+  setIirState: action<IirState>('set iir filter state'),
+  setBiquadType: action<BiquadFilterType>('set biquad filter type'),
+  setBiquadFrequency: action<number>('set biquad filter frequency'),
+  setBiquadQ: action<number>('set biquad filter q factor'),
+  setBiquadDetune: action<number>('set biquad filter detune'),
+  setBiquadGain: action<number>('set biquad filter gain'),
 };

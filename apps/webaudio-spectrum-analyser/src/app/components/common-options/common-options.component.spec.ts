@@ -7,6 +7,8 @@ import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
 import { getAudioGraph } from '../../utils/factories';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
+import { InputFrequencyComponent } from '../input-frequency/input-frequency.component';
+import { InputRangeComponent } from '../input-range/input-range.component';
 import { CommonOptionsComponent } from './common-options.component';
 
 describe('CommonOptionsComponent', () => {
@@ -22,7 +24,12 @@ describe('CommonOptionsComponent', () => {
         NgxsModule.forRoot([]),
         AudioGraphStoreModule,
       ],
-      declarations: [CommonOptionsComponent, UnitsPipe],
+      declarations: [
+        CommonOptionsComponent,
+        UnitsPipe,
+        InputFrequencyComponent,
+        InputRangeComponent,
+      ],
       providers: [
         {
           provide: AUDIO_GRAPH,

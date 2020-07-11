@@ -8,6 +8,43 @@ import {
 
 /**
  * TODO: description
+ * @param x
+ * @param y
+ */
+export function deepEqual(x: any, y: any) {
+  if (Array.isArray(x)) {
+    if (!Array.isArray(y)) {
+      return false;
+    }
+    return x.length === y.length && x.every((xx, i) => deepEqual(xx, y[i]));
+  }
+  if (typeof x === 'object') {
+    if (typeof y !== 'object') {
+      return false;
+    }
+    /* eslint-disable no-prototype-builtins,@typescript-eslint/no-unsafe-member-access */
+    for (const k in x) {
+      if (x.hasOwnProperty(k) && !y.hasOwnProperty(k)) {
+        return false;
+      }
+    }
+    for (const k in y) {
+      if (
+        !x.hasOwnProperty(k) ||
+        !y.hasOwnProperty(k) ||
+        !deepEqual(x[k], y[k])
+      ) {
+        return false;
+      }
+    }
+    /* eslint-enable no-prototype-builtins,@typescript-eslint/no-unsafe-member-access */
+    return true;
+  }
+  return x === y;
+}
+
+/**
+ * TODO: description
  * @param duration
  * @param scheduler
  */
