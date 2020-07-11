@@ -1,8 +1,8 @@
 import {
-  AudioGraphNodes,
-  AudioGraphFilters,
-  AudioGraphSourceNode,
   AudioGraphFilterNode,
+  AudioGraphFilters,
+  AudioGraphNodes,
+  AudioGraphSourceNode,
   PitchDetection,
 } from '../../interfaces';
 import { AudioMath } from '../audio-math/audio-math';
@@ -360,6 +360,33 @@ export class AudioGraph {
     }
     this.nodes.filter.iir = node;
     return this;
+  }
+
+  /**
+   * TODO: description
+   */
+  public setConvolver(
+    duration: number,
+    decay: number,
+    frequency: number,
+    overtones: number
+  ) {
+    const data = AudioMath.impulseResponse(
+      this.sampleRate,
+      duration,
+      decay,
+      frequency,
+      overtones
+    );
+    const buffer = this.context.createBuffer(
+      2,
+      this.context.sampleRate * duration,
+      this.context.sampleRate
+    );
+    for (let i = 0; i < buffer.numberOfChannels; ++i) {
+      buffer.copyToChannel(data, i);
+    }
+    this.nodes.filter.convolver.buffer = buffer;
   }
 
   /**

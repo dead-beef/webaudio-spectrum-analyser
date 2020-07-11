@@ -1,14 +1,14 @@
 /* eslint-disable compat/compat */
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { FormGroup, FormArray, FormControl } from '@angular/forms';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
 
 import { environment } from '../../../environments/environment';
+import { AudioGraphFilterNode } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { UntilDestroy } from '../../utils/angular.util';
 import { stateFormControl } from '../../utils/ngxs.util';
-import { equals } from '../../utils/rxjs.util';
-import { AudioGraphFilterNode } from '../../interfaces';
+import { deepEqual } from '../../utils/rxjs.util';
 
 @Component({
   selector: 'app-common-options',
@@ -58,22 +58,37 @@ export class CommonOptionsComponent extends UntilDestroy {
       (f: AudioGraphFilterNode) => this.graph.dispatch('setFilter', f),
       this.destroyed$
     ),
-    iir: new FormGroup({
-      feedforward: new FormArray(
-        this.iirFilterOrder.map(() => new FormControl(0))
-      ),
-      feedback: new FormArray(
-        this.iirFilterOrder.map(() => new FormControl(0))
-      ),
-    }),
-    convolver: new FormGroup({
-      frequency: stateFormControl(
-        null,
-        this.graph.select(AudioGraphState.convolverFrequency),
-        (f: number) => this.graph.dispatch('setConvolverFrequency', f),
-        this.destroyed$
-      ),
-    }),
+
+    iir: stateFormControl(
+      new FormGroup({
+        feedforward: new FormArray(
+          this.iirFilterOrder.map(() => new FormControl(0))
+        ),
+        feedback: new FormArray(
+          this.iirFilterOrder.map(() => new FormControl(0))
+        ),
+      }),
+      this.graph.select(AudioGraphState.iirState),
+      data => this.graph.dispatch('setIirState', data),
+      this.destroyed$,
+      environment.throttle,
+      deepEqual
+    ),
+
+    convolver: stateFormControl(
+      new FormGroup({
+        duration: new FormControl(),
+        decay: new FormControl(),
+        frequency: new FormControl(),
+        overtones: new FormControl(),
+      }),
+      this.graph.select(AudioGraphState.convolverState),
+      data => this.graph.dispatch('setConvolverState', data),
+      this.destroyed$,
+      environment.throttle,
+      deepEqual
+    ),
+
     biquad: new FormGroup({
       type: stateFormControl(
         null,
@@ -111,9 +126,6 @@ export class CommonOptionsComponent extends UntilDestroy {
       ),
     }),
   });
-
-  public readonly iirForm: FormGroup = this.filterForm.controls
-    .iir as FormGroup;
 
   public readonly pitchForm = new FormGroup({
     enabled: new FormGroup(
@@ -155,19 +167,14 @@ export class CommonOptionsComponent extends UntilDestroy {
     ),
   });
 
+  public readonly iirForm: FormGroup = this.filterForm.controls
+    .iir as FormGroup;
+
   /**
    * Constructor.
    * @param graph
    */
   constructor(private readonly graph: AudioGraphService) {
     super();
-    stateFormControl(
-      this.iirForm,
-      this.graph.select(AudioGraphState.iirState),
-      data => this.graph.dispatch('setIir', data),
-      this.destroyed$,
-      environment.throttle,
-      equals
-    );
   }
 }

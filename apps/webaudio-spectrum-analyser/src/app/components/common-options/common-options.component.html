@@ -64,7 +64,7 @@
               <option value="allpass">All-pass</option>
             </select>
           </clr-select-container>
-          <app-input-frequency name="Frequency" min="20" max="20000" formControlName="frequency">
+          <app-input-frequency name="Frequency" formControlName="frequency">
           </app-input-frequency>
           <app-input-range name="Gain" min="-20" max="20" formControlName="gain">
           </app-input-range>
@@ -74,8 +74,14 @@
           </app-input-range>
         </ng-container>
         <ng-container *ngSwitchCase="AudioGraphFilterNode.CONVOLVER" formGroupName="convolver">
-          <app-input-frequency name="Frequency" min="20" max="20000" formControlName="frequency">
+          <app-input-frequency name="Resonant Frequency" formControlName="frequency">
           </app-input-frequency>
+          <app-input-range name="Overtones" min="0" max="64" step="1" formControlName="overtones">
+          </app-input-range>
+          <app-input-range name="Decay" min="0" max="4" formControlName="decay">
+          </app-input-range>
+          <app-input-range name="Duration" min="0" max="2" formControlName="duration">
+          </app-input-range>
         </ng-container>
       </form>
     </clr-tab-content>
@@ -107,9 +113,9 @@
           </clr-checkbox-wrapper>
         </clr-checkbox-container>
 
-        <app-input-frequency name="Min Pitch" min="20" max="20000" formControlName="minPitch">
+        <app-input-frequency name="Min Pitch" formControlName="minPitch">
         </app-input-frequency>
-        <app-input-frequency name="Max Pitch" min="20" max="20000" formControlName="maxPitch">
+        <app-input-frequency name="Max Pitch" formControlName="maxPitch">
         </app-input-frequency>
       </form>
     </clr-tab-content>

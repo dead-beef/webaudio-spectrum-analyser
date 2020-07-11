@@ -10,9 +10,9 @@ import { patch } from '@ngxs/store/operators';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import {
+  AudioGraphFilterNode,
   AudioGraphSource,
   AudioGraphSourceNode,
-  AudioGraphFilterNode,
   PitchDetectionId,
 } from '../../interfaces';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
@@ -22,8 +22,9 @@ import {
   AUDIO_GRAPH_STATE_TOKEN,
   audioGraphStateDefaults,
   AudioGraphStateModel,
-  PitchDetectionState,
+  ConvolverState,
   IirState,
+  PitchDetectionState,
 } from './audio-graph.model';
 
 @State<AudioGraphStateModel>({
@@ -228,6 +229,15 @@ export class AudioGraphState {
   @Selector()
   public static iirState(state: AudioGraphStateModel) {
     return state.filter.iir;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static convolverState(state: AudioGraphStateModel) {
+    return state.filter.convolver;
   }
 
   /**
@@ -522,20 +532,14 @@ export class AudioGraphState {
    * @param ctx
    * @param payload
    */
-  @Action(audioGraphAction.setIir)
-  public setIir(
+  @Action(audioGraphAction.setIirState)
+  public setIirState(
     ctx: StateContext<AudioGraphStateModel>,
     { payload }: StoreAction<IirState>
   ) {
     const { feedforward, feedback } = payload;
     this.graph.setIir(feedforward, feedback);
-    return ctx.setState(
-      patch({
-        filter: patch({
-          iir: patch({ feedforward, feedback }),
-        }),
-      })
-    );
+    return ctx.setState(patch({ filter: patch({ iir: payload }) }));
   }
 
   /**
@@ -543,21 +547,18 @@ export class AudioGraphState {
    * @param ctx
    * @param payload
    */
-  @Action(audioGraphAction.setConvolverFrequency)
-  public setConvolverFrequency(
+  @Action(audioGraphAction.setConvolverState)
+  public setConvolverState(
     ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<number>
+    { payload }: StoreAction<ConvolverState>
   ) {
-    throw new Error('not implemented');
-    return ctx.setState(
-      patch({
-        filter: patch({
-          convolver: patch({
-            frequency: payload,
-          }),
-        }),
-      })
+    this.graph.setConvolver(
+      payload.duration,
+      payload.decay,
+      payload.frequency,
+      payload.overtones
     );
+    return ctx.setState(patch({ filter: patch({ convolver: payload }) }));
   }
 
   /**

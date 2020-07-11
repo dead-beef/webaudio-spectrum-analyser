@@ -27,6 +27,8 @@ export class InputRangeComponent implements ControlValueAccessor, OnChanges {
 
   @Input() public max: number;
 
+  @Input() public step = 1e-4;
+
   public _value = 0;
 
   public rangeName = '';

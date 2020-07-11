@@ -11,12 +11,12 @@ import {
  * @param x
  * @param y
  */
-export function equals(x: any, y: any) {
+export function deepEqual(x: any, y: any) {
   if (Array.isArray(x)) {
     if (!Array.isArray(y)) {
       return false;
     }
-    return x.length === y.length && x.every((xx, i) => equals(xx, y[i]));
+    return x.length === y.length && x.every((xx, i) => deepEqual(xx, y[i]));
   }
   if (typeof x === 'object') {
     if (typeof y !== 'object') {
@@ -29,7 +29,11 @@ export function equals(x: any, y: any) {
       }
     }
     for (const k in y) {
-      if (!x.hasOwnProperty(k) || !y.hasOwnProperty(k) || !equals(x[k], y[k])) {
+      if (
+        !x.hasOwnProperty(k) ||
+        !y.hasOwnProperty(k) ||
+        !deepEqual(x[k], y[k])
+      ) {
         return false;
       }
     }

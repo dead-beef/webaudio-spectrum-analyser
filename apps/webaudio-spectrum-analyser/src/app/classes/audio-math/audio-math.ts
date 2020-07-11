@@ -282,4 +282,35 @@ export class AudioMath {
 
     return output;
   }
+
+  /**
+   * TODO: description
+   */
+  public static impulseResponse(
+    sampleRate: number,
+    duration: number,
+    decay: number,
+    frequency: number,
+    overtones: number
+  ): Float32Array {
+    const eps = 1e-4;
+    const w = frequency * 2 * Math.PI;
+    const size = sampleRate * duration;
+    const ret = new Float32Array(size);
+    const harmonics = overtones + 1;
+    for (let i = 0; i < size; ++i) {
+      const t = i / sampleRate;
+      const a = Math.exp(-decay * t);
+      if (a < eps) {
+        break;
+      }
+      const wt = w * t;
+      let wave = 0;
+      for (let h = 1; h <= harmonics; ++h) {
+        wave += Math.cos(h * wt);
+      }
+      ret[i] = a * wave;
+    }
+    return ret;
+  }
 }
