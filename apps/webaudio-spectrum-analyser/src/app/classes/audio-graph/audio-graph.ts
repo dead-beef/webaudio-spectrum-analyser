@@ -202,6 +202,7 @@ export class AudioGraph {
 
     this.workletReady = WorkletNode.register(this.context).then(() => {
       this.nodes.worklet = WorkletNode.create(this.context);
+      window['params'] = this.nodes.worklet.parameters;
     });
     this.workletReady.catch(err => console.warn(err));
   }

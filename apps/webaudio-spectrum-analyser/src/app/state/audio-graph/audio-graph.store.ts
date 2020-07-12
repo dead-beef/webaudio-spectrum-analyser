@@ -164,8 +164,8 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static filter(state: AudioGraphStateModel) {
-    return state.filter.id;
+  public static workletType(state: AudioGraphStateModel) {
+    return state.worklet.type;
   }
 
   /**
@@ -173,8 +173,8 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static convolverFrequency(state: AudioGraphStateModel) {
-    return state.filter.convolver.frequency;
+  public static filter(state: AudioGraphStateModel) {
+    return state.filter.id;
   }
 
   /**
@@ -491,6 +491,7 @@ export class AudioGraphState {
   /**
    * Action
    * @param ctx
+   * @param payload
    */
   @Action(audioGraphAction.setDeviceId)
   public setDeviceId(
@@ -511,6 +512,22 @@ export class AudioGraphState {
       .finally(() => {
         return ctx.setState(patch({ device: patch({ id: deviceId }) }));
       });
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setWorkletType)
+  public setWorkletType(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    const param: AudioParam = this.graph.nodes.worklet.parameters.get('type');
+    //console.log(param);
+    param.value = payload;
+    return ctx.setState(patch({ worklet: patch({ type: payload }) }));
   }
 
   /**

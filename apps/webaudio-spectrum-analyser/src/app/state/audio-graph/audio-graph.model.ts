@@ -53,6 +53,9 @@ export interface AudioGraphStateModel {
   device: {
     id: string;
   };
+  worklet: {
+    type: number;
+  };
   filter: {
     id: AudioGraphFilterNode;
     convolver: ConvolverState;
@@ -82,6 +85,9 @@ export const audioGraphStateDefaults: AudioGraphStateModel = {
   },
   device: {
     id: null,
+  },
+  worklet: {
+    type: 0,
   },
   filter: {
     id: AudioGraphFilterNode.NONE,

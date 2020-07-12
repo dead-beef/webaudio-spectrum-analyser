@@ -58,11 +58,18 @@ export interface AudioGraphFilters {
   convolver: ConvolverNode;
 }
 
+export interface AnyScriptNode extends AudioNode {
+  //parameters: AudioParamMap;
+  parameters: {
+    get: (key: string) => AudioParam;
+  };
+}
+
 export interface AudioGraphNodes {
   wave: OscillatorNode;
   element: MediaElementAudioSourceNode;
   device: MediaStreamAudioSourceNode;
-  worklet: AudioWorkletNode;
+  worklet: AnyScriptNode;
   input: DelayNode;
   filter: AudioGraphFilters;
   filteredInput: GainNode;
