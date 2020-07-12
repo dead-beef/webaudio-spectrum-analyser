@@ -38,6 +38,8 @@ export const audioGraphAction: StoreActions = {
 
   setDeviceId: action<string>('set device id'),
 
+  setWorkletType: action<number>('set worklet type'),
+
   setFilter: action<AudioGraphFilterNode>('set filter'),
   setConvolverState: action<ConvolverState>('set convolver filter state'),
   setIirState: action<IirState>('set iir filter state'),

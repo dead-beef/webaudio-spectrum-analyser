@@ -5,12 +5,27 @@ export class WorkletNode {
 
   public static supported: boolean = null;
 
+  public static types: string[] = ['White noise', 'Red noise'];
+
   public static processor = `
 class WorkletProcessor extends AudioWorkletProcessor {
+  static get parameterDescriptors() {
+    return [{
+      name: 'type',
+      defaultValue: 0,
+      minValue: 0,
+      maxValue: 10,
+      automationRate: 'k-rate'
+    }];
+  }
+
   process(inputs, outputs, parameters) {
     try {
       generate(outputs[0], parameters);
-    } catch(err) {}
+    } catch(err) {
+      console.error(err);
+      return false;
+    }
     return true;
   }
 }
@@ -21,9 +36,24 @@ registerProcessor('worklet-processor', WorkletProcessor);`;
    * TODO: description
    */
   public static generate = function generate(output, parameters) {
-    output.forEach(function (channel) {
-      for (var i = 0; i < channel.length; ++i) {
-        channel[i] = Math.random() * 2 - 1;
+    var type_ = parameters['type'];
+    if (type_[0] !== undefined) {
+      type_ = type_[0];
+    } else if (type_.value !== undefined) {
+      type_ = type_.value;
+    }
+    output.forEach(function (channel, idx) {
+      if (type_ < 1) {
+        for (var i = 0; i < channel.length; ++i) {
+          channel[i] = Math.random() * 2 - 1;
+        }
+      } else if (type_ < 2) {
+        var value = channel[channel.length - 1] || 0;
+        for (var i = 0; i < channel.length; ++i) {
+          var white = Math.random() * 2 - 1;
+          value = 0.95 * value + 0.05 * white;
+          channel[i] = value;
+        }
       }
     });
   };
@@ -83,7 +113,11 @@ registerProcessor('worklet-processor', WorkletProcessor);`;
       //throw new Error('AudioWorkletNode is not supported');
       const node = ctx.createScriptProcessor(4096, 0, 2);
       Object.defineProperty(node, 'parameters', {
-        value: {},
+        value: {
+          type: { value: 0 },
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          get: (name: string) => node['parameters'][name],
+        },
         writable: false,
         enumerable: true,
       });
@@ -92,15 +126,17 @@ registerProcessor('worklet-processor', WorkletProcessor);`;
         for (let i = 0; i < ev.outputBuffer.numberOfChannels; ++i) {
           output.push(ev.outputBuffer.getChannelData(i));
         }
-        WorkletNode.generate(output, {});
+        WorkletNode.generate(output, node['parameters']);
       };
       return node as any;
     }
 
     // eslint-disable-next-line compat/compat
-    return new AudioWorkletNode(ctx, 'worklet-processor', {
+    const node = new AudioWorkletNode(ctx, 'worklet-processor', {
       numberOfInputs: 0,
       numberOfOutputs: 1,
     });
+    node.onprocessorerror = err => console.error(err);
+    return node as any;
   }
 }

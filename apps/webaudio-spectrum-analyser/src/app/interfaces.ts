@@ -59,7 +59,10 @@ export interface AudioGraphFilters {
 }
 
 export interface AnyScriptNode extends AudioNode {
-  parameters: AudioParamMap;
+  //parameters: AudioParamMap;
+  parameters: {
+    get: (key: string) => AudioParam;
+  };
 }
 
 export interface AudioGraphNodes {

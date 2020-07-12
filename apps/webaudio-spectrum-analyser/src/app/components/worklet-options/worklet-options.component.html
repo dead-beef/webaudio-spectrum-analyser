@@ -4,4 +4,12 @@
     (errorChange)="setError($event)"
   >
   </app-alert>
+  <clr-select-container>
+    <label>Type</label>
+    <select clrSelect formControlName="type">
+      <option *ngFor="let name of types; let value = index" [ngValue]="value">
+        {{ name }}
+      </option>
+    </select>
+  </clr-select-container>
 </form>
