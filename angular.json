@@ -27,6 +27,11 @@
                 "glob": "**/*",
                 "input": "apps/webaudio-spectrum-analyser/src/img",
                 "output": "img/"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/font-awesome/fonts",
+                "output": "fonts/"
               }
             ],
             "styles": [
