@@ -14,6 +14,8 @@ import { environment } from '../environments/environment';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements AfterViewInit {
+  public link: string = environment.link;
+
   /**
    * Constructor.
    * @param graphService

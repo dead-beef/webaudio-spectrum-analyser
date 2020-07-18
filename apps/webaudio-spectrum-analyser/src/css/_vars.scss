@@ -15,4 +15,4 @@ $header-size: 2rem;
 $content-padding: $header-size * 0.5;
 $icon-size: $header-size * 0.5;
 $icon-size-lg: $header-size * 0.75;
-$icon-size-header: $header-size * 0.625;
+$icon-size-header: $icon-size-lg; /*$header-size * 0.625;*/
