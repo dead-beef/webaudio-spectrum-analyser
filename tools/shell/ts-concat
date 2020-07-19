@@ -80,7 +80,7 @@ const $t = (id) => {
 	throw new Error('no element with id "' + id + '"');
 };
 
-const PREVIEW = document.body.hasAttribute('onload');
+window.PREVIEW = document.body.hasAttribute('onload');
 `);
 
   let imports = {};
