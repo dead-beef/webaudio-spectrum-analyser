@@ -8,6 +8,6 @@
 <clr-range-container>
   <input clrRange type="range"
     [name]="rangeName"
-    [min]="min" [max]="max" [step]="step"
-    [(ngModel)]="value">
+    [min]="rangeMin" [max]="rangeMax" [step]="rangeStep"
+    [ngModel]="rangeValue" (ngModelChange)="setRangeValue($event)">
 </clr-range-container>
