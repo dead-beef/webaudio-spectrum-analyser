@@ -27,6 +27,7 @@ export const audioGraphAction: StoreActions = {
 
   setDelay: action<number>('set delay'),
   setFftSize: action<number>('set fft size'),
+  setSmoothing: action<number[]>('set smoothing'),
   setDebug: action<boolean>('set debug mode'),
 
   setMinPitch: action<number>('set min pitch'),

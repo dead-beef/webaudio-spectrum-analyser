@@ -13,6 +13,18 @@
             </option>
           </select>
         </clr-select-container>
+        <div formArrayName="smoothing">
+          <div class="clr-form-control clr-control-label">Smoothing</div>
+          <app-input-range
+            *ngFor="let item of smoothingForm.controls; let i = index"
+            [name]="i"
+            min="0"
+            max="1"
+            step="0.00001"
+            [formControlName]="i"
+          >
+          </app-input-range>
+        </div>
       </form>
     </clr-tab-content>
   </clr-tab>

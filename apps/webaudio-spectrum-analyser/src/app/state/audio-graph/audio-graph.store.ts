@@ -99,6 +99,15 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
+  public static smoothing(state: AudioGraphStateModel) {
+    return state.smoothing;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
   public static minPitch(state: AudioGraphStateModel) {
     return state.pitch.min;
   }
@@ -380,6 +389,20 @@ export class AudioGraphState {
   ) {
     this.graph.fftSize = payload;
     return ctx.patchState({ fftSize: payload });
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setSmoothing)
+  public setSmoothing(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<number[]>
+  ) {
+    this.graph.smoothing = payload;
+    return ctx.patchState({ smoothing: payload });
   }
 
   /**

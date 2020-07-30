@@ -45,10 +45,6 @@ export class AudioGraph {
 
   public readonly maxDelay = 5;
 
-  public readonly fastAnalyserSmoothing = 0.5;
-
-  public readonly slowAnalyserSmoothing = 0.99;
-
   public readonly fftSizes: number[] = [
     32,
     64,
@@ -98,25 +94,46 @@ export class AudioGraph {
     },
   ];
 
-  private fftSizeValue = 2048;
+  private _fftSize = 2048;
 
   /**
    * FFT size getter.
    */
   public get fftSize(): number {
-    return this.fftSizeValue;
+    return this._fftSize;
   }
 
   /**
    * FFT size setter.
    */
   public set fftSize(size: number) {
-    if (this?.nodes?.analysers) {
+    if (this.nodes?.analysers) {
       for (const node of this.nodes.analysers) {
         node.fftSize = size;
       }
     }
-    this.fftSizeValue = size;
+    this._fftSize = size;
+  }
+
+  private _smoothing: number[] = [0.5, 0.99];
+
+  /**
+   * Smoothing getter.
+   */
+  public get smoothing(): number[] {
+    return this._smoothing;
+  }
+
+  /**
+   * Smoothing setter.
+   */
+  public set smoothing(value: number[]) {
+    if (this.nodes?.analysers) {
+      this.nodes.analysers.forEach((node, i) => {
+        node.smoothingTimeConstant = value[i];
+      });
+    }
+    this._smoothing = value;
   }
 
   /**
@@ -407,22 +424,19 @@ export class AudioGraph {
       this.context.createAnalyser(),
       this.context.createAnalyser(),
     ];
-    for (const node of this.nodes.analysers) {
+    this.nodes.analysers.forEach((node, i) => {
       node.fftSize = this.fftSize;
       node.maxDecibels = this.maxDecibels;
       node.minDecibels = this.minDecibels;
+      node.smoothingTimeConstant = this.smoothing[i];
       this.nodes.filteredInput.connect(node);
-    }
+    });
 
     while (this.fdata.length < this.nodes.analysers.length) {
       this.fdata.push(new Uint8Array(this.fftSize / 2));
     }
 
-    this.nodes.analysers[0].smoothingTimeConstant = this.fastAnalyserSmoothing;
-    this.nodes.analysers[1].smoothingTimeConstant = this.slowAnalyserSmoothing;
-
     this.nodes.analysers[0].connect(this.nodes.output);
-    //this.nodes.analysers[1].connect(this.nodes.output);
 
     return this;
   }
@@ -547,7 +561,7 @@ export class AudioGraph {
           let value: number = pd.calc();
           if (pd.smooth && pd.value > 1) {
             value = AudioMath.smooth(
-              this.slowAnalyserSmoothing,
+              this.smoothing[this.smoothing.length - 1],
               pd.value,
               value
             );
