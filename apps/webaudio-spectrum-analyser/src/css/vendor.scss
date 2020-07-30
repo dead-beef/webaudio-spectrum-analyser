@@ -175,6 +175,7 @@ ngx-simplebar {
     }
     .simplebar-scrollbar::before {
       background: $border-light;
+      opacity: 0.5;
     }
   }
 }
