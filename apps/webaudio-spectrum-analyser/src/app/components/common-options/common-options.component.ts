@@ -49,6 +49,14 @@ export class CommonOptionsComponent extends UntilDestroy {
       (s: number) => this.graph.dispatch('setFftSize', s),
       this.destroyed$
     ),
+    smoothing: stateFormControl(
+      new FormArray(this.graph.graph.smoothing.map(() => new FormControl(0))),
+      this.graph.select(AudioGraphState.smoothing),
+      (s: number[]) => this.graph.dispatch('setSmoothing', s),
+      this.destroyed$,
+      environment.throttle,
+      deepEqual
+    ),
   });
 
   public readonly filterForm = new FormGroup({
@@ -170,6 +178,9 @@ export class CommonOptionsComponent extends UntilDestroy {
 
   public readonly iirForm: FormGroup = this.filterForm.controls
     .iir as FormGroup;
+
+  public readonly smoothingForm: FormArray = this.graphForm.controls
+    .smoothing as FormArray;
 
   /**
    * Constructor.
