@@ -24,7 +24,7 @@ module.exports = {
     '@angular-eslint/no-output-on-prefix': 'error',
     '@angular-eslint/no-output-rename': 'error',
     '@angular-eslint/prefer-output-readonly': 'error',
-    '@angular-eslint/relative-url-prefix': 'error',
+    '@angular-eslint/relative-url-prefix': 'off',
     '@angular-eslint/use-component-selector': 'error',
     '@angular-eslint/use-component-view-encapsulation': 'error',
     '@angular-eslint/use-pipe-decorator': 'error',
