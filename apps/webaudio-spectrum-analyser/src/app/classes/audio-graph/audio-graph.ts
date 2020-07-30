@@ -370,14 +370,16 @@ export class AudioGraph {
     duration: number,
     decay: number,
     frequency: number,
-    overtones: number
+    overtones: number,
+    overtoneDecay: number
   ) {
     const data = AudioMath.impulseResponse(
       this.sampleRate,
       duration,
       decay,
       frequency,
-      overtones
+      overtones,
+      overtoneDecay
     );
     const buffer = this.context.createBuffer(
       2,

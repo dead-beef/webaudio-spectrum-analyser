@@ -573,7 +573,8 @@ export class AudioGraphState {
       payload.duration,
       payload.decay,
       payload.frequency,
-      payload.overtones
+      payload.overtones,
+      payload.overtoneDecay
     );
     return ctx.setState(patch({ filter: patch({ convolver: payload }) }));
   }

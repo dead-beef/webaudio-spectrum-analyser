@@ -21,6 +21,7 @@ export interface ConvolverState {
   decay: number;
   frequency: number;
   overtones: number;
+  overtoneDecay: number;
 }
 
 export interface BiquadState {
@@ -96,6 +97,7 @@ export const audioGraphStateDefaults: AudioGraphStateModel = {
       decay: 1,
       frequency: 440,
       overtones: 0,
+      overtoneDecay: 0,
     },
     biquad: {
       type: 'lowpass',

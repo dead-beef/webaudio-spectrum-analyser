@@ -291,7 +291,8 @@ export class AudioMath {
     duration: number,
     decay: number,
     frequency: number,
-    overtones: number
+    overtones: number,
+    overtoneDecay: number
   ): Float32Array {
     const eps = 1e-4;
     const w = frequency * 2 * Math.PI;
@@ -307,7 +308,7 @@ export class AudioMath {
       const wt = w * t;
       let wave = 0;
       for (let h = 1; h <= harmonics; ++h) {
-        wave += Math.cos(h * wt);
+        wave += Math.cos(h * wt) * Math.exp(-overtoneDecay * (h - 1));
       }
       ret[i] = a * wave;
     }

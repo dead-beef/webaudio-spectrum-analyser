@@ -81,6 +81,7 @@ export class CommonOptionsComponent extends UntilDestroy {
         decay: new FormControl(),
         frequency: new FormControl(),
         overtones: new FormControl(),
+        overtoneDecay: new FormControl(),
       }),
       this.graph.select(AudioGraphState.convolverState),
       data => this.graph.dispatch('setConvolverState', data),
