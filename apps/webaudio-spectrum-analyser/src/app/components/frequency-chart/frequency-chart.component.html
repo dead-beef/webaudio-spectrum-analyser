@@ -3,26 +3,24 @@
   (errorChange)="setError($event)"
 >
 </app-alert>
-<div class="clr-row">
-  <div class="clr-col-12">
-    <canvas
-      #canvas
-      [class.hide]="error$ | async"
-      (mouseenter)="showPoint = true"
-      (mouseleave)="showPoint = false"
+
+<canvas
+  #canvas
+  [class.hide]="error$ | async"
+  (mouseenter)="showPoint = true"
+  (mouseleave)="showPoint = false"
+>
+</canvas>
+
+<div class="frequency-chart-values">
+  {{ pointFrequency$ | async | units }}Hz
+  <span *ngFor="let value$ of pointValues$"> {{ value$ | async }}dB</span>
+  <span class="float-right">
+    <span
+      *ngFor="let p of pitch; let i = index"
+      [class.hide]="!(pitchEnabled$[i] | async)"
     >
-    </canvas>
-  </div>
-  <div class="clr-col-12">
-    {{ pointFrequency$ | async | units }}Hz
-    <span *ngFor="let value$ of pointValues$"> {{ value$ | async }}dB</span>
-    <span class="float-right">
-      <span
-        *ngFor="let p of pitch; let i = index"
-        [class.hide]="!(pitchEnabled$[i] | async)"
-      >
-        {{ p }}: {{ pitchValue$[i] | async | units }}Hz
-      </span>
+      {{ p }}: {{ pitchValue$[i] | async | units }}Hz
     </span>
-  </div>
+  </span>
 </div>
