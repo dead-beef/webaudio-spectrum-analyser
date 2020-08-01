@@ -250,6 +250,24 @@ export class AudioGraphState {
   }
 
   /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static pitchShift(state: AudioGraphStateModel) {
+    return state.filter.pitchShifter.shift;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static pitchShifterBufferTime(state: AudioGraphStateModel) {
+    return state.filter.pitchShifter.bufferTime;
+  }
+
+  /**
    * Set AudioGraph state action
    * @param ctx
    * @param payload
@@ -706,6 +724,50 @@ export class AudioGraphState {
         filter: patch({
           biquad: patch({
             q: payload,
+          }),
+        }),
+      })
+    );
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setPitchShift)
+  public setPitchShift(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    this.graph.nodes.filter.pitchShifter.shift = payload;
+    return ctx.setState(
+      patch({
+        filter: patch({
+          pitchShifter: patch({
+            shift: payload,
+          }),
+        }),
+      })
+    );
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setPitchShifterBufferTime)
+  public setPitchShifterBufferTime(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    this.graph.nodes.filter.pitchShifter.bufferTime = payload;
+    return ctx.setState(
+      patch({
+        filter: patch({
+          pitchShifter: patch({
+            bufferTime: payload,
           }),
         }),
       })

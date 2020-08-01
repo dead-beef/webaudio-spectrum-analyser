@@ -6,6 +6,7 @@ import {
   PitchDetection,
 } from '../../interfaces';
 import { AudioMath } from '../audio-math/audio-math';
+import { PitchShifterNode } from '../pitch-shifter-node/pitch-shifter-node';
 import { WorkletNode } from '../worklet-node/worklet-node';
 
 export class AudioGraph {
@@ -207,6 +208,7 @@ export class AudioGraph {
         iir: this.context.createIIRFilter([1, 0, 0], [1, 0, 0]),
         biquad: this.context.createBiquadFilter(),
         convolver: this.context.createConvolver(),
+        pitchShifter: new PitchShifterNode(this.context),
       },
       filteredInput: this.context.createGain(),
       analysers: null,
@@ -342,6 +344,9 @@ export class AudioGraph {
         break;
       case AudioGraphFilterNode.CONVOLVER:
         node = this.nodes.filter.convolver;
+        break;
+      case AudioGraphFilterNode.PITCH_SHIFTER:
+        node = this.nodes.filter.pitchShifter;
         break;
       default:
         throw new Error('invalid filter ' + String(node));

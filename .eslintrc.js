@@ -268,7 +268,7 @@ module.exports = {
     'no-duplicate-case': 'error',
     'no-duplicate-imports': 'error',
     'no-else-return': 'error',
-    'no-empty': 'error',
+    'no-empty': 'off',
     'no-empty-function': 'off', // handled by typescript-eslint rule
     'no-fallthrough': 'error',
     'no-eval': 'error',
@@ -310,6 +310,7 @@ module.exports = {
     'prefer-object-spread': 'error',
     'prefer-spread': 'error',
     'prefer-promise-reject-errors': 'error',
+    'prefer-rest-params': 'warn',
     'prettier/prettier': 'error',
     'simple-import-sort/sort': 'error',
     'sort-imports': 'off', // handled by simple-import-sort/sort
