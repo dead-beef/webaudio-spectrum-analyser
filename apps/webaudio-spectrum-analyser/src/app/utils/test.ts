@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /* eslint-disable max-lines-per-function,require-jsdoc */
 
@@ -146,6 +146,7 @@ export function mockComponent(selector: string, props?: Record<string, any>) {
   @Component({
     selector: selector,
     template: '',
+    changeDetection: ChangeDetectionStrategy.OnPush,
   })
   class MockComponent {
     /**
