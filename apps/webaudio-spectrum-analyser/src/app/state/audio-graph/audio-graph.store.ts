@@ -565,10 +565,12 @@ export class AudioGraphState {
     ctx: StateContext<AudioGraphStateModel>,
     { payload }: StoreAction<number>
   ) {
-    const param: AudioParam = this.graph.nodes.worklet.parameters.get('type');
-    //console.log(param);
-    param.value = payload;
-    return ctx.setState(patch({ worklet: patch({ type: payload }) }));
+    return this.graph.workletReady.then(() => {
+      const param: AudioParam = this.graph.nodes.worklet.parameters.get('type');
+      //console.log(param);
+      param.value = payload;
+      return ctx.setState(patch({ worklet: patch({ type: payload }) }));
+    });
   }
 
   /**

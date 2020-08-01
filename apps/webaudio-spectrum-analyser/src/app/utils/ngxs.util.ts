@@ -73,7 +73,7 @@ export function stateFormControl<T>(
       takeUntil(destroyed$),
       distinctUntilChanged(compare),
       flatMap(setState),
-      catchError((err, caught) => {
+      catchError(function error(err, caught) {
         console.error(err);
         return caught;
       })

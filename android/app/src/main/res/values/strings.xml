@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Spectrum analyser</string>
+    <string name="title_activity_main">Spectrum analyser</string>
+    <string name="package_name">tk.dead_beef.webaudio_spectrum_analyser</string>
+    <string name="custom_url_scheme">tk.dead_beef.webaudio_spectrum_analyser</string>
+</resources>
