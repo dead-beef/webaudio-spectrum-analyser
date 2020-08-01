@@ -1,32 +1,54 @@
 import { Component } from '@angular/core';
 
-/**
- * TODO: description
- */
+/* eslint-disable max-lines-per-function,require-jsdoc */
+
 export function mockAudioContext() {
   Object.defineProperty(window.URL, 'createObjectURL', {
     value: () => 'objectUrl',
   });
   Object.defineProperty(window, 'AudioWorkletNode', {
-    value: () => {
-      return {
-        connect: () => null,
-        disconnect: () => null,
+    value: class {
+      public connect() {}
+
+      public disconnect() {}
+    },
+  });
+  Object.defineProperty(window, 'GainNode', {
+    value: class {
+      public gain = {
+        value: 1,
       };
+
+      public context;
+
+      constructor(ctx) {
+        this.context = ctx;
+      }
+
+      public connect() {}
+
+      public disconnect() {}
     },
   });
   Object.defineProperty(window, 'AudioContext', {
-    value: () => {
-      return {
-        suspend: () => null,
-        audioWorklet: {
-          addModule: () => Promise.resolve(),
-        },
-        createBuffer: () => ({
+    value: class {
+      public sampleRate = 44000;
+
+      public audioWorklet = {
+        addModule: () => Promise.resolve(),
+      };
+
+      public suspend() {}
+
+      public createBuffer() {
+        return {
           numberOfChannels: 2,
           copyToChannel: () => null,
-        }),
-        createOscillator: () => ({
+        };
+      }
+
+      public createOscillator() {
+        return {
           start: () => null,
           type: 'sine',
           frequency: {
@@ -37,33 +59,62 @@ export function mockAudioContext() {
           minDecibels: 0,
           connect: () => null,
           disconnect: () => null,
-        }),
-        createDelay: () => ({
+        };
+      }
+
+      public createDelay() {
+        return {
           delayTime: {
             value: 0,
           },
           connect: () => null,
           disconnect: () => null,
-        }),
-        createGain: () => ({
+        };
+      }
+
+      public createGain() {
+        return {
           gain: { value: 0 },
           connect: () => null,
           disconnect: () => null,
-        }),
-        createMediaStreamDestination: () => ({ stream: null }),
-        createAnalyser: () => ({
+        };
+      }
+
+      public createBufferSource() {
+        return {
+          connect: () => null,
+          disconnect: () => null,
+          start: () => null,
+          stop: () => null,
+        };
+      }
+
+      public createMediaStreamDestination() {
+        return {
+          stream: null,
+        };
+      }
+
+      public createAnalyser() {
+        return {
           start: () => null,
           fftSize: 0,
           maxDecibels: 0,
           minDecibels: 0,
           connect: () => null,
           disconnect: () => null,
-        }),
-        createIIRFilter: () => ({
+        };
+      }
+
+      public createIIRFilter() {
+        return {
           connect: () => null,
           disconnect: () => null,
-        }),
-        createBiquadFilter: () => ({
+        };
+      }
+
+      public createBiquadFilter() {
+        return {
           type: 'lowpass',
           frequency: { value: 0 },
           Q: { value: 0 },
@@ -71,13 +122,16 @@ export function mockAudioContext() {
           gain: { value: 0 },
           connect: () => null,
           disconnect: () => null,
-        }),
-        createConvolver: () => ({
+        };
+      }
+
+      public createConvolver() {
+        return {
           buffer: null,
           connect: () => null,
           disconnect: () => null,
-        }),
-      };
+        };
+      }
     },
     writable: false,
   });

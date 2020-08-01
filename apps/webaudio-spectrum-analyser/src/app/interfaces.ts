@@ -52,10 +52,16 @@ export interface PitchDetection {
   value: number;
 }
 
+export interface IPitchShifterNode extends GainNode {
+  shift: number;
+  bufferTime: number;
+}
+
 export interface AudioGraphFilters {
   iir: IIRFilterNode;
   biquad: BiquadFilterNode;
   convolver: ConvolverNode;
+  pitchShifter: IPitchShifterNode;
 }
 
 export interface AnyScriptNode extends AudioNode {
@@ -89,6 +95,7 @@ export enum AudioGraphFilterNode {
   IIR,
   BIQUAD,
   CONVOLVER,
+  PITCH_SHIFTER,
 }
 
 export interface AudioGraphSource {

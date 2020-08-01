@@ -24,6 +24,11 @@ export interface ConvolverState {
   overtoneDecay: number;
 }
 
+export interface PitchShifterState {
+  shift: number;
+  bufferTime: number;
+}
+
 export interface BiquadState {
   type: BiquadFilterType;
   frequency: number;
@@ -63,6 +68,7 @@ export interface AudioGraphStateModel {
     convolver: ConvolverState;
     biquad: BiquadState;
     iir: IirState;
+    pitchShifter: PitchShifterState;
   };
 }
 
@@ -111,6 +117,10 @@ export const audioGraphStateDefaults: AudioGraphStateModel = {
     iir: {
       feedforward: [1, 0, 0],
       feedback: [1, 0, 0],
+    },
+    pitchShifter: {
+      shift: 0,
+      bufferTime: 0.1,
     },
   },
 };

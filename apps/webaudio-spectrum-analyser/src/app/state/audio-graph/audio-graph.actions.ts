@@ -49,4 +49,6 @@ export const audioGraphAction: StoreActions = {
   setBiquadQ: action<number>('set biquad filter q factor'),
   setBiquadDetune: action<number>('set biquad filter detune'),
   setBiquadGain: action<number>('set biquad filter gain'),
+  setPitchShift: action<number>('set pitch shift'),
+  setPitchShifterBufferTime: action<number>('set pitch shifter buffer time'),
 };

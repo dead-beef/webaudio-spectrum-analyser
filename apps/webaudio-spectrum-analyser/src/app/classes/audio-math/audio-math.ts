@@ -314,4 +314,66 @@ export class AudioMath {
     }
     return ret;
   }
+
+  /**
+   * TODO: description
+   */
+  public static sawtoothWave(
+    sampleRate: number,
+    duration: number,
+    phase: number = 0,
+    reverse: boolean = false
+  ): Float32Array {
+    const size = sampleRate * duration;
+    const ret = new Float32Array(size);
+    const offset = Math.round((size * phase) / 360);
+    for (let i = 0; i < size; ++i) {
+      ret[i] = ((i + offset) % size) / size;
+      if (reverse) {
+        ret[i] = 1 - ret[i];
+      }
+    }
+    return ret;
+  }
+
+  /**
+   * TODO: description
+   */
+  public static triangleWave(
+    sampleRate: number,
+    duration: number,
+    phase: number = 0
+  ): Float32Array {
+    const size = sampleRate * duration;
+    const size2 = size / 2;
+    const ret = new Float32Array(size);
+    const offset = Math.round((size * phase) / 360);
+    for (let i = 0; i < size; ++i) {
+      ret[i] = 1 - Math.abs(((i + offset) % size) - size2) / size2;
+    }
+    return ret;
+  }
+
+  /**
+   * TODO: description
+   */
+  public static fadeWave(
+    sampleRate: number,
+    duration: number,
+    phase: number = 0
+  ): Float32Array {
+    const size = sampleRate * duration;
+    const size2 = size / 2;
+    const ret = new Float32Array(size);
+    const offset = Math.round((size * phase) / 360);
+    for (let i = 0; i < size; ++i) {
+      const j = (i + offset) % size;
+      if (j < size2) {
+        ret[i] = Math.sqrt(j / size2);
+      } else {
+        ret[i] = Math.sqrt(2 - j / size2);
+      }
+    }
+    return ret;
+  }
 }

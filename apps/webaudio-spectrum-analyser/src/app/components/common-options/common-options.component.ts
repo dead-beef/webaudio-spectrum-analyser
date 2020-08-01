@@ -29,6 +29,7 @@ export class CommonOptionsComponent extends UntilDestroy {
     { id: AudioGraphFilterNode.IIR, name: 'IIR' },
     { id: AudioGraphFilterNode.BIQUAD, name: 'Biquad' },
     { id: AudioGraphFilterNode.CONVOLVER, name: 'Convolver' },
+    { id: AudioGraphFilterNode.PITCH_SHIFTER, name: 'Pitch shifter' },
   ];
 
   public readonly iirFilterOrder = [0, 1, 2];
@@ -130,6 +131,23 @@ export class CommonOptionsComponent extends UntilDestroy {
         null,
         this.graph.select(AudioGraphState.biquadQ),
         (q: number) => this.graph.dispatch('setBiquadQ', q),
+        this.destroyed$,
+        environment.throttle
+      ),
+    }),
+
+    pitchShifter: new FormGroup({
+      shift: stateFormControl(
+        null,
+        this.graph.select(AudioGraphState.pitchShift),
+        (s: number) => this.graph.dispatch('setPitchShift', s),
+        this.destroyed$,
+        environment.throttle
+      ),
+      bufferTime: stateFormControl(
+        null,
+        this.graph.select(AudioGraphState.pitchShifterBufferTime),
+        (t: number) => this.graph.dispatch('setPitchShifterBufferTime', t),
         this.destroyed$,
         environment.throttle
       ),
