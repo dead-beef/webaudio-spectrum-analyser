@@ -11,6 +11,10 @@
 - **[Yarn](https://yarnpkg.com/)** `Is preferred package manager for dependencies installation in the project root`
 - [Git](https://git-scm.com/)
 
+### Optional
+
+- [Android SDK](https://developer.android.com/studio#command-tools)
+
 #### Committing changes to repo
 
 Using commitizen cli is mandatory, [reference](https://github.com/commitizen/cz-cli).
@@ -67,6 +71,8 @@ The following dependencies should not be updated by now, this specific versions 
 
 ## Building
 
+### Web
+
 ```bash
 ng build
 ```
@@ -75,8 +81,22 @@ ng build
 ng build --prod
 ```
 
+### Android
+
 ```bash
-./tools/shell/build-codepen
+cat >tools/shell/vars.sh <<EOF
+export JAVA_HOME=[PATH_TO_JAVA]
+export ANDROID_HOME=[PATH_TO_ANDROID_SDK]
+export ANDROID_BUILD_TOOLS=[PATH_TO_ANDROID_BUILD_TOOLS]
+
+ANDROID_KEYSTORE=[PATH_TO_KEYSTORE]
+ANDROID_KEYSTORE_ALIAS=[KEY_ALIAS]
+ANDROID_KEYSTORE_PASSWORD=[KEYSTORE_PASSWORD]
+EOF
+
+./tools/shell/build-android
+
+adb install -r android/build/release-signed.apk
 ```
 
 ## Testing
