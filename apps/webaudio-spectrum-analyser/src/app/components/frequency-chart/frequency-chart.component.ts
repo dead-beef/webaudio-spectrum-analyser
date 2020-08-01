@@ -11,7 +11,7 @@ import { distinctUntilChanged, map, merge, takeUntil } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
-import { Point } from '../../interfaces';
+import { PitchDetection, Point } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { UntilDestroy } from '../../utils/angular.util';
@@ -56,7 +56,7 @@ export class FrequencyChartComponent extends UntilDestroy
       .pipe(distinctUntilChanged(), throttleTime_(environment.throttle));
   });
 
-  public readonly pitch = this.graph.pitch.map(pd => pd.short);
+  public readonly pitch = this.graph.pitch;
 
   private readonly pitchValue = this.pitch.map(
     _ => new BehaviorSubject<number>(0)
@@ -71,8 +71,8 @@ export class FrequencyChartComponent extends UntilDestroy
     );
   });
 
-  public readonly pitchEnabled$ = this.pitch.map(id => {
-    return this.graphService.select(AudioGraphState.pitchEnabled(id));
+  public readonly pitchEnabled$ = this.pitch.map(p => {
+    return this.graphService.select(AudioGraphState.pitchEnabled(p.short));
   });
 
   public width = 0;
@@ -99,13 +99,26 @@ export class FrequencyChartComponent extends UntilDestroy
       this.frame = requestAnimationFrame(this.animate);
       void fromEvent(canvas, 'click')
         .pipe(
-          merge(fromEvent(canvas, 'mousemove')),
+          merge(fromEvent(canvas, 'mousemove'), fromEvent(canvas, 'touchmove')),
           takeUntil(this.destroyed$),
           map(
-            (ev: MouseEvent): Point => {
+            (ev: MouseEvent | TouchEvent): Point => {
+              let x: number;
+              let y: number;
+              const bbox: DOMRect = canvas.getBoundingClientRect();
+              if ('touches' in ev) {
+                const ev_: TouchEvent = ev;
+                const touch: Touch = ev_.touches[0];
+                x = touch.clientX;
+                y = touch.clientY;
+              } else {
+                const ev_: MouseEvent = ev;
+                x = ev_.clientX;
+                y = ev_.clientY;
+              }
               return {
-                x: ev.offsetX,
-                y: ev.offsetY,
+                x: x - bbox.x,
+                y: y - bbox.y,
               };
             }
           )
@@ -203,6 +216,18 @@ export class FrequencyChartComponent extends UntilDestroy
     }
     ctx.stroke();
 
+    if (this.graph.minPitch > 20 || this.graph.maxPitch < 20000) {
+      const x0 = this.frequencyToCanvas(this.graph.minPitch);
+      const x1 = this.frequencyToCanvas(this.graph.maxPitch);
+      ctx.strokeStyle = '#a6c8e6';
+      ctx.beginPath();
+      ctx.moveTo(x0, 0);
+      ctx.lineTo(x0, this.height);
+      ctx.moveTo(x1, 0);
+      ctx.lineTo(x1, this.height);
+      ctx.stroke();
+    }
+
     if (this.showPoint) {
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 1;
@@ -211,6 +236,25 @@ export class FrequencyChartComponent extends UntilDestroy
       ctx.lineTo(this.point.x, this.height);
       ctx.stroke();
     }
+  }
+
+  /**
+   * Draws pitch values
+   * @param pitch
+   */
+  private drawPitchValues(pitch: PitchDetection): void {
+    const ctx = this.context;
+    const plotHeight: number = this.height / pitch.values.length;
+    ctx.strokeStyle = pitch.color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    pitch.values.forEach((value, i) => {
+      const x = this.frequencyToCanvas(value);
+      const y = i * plotHeight;
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y + plotHeight);
+    });
+    ctx.stroke();
   }
 
   /**
@@ -317,7 +361,11 @@ export class FrequencyChartComponent extends UntilDestroy
       this.drawGrid(plotCount);
 
       for (let i = 0; i < this.pitch.length; ++i) {
-        this.pitchValue[i].next(this.graph.pitch[i].value);
+        if (this.graph.pitch[i].enabled) {
+          this.drawPitchValues(this.graph.pitch[i]);
+          const values = this.graph.pitch[i].values;
+          this.pitchValue[i].next(values[values.length - 1]);
+        }
       }
 
       if (this.graph.debug) {

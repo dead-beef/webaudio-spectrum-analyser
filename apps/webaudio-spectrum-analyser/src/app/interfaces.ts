@@ -46,10 +46,11 @@ export type PitchDetectionId = 'ZCR' | 'FFTM' | 'FFTP' | 'AC';
 export interface PitchDetection {
   name: string;
   short: PitchDetectionId;
-  calc: () => number;
-  smooth: boolean;
+  color: string;
+  calc: (i: number) => number;
+  timeDomain: boolean;
   enabled: boolean;
-  value: number;
+  values: number[];
 }
 
 export interface IPitchShifterNode extends GainNode {

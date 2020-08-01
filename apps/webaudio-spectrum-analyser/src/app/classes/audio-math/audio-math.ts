@@ -43,6 +43,29 @@ export class AudioMath {
 
   /**
    * TODO: description
+   * @param p
+   * @param min
+   * @param max
+   */
+  public static clampPitch(p: number, min: number, max: number) {
+    if (p > max) {
+      const scale = Math.ceil(p / max);
+      p /= scale;
+      if (p < min) {
+        p = max;
+      }
+    } else if (p < min) {
+      const scale = Math.ceil(min / p);
+      p *= scale;
+      if (p > max) {
+        p = min;
+      }
+    }
+    return p;
+  }
+
+  /**
+   * TODO: description
    * @param arr
    * @param size
    */

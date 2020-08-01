@@ -34,6 +34,7 @@ export class CommonOptionsComponent extends UntilDestroy {
 
   public readonly iirFilterOrder = [0, 1, 2];
 
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   public readonly AudioGraphFilterNode = AudioGraphFilterNode;
 
   public readonly graphForm = new FormGroup({

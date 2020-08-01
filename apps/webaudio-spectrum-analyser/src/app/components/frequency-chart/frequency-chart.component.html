@@ -20,7 +20,8 @@
       *ngFor="let p of pitch; let i = index"
       [class.hide]="!(pitchEnabled$[i] | async)"
     >
-      {{ p }}: {{ pitchValue$[i] | async | units }}Hz
+      <span [style.color]="p.color">{{ p.short }}</span>:
+      {{ pitchValue$[i] | async | units }}Hz
     </span>
   </span>
 </div>

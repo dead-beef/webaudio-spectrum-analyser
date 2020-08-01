@@ -59,6 +59,9 @@ export function throttleTime_<T>(
       let hasNext = false;
       let next: T = null;
 
+      /**
+       * TODO: description
+       */
       function unsubscribe() {
         //console.log('throttle unsubscribe');
         if (timeout !== null) {
