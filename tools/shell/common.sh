@@ -55,6 +55,7 @@ COLOR_NAMES=(
 USAGE="Usage: $0 [-h]\n"
 CMD_COLOR="${PURPLE}"
 LOG_COLOR="${LIGHT_BLUE}"
+WARNING_COLOR="${YELLOW}"
 ERROR_COLOR="${LIGHT_RED}"
 
 
@@ -64,28 +65,33 @@ colors() {
   done
 }
 
-log() {
-  printf "${LOG_COLOR}" >&2
+printfc() {
+  printf "$1" >&2
+  shift
   printf "$@" >&2
   printf "${DEFAULT}\n" >&2
 }
 
+log() {
+  printfc "${LOG_COLOR}" "$@"
+}
+
+warn() {
+  printfc "${WARNING_COLOR}Warning: " "$@"
+}
+
 error() {
-  printf "${ERROR_COLOR}Error: " >&2
-  printf "$@" >&2
-  printf "${DEFAULT}\n" >&2
+  printfc "${ERROR_COLOR}Error: " "$@"
   exit 1
 }
 
 usage() {
-  printf "${USAGE}" >&2
+  printfc "${USAGE}" >&2
   exit 1
 }
 
 cmd() {
-  printf "${CMD_COLOR}>" >&2
-  printf " %s" "$@" >&2
-  printf "${DEFAULT}\n" >&2
+  printfc "${CMD_COLOR}>" " %s" "$@"
   eval "$@"
   local rc=$?
   if (( rc )); then

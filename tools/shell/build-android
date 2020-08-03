@@ -3,41 +3,45 @@
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
 source tools/shell/common.sh
 
-if [[ -f tools/shell/vars.sh ]]; then
-    cmd source tools/shell/vars.sh
+VARS=tools/shell/vaars.sh
+
+if [[ -f $VARS ]]; then
+  cmd source "$VARS"
+else
+  warn "$VARS does not exist"
 fi
 
 if [[ -z ${JAVA_HOME:-} ]]; then
-    dir="${HOME}/java/"
-    if [[ -d $dir ]]; then
-        export JAVA_HOME="$dir"
-    else
-        error "JAVA_HOME is not set and ${dir} does not exist"
-    fi
+  dir="${HOME}/java/"
+  if [[ -d $dir ]]; then
+    export JAVA_HOME="$dir"
+  else
+    error "JAVA_HOME is not set and ${dir} does not exist"
+  fi
 fi
 
 if [[ -z ${ANDROID_HOME:-} ]]; then
-    dir="${HOME}/Android/Sdk"
-    if [[ -d $dir ]]; then
-        export ANDROID_HOME="$dir"
-    else
-        error "ANDROID_HOME is not set and ${dir} does not exist"
-    fi
+  dir="${HOME}/Android/Sdk"
+  if [[ -d $dir ]]; then
+    export ANDROID_HOME="$dir"
+  else
+    error "ANDROID_HOME is not set and ${dir} does not exist"
+  fi
 fi
 
 if [[ -z ${ANDROID_BUILD_TOOLS:-} ]]; then
-    dir="$(ls "${ANDROID_HOME}/build-tools" | head -n 1)"
-    if [[ -n $dir ]]; then
-        ANDROID_BUILD_TOOLS="${ANDROID_HOME}/build-tools/${dir}"
-    else
-        error "ANDROID_BUILD_TOOLS is not set and ${ANDROID_HOME}/build-tools/<version> does not exist"
-    fi
+  dir="$(ls "${ANDROID_HOME}/build-tools" | head -n 1)"
+  if [[ -n $dir ]]; then
+    ANDROID_BUILD_TOOLS="${ANDROID_HOME}/build-tools/${dir}"
+  else
+    error "ANDROID_BUILD_TOOLS is not set and ${ANDROID_HOME}/build-tools/<version> does not exist"
+  fi
 fi
 
 if [[ -z ${ANDROID_KEYSTORE:-} ]]; then
-    ANDROID_KEYSTORE='release-key.keystore'
-    ANDROID_KEYSTORE_ALIAS='key-alias'
-    ANDROID_KEYSTORE_PASSWORD='release'
+  ANDROID_KEYSTORE='release-key.keystore'
+  ANDROID_KEYSTORE_ALIAS='key-alias'
+  ANDROID_KEYSTORE_PASSWORD='release'
 fi
 
 BUILD_APK='app/build/outputs/apk/release/app-release-unsigned.apk'
