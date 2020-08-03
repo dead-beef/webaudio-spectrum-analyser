@@ -1,3 +1,5 @@
+import { Capacitor } from '@capacitor/core';
+
 // This file can be replaced during build by using the `fileReplacements` array.
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
@@ -5,6 +7,7 @@
 export const environment = {
   production: false,
   debug: false,
+  platform: Capacitor.getPlatform(),
   throttle: 100,
   link: 'https://github.com/dead-beef/webaudio-spectrum-analyser',
 };
