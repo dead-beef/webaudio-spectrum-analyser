@@ -1,0 +1,110 @@
+#!/bin/bash
+
+cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+source tools/shell/common.sh
+
+FAVICON_SIZE=16
+
+declare -A ANDROID_ICON_SIZE=(
+  [mdpi]=48
+  [hdpi]=72
+  [xhdpi]=96
+  [xxhdpi]=144
+  [xxxhdpi]=192
+)
+
+declare -A ANDROID_SPLASH_SIZE_MIN=(
+  [mdpi]=320
+  [hdpi]=480
+  [xhdpi]=720
+  [xxhdpi]=960
+  [xxxhdpi]=1280
+)
+
+declare -A ANDROID_SPLASH_SIZE_MAX=(
+  [mdpi]=480
+  [hdpi]=800
+  [xhdpi]=1280
+  [xxhdpi]=1600
+  [xxxhdpi]=1920
+)
+
+ANDROID_APP_DIR="android/app/src/main"
+
+SVG="$(find apps -type f -name icon.svg | head -n 1)"
+BACKGROUND=
+
+CSS_VARS="$(find apps -type f -name '_vars.scss')"
+if [[ -n $CSS_VARS ]]; then
+  BACKGROUND="$(sed -r '/\$bg\s*\:/ { s/^\s*\$bg\s*:\s*([^; ]+).*/\1/; q; }; d' "$CSS_VARS")"
+fi
+if [[ -z $BACKGROUND ]]; then
+  warn "could not find background in css files"
+  warn "using #ffffff"
+  BACKGROUND='#ffffff'
+fi
+
+if [[ -z $SVG ]]; then
+  error "icons.svg not found in $(pwd)/apps/"
+fi
+
+log "generating icons from ${SVG}"
+
+log "generating favicon..."
+
+dir="$(dirname "$SVG")"
+cmd convert \
+    -background transparent \
+    "$SVG" \
+    -thumbnail "${FAVICON_SIZE}x${FAVICON_SIZE}" \
+    "${dir}/favicon.png"
+
+log "generating android icons..."
+
+for key in "${!ANDROID_ICON_SIZE[@]}"; do
+  dir="${ANDROID_APP_DIR}/res/mipmap-${key}"
+  size="${ANDROID_ICON_SIZE[$key]}"
+  size2=$(( size * 5 / 2 ))
+  size3=$(( size / 2 ))
+  cmd convert \
+      -background transparent "$SVG" \
+      -thumbnail "${size}x${size}" \
+      "${dir}/ic_launcher.png"
+  cmd convert \
+      -background transparent "$SVG" \
+      -thumbnail "${size2}x${size2}" \
+      "${dir}/ic_launcher_foreground.png"
+  cmd convert -background transparent "$SVG" \
+      -gravity center \
+      -crop 80%x80% \
+      -thumbnail "${size}x${size}" \
+      '\(' \
+      +clone -threshold -1 -negate -fill white \
+      -draw "'circle ${size3},${size3} ${size3},0'" \
+      '\)' \
+      -alpha off \
+      -compose copy_opacity \
+      -composite "${dir}/ic_launcher_round.png"
+done
+
+log "generating android splash screens..."
+
+for key in "${!ANDROID_SPLASH_SIZE_MIN[@]}"; do
+  dir="${ANDROID_APP_DIR}/res/drawable-land-${key}"
+  dir2="${ANDROID_APP_DIR}/res/drawable-port-${key}"
+  min="${ANDROID_SPLASH_SIZE_MIN[$key]}"
+  max="${ANDROID_SPLASH_SIZE_MAX[$key]}"
+  size=$(( min / 5 ))
+  cmd convert \
+      -background "'$BACKGROUND'" "$SVG" \
+      -gravity center \
+      -thumbnail "${size}x${size}" \
+      -extent "${max}x${min}" \
+      "${dir}/splash.png"
+  cmd convert \
+      -background "'$BACKGROUND'" "$SVG" \
+      -gravity center \
+      -thumbnail "${size}x${size}" \
+      -extent "${min}x${max}" \
+      "${dir2}/splash.png"
+done
