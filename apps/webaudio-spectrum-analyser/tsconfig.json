@@ -3,5 +3,14 @@
     "types": ["node", "jest"]
   },
   "extends": "../../tsconfig.base.json",
-  "include": ["**/*.ts"]
+  "include": [],
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
 }

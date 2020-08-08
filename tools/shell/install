@@ -39,7 +39,7 @@ installProjectDependencies() {
 installGlobalDependencies() {
   log 'installing global dependencies...'
   # sudo
-  cmd npm install -g @angular/cli@latest @nestjs/cli@latest @nrwl/schematics@latest typescript@latest firebase-tools@latest @compodoc/compodoc@latest commitizen@latest cz-conventional-changelog@latest clang-format@latest yarn@latest
+  cmd npm install -g @angular/cli@latest @nestjs/cli@latest @nrwl/cli@latest typescript@latest firebase-tools@latest @compodoc/compodoc@latest commitizen@latest cz-conventional-changelog@latest clang-format@latest yarn@latest
   YARN=1
 }
 
@@ -60,7 +60,7 @@ installShellcheckLinux() {
 ##
 # Dependencies installation control flow.
 ##
-if (( $# == 0 )); then
+if (($# == 0)); then
   INSTALL='local'
 else
   INSTALL="$1"
@@ -79,21 +79,21 @@ else
 fi
 
 case "$INSTALL" in
-  all)
-    installGlobalDependencies
-    installProjectDependencies
-    installShellcheckLinux
-    ;;
-  local)
-    installProjectDependencies
-    ;;
-  global)
-    installGlobalDependencies
-    ;;
-  shellcheck)
-    installShellcheckLinux
-    ;;
-  *)
-    usage
-    ;;
+all)
+  installGlobalDependencies
+  installProjectDependencies
+  installShellcheckLinux
+  ;;
+local)
+  installProjectDependencies
+  ;;
+global)
+  installGlobalDependencies
+  ;;
+shellcheck)
+  installShellcheckLinux
+  ;;
+*)
+  usage
+  ;;
 esac

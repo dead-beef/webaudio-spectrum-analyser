@@ -3,16 +3,20 @@
   "implicitDependencies": {
     "angular.json": "*",
     "package.json": "*",
-    "tsconfig.json": "*",
     "tslint.json": "*",
-    "nx.json": "*"
+    "nx.json": "*",
+    "tsconfig.base.json": "*"
   },
   "projects": {
     "webaudio-spectrum-analyser-e2e": {
-      "tags": ["scope:webaudio-spectrum-analyser-e2e"]
+      "tags": ["scope:webaudio-spectrum-analyser-e2e", "type:e2e"]
     },
     "webaudio-spectrum-analyser": {
-      "tags": ["scope:webaudio-spectrum-analyser", "type:application", "platform:browser"]
+      "tags": [
+        "scope:webaudio-spectrum-analyser",
+        "type:application",
+        "platform:browser"
+      ]
     }
   },
   "tasksRunnerOptions": {
@@ -24,5 +28,8 @@
         "cacheDirectory": "/tmp/nx/webaudio-spectrum-analyser"
       }
     }
+  },
+  "affected": {
+    "defaultBase": "master"
   }
 }
