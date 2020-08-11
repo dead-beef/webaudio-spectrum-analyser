@@ -29,6 +29,8 @@ module.exports = {
     'simple-import-sort', // https://github.com/lydell/eslint-plugin-simple-import-sort
     'rxjs', // https://github.com/cartant/eslint-plugin-rxjs
     'compat', // https://www.npmjs.com/package/eslint-plugin-compat
+    '@nrwl/eslint-plugin-nx',
+    '@nrwl/nx',
   ],
   ignorePatterns: ['*.min.js', 'node_modules/'],
 
@@ -341,6 +343,55 @@ module.exports = {
     'rxjs/no-tap': 'off',
     'rxjs/no-exposed-subjects': 'error',
     yoda: ['error', 'never'],
+    '@nrwl/nx/enforce-module-boundaries': [
+      'error',
+      {
+        allow: [],
+        depConstraints: [
+          {
+            sourceTag: 'scope:webaudio-spectrum-analyser-e2e',
+            onlyDependOnLibsWithTags: [], // TODO: add allowed dependencies
+          },
+          {
+            sourceTag: 'scope:webaudio-spectrum-analyser',
+            onlyDependOnLibsWithTags: [], // TODO: add allowed dependencies
+          },
+          {
+            sourceTag: 'type:application',
+            onlyDependOnLibsWithTags: [
+              'type:feature',
+              'type:data-access',
+              'type:ui',
+              'type:util',
+            ],
+          },
+          {
+            sourceTag: 'type:feature',
+            onlyDependOnLibsWithTags: [
+              'type:data-access',
+              'type:ui',
+              'type:util',
+            ],
+          },
+          {
+            sourceTag: 'type:data-access',
+            onlyDependOnLibsWithTags: ['type:data-access', 'type:util'],
+          },
+          {
+            sourceTag: 'type:ui',
+            onlyDependOnLibsWithTags: ['type:ui', 'type:util'],
+          },
+          {
+            sourceTag: 'type:util',
+            onlyDependOnLibsWithTags: [],
+          },
+          {
+            sourceTag: 'type:e2e',
+            onlyDependOnLibsWithTags: ['type:util'],
+          },
+        ],
+      },
+    ],
   },
 
   settings: {

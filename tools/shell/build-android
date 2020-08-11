@@ -3,7 +3,7 @@
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
 source tools/shell/common.sh
 
-VARS=tools/shell/vaars.sh
+VARS=tools/shell/vars.sh
 
 if [[ -f $VARS ]]; then
   cmd source "$VARS"

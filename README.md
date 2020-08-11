@@ -59,16 +59,6 @@ yarn install:global
 yarn install
 ```
 
-## Fixed dependencies
-
-The following dependencies should not be updated by now, this specific versions should be fixed
-
-| Name         | Version | Note regarding newer versions (but it may be outdated, and should be confirmed over time) |
-| ------------ | ------- | ----------------------------------------------------------------------------------------- |
-| eslint       | 6.8.0   | incompatible with NX                                                                      |
-| eslint-watch | 6.0.1   | incompatible with NX                                                                      |
-| typescript   | 3.8.3   | currently installed is the latest version @angular/cli supports                           |
-
 ## Building
 
 ### Web

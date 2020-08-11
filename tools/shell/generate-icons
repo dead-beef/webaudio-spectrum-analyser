@@ -108,3 +108,7 @@ for key in "${!ANDROID_SPLASH_SIZE_MIN[@]}"; do
       -extent "${min}x${max}" \
       "${dir2}/splash.png"
 done
+
+cmd cp -vf \
+    ${ANDROID_APP_DIR}/res/drawable-land-mdpi/splash.png \
+    ${ANDROID_APP_DIR}/res/drawable/splash.png

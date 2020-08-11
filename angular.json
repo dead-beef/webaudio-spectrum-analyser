@@ -141,9 +141,7 @@
         "test": {
           "builder": "@nrwl/jest:jest",
           "options": {
-            "jestConfig": "apps/webaudio-spectrum-analyser/jest.config.js",
-            "tsConfig": "apps/webaudio-spectrum-analyser/tsconfig.spec.json",
-            "setupFile": "apps/webaudio-spectrum-analyser/src/test-setup.ts"
+            "jestConfig": "apps/webaudio-spectrum-analyser/jest.config.js"
           }
         }
       }
