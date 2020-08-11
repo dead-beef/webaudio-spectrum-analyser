@@ -22,6 +22,7 @@
     "compodoc:generate": "compodoc -p ./apps/webaudio-spectrum-analyser/tsconfig.json",
     "compodoc:serve": "compodoc -p ./apps/webaudio-spectrum-analyser/tsconfig.json -s",
     "dep-graph": "nx dep-graph",
+    "predeploy:gh-pages": "gh-pages-clean",
     "deploy:gh-pages": "gh-pages --dist ./dist --no-history",
     "e2e": "nx e2e",
     "format": "nx format:write",
