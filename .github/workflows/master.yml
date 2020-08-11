@@ -53,5 +53,5 @@ jobs:
       - run: yarn ngcc
       - run: ng lint
       - run: ng test --passWithNoTests --codeCoverage=false --watch=false --maxWorkers=2 --ci --updateSnapshot
-      - run: npx nx build webaudio-spectrum-analyser
-      - run: yarn deploy:webaudio-spectrum-analyser:gh-pages # this command deletes branch with previous deployment first; check package.json - script with same name but prefixed with 'pre';
+      - run: yarn build:prod
+      - run: yarn deploy:gh-pages # this command deletes branch with previous deployment first; check package.json;
