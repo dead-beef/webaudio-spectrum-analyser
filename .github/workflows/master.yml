@@ -44,17 +44,33 @@ jobs:
             ${{ runner.os }}-workspace-
             ${{ runner.os }}-
 
+      - name: Configure git
+        id: configure-git
+        shell: bash
+        run: |
+          git config --global user.name ${GITHUB_ACTOR} &&
+          git config --global user.email ${GITHUB_ACTOR}@users.noreply.github.com &&
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm i -g typescript @angular/cli
-      - run: yarn install --frozen-lockfile
-      - run: yarn ngcc
+
+      - name: Install
+        id: install
+        shell: bash
+        run: |
+          npm i -g typescript @angular/cli &&
+          yarn install --frozen-lockfile &&
+          yarn ngcc
+
       - run: ng lint
       - run: ng test --passWithNoTests --codeCoverage=false --watch=false --maxWorkers=2 --ci --updateSnapshot
-      - run: yarn build:prod
-      - run: git config --global user.name ${GITHUB_ACTOR}
-      - run: git config --global user.email ${GITHUB_ACTOR}@users.noreply.github.com
-      - run: git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-      - run: yarn deploy:gh-pages # this command deletes branch with previous deployment first; check package.json;
+
+      - name: Deploy
+        id: deploy
+        shell: bash
+        run: |
+          yarn build:gh-pages &&
+          yarn deploy:gh-pages # this command deletes branch with previous deployment first; check package.json;

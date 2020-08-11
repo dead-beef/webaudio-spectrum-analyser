@@ -16,6 +16,7 @@
     "build": "nx build",
     "build:codepen": "./tools/shell/build-codepen",
     "build:prod": "nx build --prod",
+    "build:gh-pages": "nx build --prod --base-href /webaudio-spectrum-analyser",
     "build:webaudio-spectrum-analyser:stats": "nx build --stats-json --project webaudio-spectrum-analyser --configuration analyze-bundle",
     "cleanup:artifacts": "rm -rf ./documentation/* ./coverage/* ./dist/*",
     "compodoc:generate": "compodoc -p ./apps/webaudio-spectrum-analyser/tsconfig.json",
