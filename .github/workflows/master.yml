@@ -54,4 +54,7 @@ jobs:
       - run: ng lint
       - run: ng test --passWithNoTests --codeCoverage=false --watch=false --maxWorkers=2 --ci --updateSnapshot
       - run: yarn build:prod
+      - run: git config --global user.name ${GITHUB_ACTOR}
+      - run: git config --global user.email ${GITHUB_ACTOR}@users.noreply.github.com
+      - run: git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
       - run: yarn deploy:gh-pages # this command deletes branch with previous deployment first; check package.json;
