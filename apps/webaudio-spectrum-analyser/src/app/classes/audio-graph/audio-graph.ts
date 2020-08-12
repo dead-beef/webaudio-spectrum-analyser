@@ -3,6 +3,7 @@ import {
   AudioGraphFilters,
   AudioGraphNodes,
   AudioGraphSourceNode,
+  FftPeakType,
   PitchDetection,
 } from '../../interfaces';
 import { AudioMath } from '../audio-math/audio-math';
@@ -34,11 +35,26 @@ export class AudioGraph {
 
   public autocorrdata: Float32Array = new Float32Array(1);
 
+  public prominenceData: Float32Array[] = [
+    new Float32Array(1),
+    new Float32Array(1),
+  ];
+
   public canAnalyse = true;
 
   public minPitch = 20;
 
   public maxPitch = 20000;
+
+  public recalculatePitch = true;
+
+  public threshold = 0.2;
+
+  public prominenceRadius = 0;
+
+  public prominenceThreshold = 0.1;
+
+  public fftPeakType: FftPeakType = FftPeakType.MAX_MAGNITUDE;
 
   public debug = false;
 
@@ -153,51 +169,7 @@ export class AudioGraph {
   /**
    * Constructor.
    */
-  constructor(mock: boolean = window['PREVIEW']) {
-    if (mock) {
-      console.warn('creating mock audio graph');
-
-      this.context = {} as any;
-      this.nodes = {} as any;
-      this.workletReady = Promise.resolve();
-
-      const prop = (obj, key, value) => {
-        Object.defineProperty(obj, key, {
-          value: value,
-          enumerable: true,
-          writable: true,
-        });
-      };
-
-      prop(this.context, 'sampleRate', 44000);
-      prop(this.nodes, 'wave', {
-        frequency: { value: 440 },
-        type: 'sine',
-        connect: () => null,
-        disconnect: () => null,
-      });
-      prop(this.nodes, 'worklet', {
-        connect: () => null,
-        disconnect: () => null,
-      });
-      prop(this.nodes, 'input', {
-        delayTime: { value: 0 },
-        connect: () => null,
-        disconnect: () => null,
-      });
-      prop(this.nodes, 'analysers', []);
-      prop(this.nodes, 'filteredInput', {
-        connect: () => null,
-        disconnect: () => null,
-      });
-      prop(this.nodes, 'output', {
-        connect: () => null,
-        disconnect: () => null,
-      });
-
-      return;
-    }
-
+  constructor() {
     if (!window.AudioContext) {
       throw new Error('Web Audio API is not supported');
     }
@@ -555,21 +527,32 @@ export class AudioGraph {
   /**
    * TODO: description
    */
-  public analyse(): AudioGraph {
-    if (!this.paused) {
-      for (let i = 0; i < this.nodes.analysers.length; i += 1) {
-        const node = this.nodes.analysers[i];
-        if (i === 0) {
-          this.tdata = AudioMath.resize(this.tdata, node.fftSize);
-          node.getByteTimeDomainData(this.tdata);
-        }
-        this.fdata[i] = AudioMath.resize(this.fdata[i], node.frequencyBinCount);
-        node.getByteFrequencyData(this.fdata[i]);
-      }
-
-      const fmax = Math.max.apply(null, this.fdata[0]) / 255;
-      this.canAnalyse = fmax > 0.2;
+  public update(): AudioGraph {
+    if (this.paused) {
+      return this;
     }
+
+    for (let i = 0; i < this.nodes.analysers.length; i += 1) {
+      const node = this.nodes.analysers[i];
+      if (i === 0) {
+        this.tdata = AudioMath.resize(this.tdata, node.fftSize);
+        node.getByteTimeDomainData(this.tdata);
+      }
+      this.fdata[i] = AudioMath.resize(this.fdata[i], node.frequencyBinCount);
+      node.getByteFrequencyData(this.fdata[i]);
+    }
+
+    const fmax = Math.max.apply(null, this.fdata[0]) / 255;
+    this.canAnalyse = fmax > this.threshold;
+
+    return this;
+  }
+
+  /**
+   * TODO: description
+   */
+  public analyse(): AudioGraph {
+    this.update();
 
     if (!this.canAnalyse) {
       return this;
@@ -583,7 +566,11 @@ export class AudioGraph {
       if (this.paused && pd.values.every(v => v > 1)) {
         continue;
       }
-      if (pd.timeDomain) {
+      if (this.recalculatePitch && !pd.timeDomain) {
+        for (let i = 0; i < this.smoothing.length; ++i) {
+          pd.values[i] = pd.calc(i);
+        }
+      } else {
         const value: number = pd.calc(0);
         pd.values.forEach((prev, i) => {
           if (prev > 1) {
@@ -592,10 +579,6 @@ export class AudioGraph {
             pd.values[i] = value;
           }
         });
-      } else {
-        for (let i = 0; i < this.smoothing.length; ++i) {
-          pd.values[i] = pd.calc(i);
-        }
       }
     }
 
@@ -643,7 +626,23 @@ export class AudioGraph {
     const fscale: number = this.fftSize / this.sampleRate;
     const start: number = Math.floor(this.minPitch * fscale);
     const end: number = Math.floor(this.maxPitch * fscale) + 1;
-    let res: number = AudioMath.indexOfPeak(fdata, start, end);
+
+    this.prominenceData[i] = AudioMath.prominence(
+      fdata,
+      this.prominenceData[i],
+      start,
+      end,
+      this.prominenceRadius
+    );
+
+    let res: number = AudioMath.indexOfProminencePeak(
+      this.fdata[i],
+      this.prominenceData[i],
+      this.fftPeakType,
+      start,
+      end,
+      this.prominenceThreshold
+    );
     if (res > 0 && res < fdata.length - 1) {
       res += AudioMath.interpolatePeak(
         fdata[res],

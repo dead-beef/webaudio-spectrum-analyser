@@ -2,6 +2,7 @@ import {
   AudioGraphFilterNode,
   AudioGraphSource,
   AudioGraphSourceNode,
+  FftPeakType,
 } from '../../interfaces';
 import { actionConstructor, StoreActions } from '../../utils/ngxs.util';
 import {
@@ -51,4 +52,10 @@ export const audioGraphAction: StoreActions = {
   setBiquadGain: action<number>('set biquad filter gain'),
   setPitchShift: action<number>('set pitch shift'),
   setPitchShifterBufferTime: action<number>('set pitch shifter buffer time'),
+
+  setFftPeakType: action<FftPeakType>('set fft peak type'),
+  setFftPeakProminenceRadius: action<number>('set fft peak prominence radius'),
+  setFftPeakProminenceThreshold: action<number>(
+    'set fft peak prominence threshold'
+  ),
 };

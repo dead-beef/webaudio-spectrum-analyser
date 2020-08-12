@@ -8,7 +8,7 @@ import { SafeUrlPipe } from '../../pipes/safe-url/safe-url.pipe';
 import { TimePipe } from '../../pipes/time/time.pipe';
 import { getAudioGraph } from '../../utils/factories';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
-import { mockComponent } from '../../utils/test';
+import { mockComponent } from '../../utils/test.util';
 import { AlertComponent } from '../alert/alert.component';
 import { AudioControlsComponent } from '../audio-controls/audio-controls.component';
 import { FileOptionsComponent } from './file-options.component';

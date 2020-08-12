@@ -1,14 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClarityModule } from '@clr/angular';
-import { NgxsModule } from '@ngxs/store';
 
-import { UnitsPipe } from '../../pipes/units/units.pipe';
-import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
-import { getAudioGraph } from '../../utils/factories';
-import { AUDIO_GRAPH } from '../../utils/injection-tokens';
-import { InputFrequencyComponent } from '../input-frequency/input-frequency.component';
-import { InputRangeComponent } from '../input-range/input-range.component';
+import { mockComponent } from '../../utils/test.util';
 import { CommonOptionsComponent } from './common-options.component';
 
 describe('CommonOptionsComponent', () => {
@@ -17,24 +10,12 @@ describe('CommonOptionsComponent', () => {
 
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
-      imports: [
-        ClarityModule,
-        FormsModule,
-        ReactiveFormsModule,
-        NgxsModule.forRoot([]),
-        AudioGraphStoreModule,
-      ],
+      imports: [ClarityModule],
       declarations: [
         CommonOptionsComponent,
-        UnitsPipe,
-        InputFrequencyComponent,
-        InputRangeComponent,
-      ],
-      providers: [
-        {
-          provide: AUDIO_GRAPH,
-          useFactory: getAudioGraph,
-        },
+        mockComponent('app-graph-options'),
+        mockComponent('app-filter-options'),
+        mockComponent('app-pitch-options'),
       ],
     })
       .compileComponents()

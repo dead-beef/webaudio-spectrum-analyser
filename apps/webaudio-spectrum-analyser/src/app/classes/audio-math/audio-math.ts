@@ -1,4 +1,8 @@
-import { TypedArray, TypedArrayConstructor } from '../../interfaces';
+import {
+  FftPeakType,
+  TypedArray,
+  TypedArrayConstructor,
+} from '../../interfaces';
 
 export class AudioMath {
   /**
@@ -128,15 +132,15 @@ export class AudioMath {
    */
   public static indexOfMax<T extends TypedArray>(
     data: T,
-    start?: number,
-    end?: number
+    start: number = 0,
+    end: number = data.length
   ): number {
     if (!data.length) {
       return -1;
     }
 
-    start = AudioMath.clamp(Number(start) || 0, 0, data.length);
-    end = AudioMath.clamp(Number(end) || data.length, 0, data.length);
+    start = AudioMath.clamp(start, 0, data.length);
+    end = AudioMath.clamp(end, 0, data.length);
 
     let res = -1;
     let max = -Infinity;
@@ -155,26 +159,49 @@ export class AudioMath {
    * @param start
    * @param end
    */
-  public static indexOfPeak<T extends TypedArray>(
-    data: T,
-    start?: number,
-    end?: number
+  public static indexOfProminencePeak<
+    T extends TypedArray,
+    U extends TypedArray
+  >(
+    fft: T,
+    prominence: U,
+    type_: FftPeakType = FftPeakType.MAX_MAGNITUDE,
+    start: number = 0,
+    end: number = fft.length - 1,
+    threshold: number = 0.1
   ): number {
-    if (data.length < 3) {
-      return -1;
+    start = AudioMath.clamp(start, 0, fft.length);
+    end = AudioMath.clamp(end, 0, fft.length - 1);
+
+    if (threshold <= 0) {
+      threshold = 1e-8;
     }
 
-    start = AudioMath.clamp(Number(start) || 0, 1, data.length);
-    end = AudioMath.clamp(Number(end) || data.length - 1, 2, data.length - 1);
+    if (fft instanceof Uint8Array) {
+      threshold *= 255;
+    }
 
-    let res = -1;
     let max = -Infinity;
+    let res = -1;
 
     for (let i = start; i < end; i += 1) {
-      if (data[i] >= Math.max(data[i - 1], data[i + 1])) {
-        if (max < data[i]) {
+      if (prominence[i] >= threshold) {
+        let value: number;
+        switch (type_) {
+          case FftPeakType.MAX_PROMINENCE:
+            value = prominence[i];
+            break;
+          case FftPeakType.MAX_MAGNITUDE:
+            value = fft[i];
+            break;
+          case FftPeakType.MIN_FREQUENCY:
+            return i;
+          default:
+            return -1;
+        }
+        if (value > max) {
+          max = value;
           res = i;
-          max = data[i];
         }
       }
     }
@@ -189,15 +216,15 @@ export class AudioMath {
    */
   public static indexOfAutocorrPeak<T extends TypedArray>(
     data: T,
-    start?: number,
-    end?: number
+    start: number = 0,
+    end: number = data.length
   ): number {
     if (data.length < 4) {
       return -1;
     }
 
-    start = AudioMath.clamp(Number(start) || 0, 0, data.length);
-    end = AudioMath.clamp(Number(end) || data.length, 0, data.length);
+    start = AudioMath.clamp(start, 0, data.length);
+    end = AudioMath.clamp(end, 0, data.length);
 
     const eps = 0.01;
 
@@ -308,6 +335,61 @@ export class AudioMath {
 
   /**
    * TODO: description
+   * @param data
+   * @param output
+   * @param start
+   * @param end
+   * @param radius
+   */
+  public static prominence<T extends TypedArray, U extends TypedArray>(
+    data: T,
+    output: U,
+    start: number = 1,
+    end: number = data.length - 1,
+    radius: number = data.length
+  ): U {
+    start = AudioMath.clamp(start, 1, data.length - 1);
+    end = AudioMath.clamp(end, 1, data.length - 1);
+
+    if (radius < 1) {
+      radius = data.length;
+    }
+
+    if (output.length < data.length) {
+      output = new (output.constructor as TypedArrayConstructor<U>)(
+        data.length
+      );
+    } else {
+      output.fill(0);
+    }
+
+    for (let i = start; i < end; ++i) {
+      let left = 0;
+      let right = 0;
+      if (data[i] >= Math.max(data[i - 1], data[i + 1])) {
+        const start_ = Math.max(start - 1, i - radius);
+        const end_ = Math.min(end + 1, i + radius);
+        for (let j = i - 1; j >= start_ && data[j] <= data[i]; --j) {
+          left = Math.max(left, data[i] - data[j]);
+        }
+        for (let j = i + 1; j < end_ && data[j] <= data[i]; ++j) {
+          right = Math.max(right, data[i] - data[j]);
+        }
+      }
+      output[i] = Math.min(left, right);
+    }
+
+    return output;
+  }
+
+  /**
+   * TODO: description
+   * @param sampleRate
+   * @param duration
+   * @param decay
+   * @param frequency
+   * @param overtones
+   * @param overtoneDecay
    */
   public static impulseResponse(
     sampleRate: number,

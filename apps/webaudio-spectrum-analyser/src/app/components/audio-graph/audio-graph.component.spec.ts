@@ -7,7 +7,7 @@ import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
 import { getAudioGraph } from '../../utils/factories';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
-import { mockComponent } from '../../utils/test';
+import { mockComponent } from '../../utils/test.util';
 import { AlertComponent } from '../alert/alert.component';
 import { CommonOptionsComponent } from '../common-options/common-options.component';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';

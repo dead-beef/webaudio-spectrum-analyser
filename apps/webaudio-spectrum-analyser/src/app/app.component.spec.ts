@@ -4,7 +4,7 @@ import { ClarityModule } from '@clr/angular';
 import { AppComponent } from './app.component';
 import { getAudioGraph } from './utils/factories';
 import { AUDIO_GRAPH } from './utils/injection-tokens';
-import { mockComponent } from './utils/test';
+import { mockComponent } from './utils/test.util';
 
 describe('AppComponent', () => {
   let fixture: ComponentFixture<AppComponent>;

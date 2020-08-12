@@ -160,3 +160,10 @@ export function mockComponent(selector: string, props?: Record<string, any>) {
   }
   return MockComponent;
 }
+
+/**
+ * TODO: Mock audio graph factory
+ */
+/*export function getMockAudioGraph() {
+  return new AudioGraph();
+}*/

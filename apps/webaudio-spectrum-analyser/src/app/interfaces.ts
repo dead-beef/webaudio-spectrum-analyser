@@ -99,6 +99,12 @@ export enum AudioGraphFilterNode {
   PITCH_SHIFTER,
 }
 
+export enum FftPeakType {
+  MIN_FREQUENCY,
+  MAX_MAGNITUDE,
+  MAX_PROMINENCE,
+}
+
 export interface AudioGraphSource {
   node: AudioGraphSourceNode;
   data?: any;
