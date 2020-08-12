@@ -40,6 +40,10 @@ export class AudioGraph {
 
   public maxPitch = 20000;
 
+  public recalculatePitch = true;
+
+  public threshold = 0.2;
+
   public debug = false;
 
   public readonly minDecibels = -100;
@@ -511,21 +515,32 @@ export class AudioGraph {
   /**
    * TODO: description
    */
-  public analyse(): AudioGraph {
-    if (!this.paused) {
-      for (let i = 0; i < this.nodes.analysers.length; i += 1) {
-        const node = this.nodes.analysers[i];
-        if (i === 0) {
-          this.tdata = AudioMath.resize(this.tdata, node.fftSize);
-          node.getByteTimeDomainData(this.tdata);
-        }
-        this.fdata[i] = AudioMath.resize(this.fdata[i], node.frequencyBinCount);
-        node.getByteFrequencyData(this.fdata[i]);
-      }
-
-      const fmax = Math.max.apply(null, this.fdata[0]) / 255;
-      this.canAnalyse = fmax > 0.2;
+  public update(): AudioGraph {
+    if (this.paused) {
+      return this;
     }
+
+    for (let i = 0; i < this.nodes.analysers.length; i += 1) {
+      const node = this.nodes.analysers[i];
+      if (i === 0) {
+        this.tdata = AudioMath.resize(this.tdata, node.fftSize);
+        node.getByteTimeDomainData(this.tdata);
+      }
+      this.fdata[i] = AudioMath.resize(this.fdata[i], node.frequencyBinCount);
+      node.getByteFrequencyData(this.fdata[i]);
+    }
+
+    const fmax = Math.max.apply(null, this.fdata[0]) / 255;
+    this.canAnalyse = fmax > this.threshold;
+
+    return this;
+  }
+
+  /**
+   * TODO: description
+   */
+  public analyse(): AudioGraph {
+    this.update();
 
     if (!this.canAnalyse) {
       return this;
@@ -539,7 +554,11 @@ export class AudioGraph {
       if (this.paused && pd.values.every(v => v > 1)) {
         continue;
       }
-      if (pd.timeDomain) {
+      if (this.recalculatePitch && !pd.timeDomain) {
+        for (let i = 0; i < this.smoothing.length; ++i) {
+          pd.values[i] = pd.calc(i);
+        }
+      } else {
         const value: number = pd.calc(0);
         pd.values.forEach((prev, i) => {
           if (prev > 1) {
@@ -548,10 +567,6 @@ export class AudioGraph {
             pd.values[i] = value;
           }
         });
-      } else {
-        for (let i = 0; i < this.smoothing.length; ++i) {
-          pd.values[i] = pd.calc(i);
-        }
       }
     }
 
