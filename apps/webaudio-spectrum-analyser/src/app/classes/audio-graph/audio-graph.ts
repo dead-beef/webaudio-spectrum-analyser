@@ -153,51 +153,7 @@ export class AudioGraph {
   /**
    * Constructor.
    */
-  constructor(mock: boolean = window['PREVIEW']) {
-    if (mock) {
-      console.warn('creating mock audio graph');
-
-      this.context = {} as any;
-      this.nodes = {} as any;
-      this.workletReady = Promise.resolve();
-
-      const prop = (obj, key, value) => {
-        Object.defineProperty(obj, key, {
-          value: value,
-          enumerable: true,
-          writable: true,
-        });
-      };
-
-      prop(this.context, 'sampleRate', 44000);
-      prop(this.nodes, 'wave', {
-        frequency: { value: 440 },
-        type: 'sine',
-        connect: () => null,
-        disconnect: () => null,
-      });
-      prop(this.nodes, 'worklet', {
-        connect: () => null,
-        disconnect: () => null,
-      });
-      prop(this.nodes, 'input', {
-        delayTime: { value: 0 },
-        connect: () => null,
-        disconnect: () => null,
-      });
-      prop(this.nodes, 'analysers', []);
-      prop(this.nodes, 'filteredInput', {
-        connect: () => null,
-        disconnect: () => null,
-      });
-      prop(this.nodes, 'output', {
-        connect: () => null,
-        disconnect: () => null,
-      });
-
-      return;
-    }
-
+  constructor() {
     if (!window.AudioContext) {
       throw new Error('Web Audio API is not supported');
     }

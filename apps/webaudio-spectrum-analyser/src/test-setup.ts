@@ -1,6 +1,6 @@
 import 'jest-preset-angular';
 import 'jest-canvas-mock';
 
-import { mockAudioContext } from './app/utils/test';
+import { mockAudioContext } from './app/utils/test.util';
 
 mockAudioContext();
