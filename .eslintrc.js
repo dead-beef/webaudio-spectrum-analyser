@@ -140,7 +140,7 @@ module.exports = {
       },
       {
         selector: 'interface',
-        format: ['StrictPascalCase'],
+        format: ['PascalCase'],
         leadingUnderscore: 'allow',
         trailingUnderscore: 'allow',
       },
