@@ -18,9 +18,12 @@ import { AudioGraphComponent } from './components/audio-graph/audio-graph.compon
 import { CommonOptionsComponent } from './components/common-options/common-options.component';
 import { DeviceOptionsComponent } from './components/device-options/device-options.component';
 import { FileOptionsComponent } from './components/file-options/file-options.component';
+import { FilterOptionsComponent } from './components/filter-options/filter-options.component';
 import { FrequencyChartComponent } from './components/frequency-chart/frequency-chart.component';
+import { GraphOptionsComponent } from './components/graph-options/graph-options.component';
 import { InputFrequencyComponent } from './components/input-frequency/input-frequency.component';
 import { InputRangeComponent } from './components/input-range/input-range.component';
+import { PitchOptionsComponent } from './components/pitch-options/pitch-options.component';
 import { WaveOptionsComponent } from './components/wave-options/wave-options.component';
 import { WorkletOptionsComponent } from './components/worklet-options/worklet-options.component';
 import { InputFileUrlDirective } from './directives/input-file-url/input-file-url.directive';
@@ -52,6 +55,9 @@ import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
     InputFrequencyComponent,
     WorkletOptionsComponent,
     InputRangeComponent,
+    GraphOptionsComponent,
+    FilterOptionsComponent,
+    PitchOptionsComponent,
   ],
   imports: [
     BrowserModule,

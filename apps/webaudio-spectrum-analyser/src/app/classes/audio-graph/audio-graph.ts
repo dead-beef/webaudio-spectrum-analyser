@@ -3,6 +3,7 @@ import {
   AudioGraphFilters,
   AudioGraphNodes,
   AudioGraphSourceNode,
+  FftPeakType,
   PitchDetection,
 } from '../../interfaces';
 import { AudioMath } from '../audio-math/audio-math';
@@ -34,6 +35,11 @@ export class AudioGraph {
 
   public autocorrdata: Float32Array = new Float32Array(1);
 
+  public prominenceData: Float32Array[] = [
+    new Float32Array(1),
+    new Float32Array(1),
+  ];
+
   public canAnalyse = true;
 
   public minPitch = 20;
@@ -43,6 +49,12 @@ export class AudioGraph {
   public recalculatePitch = true;
 
   public threshold = 0.2;
+
+  public prominenceRadius = 0;
+
+  public prominenceThreshold = 0.1;
+
+  public fftPeakType: FftPeakType = FftPeakType.MAX_MAGNITUDE;
 
   public debug = false;
 
@@ -614,7 +626,23 @@ export class AudioGraph {
     const fscale: number = this.fftSize / this.sampleRate;
     const start: number = Math.floor(this.minPitch * fscale);
     const end: number = Math.floor(this.maxPitch * fscale) + 1;
-    let res: number = AudioMath.indexOfPeak(fdata, start, end);
+
+    this.prominenceData[i] = AudioMath.prominence(
+      fdata,
+      this.prominenceData[i],
+      start,
+      end,
+      this.prominenceRadius
+    );
+
+    let res: number = AudioMath.indexOfProminencePeak(
+      this.fdata[i],
+      this.prominenceData[i],
+      this.fftPeakType,
+      start,
+      end,
+      this.prominenceThreshold
+    );
     if (res > 0 && res < fdata.length - 1) {
       res += AudioMath.interpolatePeak(
         fdata[res],

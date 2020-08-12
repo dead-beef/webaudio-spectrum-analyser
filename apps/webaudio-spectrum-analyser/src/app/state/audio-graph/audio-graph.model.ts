@@ -3,6 +3,7 @@ import { StateToken } from '@ngxs/store';
 import {
   AudioGraphFilterNode,
   AudioGraphSourceNode,
+  FftPeakType,
   PitchDetectionId,
 } from '../../interfaces';
 
@@ -37,6 +38,12 @@ export interface BiquadState {
   gain: number;
 }
 
+export interface FftPeakState {
+  type: FftPeakType;
+  prominenceRadius: number;
+  prominenceThreshold: number;
+}
+
 export interface AudioGraphStateModel {
   paused: boolean;
   suspended: boolean;
@@ -53,6 +60,7 @@ export interface AudioGraphStateModel {
     FFTP: boolean;
     AC: boolean;
   };
+  fftp: FftPeakState;
   wave: {
     shape: OscillatorType;
     frequency: number;
@@ -87,6 +95,11 @@ export const audioGraphStateDefaults: AudioGraphStateModel = {
     FFTM: false,
     FFTP: false,
     AC: false,
+  },
+  fftp: {
+    type: FftPeakType.MAX_MAGNITUDE,
+    prominenceRadius: 0,
+    prominenceThreshold: 0.1,
   },
   wave: {
     shape: 'sine',

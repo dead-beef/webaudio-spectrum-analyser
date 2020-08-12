@@ -11,34 +11,56 @@ import {
  * @param x
  * @param y
  */
+export function arrayEqual(x: any[], y: any) {
+  if (!Array.isArray(y)) {
+    return false;
+  }
+  return x.length === y.length && x.every((xx, i) => deepEqual(xx, y[i]));
+}
+
+/**
+ * TODO: description
+ * @param x
+ * @param y
+ */
+export function objectEqual(x: Record<string, any>, y: any) {
+  if (typeof y !== 'object') {
+    return false;
+  }
+  const y_: Record<string, any> = y;
+  for (const k in x) {
+    if (
+      Object.prototype.hasOwnProperty.call(x, k) &&
+      !Object.prototype.hasOwnProperty.call(y_, k)
+    ) {
+      return false;
+    }
+  }
+  for (const k in y_) {
+    if (
+      !Object.prototype.hasOwnProperty.call(x, k) ||
+      !Object.prototype.hasOwnProperty.call(y_, k) ||
+      !deepEqual(x[k], y_[k])
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * TODO: description
+ * @param x
+ * @param y
+ */
 export function deepEqual(x: any, y: any) {
   if (Array.isArray(x)) {
-    if (!Array.isArray(y)) {
-      return false;
-    }
-    return x.length === y.length && x.every((xx, i) => deepEqual(xx, y[i]));
+    return arrayEqual(x, y);
   }
   if (typeof x === 'object') {
-    if (typeof y !== 'object') {
-      return false;
-    }
-    /* eslint-disable no-prototype-builtins,@typescript-eslint/no-unsafe-member-access */
-    for (const k in x) {
-      if (x.hasOwnProperty(k) && !y.hasOwnProperty(k)) {
-        return false;
-      }
-    }
-    for (const k in y) {
-      if (
-        !x.hasOwnProperty(k) ||
-        !y.hasOwnProperty(k) ||
-        !deepEqual(x[k], y[k])
-      ) {
-        return false;
-      }
-    }
-    /* eslint-enable no-prototype-builtins,@typescript-eslint/no-unsafe-member-access */
-    return true;
+    /* eslint-disable no-prototype-builtins */
+    /* eslint-enable no-prototype-builtins */
+    return objectEqual(x, y);
   }
   return x === y;
 }

@@ -1,0 +1,53 @@
+<form clrForm clrLayout="vertical" [formGroup]="form">
+  <clr-checkbox-container formGroupName="enabled">
+    <clr-checkbox-wrapper *ngFor="let pd of pitch">
+      <input
+        type="checkbox"
+        clrCheckbox
+        [formControlName]="pd.short"
+      />
+      <label>{{ pd.name }}</label>
+    </clr-checkbox-wrapper>
+  </clr-checkbox-container>
+
+  <clr-checkbox-container>
+    <clr-checkbox-wrapper>
+      <input
+        type="checkbox"
+        clrCheckbox
+        formControlName="debug"
+      />
+      <label>Debug</label>
+    </clr-checkbox-wrapper>
+  </clr-checkbox-container>
+
+  <app-input-frequency name="Min Pitch" formControlName="minPitch">
+  </app-input-frequency>
+  <app-input-frequency name="Max Pitch" formControlName="maxPitch">
+  </app-input-frequency>
+
+  <clr-select-container>
+    <label>FFT Peak Type</label>
+    <select clrSelect formControlName="peakType">
+      <option *ngFor="let t of peakTypes" [ngValue]="t.id">
+        {{ t.name }}
+      </option>
+    </select>
+  </clr-select-container>
+  <app-input-range
+    name="FFT Peak Prominence Radius"
+    min="0"
+    max="1024"
+    step="1"
+    formControlName="prominenceRadius"
+  >
+  </app-input-range>
+  <app-input-range
+    name="FFT Peak Prominence Threshold"
+    min="0"
+    max="1"
+    step="0.01"
+    formControlName="prominenceThreshold"
+  >
+  </app-input-range>
+</form>

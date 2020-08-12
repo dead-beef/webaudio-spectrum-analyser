@@ -1,0 +1,72 @@
+<form
+  clrForm
+  clrLayout="vertical"
+  [formGroup]="form"
+  [ngSwitch]="filter$ | async"
+>
+  <clr-select-container>
+    <label>Type</label>
+    <select clrSelect formControlName="type">
+      <option *ngFor="let filter of filters" [ngValue]="filter.id">
+        {{ filter.name }}
+      </option>
+    </select>
+  </clr-select-container>
+  <ng-container *ngSwitchCase="AudioGraphFilterNode.IIR" formGroupName="iir">
+    <div
+      *ngFor="let arr of iirForm.controls | keyvalue"
+      [formArrayName]="arr.key"
+    >
+      <div class="clr-form-control clr-control-label">{{ arr.key }}</div>
+      <app-input-range
+        *ngFor="let item of arr.value.controls; let i = index"
+        [name]="i"
+        min="-1"
+        max="1"
+        [formControlName]="i"
+      >
+      </app-input-range>
+    </div>
+  </ng-container>
+  <ng-container *ngSwitchCase="AudioGraphFilterNode.BIQUAD" formGroupName="biquad">
+    <clr-select-container>
+      <label>Type</label>
+      <select clrSelect formControlName="type">
+        <option value="lowpass">Low-pass</option>
+        <option value="highpass">High-pass</option>
+        <option value="bandpass">Band-pass</option>
+        <option value="lowshelf">Low-shelf</option>
+        <option value="highshelf">High-shelf</option>
+        <option value="peaking">Peaking</option>
+        <option value="notch">Notch</option>
+        <option value="allpass">All-pass</option>
+      </select>
+    </clr-select-container>
+    <app-input-frequency name="Frequency" formControlName="frequency">
+    </app-input-frequency>
+    <app-input-range name="Gain" min="-20" max="20" formControlName="gain">
+    </app-input-range>
+    <app-input-range name="Detune" min="-100" max="100" formControlName="detune">
+    </app-input-range>
+    <app-input-range name="Q" min="0" max="10" formControlName="q">
+    </app-input-range>
+  </ng-container>
+  <ng-container *ngSwitchCase="AudioGraphFilterNode.CONVOLVER" formGroupName="convolver">
+    <app-input-frequency name="Resonant Frequency" formControlName="frequency">
+    </app-input-frequency>
+    <app-input-range name="Overtones" min="0" max="64" step="1" formControlName="overtones">
+    </app-input-range>
+    <app-input-range name="Decay" min="0" max="1000" formControlName="decay" [log]="true">
+    </app-input-range>
+    <app-input-range name="Overtone Decay" min="-1" max="1" formControlName="overtoneDecay">
+    </app-input-range>
+    <app-input-range name="Duration" min="0" max="2" step="0.001" formControlName="duration">
+    </app-input-range>
+  </ng-container>
+  <ng-container *ngSwitchCase="AudioGraphFilterNode.PITCH_SHIFTER" formGroupName="pitchShifter">
+    <app-input-range name="Shift" min="-2" max="2" step="0.01" formControlName="shift">
+    </app-input-range>
+    <app-input-range name="Buffer Time" min="0.1" max="2" step="0.1" formControlName="bufferTime">
+    </app-input-range>
+  </ng-container>
+</form>

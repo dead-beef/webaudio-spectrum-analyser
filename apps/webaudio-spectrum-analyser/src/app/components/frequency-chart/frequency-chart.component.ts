@@ -285,7 +285,7 @@ export class FrequencyChartComponent extends UntilDestroy
     ctx.fillStyle = '#4aaed9';
     ctx.lineWidth = 0;
 
-    for (let i = 0; i < data.length; i += 1) {
+    for (let i = 0; i < data.length; ++i) {
       const f = i * binSize;
       if (f < prevF) {
         continue;
@@ -324,12 +324,44 @@ export class FrequencyChartComponent extends UntilDestroy
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(this.width + 10, yMid);
-    for (let i = 2; i < data.length; i += 1) {
+    for (let i = 2; i < data.length; ++i) {
       const f = this.graph.sampleRate / i;
       const x = this.frequencyToCanvas(f);
       const y = yMid + yScale * data[i];
       ctx.lineTo(x, y);
     }
+    ctx.stroke();
+  }
+
+  /**
+   * Draws prominence data.
+   * @param data
+   * @param yMin
+   * @param yMax
+   */
+  public drawProminenceData(data: Float32Array, yMin: number, yMax: number) {
+    const ctx = this.context;
+    const yScale = (yMax - yMin) / 255.0;
+    const sampleRate = this.graph.sampleRate;
+    const fftSize = data.length * 2;
+    const binSize = sampleRate / fftSize;
+    ctx.strokeStyle = '#ff44ff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, yMax);
+    for (let i = 0; i < data.length; ++i) {
+      const f = i * binSize;
+      const x = this.frequencyToCanvas(f);
+      const y = yMax - yScale * data[i];
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = '#aa00aa';
+    const y = yMin + (yMax - yMin) * (1 - this.graph.prominenceThreshold);
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(this.width, y);
     ctx.stroke();
   }
 
@@ -378,6 +410,15 @@ export class FrequencyChartComponent extends UntilDestroy
                   0,
                   plotHeight
                 );
+                break;
+              case 'FFTP':
+                this.graph.prominenceData.forEach((data, i) => {
+                  this.drawProminenceData(
+                    data,
+                    i * plotHeight,
+                    (i + 1) * plotHeight
+                  );
+                });
                 break;
               default:
                 break;

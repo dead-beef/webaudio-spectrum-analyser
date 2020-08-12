@@ -13,6 +13,7 @@ import {
   AudioGraphFilterNode,
   AudioGraphSource,
   AudioGraphSourceNode,
+  FftPeakType,
   PitchDetectionId,
 } from '../../interfaces';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
@@ -265,6 +266,33 @@ export class AudioGraphState {
   @Selector()
   public static pitchShifterBufferTime(state: AudioGraphStateModel) {
     return state.filter.pitchShifter.bufferTime;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static fftPeakType(state: AudioGraphStateModel) {
+    return state.fftp.type;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static fftPeakProminenceRadius(state: AudioGraphStateModel) {
+    return state.fftp.prominenceRadius;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static fftPeakProminenceThreshold(state: AudioGraphStateModel) {
+    return state.fftp.prominenceThreshold;
   }
 
   /**
@@ -771,6 +799,54 @@ export class AudioGraphState {
           pitchShifter: patch({
             bufferTime: payload,
           }),
+        }),
+      })
+    );
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setFftPeakType)
+  public setFftPeakType(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<FftPeakType>
+  ) {
+    this.graph.fftPeakType = payload;
+    return ctx.setState(patch({ fftp: patch({ type: payload }) }));
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setFftPeakProminenceRadius)
+  public setFftPeakProminenceRadius(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    this.graph.prominenceRadius = payload;
+    return ctx.setState(patch({ fftp: patch({ prominenceRadius: payload }) }));
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setFftPeakProminenceThreshold)
+  public setFftPeakProminenceThreshold(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    this.graph.prominenceThreshold = payload;
+    return ctx.setState(
+      patch({
+        fftp: patch({
+          prominenceThreshold: payload,
         }),
       })
     );
