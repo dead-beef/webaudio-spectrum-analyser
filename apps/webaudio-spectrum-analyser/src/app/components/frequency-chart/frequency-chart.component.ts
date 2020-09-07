@@ -278,6 +278,8 @@ export class FrequencyChartComponent extends UntilDestroy
     let prevF = 20;
     let prevX = 0;
 
+    let drawing = true;
+
     const point = this.pointFrequency.getValue();
     let pointValue = 0;
 
@@ -285,15 +287,26 @@ export class FrequencyChartComponent extends UntilDestroy
     ctx.fillStyle = '#4aaed9';
     ctx.lineWidth = 0;
 
+    ctx.beginPath();
+    ctx.moveTo(this.width, yMax);
+    ctx.lineTo(0, yMax);
+
     for (let i = 0; i < data.length; ++i) {
-      const f = i * binSize;
+      const f = i * binSize + halfBinSize;
       if (f < prevF) {
         continue;
       }
-      const x = this.frequencyToCanvas(f + halfBinSize);
-      if (data[i]) {
+      const x = this.frequencyToCanvas(f);
+      if (data[i] === data[i - 1] && prevX > 0) {
+        drawing = false;
+      } else {
+        if (!drawing) {
+          drawing = true;
+          ctx.lineTo(prevX, yMax - yScale * data[i - 1]);
+        }
         const y = yScale * data[i];
-        ctx.fillRect(prevX, yMax - y, x - prevX, y);
+        ctx.lineTo(prevX, yMax - y);
+        ctx.lineTo(x, yMax - y);
       }
       if (point >= prevF && point <= f) {
         pointValue = data[i];
@@ -301,6 +314,8 @@ export class FrequencyChartComponent extends UntilDestroy
       prevF = f;
       prevX = x;
     }
+
+    ctx.fill();
 
     pointValue = Math.round(this.graph.byteToDecibels(pointValue));
     return pointValue;
