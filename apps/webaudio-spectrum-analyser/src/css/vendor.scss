@@ -7,6 +7,9 @@
 
 html {
   font-size: $font-size;
+  @media (max-width: $width-md - 1px) {
+    font-size: $font-size-sm;
+  }
 }
 
 .main-container {
@@ -54,12 +57,17 @@ header,
 section,
 .section {
   margin-top: $content-padding;
+  @media (max-width: $width-md - 1px) {
+    margin-top: $content-padding-sm;
+  }
 }
 
-/* .clr-form-control {
-	margin-top: 0;
-	margin-bottom: 0.5rem;
-} */
+.clr-form-control {
+  margin-top: $content-padding;
+  @media (max-width: $width-md - 1px) {
+    margin-top: $content-padding-sm;
+  }
+}
 
 .main-container .content-container .content-area {
   padding: $content-padding;
@@ -70,6 +78,13 @@ section,
     overflow-x: hidden;
     padding-right: ($content-padding + $scrollbar-size) / 2;
   }
+  @media (max-width: $width-md - 1px) {
+    padding: $content-padding-sm;
+    padding-right: ($content-padding-sm - $scrollbar-size) / 2;
+    .content {
+      padding-right: ($content-padding-sm + $scrollbar-size) / 2;
+    }
+  }
 }
 
 .content-area .alert {
@@ -79,6 +94,9 @@ section,
 
 .alert-items {
   max-width: calc(100% - #{$content-padding});
+  @media (max-width: $width-md - 1px) {
+    max-width: calc(100% - #{$content-padding-sm});
+  }
 }
 
 .alert-text {
@@ -140,15 +158,19 @@ select,
   width: 100%;
 }
 
-clr-range-container.clr-row {
-  width: 100%;
-  margin-right: 0;
-  margin-left: 0;
+clr-range-container {
+  height: 1.2rem;
 
-  form > & {
-    width: auto;
-    margin-right: -0.6rem;
-    margin-left: -0.6rem;
+  &.clr-row {
+    width: 100%;
+    margin-right: 0;
+    margin-left: 0;
+
+    form > & {
+      width: auto;
+      margin-right: -0.6rem;
+      margin-left: -0.6rem;
+    }
   }
 }
 

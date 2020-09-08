@@ -12,6 +12,10 @@
   display: none !important;
 }
 
+.margin-none {
+  margin: 0 !important;
+}
+
 .stats {
   top: calc(#{$header-size / 2} - 24px) !important;
   right: 0.5rem !important;
@@ -30,12 +34,14 @@
     z-index: 999;
 
     top: $header-size;
-    right: $content-padding;
-    left: $content-padding;
-    padding-top: $content-padding;
+    right: $content-padding-sm;
+    left: $content-padding-sm;
+    padding-top: $content-padding-sm;
     @media (min-width: $width-md) {
       right: 50%;
+      left: $content-padding;
       bottom: 1rem;
+      padding-top: $content-padding;
     }
     @media (min-width: $width-lg) {
       right: calc(42% + 0.5rem);
