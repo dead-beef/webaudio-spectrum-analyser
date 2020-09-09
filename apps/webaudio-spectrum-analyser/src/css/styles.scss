@@ -24,23 +24,23 @@
 
 .frequency-chart-container {
   @media (max-width: $width-md - 1px) {
-    &, & app-frequency-chart {
+    &,
+    & app-frequency-chart {
       height: calc(40vh + 2.5rem);
     }
   }
 
   app-frequency-chart {
     position: fixed;
-    z-index: 999;
-
     top: $header-size;
     right: $content-padding-sm;
     left: $content-padding-sm;
+    z-index: 999;
     padding-top: $content-padding-sm;
     @media (min-width: $width-md) {
       right: 50%;
-      left: $content-padding;
       bottom: 1rem;
+      left: $content-padding;
       padding-top: $content-padding;
     }
     @media (min-width: $width-lg) {
@@ -50,52 +50,56 @@
       right: calc(33% + 0.5rem);
     }
 
-    /*canvas {
+    /* canvas {
       height: 40vh;
       @media (min-width: $width-md) {
         height: calc(100vh - 6.5rem);
       }
-    }*/
+    } */
   }
 }
 
 app-frequency-chart {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: $bg;
+  border-bottom: 1px solid $border;
+
+  canvas {
     display: flex;
-    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 1;
+    width: 100%;
     overflow: hidden;
-    background: $bg;
-    border-bottom: 1px solid $border;
+    border: 1px solid $border;
+  }
 
-    canvas {
-      display: flex;
-      flex-grow: 1;
-      flex-shrink: 1;
-      overflow: hidden;
-      width: 100%;
-      border: 1px solid $border;
-    }
-
-    .frequency-chart-text {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      flex-shrink: 1;
-      overflow: hidden;
-    }
+  .frequency-chart-text {
+    display: flex;
+    flex-direction: row;
+    flex-shrink: 1;
+    flex-wrap: wrap;
+    overflow: hidden;
+  }
 }
 
-app-input-range, app-input-frequency {
+app-input-range,
+app-input-frequency {
   clr-input-container.clr-form-control {
     display: flex;
     flex-direction: row;
     align-items: center;
+
     label {
       width: 50%;
     }
+
     .clr-control-container {
       width: 50%;
     }
   }
+
   clr-range-container.clr-form-control {
     margin-top: 0.5rem;
   }

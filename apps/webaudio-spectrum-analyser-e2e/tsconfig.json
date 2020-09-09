@@ -3,11 +3,14 @@
     "types": ["cypress", "node"]
   },
   "extends": "../../tsconfig.base.json",
-  "include": [],
   "files": [],
+  "include": [],
   "references": [
     {
       "path": "./tsconfig.e2e.json"
+    },
+    {
+      "path": "./tsconfig.eslint.json"
     }
   ]
 }
