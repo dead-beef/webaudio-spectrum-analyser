@@ -1,17 +1,85 @@
 import {
+  AudioMathWasmFunctions,
   FftPeakType,
   TypedArray,
   TypedArrayConstructor,
+  WasmBuffer,
 } from '../../interfaces';
 
-export class AudioMath {
+import * as wasmModule from '../../wasm/math.c';
+
+class AudioMathInstance {
+  private _wasm: WasmModule<AudioMathWasmFunctions> = null;
+
+  public wasmError: Error = null;
+
+  public inputBuffer: WasmBuffer = {
+    ptr: [],
+    type: 1,
+    byteLength: 0,
+  };
+
+  public outputBuffer: WasmBuffer = {
+    ptr: [],
+    type: 1,
+    byteLength: 0,
+  };
+
+  /**
+   * Getter.
+   */
+  public get wasm(): WasmModule<AudioMathWasmFunctions> {
+    if (this._wasm !== null) {
+      return this._wasm;
+    }
+    if (this.wasmError !== null) {
+      throw this.wasmError;
+    }
+    return null;
+  }
+
+  /**
+   * Setter.
+   */
+  public set wasm(wasm_: WasmModule<AudioMathWasmFunctions>) {
+    this._wasm = wasm_;
+  }
+
+  /**
+   * Constructor.
+   */
+  constructor() {
+    const init: WasmModuleFactory<AudioMathWasmFunctions> = wasmModule.init;
+    init((imports: WasmImports) => {
+      //console.warn('imports', imports);
+      imports['emscripten_resize_heap'] = (...args) => {
+        console.warn('emscripten_resize_heap', args);
+      };
+      imports['segfault'] = (...args) => {
+        throw new Error('segfault');
+      };
+      imports['alignfault'] = (...args) => {
+        throw new Error('alignfault');
+      };
+      return imports;
+    })
+      .then((wasm_: WasmModule<AudioMathWasmFunctions>) => {
+        window['wasm'] = wasm_;
+        this.wasm = wasm_;
+      })
+      .catch((err: Error) => {
+        console.error(err);
+        this.wasmError = err;
+      });
+  }
+
   /**
    * TODO: description
    * @param x
    * @param min
    * @param max
    */
-  public static clamp(x: number, min: number, max: number): number {
+  public clamp(x: number, min: number, max: number): number {
     return Math.max(min, Math.min(max, x));
   }
 
@@ -21,7 +89,7 @@ export class AudioMath {
    * @param prev
    * @param cur
    */
-  public static smooth(factor: number, prev: number, cur: number): number {
+  public smooth(factor: number, prev: number, cur: number): number {
     return factor * prev + (1 - factor) * cur;
   }
 
@@ -31,11 +99,7 @@ export class AudioMath {
    * @param left
    * @param right
    */
-  public static interpolatePeak(
-    peak: number,
-    left: number,
-    right: number
-  ): number {
+  public interpolatePeak(peak: number, left: number, right: number): number {
     const c = peak;
     const b = (right - left) / 2;
     const a = left + b - c;
@@ -51,7 +115,7 @@ export class AudioMath {
    * @param min
    * @param max
    */
-  public static clampPitch(p: number, min: number, max: number) {
+  public clampPitch(p: number, min: number, max: number) {
     if (p > max) {
       const scale = Math.ceil(p / max);
       p /= scale;
@@ -70,10 +134,64 @@ export class AudioMath {
 
   /**
    * TODO: description
+   * @param buf
+   * @param length
+   */
+  public resizeBuffer(
+    buf: WasmBuffer,
+    length: number,
+    type: WasmMemoryType = 1
+  ) {
+    const wasm = this.wasm;
+    const byteLength = length * wasm.memoryManager.mem[type].BYTES_PER_ELEMENT;
+    if (byteLength === buf.byteLength && buf.type === type) {
+      return;
+    }
+    console.log('realloc', buf);
+    console.log('  free', buf.ptr);
+    wasm.memoryManager.free(buf.ptr, buf.type);
+    console.log('  malloc', length);
+    buf.ptr = wasm.memoryManager.malloc(length, type);
+    buf.byteLength = byteLength;
+    buf.type = type;
+    console.log('  ', buf);
+  }
+
+  /**
+   * TODO: description
+   * @param dst
+   * @param src
+   */
+  public copyToBuffer<T extends TypedArray>(dst: WasmBuffer, src: T) {
+    const type_: WasmMemoryType = src.BYTES_PER_ELEMENT as any;
+    this.resizeBuffer(dst, src.length, type_);
+    const dst_ = this.wasm.memoryManager.mem[type_];
+    dst_.set(src, dst.ptr[0]);
+  }
+
+  /**
+   * TODO: description
+   * @param dst
+   * @param src
+   */
+  public copyFromBuffer<T extends TypedArray>(dst: T, src: WasmBuffer): T {
+    const length = src.ptr.length;
+    dst = this.resize(dst, length);
+    const src_ = new (dst.constructor as TypedArrayConstructor<T>)(
+      this.wasm.memory,
+      src.ptr[0],
+      length
+    );
+    dst.set(src_);
+    return dst;
+  }
+
+  /**
+   * TODO: description
    * @param arr
    * @param size
    */
-  public static resize<T extends TypedArray>(arr: T, size: number): T {
+  public resize<T extends TypedArray>(arr: T, size: number): T {
     if (arr.length !== size) {
       arr = new (arr.constructor as TypedArrayConstructor<T>)(size);
     }
@@ -84,7 +202,7 @@ export class AudioMath {
    * TODO: description
    * @param data
    */
-  public static mean<T extends TypedArray>(data: T): number {
+  public mean<T extends TypedArray>(data: T): number {
     if (!data.length) {
       return 0;
     }
@@ -96,13 +214,13 @@ export class AudioMath {
    * @param data
    * @param mean
    */
-  public static variance<T extends TypedArray>(data: T, mean?: number) {
+  public variance<T extends TypedArray>(data: T, mean?: number) {
     if (!data.length) {
       return 0;
     }
     let meanValue = mean;
     if (mean === null || typeof mean === 'undefined') {
-      meanValue = AudioMath.mean(data);
+      meanValue = this.mean(data);
     }
     return (
       data.reduce((s: number, x: number) => s + Math.pow(x - meanValue, 2)) /
@@ -114,7 +232,7 @@ export class AudioMath {
    * TODO: description
    * @param data
    */
-  public static center<T extends TypedArray>(data: T): number {
+  public center<T extends TypedArray>(data: T): number {
     let sum = 0;
     let res = 0;
     for (let i = 0; i < data.length; i += 1) {
@@ -130,7 +248,7 @@ export class AudioMath {
    * @param start
    * @param end
    */
-  public static indexOfMax<T extends TypedArray>(
+  public indexOfMax<T extends TypedArray>(
     data: T,
     start: number = 0,
     end: number = data.length
@@ -139,8 +257,8 @@ export class AudioMath {
       return -1;
     }
 
-    start = AudioMath.clamp(start, 0, data.length);
-    end = AudioMath.clamp(end, 0, data.length);
+    start = this.clamp(start, 0, data.length);
+    end = this.clamp(end, 0, data.length);
 
     let res = -1;
     let max = -Infinity;
@@ -159,10 +277,7 @@ export class AudioMath {
    * @param start
    * @param end
    */
-  public static indexOfProminencePeak<
-    T extends TypedArray,
-    U extends TypedArray
-  >(
+  public indexOfProminencePeak<T extends TypedArray, U extends TypedArray>(
     fft: T,
     prominence: U,
     type_: FftPeakType = FftPeakType.MAX_MAGNITUDE,
@@ -170,8 +285,8 @@ export class AudioMath {
     end: number = fft.length - 1,
     threshold: number = 0.1
   ): number {
-    start = AudioMath.clamp(start, 0, fft.length);
-    end = AudioMath.clamp(end, 0, fft.length - 1);
+    start = this.clamp(start, 0, fft.length);
+    end = this.clamp(end, 0, fft.length - 1);
 
     if (threshold <= 0) {
       threshold = 1e-8;
@@ -214,7 +329,7 @@ export class AudioMath {
    * @param start
    * @param end
    */
-  public static indexOfAutocorrPeak<T extends TypedArray>(
+  public indexOfAutocorrPeak<T extends TypedArray>(
     data: T,
     start: number = 0,
     end: number = data.length
@@ -223,8 +338,8 @@ export class AudioMath {
       return -1;
     }
 
-    start = AudioMath.clamp(start, 0, data.length);
-    end = AudioMath.clamp(end, 0, data.length);
+    start = this.clamp(start, 0, data.length);
+    end = this.clamp(end, 0, data.length);
 
     const eps = 0.01;
 
@@ -263,11 +378,11 @@ export class AudioMath {
    * TODO: description
    * @param data
    */
-  public static zcr<T extends TypedArray>(data: T): number {
+  public zcr<T extends TypedArray>(data: T): number {
     if (!data.length) {
       return 0;
     }
-    const mean = AudioMath.mean(data);
+    const mean = this.mean(data);
     let res = 0;
     let prevSign = data[0] > mean;
     for (let i = 1; i < data.length; i += 1) {
@@ -285,7 +400,7 @@ export class AudioMath {
    * @param variance
    * @param offset
    */
-  public static autocorr1<T extends TypedArray>(
+  public autocorr1<T extends TypedArray>(
     data: T,
     mean: number,
     variance: number,
@@ -296,7 +411,7 @@ export class AudioMath {
       res += (data[i] - mean) * (data[i - offset] - mean);
     }
     res /= data.length - offset;
-    return AudioMath.clamp(res / variance, -1, 1);
+    return this.clamp(res / variance, -1, 1);
   }
 
   /**
@@ -306,31 +421,41 @@ export class AudioMath {
    * @param maxOffset
    * @param output
    */
-  public static autocorr<T extends TypedArray, U extends TypedArray>(
-    data: T,
+  public autocorr(
+    data: Uint8Array,
     minOffset: number,
     maxOffset: number,
-    output: U
-  ): U {
-    maxOffset = AudioMath.clamp(maxOffset, 0, data.length - 1);
-    minOffset = AudioMath.clamp(minOffset, 0, maxOffset - 1);
-
-    if (output.length < data.length) {
-      output = new (output.constructor as TypedArrayConstructor<U>)(
-        data.length
-      );
-    } else {
-      output.fill(0);
+    output: Float32Array
+  ): Float32Array {
+    const wasm = this.wasm;
+    if (!wasm) {
+      return output;
     }
 
-    const mean = AudioMath.mean(data);
-    const variance = AudioMath.variance(data, mean);
+    this.copyToBuffer(this.inputBuffer, data);
+    this.resizeBuffer(this.outputBuffer, data.length, 40);
+
+    wasm.exports.autocorr(
+      this.inputBuffer.ptr[0],
+      this.outputBuffer.ptr[0],
+      data.length,
+      minOffset,
+      maxOffset
+    );
+
+    return this.copyFromBuffer(output, this.outputBuffer);
+
+    /*output = this.resize(output, data.length);
+    output.fill(0);
+
+    const mean = this.mean(data);
+    const variance = this.variance(data, mean);
 
     for (let i = minOffset; i < maxOffset; i += 1) {
-      output[i] = AudioMath.autocorr1(data, mean, variance, i);
+      output[i] = this.autocorr1(data, mean, variance, i);
     }
 
-    return output;
+    return output;*/
   }
 
   /**
@@ -341,15 +466,15 @@ export class AudioMath {
    * @param end
    * @param radius
    */
-  public static prominence<T extends TypedArray, U extends TypedArray>(
+  public prominence<T extends TypedArray, U extends TypedArray>(
     data: T,
     output: U,
     start: number = 1,
     end: number = data.length - 1,
     radius: number = data.length
   ): U {
-    start = AudioMath.clamp(start, 1, data.length - 1);
-    end = AudioMath.clamp(end, 1, data.length - 1);
+    start = this.clamp(start, 1, data.length - 1);
+    end = this.clamp(end, 1, data.length - 1);
 
     if (radius < 1) {
       radius = data.length;
@@ -391,7 +516,7 @@ export class AudioMath {
    * @param overtones
    * @param overtoneDecay
    */
-  public static impulseResponse(
+  public impulseResponse(
     sampleRate: number,
     duration: number,
     decay: number,
@@ -423,7 +548,7 @@ export class AudioMath {
   /**
    * TODO: description
    */
-  public static sawtoothWave(
+  public sawtoothWave(
     sampleRate: number,
     duration: number,
     phase: number = 0,
@@ -444,7 +569,7 @@ export class AudioMath {
   /**
    * TODO: description
    */
-  public static triangleWave(
+  public triangleWave(
     sampleRate: number,
     duration: number,
     phase: number = 0
@@ -462,7 +587,7 @@ export class AudioMath {
   /**
    * TODO: description
    */
-  public static fadeWave(
+  public fadeWave(
     sampleRate: number,
     duration: number,
     phase: number = 0
@@ -482,3 +607,5 @@ export class AudioMath {
     return ret;
   }
 }
+
+export const AudioMath: AudioMathInstance = new AudioMathInstance();

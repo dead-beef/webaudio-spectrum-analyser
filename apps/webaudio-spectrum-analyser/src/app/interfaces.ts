@@ -21,13 +21,14 @@ export interface TypedArray {
   slice(start?: number, end?: number): TypedArray;
   reduce(callback: (prev: any, cur: any) => any, initial?: number): any;
   fill(value: number): void;
+  set(array: ArrayLike<number>, offset?: number): void;
 }
 
 export interface TypedArrayConstructor<T> {
   BYTES_PER_ELEMENT: number;
   new (): T;
   new (size: number): T;
-  new (buffer: ArrayBuffer): T;
+  new (buffer: ArrayBuffer, byteOffset?: number, length?: number): T;
 }
 
 export type MethodOf<T> = {
@@ -108,4 +109,20 @@ export enum FftPeakType {
 export interface AudioGraphSource {
   node: AudioGraphSourceNode;
   data?: any;
+}
+
+export interface WasmBuffer {
+  ptr: number[];
+  byteLength: number;
+  type: WasmMemoryType;
+}
+
+export interface AudioMathWasmFunctions {
+  autocorr: (
+    fft: number,
+    res: number,
+    length: number,
+    minOffset: number,
+    maxOffset: number
+  ) => void;
 }

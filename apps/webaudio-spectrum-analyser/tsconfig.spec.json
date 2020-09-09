@@ -3,7 +3,7 @@
     "allowJs": true,
     "module": "commonjs",
     "outDir": "../../dist/out-tsc",
-    "types": ["jest", "node"]
+    "types": ["jest", "node", "wasm"]
   },
   "extends": "./tsconfig.json",
   "files": ["src/test-setup.ts"],

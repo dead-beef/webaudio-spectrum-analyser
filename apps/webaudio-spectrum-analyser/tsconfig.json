@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["node", "jest"]
+    "types": ["node", "jest", "wasm"]
   },
   "extends": "../../tsconfig.base.json",
   "include": [],

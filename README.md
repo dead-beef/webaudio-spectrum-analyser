@@ -9,6 +9,7 @@
 - [Node.js](https://nodejs.org/)
 - [NPM](https://nodejs.org/)
 - **[Yarn](https://yarnpkg.com/)** `Is preferred package manager for dependencies installation in the project root`
+- [Emscripten](https://emscripten.org/)
 - [Git](https://git-scm.com/)
 
 ### Optional

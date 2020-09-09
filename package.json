@@ -15,8 +15,8 @@
     "analyze:webaudio-spectrum-analyser": "npm run build:webaudio-spectrum-analyser:stats; npx webpack-bundle-analyzer ./dist/apps/webaudio-spectrum-analyser/stats-es2015.json",
     "build": "nx build",
     "build:codepen": "./tools/shell/build-codepen",
-    "build:prod": "nx build --prod",
     "build:gh-pages": "nx build --prod --base-href /webaudio-spectrum-analyser/",
+    "build:prod": "nx build --prod",
     "build:webaudio-spectrum-analyser:stats": "nx build --stats-json --project webaudio-spectrum-analyser --configuration analyze-bundle",
     "cleanup:artifacts": "rm -rf ./documentation/* ./coverage/* ./dist/*",
     "compodoc:generate": "compodoc -p ./apps/webaudio-spectrum-analyser/tsconfig.json",
@@ -98,6 +98,7 @@
     "zone.js": "0.10.3"
   },
   "devDependencies": {
+    "@angular-builders/custom-webpack": "^10.0.0",
     "@angular-devkit/build-angular": "0.1000.5",
     "@angular-devkit/core": "10.0.5",
     "@angular-devkit/schematics": "10.0.5",
@@ -130,6 +131,7 @@
     "babel-loader": "8.1.0",
     "codelyzer": "6.0.0",
     "commitizen": "4.1.2",
+    "cpp-wasm-loader": "^0.9.0",
     "cypress": "4.12.1",
     "cypress-multi-reporters": "1.4.0",
     "cz-conventional-changelog": "3.2.0",
