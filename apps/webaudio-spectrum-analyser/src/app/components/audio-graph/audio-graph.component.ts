@@ -19,7 +19,8 @@ import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.comp
   templateUrl: './audio-graph.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AudioGraphComponent extends UntilDestroy
+export class AudioGraphComponent
+  extends UntilDestroy
   implements AfterViewInit, OnDestroy {
   @ViewChild(FrequencyChartComponent) public chart: FrequencyChartComponent;
 

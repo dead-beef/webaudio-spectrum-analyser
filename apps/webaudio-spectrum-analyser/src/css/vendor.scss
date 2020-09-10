@@ -31,8 +31,8 @@ header,
   .settings,
   .branding,
   .branding > a {
-    height: $header-size;
     min-width: unset;
+    height: $header-size;
 
     .nav-icon {
       width: $header-size;
@@ -41,8 +41,8 @@ header,
   }
 
   .header-nav .nav-link {
-    cursor: pointer;
     padding: #{($header-size - $icon-size-header) / 2} 1.2rem;
+    cursor: pointer;
   }
 
   .branding {
@@ -72,15 +72,17 @@ section,
 .main-container .content-container .content-area {
   padding: $content-padding;
   padding-right: ($content-padding - $scrollbar-size) / 2;
+
   .content {
     width: 100%;
     height: 100%;
-    overflow-x: hidden;
     padding-right: ($content-padding + $scrollbar-size) / 2;
+    overflow-x: hidden;
   }
   @media (max-width: $width-md - 1px) {
     padding: $content-padding-sm;
     padding-right: ($content-padding-sm - $scrollbar-size) / 2;
+
     .content {
       padding-right: ($content-padding-sm + $scrollbar-size) / 2;
     }
@@ -177,6 +179,7 @@ clr-range-container {
 clr-tabs {
   ul.nav {
     overflow: hidden;
+
     li.nav-item {
       margin-right: 0.9rem;
     }
@@ -192,9 +195,11 @@ ngx-simplebar {
     &.simplebar-vertical {
       width: $scrollbar-size;
     }
+
     &.simplebar-horizontal {
       height: $scrollbar-size;
     }
+
     .simplebar-scrollbar::before {
       background: $border-light;
       opacity: 0.5;
