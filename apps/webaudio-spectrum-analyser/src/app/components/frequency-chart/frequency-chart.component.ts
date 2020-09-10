@@ -22,7 +22,8 @@ import { throttleTime_ } from '../../utils/rxjs.util';
   templateUrl: './frequency-chart.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FrequencyChartComponent extends UntilDestroy
+export class FrequencyChartComponent
+  extends UntilDestroy
   implements AfterViewInit, OnDestroy {
   @ViewChild('canvas') public canvas: ElementRef<HTMLCanvasElement>;
 

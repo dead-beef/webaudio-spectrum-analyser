@@ -7,13 +7,17 @@ on:
   push:
     branches: [master]
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  build-test:
+  test-build-deploy:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [12.x]
+        node-version: [14.x]
 
     steps:
       - name: Checkout sources
@@ -22,12 +26,11 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Get yarn cache directory path and commit hash
+      - name: Get variables (yarn cache directory path, commit hash)
         id: get-variables
-        shell: bash
         run: echo "::set-output name=yarncachedir::$(yarn cache dir)"; echo "::set-output name=commitsha::$(echo ${GITHUB_SHA})"
 
-      - name: Yarn/npm + Nx + Jest cache
+      - name: Workspace cache (npm, yarn, nx, jest)
         uses: actions/cache@v2
         id: workspace-cache # use this to check for `cache-hit` (`steps.workspace-cache.outputs.cache-hit != 'true'`)
         env:
@@ -39,14 +42,14 @@ jobs:
             **/node_modules
             /tmp/nx
             /tmp/jest_rs
-          key: ${{ runner.os }}-workspace-${{ steps.get-variables.outputs.commitsha }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}-workspace-${{ steps.get-variables.outputs.commitsha }}
           restore-keys: |
-            ${{ runner.os }}-workspace-
+            ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}-workspace-
+            ${{ runner.os }}-yarn-
             ${{ runner.os }}-
 
       - name: Configure git
         id: configure-git
-        shell: bash
         run: |
           git config --global user.name ${GITHUB_ACTOR} &&
           git config --global user.email ${GITHUB_ACTOR}@users.noreply.github.com &&
@@ -57,20 +60,21 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install
+      - name: Install dependencies
         id: install
-        shell: bash
         run: |
-          npm i -g typescript @angular/cli &&
+          npm i -g typescript @angular/cli @nrwl/cli &&
           yarn install --frozen-lockfile &&
           yarn ngcc
 
-      - run: ng lint
-      - run: ng test --passWithNoTests --codeCoverage=false --watch=false --maxWorkers=2 --ci --updateSnapshot
+      - name: Lint all
+        run: npx nx run-many --target=lint --all --parallel --maxParallel=2
 
-      - name: Deploy
+      - name: Unit test all
+        run: npx nx run-may --target=test --all --passWithNoTests --codeCoverage=false --watch=false --maxWorkers=2 --ci --updateSnapshot
+
+      - name: Deploy webaudio-spectrum-analyser
         id: deploy
-        shell: bash
         run: |
           yarn build:gh-pages &&
-          yarn deploy:gh-pages # this command deletes branch with previous deployment first; check package.json;
+          yarn deploy:gh-pages

@@ -6,6 +6,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { ClarityModule } from '@clr/angular';
 import { NgxsLoggerPluginModule } from '@ngxs/logger-plugin';
+import { NgxsStoragePluginModule } from '@ngxs/storage-plugin';
 import { NgxsModule } from '@ngxs/store';
 import { SimplebarAngularModule } from 'simplebar-angular';
 
@@ -73,6 +74,7 @@ import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
       disabled: environment.production,
       collapsed: true,
     }),
+    NgxsStoragePluginModule.forRoot(),
     AudioGraphStoreModule,
     RouterModule.forRoot(ROUTES, { useHash: true }),
   ],

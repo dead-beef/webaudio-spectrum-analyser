@@ -19,7 +19,8 @@ import { stateFormControl } from '../../utils/ngxs.util';
   templateUrl: './worklet-options.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WorkletOptionsComponent extends UntilDestroy
+export class WorkletOptionsComponent
+  extends UntilDestroy
   implements OnInit, OnDestroy {
   private readonly loaded = new BehaviorSubject<boolean>(false);
 
