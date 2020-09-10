@@ -101,9 +101,9 @@ export enum AudioGraphFilterNode {
 }
 
 export enum FftPeakType {
-  MIN_FREQUENCY,
-  MAX_MAGNITUDE,
-  MAX_PROMINENCE,
+  MIN_FREQUENCY = 1,
+  MAX_MAGNITUDE = 2,
+  MAX_PROMINENCE = 3,
 }
 
 export interface AudioGraphSource {
@@ -119,10 +119,48 @@ export interface WasmBuffer {
 
 export interface AudioMathWasmFunctions {
   autocorr: (
-    fft: number,
-    res: number,
+    tdata: number,
+    acdata: number,
     length: number,
     minOffset: number,
     maxOffset: number
   ) => void;
+
+  autocorrpeak: (
+    tdata: number,
+    acdata: number,
+    length: number,
+    minOffset: number,
+    maxOffset: number
+  ) => number;
+
+  prominence: (
+    fft: number,
+    res: number,
+    length: number,
+    start: number,
+    end: number,
+    radius: number
+  ) => void;
+
+  prominencepeak: (
+    fft: number,
+    pdata: number,
+    length: number,
+    start: number,
+    end: number,
+    radius: number,
+    threshold: number,
+    type: number
+  ) => number;
+}
+
+export interface Autocorrelation {
+  value: Float32Array;
+  peak: number;
+}
+
+export interface Prominence {
+  value: Uint8Array;
+  peak: number;
 }

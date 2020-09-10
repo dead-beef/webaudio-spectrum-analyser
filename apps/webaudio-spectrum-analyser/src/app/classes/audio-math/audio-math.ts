@@ -4,6 +4,8 @@ import {
   TypedArray,
   TypedArrayConstructor,
   WasmBuffer,
+  Autocorrelation,
+  Prominence,
 } from '../../interfaces';
 
 import * as wasmModule from '../../wasm/math.c';
@@ -21,7 +23,7 @@ class AudioMathInstance {
 
   public outputBuffer: WasmBuffer = {
     ptr: [],
-    type: 1,
+    type: 40,
     byteLength: 0,
   };
 
@@ -55,10 +57,10 @@ class AudioMathInstance {
       imports['emscripten_resize_heap'] = (...args) => {
         console.warn('emscripten_resize_heap', args);
       };
-      imports['segfault'] = (...args) => {
+      imports['segfault'] = () => {
         throw new Error('segfault');
       };
-      imports['alignfault'] = (...args) => {
+      imports['alignfault'] = () => {
         throw new Error('alignfault');
       };
       return imports;
@@ -147,14 +149,14 @@ class AudioMathInstance {
     if (byteLength === buf.byteLength && buf.type === type) {
       return;
     }
-    console.log('realloc', buf);
-    console.log('  free', buf.ptr);
+    //console.log('realloc', buf);
+    //console.log('  free', buf.ptr);
     wasm.memoryManager.free(buf.ptr, buf.type);
-    console.log('  malloc', length);
+    //console.log('  malloc', length);
     buf.ptr = wasm.memoryManager.malloc(length, type);
     buf.byteLength = byteLength;
     buf.type = type;
-    console.log('  ', buf);
+    //console.log('  ', buf);
   }
 
   /**
@@ -212,39 +214,6 @@ class AudioMathInstance {
   /**
    * TODO: description
    * @param data
-   * @param mean
-   */
-  public variance<T extends TypedArray>(data: T, mean?: number) {
-    if (!data.length) {
-      return 0;
-    }
-    let meanValue = mean;
-    if (mean === null || typeof mean === 'undefined') {
-      meanValue = this.mean(data);
-    }
-    return (
-      data.reduce((s: number, x: number) => s + Math.pow(x - meanValue, 2)) /
-      data.length
-    );
-  }
-
-  /**
-   * TODO: description
-   * @param data
-   */
-  public center<T extends TypedArray>(data: T): number {
-    let sum = 0;
-    let res = 0;
-    for (let i = 0; i < data.length; i += 1) {
-      sum += data[i];
-      res += data[i] * i;
-    }
-    return res / sum;
-  }
-
-  /**
-   * TODO: description
-   * @param data
    * @param start
    * @param end
    */
@@ -274,109 +243,6 @@ class AudioMathInstance {
   /**
    * TODO: description
    * @param data
-   * @param start
-   * @param end
-   */
-  public indexOfProminencePeak<T extends TypedArray, U extends TypedArray>(
-    fft: T,
-    prominence: U,
-    type_: FftPeakType = FftPeakType.MAX_MAGNITUDE,
-    start: number = 0,
-    end: number = fft.length - 1,
-    threshold: number = 0.1
-  ): number {
-    start = this.clamp(start, 0, fft.length);
-    end = this.clamp(end, 0, fft.length - 1);
-
-    if (threshold <= 0) {
-      threshold = 1e-8;
-    }
-
-    if (fft instanceof Uint8Array) {
-      threshold *= 255;
-    }
-
-    let max = -Infinity;
-    let res = -1;
-
-    for (let i = start; i < end; i += 1) {
-      if (prominence[i] >= threshold) {
-        let value: number;
-        switch (type_) {
-          case FftPeakType.MAX_PROMINENCE:
-            value = prominence[i];
-            break;
-          case FftPeakType.MAX_MAGNITUDE:
-            value = fft[i];
-            break;
-          case FftPeakType.MIN_FREQUENCY:
-            return i;
-          default:
-            return -1;
-        }
-        if (value > max) {
-          max = value;
-          res = i;
-        }
-      }
-    }
-    return res;
-  }
-
-  /**
-   * TODO: description
-   * @param data
-   * @param start
-   * @param end
-   */
-  public indexOfAutocorrPeak<T extends TypedArray>(
-    data: T,
-    start: number = 0,
-    end: number = data.length
-  ): number {
-    if (data.length < 4) {
-      return -1;
-    }
-
-    start = this.clamp(start, 0, data.length);
-    end = this.clamp(end, 0, data.length);
-
-    const eps = 0.01;
-
-    let res = -1;
-    let max = -Infinity;
-
-    let min = false;
-
-    start += 1;
-    end -= 1;
-
-    for (let i = start; i < end; ++i) {
-      const c = data[i];
-      const p = data[i - 1];
-      const n = data[i + 1];
-      /*if(c === p && c === n) {
-        continue;
-      }*/
-      if (min) {
-        if (c >= p && c >= n) {
-          if (max < data[i] - eps) {
-            //console.log('max', i, p, c, n);
-            res = i;
-            max = data[i];
-          }
-        }
-      } else if (c <= p && c <= n && c < 0) {
-        //console.log('min', i, p, c, n);
-        min = true;
-      }
-    }
-    return res;
-  }
-
-  /**
-   * TODO: description
-   * @param data
    */
   public zcr<T extends TypedArray>(data: T): number {
     if (!data.length) {
@@ -396,46 +262,29 @@ class AudioMathInstance {
   /**
    * TODO: description
    * @param data
-   * @param mean
-   * @param variance
-   * @param offset
+   * @param start
+   * @param end
    */
-  public autocorr1<T extends TypedArray>(
-    data: T,
-    mean: number,
-    variance: number,
-    offset: number
-  ): number {
-    let res = 0;
-    for (let i = offset; i < data.length; i += 1) {
-      res += (data[i] - mean) * (data[i - offset] - mean);
-    }
-    res /= data.length - offset;
-    return this.clamp(res / variance, -1, 1);
-  }
-
-  /**
-   * TODO: description
-   * @param data
-   * @param minOffset
-   * @param maxOffset
-   * @param output
-   */
-  public autocorr(
+  public autocorrelation(
     data: Uint8Array,
     minOffset: number,
     maxOffset: number,
     output: Float32Array
-  ): Float32Array {
+  ): Autocorrelation {
+    output = this.resize(output, data.length);
+
     const wasm = this.wasm;
     if (!wasm) {
-      return output;
+      return {
+        value: output,
+        peak: -1,
+      };
     }
 
     this.copyToBuffer(this.inputBuffer, data);
-    this.resizeBuffer(this.outputBuffer, data.length, 40);
+    this.resizeBuffer(this.outputBuffer, data.length, this.outputBuffer.type);
 
-    wasm.exports.autocorr(
+    const res: number = wasm.exports.autocorrpeak(
       this.inputBuffer.ptr[0],
       this.outputBuffer.ptr[0],
       data.length,
@@ -443,68 +292,56 @@ class AudioMathInstance {
       maxOffset
     );
 
-    return this.copyFromBuffer(output, this.outputBuffer);
+    output = this.copyFromBuffer(output, this.outputBuffer);
 
-    /*output = this.resize(output, data.length);
-    output.fill(0);
-
-    const mean = this.mean(data);
-    const variance = this.variance(data, mean);
-
-    for (let i = minOffset; i < maxOffset; i += 1) {
-      output[i] = this.autocorr1(data, mean, variance, i);
-    }
-
-    return output;*/
+    return {
+      value: output,
+      peak: res,
+    };
   }
 
   /**
    * TODO: description
-   * @param data
-   * @param output
-   * @param start
-   * @param end
-   * @param radius
    */
-  public prominence<T extends TypedArray, U extends TypedArray>(
-    data: T,
-    output: U,
-    start: number = 1,
-    end: number = data.length - 1,
-    radius: number = data.length
-  ): U {
-    start = this.clamp(start, 1, data.length - 1);
-    end = this.clamp(end, 1, data.length - 1);
+  public prominence(
+    fft: Uint8Array,
+    output: Uint8Array,
+    peakType: FftPeakType = FftPeakType.MAX_MAGNITUDE,
+    start: number = 0,
+    end: number = fft.length - 1,
+    radius: number = 0,
+    threshold: number = 0.1
+  ): Prominence {
+    output = this.resize(output, fft.length);
 
-    if (radius < 1) {
-      radius = data.length;
+    const wasm = this.wasm;
+    if (!wasm) {
+      return {
+        value: output,
+        peak: -1,
+      };
     }
 
-    if (output.length < data.length) {
-      output = new (output.constructor as TypedArrayConstructor<U>)(
-        data.length
-      );
-    } else {
-      output.fill(0);
-    }
+    this.copyToBuffer(this.inputBuffer, fft);
+    this.resizeBuffer(this.outputBuffer, fft.length, this.outputBuffer.type);
 
-    for (let i = start; i < end; ++i) {
-      let left = 0;
-      let right = 0;
-      if (data[i] >= Math.max(data[i - 1], data[i + 1])) {
-        const start_ = Math.max(start - 1, i - radius);
-        const end_ = Math.min(end + 1, i + radius);
-        for (let j = i - 1; j >= start_ && data[j] <= data[i]; --j) {
-          left = Math.max(left, data[i] - data[j]);
-        }
-        for (let j = i + 1; j < end_ && data[j] <= data[i]; ++j) {
-          right = Math.max(right, data[i] - data[j]);
-        }
-      }
-      output[i] = Math.min(left, right);
-    }
+    const res: number = wasm.exports.prominencepeak(
+      this.inputBuffer.ptr[0],
+      this.outputBuffer.ptr[0],
+      fft.length,
+      start,
+      end,
+      radius,
+      threshold,
+      peakType
+    );
 
-    return output;
+    output = this.copyFromBuffer(output, this.outputBuffer);
+
+    return {
+      value: output,
+      peak: res,
+    };
   }
 
   /**
