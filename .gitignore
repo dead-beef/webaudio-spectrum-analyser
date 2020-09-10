@@ -9,6 +9,8 @@
 /android/capacitor-cordova-android-plugins/build/
 *.wasm
 *.wasm.js
+*.mem
+wasm/*.js
 
 # dependencies
 /node_modules
