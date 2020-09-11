@@ -21,13 +21,14 @@ export interface TypedArray {
   slice(start?: number, end?: number): TypedArray;
   reduce(callback: (prev: any, cur: any) => any, initial?: number): any;
   fill(value: number): void;
+  set(array: ArrayLike<number>, offset?: number): void;
 }
 
 export interface TypedArrayConstructor<T> {
   BYTES_PER_ELEMENT: number;
   new (): T;
   new (size: number): T;
-  new (buffer: ArrayBuffer): T;
+  new (buffer: ArrayBuffer, byteOffset?: number, length?: number): T;
 }
 
 export type MethodOf<T> = {
@@ -100,12 +101,66 @@ export enum AudioGraphFilterNode {
 }
 
 export enum FftPeakType {
-  MIN_FREQUENCY,
-  MAX_MAGNITUDE,
-  MAX_PROMINENCE,
+  MIN_FREQUENCY = 1,
+  MAX_MAGNITUDE = 2,
+  MAX_PROMINENCE = 3,
 }
 
 export interface AudioGraphSource {
   node: AudioGraphSourceNode;
   data?: any;
+}
+
+export interface WasmBuffer {
+  ptr: number[];
+  byteLength: number;
+  type: WasmMemoryType;
+}
+
+export interface AudioMathWasmFunctions {
+  autocorr: (
+    tdata: number,
+    acdata: number,
+    length: number,
+    minOffset: number,
+    maxOffset: number
+  ) => void;
+
+  autocorrpeak: (
+    tdata: number,
+    acdata: number,
+    length: number,
+    minOffset: number,
+    maxOffset: number
+  ) => number;
+
+  prominence: (
+    fft: number,
+    res: number,
+    length: number,
+    start: number,
+    end: number,
+    radius: number
+  ) => void;
+
+  prominencepeak: (
+    fft: number,
+    pdata: number,
+    length: number,
+    start: number,
+    end: number,
+    radius: number,
+    threshold: number,
+    type: number
+  ) => number;
+}
+
+export interface Autocorrelation {
+  value: Float32Array;
+  peak: number;
+}
+
+export interface Prominence {
+  value: Uint8Array;
+  peak: number;
 }

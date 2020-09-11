@@ -7,6 +7,10 @@
 /android/build/
 /android/app/build/
 /android/capacitor-cordova-android-plugins/build/
+*.wasm
+*.wasm.js
+*.mem
+wasm/*.js
 
 # dependencies
 /node_modules
@@ -40,7 +44,6 @@
 npm-debug.log
 yarn-error.log
 testem.log
-/typings
 
 # System Files
 .DS_Store

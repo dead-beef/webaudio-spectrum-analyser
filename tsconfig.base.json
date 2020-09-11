@@ -34,7 +34,7 @@
     "sourceMap": true,
     "strict": false,
     "target": "es2015",
-    "typeRoots": ["node_modules/@types"]
+    "typeRoots": ["node_modules/@types", "./typings"]
   },
   "exclude": [
     "node_modules",

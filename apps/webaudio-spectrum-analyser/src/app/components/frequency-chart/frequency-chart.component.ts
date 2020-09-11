@@ -355,7 +355,7 @@ export class FrequencyChartComponent
    * @param yMin
    * @param yMax
    */
-  public drawProminenceData(data: Float32Array, yMin: number, yMax: number) {
+  public drawProminenceData(data: Uint8Array, yMin: number, yMax: number) {
     const ctx = this.context;
     const yScale = (yMax - yMin) / 255.0;
     const sampleRate = this.graph.sampleRate;

@@ -18,6 +18,7 @@ jobs:
     strategy:
       matrix:
         node-version: [14.x]
+        em-version: [2.0.2]
 
     steps:
       - name: Checkout sources
@@ -42,6 +43,7 @@ jobs:
             **/node_modules
             /tmp/nx
             /tmp/jest_rs
+            emsdk-cache
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}-workspace-${{ steps.get-variables.outputs.commitsha }}
           restore-keys: |
             ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}-workspace-
@@ -59,6 +61,22 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+
+      - name: Setup emsdk
+        uses: mymindstorm/setup-emsdk@v6
+        with:
+          version: ${{ matrix.em-version }}
+          actions-cache-folder: 'emsdk-cache'
+
+      - name: Fix environment
+        id: fix-env
+        run: |
+          if [[ -n $EMSDK_NODE ]]; then
+            rm -rf "$(dirname "$EMSDK_NODE")"
+            hash -r
+          fi
+          node="$(which node)"
+          sed -i -r "s:^NODE_JS\s*=.*:NODE_JS = '${node}':" "$EM_CONFIG"
 
       - name: Install dependencies
         id: install

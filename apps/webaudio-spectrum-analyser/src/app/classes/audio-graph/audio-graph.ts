@@ -35,10 +35,7 @@ export class AudioGraph {
 
   public autocorrdata: Float32Array = new Float32Array(1);
 
-  public prominenceData: Float32Array[] = [
-    new Float32Array(1),
-    new Float32Array(1),
-  ];
+  public prominenceData: Uint8Array[] = [new Uint8Array(1), new Uint8Array(1)];
 
   public canAnalyse = true;
 
@@ -627,22 +624,19 @@ export class AudioGraph {
     const start: number = Math.floor(this.minPitch * fscale);
     const end: number = Math.floor(this.maxPitch * fscale) + 1;
 
-    this.prominenceData[i] = AudioMath.prominence(
-      fdata,
-      this.prominenceData[i],
-      start,
-      end,
-      this.prominenceRadius
-    );
-
-    let res: number = AudioMath.indexOfProminencePeak(
+    const prominence = AudioMath.prominence(
       this.fdata[i],
       this.prominenceData[i],
       this.fftPeakType,
       start,
       end,
-      this.prominenceThreshold
+      this.prominenceRadius,
+      this.prominenceThreshold * 255
     );
+
+    this.prominenceData[i] = prominence.value;
+    let res: number = prominence.peak;
+
     if (res > 0 && res < fdata.length - 1) {
       res += AudioMath.interpolatePeak(
         fdata[res],
@@ -651,6 +645,7 @@ export class AudioGraph {
       );
     }
     res /= fscale;
+
     return res;
   }
 
@@ -661,18 +656,13 @@ export class AudioGraph {
   public autocorr(i: number): number {
     const start = Math.floor(this.sampleRate / this.maxPitch);
     const end = Math.floor(this.sampleRate / this.minPitch) + 1;
-    this.autocorrdata = AudioMath.autocorr(
+    const ac = AudioMath.autocorrelation(
       this.tdata,
       start,
       end,
       this.autocorrdata
     );
-    let res: number = AudioMath.indexOfAutocorrPeak(
-      this.autocorrdata,
-      start,
-      end
-    );
-    res = this.sampleRate / res;
-    return res;
+    this.autocorrdata = ac.value;
+    return this.sampleRate / ac.peak;
   }
 }
