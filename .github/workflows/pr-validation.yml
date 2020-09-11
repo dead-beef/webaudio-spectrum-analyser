@@ -74,8 +74,6 @@ jobs:
 
       - name: Install dependencies
         id: install
-        env:
-          PATH: ${{ steps.fix-env.outputs.path }}
         run: |
           echo "PATH=$PATH"
           which node
@@ -87,9 +85,6 @@ jobs:
 
       - name: Lint affected
         run: |
-          echo "PATH=$PATH"
-          which node
-          node --version
           npx nx affected --target=lint --base=origin/master --head=HEAD --parallel --maxParallel=2
 
       - name: Unit tests affected
