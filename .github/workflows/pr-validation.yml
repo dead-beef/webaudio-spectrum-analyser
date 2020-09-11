@@ -64,8 +64,12 @@ jobs:
       - name: Fix environment
         id: fix-env
         run: |
-          export PATH="$(echo $PATH | sed -r 's/:[^:]+emsdk[^:]+node[^:]+//g')"
+          echo "PATH=$PATH"
+          export PATH="$(echo "$PATH" | sed -r 's/:[^:]+emsdk[^:]+node[^:]+//g')"
           hash -r
+          echo "export PATH=$PATH"
+          which node
+          node --version
 
       - name: Install dependencies
         id: install
