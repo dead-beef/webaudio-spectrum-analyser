@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         node-version: [14.x]
-        em-version: 2.0.2
+        em-version: [2.0.2]
 
     steps:
       - name: Checkout sources
