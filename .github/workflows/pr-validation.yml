@@ -73,7 +73,9 @@ jobs:
       - name: Install dependencies
         id: install
         run: |
-          echo "PATH=$PATH"
+          export PATH="$(echo "$PATH" | sed -r 's/[^:]+emsdk[^:]+node[^:]+://g')"
+          hash -r
+          echo "export PATH=$PATH"
           which node
           node --version
 
@@ -82,7 +84,11 @@ jobs:
           yarn ngcc
 
       - name: Lint affected
-        run: npx nx affected --target=lint --base=origin/master --head=HEAD --parallel --maxParallel=2
+        run: |
+          echo "PATH=$PATH"
+          which node
+          node --version
+          npx nx affected --target=lint --base=origin/master --head=HEAD --parallel --maxParallel=2
 
       - name: Unit tests affected
         run: npx nx affected --target=test --base=origin/master --head=HEAD --passWithNoTests --codeCoverage=false --watch=false --maxWorkers=2 --ci --updateSnapshot
