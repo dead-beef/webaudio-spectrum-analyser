@@ -61,6 +61,12 @@ jobs:
           version: ${{ matrix.em-version }}
           actions-cache-folder: 'emsdk-cache'
 
+      - name: Fix environment
+        id: fix-env
+        run: |
+          export PATH="$(echo $PATH | sed -r 's/:[^:]+emsdk[^:]+node[^:]+//g')"
+          hash -r
+
       - name: Install dependencies
         id: install
         run: |
