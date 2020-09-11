@@ -29,7 +29,9 @@ jobs:
 
       - name: Get variables (yarn cache directory path, commit hash)
         id: get-variables
-        run: echo "::set-output name=yarncachedir::$(yarn cache dir)"; echo "::set-output name=commitsha::$(echo ${GITHUB_SHA})"
+        run: |
+          echo "::set-output name=yarncachedir::$(yarn cache dir)"
+          echo "::set-output name=commitsha::$(echo ${GITHUB_SHA})"
 
       - name: Workspace cache (npm, yarn, nx, jest)
         uses: actions/cache@v2
@@ -65,7 +67,10 @@ jobs:
         id: fix-env
         run: |
           export PATH="$(echo "$PATH" | sed -r 's/[^:]+emsdk[^:]+node[^:]+://g')"
+          hash -r
+          export EMSDK_NODE="$(which node)"
           echo "::set-output name=path::$PATH"
+          echo "EMSDK_NODE=$EMSDK_NODE"
 
       - name: Install dependencies
         id: install
