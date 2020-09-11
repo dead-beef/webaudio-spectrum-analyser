@@ -17,12 +17,12 @@ module.exports = function webpackConfig(config) {
             /*flags.push(
               '-s', 'EXTRA_EXPORTED_RUNTIME_METHODS=[\'ccall\',\'cwrap\']'
             );*/
-            console.log(flags);
+            //console.log(flags);
             return flags;
           },
           memoryClass: true,
           fetchFiles: false,
-          asmJs: true,
+          asmJs: false,
           wasm: true,
           fullEnv: false
         },

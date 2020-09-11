@@ -1,3 +1,18 @@
+const webpackConfig = require('./webpack.config');
+
+function getWasmOptions() {
+  const cfg = webpackConfig({
+    mode: 'development',
+    resolve: {
+      extensions: [],
+    },
+    module: {
+      rules: [],
+    },
+  });
+  return cfg.module.rules[0].use.options;
+}
+
 module.exports = {
   testMatch: ['**/+(*.)+(spec|test).+(ts|js)?(x)'],
   globals: {
@@ -12,6 +27,7 @@ module.exports = {
   },
   transform: {
     '^.+\\.(ts|js|html)$': 'ts-jest',
+    '^.+\\.(c|cpp)$': ['jest-cpp-wasm', getWasmOptions()],
   },
   transformIgnorePatterns: ['node_modules/(?!@ngrx)'],
   moduleFileExtensions: ['ts', 'html', 'js', 'json'],
