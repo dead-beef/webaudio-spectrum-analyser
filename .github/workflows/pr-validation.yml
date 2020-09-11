@@ -74,10 +74,6 @@ jobs:
       - name: Install dependencies
         id: install
         run: |
-          echo "PATH=$PATH"
-          which node
-          node --version
-
           npm i -g typescript @angular/cli @nrwl/cli &&
           yarn install --frozen-lockfile &&
           yarn ngcc
