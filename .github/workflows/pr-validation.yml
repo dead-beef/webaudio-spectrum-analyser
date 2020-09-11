@@ -64,13 +64,14 @@ jobs:
       - name: Fix environment
         id: fix-env
         run: |
-          export PATH="$(echo "$PATH" | sed -r 's/[^:]+emsdk[^:]+node[^:]+://g')"
-          hash -r
-          echo "export PATH=$PATH"
+          echo "export PATH=\"\$(echo \"\$PATH\" | sed -r 's/[^:]+emsdk[^:]+node[^:]+://g')\"" >>~/.bash_profile
 
       - name: Install dependencies
         id: install
         run: |
+          echo "PATH=$PATH"
+          which node
+
           npm i -g typescript @angular/cli @nrwl/cli &&
           yarn install --frozen-lockfile &&
           yarn ngcc
