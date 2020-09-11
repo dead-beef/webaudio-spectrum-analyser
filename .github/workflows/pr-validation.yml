@@ -83,10 +83,10 @@ jobs:
           yarn ngcc
 
       - name: Lint affected
-        run: nx affected:lint
+        run: nx affected --target=lint --base=origin/master --head=HEAD --parallel --maxParallel=2
 
       - name: Unit tests affected
-        run: nx affected:test
+        run: npx nx affected --target=test --base=origin/master --head=HEAD --passWithNoTests --codeCoverage=false --watch=false --maxWorkers=2 --ci --updateSnapshot
 
       - name: Build test
         run: npx nx build webaudio-spectrum-analyser
