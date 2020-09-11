@@ -69,8 +69,8 @@ jobs:
           export PATH="$(echo "$PATH" | sed -r 's/[^:]+emsdk[^:]+node[^:]+://g')"
           hash -r
           export EMSDK_NODE="$(which node)"
-          echo "::set-output name=path::$PATH"
-          echo "EMSDK_NODE=$EMSDK_NODE"
+          echo "::set-env name=PATH::$PATH"
+          echo "::set-env name=EMSDK_NODE::$EMSDK_NODE"
 
       - name: Install dependencies
         id: install
