@@ -1,13 +1,12 @@
 import {
   AudioMathWasmFunctions,
+  Autocorrelation,
   FftPeakType,
+  Prominence,
   TypedArray,
   TypedArrayConstructor,
   WasmBuffer,
-  Autocorrelation,
-  Prominence,
 } from '../../interfaces';
-
 import * as wasmModule from '../../wasm/math.c';
 
 class AudioMathInstance {

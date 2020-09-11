@@ -35,10 +35,7 @@ export class AudioGraph {
 
   public autocorrdata: Float32Array = new Float32Array(1);
 
-  public prominenceData: Uint8Array[] = [
-    new Uint8Array(1),
-    new Uint8Array(1),
-  ];
+  public prominenceData: Uint8Array[] = [new Uint8Array(1), new Uint8Array(1)];
 
   public canAnalyse = true;
 
