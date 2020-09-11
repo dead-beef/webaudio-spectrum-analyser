@@ -57,20 +57,17 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Fix environment
+        id: fix-env
+        run: |
+          export EMSDK_NODE="$(which node)"
+          echo "::set-env name=EMSDK_NODE::$EMSDK_NODE"
+
       - name: Setup emsdk
         uses: mymindstorm/setup-emsdk@v6
         with:
           version: ${{ matrix.em-version }}
           actions-cache-folder: 'emsdk-cache'
-
-      - name: Fix environment
-        id: fix-env
-        run: |
-          export PATH="$(echo "$PATH" | sed -r 's/[^:]+emsdk[^:]+node[^:]+://g')"
-          hash -r
-          export EMSDK_NODE="$(which node)"
-          echo "::set-env name=PATH::$PATH"
-          echo "::set-env name=EMSDK_NODE::$EMSDK_NODE"
 
       - name: Install dependencies
         id: install
