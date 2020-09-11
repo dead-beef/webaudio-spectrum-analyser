@@ -65,7 +65,7 @@ jobs:
         id: fix-env
         run: |
           echo "PATH=$PATH"
-          export PATH="$(echo "$PATH" | sed -r 's/:[^:]+emsdk[^:]+node[^:]+//g')"
+          export PATH="$(echo "$PATH" | sed -e 's/:[^:]\+emsdk[^:]\+node[^:]\+//g')"
           hash -r
           echo "export PATH=$PATH"
           which node
