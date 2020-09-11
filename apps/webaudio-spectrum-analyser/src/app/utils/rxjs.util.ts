@@ -76,10 +76,10 @@ export function throttleTime_<T>(
 ): MonoTypeOperatorFunction<T> {
   return (source: Observable<T>) =>
     new Observable<T>(observer => {
-      let source_: Subscription = null;
-      let timeout: Subscription = null;
+      let source_: Nullable<Subscription> = null;
+      let timeout: Nullable<Subscription> = null;
       let hasNext = false;
-      let next: T = null;
+      let next: T;
 
       /**
        * TODO: description
@@ -95,21 +95,18 @@ export function throttleTime_<T>(
           source_ = null;
         }
         hasNext = false;
-        next = null;
       }
 
       source_ = source.subscribe({
         next(value: T) {
           if (timeout === null) {
             hasNext = false;
-            next = null;
             observer.next(value);
             timeout = scheduler.schedule(() => {
               timeout = null;
               if (hasNext) {
                 observer.next(next);
                 hasNext = false;
-                next = null;
               }
             }, duration);
           } else {

@@ -7,7 +7,7 @@
     "skipTemplateCodegen": true,
     "strictInjectionParameters": true,
     "strictMetadataEmit": true,
-    "strictTemplates": false
+    "strictTemplates": true
   },
   "compileOnSave": false,
   "compilerOptions": {
@@ -32,7 +32,7 @@
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "strict": false,
+    "strict": true,
     "target": "es2015",
     "typeRoots": ["node_modules/@types", "./typings"]
   },

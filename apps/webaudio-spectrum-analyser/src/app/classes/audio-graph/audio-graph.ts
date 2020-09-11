@@ -11,13 +11,13 @@ import { PitchShifterNode } from '../pitch-shifter-node/pitch-shifter-node';
 import { WorkletNode } from '../worklet-node/worklet-node';
 
 export class AudioGraph {
-  public context: AudioContext = null;
+  public context: AudioContext;
 
-  public nodes: AudioGraphNodes = null;
+  public nodes: AudioGraphNodes;
 
-  public stream: MediaStream = null;
+  public stream: MediaStream;
 
-  public workletReady: Promise<void> = null;
+  public workletReady: Promise<void>;
 
   public filter: AudioGraphFilterNode = AudioGraphFilterNode.NONE;
 
@@ -27,7 +27,7 @@ export class AudioGraph {
 
   public deviceLoading = false;
 
-  public deviceStream: MediaStream = null;
+  public deviceStream: Nullable<MediaStream> = null;
 
   public fdata: Uint8Array[] = [];
 
@@ -127,10 +127,8 @@ export class AudioGraph {
    * FFT size setter.
    */
   public set fftSize(size: number) {
-    if (this.nodes?.analysers) {
-      for (const node of this.nodes.analysers) {
-        node.fftSize = size;
-      }
+    for (const node of this.nodes.analysers) {
+      node.fftSize = size;
     }
     this._fftSize = size;
   }
@@ -148,11 +146,9 @@ export class AudioGraph {
    * Smoothing setter.
    */
   public set smoothing(value: number[]) {
-    if (this.nodes?.analysers) {
-      this.nodes.analysers.forEach((node, i) => {
-        node.smoothingTimeConstant = value[i];
-      });
-    }
+    this.nodes.analysers.forEach((node, i) => {
+      node.smoothingTimeConstant = value[i];
+    });
     this._smoothing = value;
   }
 
@@ -186,7 +182,7 @@ export class AudioGraph {
         pitchShifter: new PitchShifterNode(this.context),
       },
       filteredInput: this.context.createGain(),
-      analysers: null,
+      analysers: [],
       output: this.context.createMediaStreamDestination(),
     };
     this.nodes.wave.start();
@@ -207,12 +203,12 @@ export class AudioGraph {
   public destroy() {
     if (this.context) {
       void this.context.close();
-      this.context = null;
-      this.nodes = null;
+      //this.context = null;
+      //this.nodes = null;
     }
     if (this.stream) {
       this.stream.getTracks().forEach(track => track.stop());
-      this.stream = null;
+      //this.stream = null;
     }
   }
 
@@ -263,7 +259,7 @@ export class AudioGraph {
         case AudioGraphSourceNode.WORKLET:
           return this.workletReady.then(() => {
             console.log(this.nodes.worklet);
-            this.nodes.worklet.connect(this.nodes.input);
+            this.nodes.worklet!.connect(this.nodes.input);
           });
         default:
           throw new Error('invalid node ' + String(node));
@@ -307,7 +303,7 @@ export class AudioGraph {
    */
   public setFilter(filter: AudioGraphFilterNode): AudioGraph {
     console.log('set filter', filter);
-    let node: AudioNode = null;
+    let node: Nullable<AudioNode> = null;
     switch (filter) {
       case AudioGraphFilterNode.NONE:
         break;
@@ -393,12 +389,10 @@ export class AudioGraph {
    * TODO: description
    */
   public createAnalysers(): AudioGraph {
-    if (this.nodes.analysers) {
-      for (const node of this.nodes.analysers) {
-        node.disconnect();
-      }
-      this.nodes.filteredInput.disconnect();
+    for (const node of this.nodes.analysers) {
+      node.disconnect();
     }
+    this.nodes.filteredInput.disconnect();
 
     this.nodes.analysers = [
       this.context.createAnalyser(),
@@ -449,6 +443,14 @@ export class AudioGraph {
 
   /**
    * TODO: description
+   * @param d
+   */
+  public indexOfFrequency(f: number): number {
+    return Math.round((f * this.fftSize) / this.sampleRate);
+  }
+
+  /**
+   * TODO: description
    */
   public getDevices(): Promise<MediaDeviceInfo[]> {
     if (!navigator?.mediaDevices?.enumerateDevices) {
@@ -463,7 +465,7 @@ export class AudioGraph {
    * TODO: description
    * @param dev
    */
-  public setDevice(dev: MediaDeviceInfo | string): Promise<void> {
+  public setDevice(dev: Nullable<MediaDeviceInfo | string>): Promise<void> {
     let deviceId: string;
     if (this.deviceStream) {
       this.deviceStream.getTracks().forEach(track => track.stop());
@@ -509,12 +511,12 @@ export class AudioGraph {
    * TODO: description
    * @param el
    */
-  public setElement(el: HTMLAudioElement): AudioGraph {
+  public setElement(el: Nullable<HTMLAudioElement>): AudioGraph {
     if (this.nodes.element) {
       this.nodes.element.disconnect();
       this.nodes.element = null;
     }
-    if (el) {
+    if (el !== null) {
       this.nodes.element = this.context.createMediaElementSource(el);
       this.nodes.element.connect(this.nodes.input);
     }
@@ -539,8 +541,8 @@ export class AudioGraph {
       node.getByteFrequencyData(this.fdata[i]);
     }
 
-    const fmax = Math.max.apply(null, this.fdata[0]) / 255;
-    this.canAnalyse = fmax > this.threshold;
+    const threshold = this.threshold * 255;
+    this.canAnalyse = this.fdata[0].some(f => f > threshold);
 
     return this;
   }

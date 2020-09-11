@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { AudioGraphSourceNode } from '../../interfaces';
+import { AudioGraphSourceNode, Layouts } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { AudioControlsComponent } from '../audio-controls/audio-controls.component';
@@ -19,7 +19,7 @@ import { AudioControlsComponent } from '../audio-controls/audio-controls.compone
 })
 export class FileOptionsComponent implements AfterViewInit, OnDestroy {
   @ViewChild(AudioControlsComponent)
-  public audioControls: AudioControlsComponent;
+  public audioControls: Nullable<AudioControlsComponent> = null;
 
   public paused$: Observable<boolean> = this.graph.select(
     AudioGraphState.paused
@@ -27,11 +27,13 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
 
   public loading = true;
 
-  public error: Error = null;
+  public error: Nullable<AnyError> = null;
 
   public url = '';
 
   public filename = 'None';
+
+  public layout = Layouts.VERTICAL;
 
   /**
    * Constructor.
@@ -45,7 +47,7 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
   public ngAfterViewInit() {
     void this.graph.dispatch('setSource', {
       node: AudioGraphSourceNode.FILE,
-      data: this.audioControls.audio.nativeElement,
+      data: this.audioControls!.audio!.nativeElement,
     });
   }
 
@@ -61,13 +63,15 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
    * @param url
    * @param name
    */
-  public setFile(url: string, name: string = null) {
+  public setFile(url: string, name: Nullable<string> = null) {
     if (this.url) {
       URL.revokeObjectURL(this.url);
     }
-    let filename = name;
-    if (name === null || typeof name === 'undefined') {
+    let filename: string;
+    if (name === null || name === undefined) {
       filename = url ? '<no name>' : 'None';
+    } else {
+      filename = name;
     }
     this.url = url;
     this.filename = filename;
@@ -78,7 +82,7 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
    * Sets error
    * @param error
    */
-  public setError(error: Error) {
+  public setError(error: Nullable<AnyError>) {
     this.setFile('');
     this.error = error;
   }
@@ -86,7 +90,7 @@ export class FileOptionsComponent implements AfterViewInit, OnDestroy {
   /**
    * TODO: description
    */
-  public setPaused(paused: boolean) {
+  public setPaused(paused: Nullable<boolean>) {
     if (paused) {
       void this.graph.dispatch('pause');
     } else {

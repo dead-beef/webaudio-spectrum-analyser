@@ -13,28 +13,6 @@ export interface FileData {
   url: string;
 }
 
-export interface TypedArray {
-  readonly BYTES_PER_ELEMENT: number;
-  readonly length: number;
-  [n: number]: number;
-
-  slice(start?: number, end?: number): TypedArray;
-  reduce(callback: (prev: any, cur: any) => any, initial?: number): any;
-  fill(value: number): void;
-  set(array: ArrayLike<number>, offset?: number): void;
-}
-
-export interface TypedArrayConstructor<T> {
-  BYTES_PER_ELEMENT: number;
-  new (): T;
-  new (size: number): T;
-  new (buffer: ArrayBuffer, byteOffset?: number, length?: number): T;
-}
-
-export type MethodOf<T> = {
-  [P in keyof T]-?: T[P] extends (...args: any[]) => any ? P : never;
-}[keyof T];
-
 export interface Stats {
   dom: HTMLElement;
   update: () => void;
@@ -75,9 +53,9 @@ export interface AnyScriptNode extends AudioNode {
 
 export interface AudioGraphNodes {
   wave: OscillatorNode;
-  element: MediaElementAudioSourceNode;
-  device: MediaStreamAudioSourceNode;
-  worklet: AnyScriptNode;
+  element: Nullable<MediaElementAudioSourceNode>;
+  device: Nullable<MediaStreamAudioSourceNode>;
+  worklet: Nullable<AnyScriptNode>;
   input: DelayNode;
   filter: AudioGraphFilters;
   filteredInput: GainNode;
@@ -163,4 +141,8 @@ export interface Autocorrelation {
 export interface Prominence {
   value: Uint8Array;
   peak: number;
+}
+
+export enum Layouts {
+  VERTICAL = 'vertical',
 }

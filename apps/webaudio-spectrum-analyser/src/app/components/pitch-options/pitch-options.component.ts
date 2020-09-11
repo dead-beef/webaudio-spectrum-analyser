@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import { environment } from '../../../environments/environment';
-import { FftPeakType } from '../../interfaces';
+import { FftPeakType, Layouts } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { UntilDestroy } from '../../utils/angular.util';
@@ -14,6 +14,8 @@ import { stateFormControl } from '../../utils/ngxs.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PitchOptionsComponent extends UntilDestroy {
+  public layout = Layouts.VERTICAL;
+
   public readonly pitch = this.graph.listPitchDetection();
 
   public readonly peakTypes = [

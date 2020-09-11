@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import { environment } from '../../../environments/environment';
-import { AudioGraphSourceNode } from '../../interfaces';
+import { AudioGraphSourceNode, Layouts } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { UntilDestroy } from '../../utils/angular.util';
@@ -14,6 +14,8 @@ import { stateFormControl } from '../../utils/ngxs.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WaveOptionsComponent extends UntilDestroy implements OnInit {
+  public layout = Layouts.VERTICAL;
+
   public readonly form = new FormGroup({
     shape: stateFormControl(
       null,

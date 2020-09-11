@@ -13,7 +13,7 @@
 </canvas>
 
 <div class="frequency-chart-values">
-  {{ pointFrequency$ | async | units }}Hz
+  {{ pointFrequency$ | async | units:'Hz' }}
   <span *ngFor="let value$ of pointValues$"> {{ value$ | async }}dB</span>
   <span class="float-right">
     <span
@@ -21,7 +21,7 @@
       [class.hide]="!(pitchEnabled$[i] | async)"
     >
       <span [style.color]="p.color">{{ p.short }}</span>:
-      {{ pitchValue$[i] | async | units }}Hz
+      {{ pitchValue$[i] | async | units:'Hz' }}
     </span>
   </span>
 </div>

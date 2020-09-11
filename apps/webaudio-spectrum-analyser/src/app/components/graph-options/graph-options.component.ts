@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 
 import { environment } from '../../../environments/environment';
+import { Layouts } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { UntilDestroy } from '../../utils/angular.util';
@@ -14,6 +15,8 @@ import { deepEqual } from '../../utils/rxjs.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GraphOptionsComponent extends UntilDestroy {
+  public layout = Layouts.VERTICAL;
+
   public readonly fftSizes: number[] = this.graph.getFftSizes();
 
   public readonly maxDelay: number = this.graph.getMaxDelay();

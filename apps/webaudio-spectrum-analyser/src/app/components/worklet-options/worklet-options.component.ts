@@ -8,7 +8,7 @@ import { FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
 import { WorkletNode } from '../../classes/worklet-node/worklet-node';
-import { AudioGraphSourceNode } from '../../interfaces';
+import { AudioGraphSourceNode, Layouts } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { UntilDestroy } from '../../utils/angular.util';
@@ -22,11 +22,13 @@ import { stateFormControl } from '../../utils/ngxs.util';
 export class WorkletOptionsComponent
   extends UntilDestroy
   implements OnInit, OnDestroy {
+  public layout = Layouts.VERTICAL;
+
   private readonly loaded = new BehaviorSubject<boolean>(false);
 
   public readonly loaded$ = this.loaded.asObservable();
 
-  private readonly error = new BehaviorSubject<Error>(null);
+  private readonly error = new BehaviorSubject<Nullable<AnyError>>(null);
 
   public readonly error$ = this.error.asObservable();
 
@@ -76,7 +78,7 @@ export class WorkletOptionsComponent
    * Set error
    * @param err
    */
-  public setError(err: Error) {
+  public setError(err: Nullable<AnyError>) {
     this.error.next(err);
   }
 }

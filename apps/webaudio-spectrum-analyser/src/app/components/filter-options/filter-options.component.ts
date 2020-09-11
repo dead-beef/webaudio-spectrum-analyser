@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 
 import { environment } from '../../../environments/environment';
-import { AudioGraphFilterNode } from '../../interfaces';
+import { AudioGraphFilterNode, Layouts } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { UntilDestroy } from '../../utils/angular.util';
@@ -15,6 +15,8 @@ import { deepEqual } from '../../utils/rxjs.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FilterOptionsComponent extends UntilDestroy {
+  public layout = Layouts.VERTICAL;
+
   public filter$ = this.graph.select(AudioGraphState.filter);
 
   public readonly filters = [
@@ -124,7 +126,12 @@ export class FilterOptionsComponent extends UntilDestroy {
     }),
   });
 
-  public readonly iirForm: FormGroup = this.form.controls.iir as FormGroup;
+  public readonly iirForm = this.form.controls.iir as FormGroup;
+
+  public readonly iirControls = this.iirForm.controls as Record<
+    string,
+    FormArray
+  >;
 
   /**
    * Constructor.

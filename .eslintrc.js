@@ -179,7 +179,7 @@ module.exports = {
       'error',
       { checksVoidReturn: false, checksConditionals: true },
     ],
-    '@typescript-eslint/no-non-null-assertion': 'error',
+    '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-for-in-array': 'error',
     '@typescript-eslint/no-shadow': 'error',
     '@typescript-eslint/no-this-alias': 'error',

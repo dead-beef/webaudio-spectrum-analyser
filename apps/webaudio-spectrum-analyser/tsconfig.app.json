@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "types": ["wasm"]
+    "types": ["wasm", "util"]
   },
   "exclude": ["src/test-setup.ts", "**/*.spec.ts", "**/.#*.ts"],
   "extends": "./tsconfig.json",
