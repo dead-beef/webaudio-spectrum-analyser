@@ -21,11 +21,11 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ],
 })
 export class InputRangeComponent implements ControlValueAccessor, OnChanges {
-  @Input() public name: string;
+  @Input() public name = '';
 
-  @Input() public min: number;
+  @Input() public min = 0;
 
-  @Input() public max: number;
+  @Input() public max = 1;
 
   @Input() public step = 1e-4;
 

@@ -8,12 +8,10 @@ export class ErrorPipe implements PipeTransform {
    * TODO: description
    * @param value
    */
-  public transform(value: any): string {
+  public transform(value: AnyError): string {
     let res = String(value);
-    if (typeof value === 'object') {
-      if ((value as Error).stack) {
-        res += '\n' + String((value as Error).stack);
-      }
+    if (Object.prototype.hasOwnProperty.call(value, 'stack')) {
+      res += '\n' + String((value as Error).stack);
     }
     return res;
   }

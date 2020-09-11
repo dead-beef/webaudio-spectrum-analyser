@@ -17,23 +17,25 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AudioControlsComponent implements AfterViewInit, OnChanges {
-  @Input() public src: string;
+  @Input() public src = '';
 
-  @Input() public paused = true;
+  @Input() public paused: Nullable<boolean> = true;
 
-  @Output() public readonly pausedChange = new EventEmitter<boolean>();
+  @Output() public readonly pausedChange = new EventEmitter<
+    Nullable<boolean>
+  >();
 
-  @ViewChild('audio') public audio: ElementRef;
+  @ViewChild('audio') public audio: Nullable<ElementRef> = null;
 
   public _playing = false;
 
-  public error: MediaError = null;
+  public error: Nullable<AnyError> = null;
 
   public duration = 0;
 
   private timeValue = 0;
 
-  private nativeElement: HTMLAudioElement;
+  private nativeElement: Nullable<HTMLAudioElement> = null;
 
   /**
    * Time getter.
@@ -46,7 +48,7 @@ export class AudioControlsComponent implements AfterViewInit, OnChanges {
    * Time setter.
    */
   public set time(time: number) {
-    this.nativeElement.currentTime = time;
+    this.nativeElement!.currentTime = time;
     this.timeValue = time;
   }
 
@@ -54,7 +56,7 @@ export class AudioControlsComponent implements AfterViewInit, OnChanges {
    * Lifecycle hook.
    */
   public ngAfterViewInit() {
-    this.nativeElement = this.audio.nativeElement;
+    this.nativeElement = this.audio!.nativeElement;
     this.updateElement();
   }
 
@@ -72,9 +74,9 @@ export class AudioControlsComponent implements AfterViewInit, OnChanges {
    */
   public loadedData() {
     //console.log('loaded data', this.audio.nativeElement);
-    this.error = this.nativeElement.error;
+    this.error = this.nativeElement!.error;
     this.time = 0;
-    this.duration = this.nativeElement.duration;
+    this.duration = this.nativeElement!.duration;
     this.updateElement();
   }
 
@@ -82,7 +84,7 @@ export class AudioControlsComponent implements AfterViewInit, OnChanges {
    * Time update handler.
    */
   public timeUpdate() {
-    this.timeValue = this.nativeElement.currentTime;
+    this.timeValue = this.nativeElement!.currentTime;
   }
 
   /**
@@ -98,9 +100,9 @@ export class AudioControlsComponent implements AfterViewInit, OnChanges {
    */
   public updateElement() {
     if (this.paused) {
-      this.nativeElement.pause();
+      this.nativeElement!.pause();
     } else {
-      void this.nativeElement.play();
+      void this.nativeElement!.play();
     }
   }
 
@@ -109,12 +111,12 @@ export class AudioControlsComponent implements AfterViewInit, OnChanges {
    */
   public toggle() {
     if (this.paused) {
-      if (this.nativeElement.ended) {
+      if (this.nativeElement!.ended) {
         this.time = 0;
       }
-      void this.nativeElement.play();
+      void this.nativeElement!.play();
     } else {
-      this.nativeElement.pause();
+      this.nativeElement!.pause();
     }
   }
 }

@@ -11,7 +11,11 @@
 
 <div class="clr-row">
   <div class="clr-col-auto">
-    <button class="btn btn-icon btn-flat" (click)="toggle()" [disabled]="error">
+    <button
+      class="btn btn-icon btn-flat"
+      (click)="toggle()"
+      [disabled]="error !== null"
+    >
       <clr-icon shape="play" *ngIf="paused else pause"></clr-icon>
       <ng-template #pause>
         <clr-icon shape="pause"></clr-icon>
@@ -30,7 +34,7 @@
       min="0"
       [max]="duration"
       step="0.1"
-      [disabled]="error"
+      [disabled]="error !== null"
       [(ngModel)]="time"
     />
   </div>

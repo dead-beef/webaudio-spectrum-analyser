@@ -3,16 +3,14 @@ import {
   Autocorrelation,
   FftPeakType,
   Prominence,
-  TypedArray,
-  TypedArrayConstructor,
   WasmBuffer,
 } from '../../interfaces';
 import * as wasmModule from '../../wasm/math.c';
 
 class AudioMathInstance {
-  private _wasm: WasmModule<AudioMathWasmFunctions> = null;
+  private _wasm: Nullable<WasmModule<AudioMathWasmFunctions>> = null;
 
-  public wasmError: Error = null;
+  public wasmError: Nullable<Error> = null;
 
   public inputBuffer: WasmBuffer = {
     ptr: [],
@@ -29,7 +27,7 @@ class AudioMathInstance {
   /**
    * Getter.
    */
-  public get wasm(): WasmModule<AudioMathWasmFunctions> {
+  public get wasm(): Nullable<WasmModule<AudioMathWasmFunctions>> {
     if (this._wasm !== null) {
       return this._wasm;
     }
@@ -42,7 +40,7 @@ class AudioMathInstance {
   /**
    * Setter.
    */
-  public set wasm(wasm_: WasmModule<AudioMathWasmFunctions>) {
+  public set wasm(wasm_: Nullable<WasmModule<AudioMathWasmFunctions>>) {
     this._wasm = wasm_;
   }
 
@@ -143,7 +141,7 @@ class AudioMathInstance {
     length: number,
     type: WasmMemoryType = 1
   ) {
-    const wasm = this.wasm;
+    const wasm = this.wasm!;
     const byteLength = length * wasm.memoryManager.mem[type].BYTES_PER_ELEMENT;
     if (byteLength === buf.byteLength && buf.type === type) {
       return;
@@ -166,7 +164,7 @@ class AudioMathInstance {
   public copyToBuffer<T extends TypedArray>(dst: WasmBuffer, src: T) {
     const type_: WasmMemoryType = src.BYTES_PER_ELEMENT as any;
     this.resizeBuffer(dst, src.length, type_);
-    const dst_ = this.wasm.memoryManager.mem[type_];
+    const dst_ = this.wasm!.memoryManager.mem[type_];
     dst_.set(src, dst.ptr[0]);
   }
 
@@ -179,7 +177,7 @@ class AudioMathInstance {
     const length = src.ptr.length;
     dst = this.resize(dst, length);
     const src_ = new (dst.constructor as TypedArrayConstructor<T>)(
-      this.wasm.memory,
+      this.wasm!.memory,
       src.ptr[0],
       length
     );

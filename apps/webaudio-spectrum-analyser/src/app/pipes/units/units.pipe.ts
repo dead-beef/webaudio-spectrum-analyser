@@ -17,8 +17,11 @@ export class UnitsPipe implements PipeTransform {
    * TODO: description
    * @param value
    */
-  public transform(value: number): string {
-    let maxUnit: Unit = null;
+  public transform(value: Nullable<number>, name: string = ''): string {
+    if (value === null || isNaN(value)) {
+      return 'N/A';
+    }
+    let maxUnit: Nullable<Unit> = null;
     value = Number(value);
     for (const unit of this.units) {
       if (value >= unit.value) {
@@ -32,6 +35,6 @@ export class UnitsPipe implements PipeTransform {
       value /= maxUnit.value;
       prefix = maxUnit.prefix;
     }
-    return value.toFixed(1) + prefix;
+    return value.toFixed(1).concat(prefix, name);
   }
 }

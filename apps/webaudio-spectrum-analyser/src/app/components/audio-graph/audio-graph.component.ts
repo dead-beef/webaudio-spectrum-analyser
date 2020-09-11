@@ -22,21 +22,25 @@ import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.comp
 export class AudioGraphComponent
   extends UntilDestroy
   implements AfterViewInit, OnDestroy {
-  @ViewChild(FrequencyChartComponent) public chart: FrequencyChartComponent;
+  @ViewChild(FrequencyChartComponent) public chart: Nullable<
+    FrequencyChartComponent
+  > = null;
 
-  @ViewChild('audio') public audioRef: ElementRef<HTMLAudioElement>;
+  @ViewChild('audio') public audioRef: Nullable<
+    ElementRef<HTMLAudioElement>
+  > = null;
 
   public paused$: Observable<boolean> = this.graph.select(
     AudioGraphState.paused
   );
 
-  public audio: HTMLAudioElement;
+  public audio: Nullable<HTMLAudioElement> = null;
 
-  public error: Error = null;
+  public error: Nullable<AnyError> = null;
 
-  private volumeValue: number;
+  private volumeValue = 0.25;
 
-  private logVolumeValue: number;
+  private logVolumeValue = 0.25;
 
   /**
    * Constructor.
@@ -61,7 +65,7 @@ export class AudioGraphComponent
     const volume: number = Math.pow(base, logVolume) - 1.0;
     this.volumeValue = volume;
     this.logVolumeValue = logVolume;
-    if (this.audio) {
+    if (this.audio !== null) {
       this.audio.volume = this.volumeValue;
     }
   }
@@ -71,10 +75,13 @@ export class AudioGraphComponent
    */
   public ngAfterViewInit() {
     try {
-      this.audio = this.audioRef.nativeElement;
+      this.audio = this.audioRef!.nativeElement;
       this.audio.srcObject = this.graph.getOutputStream();
       this.volume = 0.25;
       void this.paused$.pipe(takeUntil(this.destroyed$)).subscribe(paused => {
+        if (this.audio === null) {
+          return;
+        }
         if (paused) {
           this.audio.pause();
         } else {

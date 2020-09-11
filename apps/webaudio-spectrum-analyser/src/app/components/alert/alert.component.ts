@@ -12,9 +12,11 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AlertComponent {
-  @Input() public error: Error;
+  @Input() public error: Nullable<AnyError> = null;
 
-  @Output() public readonly errorChange = new EventEmitter<Error>();
+  @Output() public readonly errorChange = new EventEmitter<
+    Nullable<AnyError>
+  >();
 
   /**
    * Dismisses alert.

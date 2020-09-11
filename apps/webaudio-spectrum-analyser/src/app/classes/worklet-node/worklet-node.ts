@@ -1,9 +1,9 @@
 import { AnyScriptNode } from '../../interfaces';
 
 export class WorkletNode {
-  public static url: string = null;
+  public static url: Nullable<string> = null;
 
-  public static supported: boolean = null;
+  public static supported: Nullable<boolean> = null;
 
   public static types: string[] = ['White noise', 'Red noise'];
 
@@ -127,7 +127,7 @@ registerProcessor('worklet-processor', WorkletProcessor);`;
       });
       //console.log('create script processor onaudioprocess');
       node.onaudioprocess = (ev: AudioProcessingEvent) => {
-        const output = [];
+        const output: Float32Array[] = [];
         for (let i = 0; i < ev.outputBuffer.numberOfChannels; ++i) {
           output.push(ev.outputBuffer.getChannelData(i));
         }

@@ -46,9 +46,9 @@ export class InputFileUrlDirective implements OnInit, OnDestroy {
    * TODO: description
    */
   public destroyInput() {
-    const input: HTMLInputElement = document.getElementById(
-      this.id
-    ) as HTMLInputElement;
+    const input = document.getElementById(this.id) as Nullable<
+      HTMLInputElement
+    >;
     if (input !== null) {
       input.remove();
     }
@@ -98,8 +98,9 @@ export class InputFileUrlDirective implements OnInit, OnDestroy {
    * TODO: description
    * @param ev
    */
-  public doLoadFile(ev: InputEvent) {
-    let input: HTMLInputElement = ev.target as HTMLInputElement;
+  public doLoadFile(ev_: Event) {
+    const ev = ev_ as InputEvent;
+    const input: HTMLInputElement = ev.target as HTMLInputElement;
     try {
       if (!input.files) {
         throw new Error('Input does not have a "files" property');
@@ -116,7 +117,6 @@ export class InputFileUrlDirective implements OnInit, OnDestroy {
       this.fileError.emit(err);
     } finally {
       input.remove();
-      input = null;
     }
   }
 }

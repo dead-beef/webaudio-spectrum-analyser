@@ -66,7 +66,7 @@ export interface AudioGraphStateModel {
     frequency: number;
   };
   device: {
-    id: string;
+    id: Nullable<string>;
   };
   worklet: {
     type: number;

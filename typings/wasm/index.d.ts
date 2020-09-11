@@ -1,4 +1,4 @@
-interface WasmMemory {
+declare interface WasmMemory {
   [1]: Int8Array;
   [2]: Int16Array;
   [4]: Int32Array;
@@ -19,9 +19,9 @@ interface WasmMemory {
   double: Float64Array;
 }
 
-type WasmMemoryType = keyof WasmMemory;
+declare type WasmMemoryType = keyof WasmMemory;
 
-interface WasmModule<T> {
+declare interface WasmModule<T> {
   raw: {
     instance: WebAssembly.Instance;
     module: WebAssembly.Module;
@@ -47,9 +47,9 @@ interface WasmModule<T> {
   };
 }
 
-type WasmImports = Record<string, any>;
-type WasmConfig = (imports: WasmImports) => WasmImports;
-type WasmModuleFactory<T> = (cfg: WasmConfig) => Promise<WasmModule<T>>;
+declare type WasmImports = Record<string, any>;
+declare type WasmConfig = (imports: WasmImports) => WasmImports;
+declare type WasmModuleFactory<T> = (cfg: WasmConfig) => Promise<WasmModule<T>>;
 
 declare module '*.c' {
   export const init: WasmModuleFactory;

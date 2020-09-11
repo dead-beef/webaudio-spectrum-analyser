@@ -1,21 +1,21 @@
 <clr-tabs>
   <clr-tab>
     <button clrTabLink>Graph</button>
-    <clr-tab-content *clrIfActive>
+    <clr-tab-content *clrIfActive="true">
       <app-graph-options></app-graph-options>
     </clr-tab-content>
   </clr-tab>
 
   <clr-tab>
     <button clrTabLink>Filter</button>
-    <clr-tab-content *clrIfActive>
+    <clr-tab-content *clrIfActive="false">
       <app-filter-options></app-filter-options>
     </clr-tab-content>
   </clr-tab>
 
   <clr-tab>
     <button clrTabLink>Pitch detection</button>
-    <clr-tab-content *clrIfActive>
+    <clr-tab-content *clrIfActive="false">
       <app-pitch-options></app-pitch-options>
     </clr-tab-content>
   </clr-tab>

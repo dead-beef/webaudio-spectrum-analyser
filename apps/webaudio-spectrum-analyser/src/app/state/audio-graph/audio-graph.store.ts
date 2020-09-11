@@ -571,7 +571,7 @@ export class AudioGraphState {
       console.log('device loading');
       return;
     }
-    let deviceId: string = payload;
+    let deviceId: Nullable<string> = payload;
     return this.graph
       .setDevice(payload)
       .catch(err => {
@@ -594,7 +594,9 @@ export class AudioGraphState {
     { payload }: StoreAction<number>
   ) {
     return this.graph.workletReady.then(() => {
-      const param: AudioParam = this.graph.nodes.worklet.parameters.get('type');
+      const param: AudioParam = this.graph.nodes.worklet!.parameters.get(
+        'type'
+      );
       //console.log(param);
       param.value = payload;
       return ctx.setState(patch({ worklet: patch({ type: payload }) }));

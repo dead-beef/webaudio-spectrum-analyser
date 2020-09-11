@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { finalize, map, tap } from 'rxjs/operators';
 
-import { AudioGraphSourceNode } from '../../interfaces';
+import { AudioGraphSourceNode, Layouts } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { UntilDestroy } from '../../utils/angular.util';
@@ -15,9 +15,11 @@ import { stateFormControl } from '../../utils/ngxs.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeviceOptionsComponent extends UntilDestroy implements OnInit {
+  public layout = Layouts.VERTICAL;
+
   public loading = true;
 
-  public error: Error = null;
+  public error: Nullable<AnyError> = null;
 
   public devices: MediaDeviceInfo[] = [];
 
@@ -38,7 +40,7 @@ export class DeviceOptionsComponent extends UntilDestroy implements OnInit {
     stateFormControl(
       this.device,
       this.graph.select(AudioGraphState.deviceId),
-      (id: string) => this.setDeviceId(id),
+      (id: Nullable<string>) => this.setDeviceId(id),
       this.destroyed$
     );
   }
@@ -46,7 +48,7 @@ export class DeviceOptionsComponent extends UntilDestroy implements OnInit {
   /**
    * Device setter.
    */
-  public setDeviceId(dev: string): Observable<void> {
+  public setDeviceId(dev: Nullable<string>): Observable<void> {
     this.device.disable();
     return this.graph.dispatch('setDeviceId', dev).pipe(
       tap(

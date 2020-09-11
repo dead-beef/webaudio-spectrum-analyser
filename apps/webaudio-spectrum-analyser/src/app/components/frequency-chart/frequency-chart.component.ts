@@ -25,9 +25,11 @@ import { throttleTime_ } from '../../utils/rxjs.util';
 export class FrequencyChartComponent
   extends UntilDestroy
   implements AfterViewInit, OnDestroy {
-  @ViewChild('canvas') public canvas: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvas') public canvas: Nullable<
+    ElementRef<HTMLCanvasElement>
+  > = null;
 
-  private context: CanvasRenderingContext2D = null;
+  private context: Nullable<CanvasRenderingContext2D> = null;
 
   private frame = 0;
 
@@ -37,7 +39,7 @@ export class FrequencyChartComponent
 
   public readonly graph: AudioGraph = this.graphService.graph;
 
-  private readonly error = new BehaviorSubject<Error>(null);
+  private readonly error = new BehaviorSubject<Nullable<AnyError>>(null);
 
   public readonly error$ = this.error.asObservable();
 
@@ -95,7 +97,7 @@ export class FrequencyChartComponent
    */
   public ngAfterViewInit() {
     try {
-      const canvas = this.canvas.nativeElement;
+      const canvas = this.canvas!.nativeElement;
       this.context = canvas.getContext('2d');
       this.frame = requestAnimationFrame(this.animate);
       void fromEvent(canvas, 'click')
@@ -103,17 +105,17 @@ export class FrequencyChartComponent
           merge(fromEvent(canvas, 'mousemove'), fromEvent(canvas, 'touchmove')),
           takeUntil(this.destroyed$),
           map(
-            (ev: MouseEvent | TouchEvent): Point => {
+            (ev: Event): Point => {
               let x: number;
               let y: number;
               const bbox: DOMRect = canvas.getBoundingClientRect();
               if ('touches' in ev) {
-                const ev_: TouchEvent = ev;
+                const ev_ = ev as TouchEvent;
                 const touch: Touch = ev_.touches[0];
                 x = touch.clientX;
                 y = touch.clientY;
               } else {
-                const ev_: MouseEvent = ev;
+                const ev_ = ev as MouseEvent;
                 x = ev_.clientX;
                 y = ev_.clientY;
               }
@@ -150,7 +152,7 @@ export class FrequencyChartComponent
    * Set error
    * @param err
    */
-  public setError(err: Error) {
+  public setError(err: Nullable<AnyError>) {
     this.error.next(err);
   }
 
@@ -158,6 +160,9 @@ export class FrequencyChartComponent
    * Resizes canvas.
    */
   private resize() {
+    if (this.canvas === null) {
+      return;
+    }
     const canvas = this.canvas.nativeElement;
     this.width = canvas.clientWidth;
     this.height = canvas.clientHeight;
@@ -193,6 +198,9 @@ export class FrequencyChartComponent
    */
   private drawGrid(plotCount: number): void {
     const ctx = this.context;
+    if (ctx === null) {
+      return;
+    }
     ctx.strokeStyle = '#495865';
     ctx.fillStyle = '#495865';
     ctx.lineWidth = 2;
@@ -245,6 +253,9 @@ export class FrequencyChartComponent
    */
   private drawPitchValues(pitch: PitchDetection): void {
     const ctx = this.context;
+    if (ctx === null) {
+      return;
+    }
     const plotHeight: number = this.height / pitch.values.length;
     ctx.strokeStyle = pitch.color;
     ctx.lineWidth = 2;
@@ -264,27 +275,22 @@ export class FrequencyChartComponent
    * @param yMin
    * @param yMax
    */
-  private drawFrequencyData(
-    data: Uint8Array,
-    yMin: number,
-    yMax: number
-  ): number {
+  private drawFrequencyData(data: Uint8Array, yMin: number, yMax: number) {
     const ctx = this.context;
+    if (ctx === null) {
+      return;
+    }
+
     const yScale = (yMax - yMin) / 255.0;
     const sampleRate = this.graph.sampleRate;
     const fftSize = data.length * 2;
     const binSize = sampleRate / fftSize;
     const halfBinSize = binSize / 2;
+    const start = this.graph.indexOfFrequency(20);
 
-    let prevF = 20;
     let prevX = 0;
-
     let drawing = true;
 
-    const point = this.pointFrequency.getValue();
-    let pointValue = 0;
-
-    ctx.strokeStyle = '#4aaed9';
     ctx.fillStyle = '#4aaed9';
     ctx.lineWidth = 0;
 
@@ -292,11 +298,8 @@ export class FrequencyChartComponent
     ctx.moveTo(this.width, yMax);
     ctx.lineTo(0, yMax);
 
-    for (let i = 0; i < data.length; ++i) {
+    for (let i = start; i < data.length; ++i) {
       const f = i * binSize + halfBinSize;
-      if (f < prevF) {
-        continue;
-      }
       const x = this.frequencyToCanvas(f);
       if (data[i] === data[i - 1] && prevX > 0) {
         drawing = false;
@@ -309,17 +312,10 @@ export class FrequencyChartComponent
         ctx.lineTo(prevX, yMax - y);
         ctx.lineTo(x, yMax - y);
       }
-      if (point >= prevF && point <= f) {
-        pointValue = data[i];
-      }
-      prevF = f;
       prevX = x;
     }
 
     ctx.fill();
-
-    pointValue = Math.round(this.graph.byteToDecibels(pointValue));
-    return pointValue;
   }
 
   /**
@@ -334,6 +330,9 @@ export class FrequencyChartComponent
     yMax: number
   ) {
     const ctx = this.context;
+    if (ctx === null) {
+      return;
+    }
     const yMid = (yMin + yMax) / 2;
     const yScale = yMin - yMid;
     ctx.strokeStyle = '#ff4444';
@@ -357,6 +356,9 @@ export class FrequencyChartComponent
    */
   public drawProminenceData(data: Uint8Array, yMin: number, yMax: number) {
     const ctx = this.context;
+    if (ctx === null) {
+      return;
+    }
     const yScale = (yMax - yMin) / 255.0;
     const sampleRate = this.graph.sampleRate;
     const fftSize = data.length * 2;
@@ -392,6 +394,7 @@ export class FrequencyChartComponent
     try {
       const plotCount: number = this.graph.fdata.length;
       const plotHeight: number = this.height / plotCount;
+      const point = this.graph.indexOfFrequency(this.pointFrequency.getValue());
 
       this.resize();
       this.graph.analyse();
@@ -399,12 +402,9 @@ export class FrequencyChartComponent
       this.context.clearRect(0, 0, this.width, this.height);
 
       this.graph.fdata.forEach((data, i) => {
-        const pointValue: number = this.drawFrequencyData(
-          data,
-          i * plotHeight,
-          (i + 1) * plotHeight
-        );
-        this.pointValues[i].next(pointValue);
+        this.drawFrequencyData(data, i * plotHeight, (i + 1) * plotHeight);
+        const value = Math.round(this.graph.byteToDecibels(data[point]));
+        this.pointValues[i].next(value);
       });
       this.drawGrid(plotCount);
 

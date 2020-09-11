@@ -1,7 +1,4 @@
 {
-  "compilerOptions": {
-    "types": ["wasm"]
-  },
   "extends": "./tsconfig.json",
   "include": ["src"]
 }
