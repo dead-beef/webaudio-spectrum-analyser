@@ -62,15 +62,15 @@ jobs:
           actions-cache-folder: 'emsdk-cache'
 
       - name: Fix environment
+        id: fix-env
         run: |
           export PATH="$(echo "$PATH" | sed -r 's/[^:]+emsdk[^:]+node[^:]+://g')"
-          hash -r
-          echo "export PATH=$PATH"
-          which node
-          node --version
+          echo "::set-output name=path::$PATH"
 
       - name: Install dependencies
         id: install
+        env:
+          PATH: ${{ steps.fix-env.outputs.path }}
         run: |
           echo "PATH=$PATH"
           which node
