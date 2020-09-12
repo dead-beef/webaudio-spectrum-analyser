@@ -74,7 +74,23 @@ import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
       disabled: environment.production,
       collapsed: true,
     }),
-    NgxsStoragePluginModule.forRoot(),
+    NgxsStoragePluginModule.forRoot({
+      beforeSerialize: (obj: Record<string, any>, key: string) => {
+        //console.log('beforeSerialize', key, obj);
+        if (Object.prototype.hasOwnProperty.call(obj, 'AudioGraph')) {
+          return {
+            ...obj,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            AudioGraph: {
+              ...obj.AudioGraph,
+              paused: true,
+              suspended: true,
+            },
+          };
+        }
+        return obj;
+      },
+    }),
     AudioGraphStoreModule,
     RouterModule.forRoot(ROUTES, { useHash: true }),
   ],

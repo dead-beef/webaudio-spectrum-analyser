@@ -1,11 +1,11 @@
-<clr-input-container>
+<clr-input-container *ngIf="showValue">
   <label>{{ name }}</label>
   <input clrInput type="number"
     [name]="name"
     [min]="min" [max]="max" [step]="step"
     [(ngModel)]="value">
 </clr-input-container>
-<clr-range-container>
+<clr-range-container [class.sm]="!showValue">
   <input clrRange type="range"
     [name]="rangeName"
     [min]="rangeMin" [max]="rangeMax" [step]="rangeStep"

@@ -20,6 +20,7 @@ export const audioGraphAction: StoreActions = {
   play: action<void>('play'),
   pause: action<void>('pause'),
   toggle: action<void>('toggle'),
+  setVolume: action<number>('set volume'),
 
   reset: action<void>('reset'),
 

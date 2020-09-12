@@ -31,6 +31,8 @@ export class InputRangeComponent implements ControlValueAccessor, OnChanges {
 
   @Input() public log = false;
 
+  @Input() public showValue = true;
+
   public _value = 0;
 
   public rangeName = '';

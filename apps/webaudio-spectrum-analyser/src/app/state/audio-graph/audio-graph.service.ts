@@ -24,6 +24,9 @@ export class AudioGraphService {
   ) {
     const state = this.store.selectSnapshot(AudioGraphState.state);
     console.log('state', state);
+    if (state !== null && state !== undefined) {
+      this.graph.setState(state);
+    }
   }
 
   /**

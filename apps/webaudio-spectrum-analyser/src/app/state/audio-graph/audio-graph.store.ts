@@ -69,6 +69,15 @@ export class AudioGraphState {
   }
 
   /**
+   * Suspended selector
+   * @param state
+   */
+  @Selector()
+  public static volume(state: AudioGraphStateModel) {
+    return state.volume;
+  }
+
+  /**
    * Source type selector
    * @param state
    */
@@ -353,6 +362,20 @@ export class AudioGraphState {
       return this.play(ctx);
     }
     return this.pause(ctx);
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setVolume)
+  public setVolume(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    this.graph.volume = payload;
+    return ctx.patchState({ volume: payload });
   }
 
   /**
