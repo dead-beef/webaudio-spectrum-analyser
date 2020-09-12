@@ -6,12 +6,16 @@ import {
   OnDestroy,
   ViewChild,
 } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+import { environment } from '../../../environments/environment';
+import { AudioGraphSourceNode } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { UntilDestroy } from '../../utils/angular.util';
+import { stateFormControl } from '../../utils/ngxs.util';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
 
 @Component({
@@ -30,17 +34,35 @@ export class AudioGraphComponent
     ElementRef<HTMLAudioElement>
   > = null;
 
-  public paused$: Observable<boolean> = this.graph.select(
+  public readonly form = new FormGroup({
+    volume: stateFormControl(
+      null,
+      this.graph.select(AudioGraphState.volume),
+      (v: number) => this.graph.dispatch('setVolume', v),
+      this.destroyed$,
+      environment.throttle
+    ),
+  });
+
+  public readonly volume$: Observable<number> = this.graph.select(
+    AudioGraphState.volume
+  );
+
+  public readonly paused$: Observable<boolean> = this.graph.select(
     AudioGraphState.paused
   );
+
+  public readonly source$: Observable<AudioGraphSourceNode> = this.graph.select(
+    AudioGraphState.sourceNode
+  );
+
+  public readonly source = AudioGraphSourceNode;
 
   public audio: Nullable<HTMLAudioElement> = null;
 
   public error: Nullable<AnyError> = null;
 
-  private volumeValue = 0.25;
-
-  private logVolumeValue = 0.25;
+  public volume = 0.5;
 
   /**
    * Constructor.
@@ -51,33 +73,12 @@ export class AudioGraphComponent
   }
 
   /**
-   * Volume getter.
-   */
-  public get volume(): number {
-    return this.logVolumeValue;
-  }
-
-  /**
-   * Volume setter.
-   */
-  public set volume(logVolume: number) {
-    const base = 2.0;
-    const volume: number = Math.pow(base, logVolume) - 1.0;
-    this.volumeValue = volume;
-    this.logVolumeValue = logVolume;
-    if (this.audio !== null) {
-      this.audio.volume = this.volumeValue;
-    }
-  }
-
-  /**
    * Lifecycle hook.
    */
   public ngAfterViewInit() {
     try {
       this.audio = this.audioRef!.nativeElement;
       this.audio.srcObject = this.graph.getOutputStream();
-      this.volume = 0.25;
       void this.paused$.pipe(takeUntil(this.destroyed$)).subscribe(paused => {
         if (this.audio === null) {
           return;
@@ -86,7 +87,11 @@ export class AudioGraphComponent
           this.audio.pause();
         } else {
           void this.audio.play();
+          this.setVolume(this.volume);
         }
+      });
+      void this.volume$.pipe(takeUntil(this.destroyed$)).subscribe(volume => {
+        this.setVolume(volume);
       });
     } catch (err) {
       console.error(err);
@@ -113,5 +118,15 @@ export class AudioGraphComponent
    */
   public reset() {
     void this.graph.dispatch('reset');
+  }
+
+  /**
+   * Volume setter.
+   */
+  public setVolume(volume: number) {
+    this.volume = volume;
+    if (this.audio !== null) {
+      this.audio.volume = volume;
+    }
   }
 }

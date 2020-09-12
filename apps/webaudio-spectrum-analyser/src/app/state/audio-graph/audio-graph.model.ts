@@ -47,6 +47,7 @@ export interface FftPeakState {
 export interface AudioGraphStateModel {
   paused: boolean;
   suspended: boolean;
+  volume: number;
   debug: boolean;
   sourceNode: AudioGraphSourceNode;
   delay: number;
@@ -83,6 +84,7 @@ export interface AudioGraphStateModel {
 export const audioGraphStateDefaults: AudioGraphStateModel = {
   paused: true,
   suspended: true,
+  volume: 0.5,
   debug: false,
   sourceNode: AudioGraphSourceNode.WAVE,
   delay: 0,

@@ -6,6 +6,7 @@ import {
   FftPeakType,
   PitchDetection,
 } from '../../interfaces';
+import { AudioGraphStateModel } from '../../state/audio-graph/audio-graph.model';
 import { AudioMath } from '../audio-math/audio-math';
 import { PitchShifterNode } from '../pitch-shifter-node/pitch-shifter-node';
 import { WorkletNode } from '../worklet-node/worklet-node';
@@ -38,6 +39,8 @@ export class AudioGraph {
   public prominenceData: Uint8Array[] = [new Uint8Array(1), new Uint8Array(1)];
 
   public canAnalyse = true;
+
+  public volume = 0.5;
 
   public minPitch = 20;
 
@@ -195,6 +198,45 @@ export class AudioGraph {
       window['params'] = this.nodes.worklet.parameters;
     });
     this.workletReady.catch(err => console.warn(err));
+  }
+
+  /**
+   * TODO: description
+   * @param state
+   */
+  public setState(state: AudioGraphStateModel) {
+    this.volume = state.volume;
+    this.nodes.input.delayTime.value = state.delay;
+    this.fftSize = state.fftSize;
+    this.smoothing = state.smoothing;
+    this.minPitch = state.pitch.min;
+    this.maxPitch = state.pitch.max;
+    this.debug = state.debug;
+    for (const pd of this.pitch) {
+      pd.enabled = state.pitch[pd.short];
+    }
+    this.nodes.wave.type = state.wave.shape;
+    this.nodes.wave.frequency.value = state.wave.frequency;
+    this.setFilter(state.filter.id);
+    this.setIir(state.filter.iir.feedforward, state.filter.iir.feedback);
+    this.setConvolver(
+      state.filter.convolver.duration,
+      state.filter.convolver.decay,
+      state.filter.convolver.frequency,
+      state.filter.convolver.overtones,
+      state.filter.convolver.overtoneDecay
+    );
+    this.nodes.filter.biquad.type = state.filter.biquad.type;
+    this.nodes.filter.biquad.frequency.value = state.filter.biquad.frequency;
+    this.nodes.filter.biquad.detune.value = state.filter.biquad.detune;
+    this.nodes.filter.biquad.gain.value = state.filter.biquad.gain;
+    this.nodes.filter.biquad.Q.value = state.filter.biquad.q;
+    this.nodes.filter.pitchShifter.shift = state.filter.pitchShifter.shift;
+    this.nodes.filter.pitchShifter.bufferTime =
+      state.filter.pitchShifter.bufferTime;
+    this.fftPeakType = state.fftp.type;
+    this.prominenceRadius = state.fftp.prominenceRadius;
+    this.prominenceThreshold = state.fftp.prominenceThreshold;
   }
 
   /**
