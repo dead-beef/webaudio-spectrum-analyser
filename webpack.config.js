@@ -11,13 +11,13 @@ module.exports = function webpackConfig(config) {
         options: {
           emccPath: 'emcc',
           emccFlags: (flags, mode) => {
-            console.log('emcc flags', flags, mode);
             flags = flags.filter(flag => !/^-O/.test(flag));
             flags.push('-O2');
             /*flags.push(
               '-s', 'EXTRA_EXPORTED_RUNTIME_METHODS=[\'ccall\',\'cwrap\']'
             );*/
             //console.log(flags);
+            console.log('emcc flags', flags, mode);
             return flags;
           },
           memoryClass: true,
