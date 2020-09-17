@@ -83,6 +83,13 @@ export class PitchOptionsComponent extends UntilDestroy {
       this.destroyed$,
       environment.throttle
     ),
+    prominenceNormalize: stateFormControl(
+      null,
+      this.graph.select(AudioGraphState.fftPeakProminenceNormalize),
+      (x: boolean) => this.graph.dispatch('setFftPeakProminenceNormalize', x),
+      this.destroyed$,
+      environment.throttle
+    ),
   });
 
   /**

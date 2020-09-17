@@ -129,7 +129,8 @@ export interface AudioMathWasmFunctions {
     end: number,
     radius: number,
     threshold: number,
-    type: number
+    type: number,
+    normalize: boolean
   ) => number;
 }
 

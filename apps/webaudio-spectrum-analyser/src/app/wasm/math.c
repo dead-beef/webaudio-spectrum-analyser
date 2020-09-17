@@ -1,4 +1,5 @@
 #include <emscripten.h>
+#include <string.h>
 
 #define EPS 0.01
 
@@ -21,7 +22,8 @@ typedef enum {
 } bool;
 
 enum {
-  FFTVAL_MIN = 0
+  FFTVAL_MIN = 0,
+  FFTVAL_MAX = 255
 };
 
 
@@ -40,6 +42,16 @@ double variance(tdval_t *data, int length, double mean) {
     sum += val * val;
   }
   return sum / length;
+}
+
+fftval_t max_magnitude(fftval_t *fft, int start, int end) {
+  fftval_t ret = FFTVAL_MIN;
+  for (int i = start; i < end; ++i) {
+    if (fft[i] > ret) {
+      ret = fft[i];
+    }
+  }
+  return ret;
 }
 
 
@@ -69,11 +81,10 @@ void autocorr(
   double m = mean(tdata, length);
   double var = variance(tdata, length, m);
   int i = 0;
-  for (; i < min_offset; res[i] = 0.0, ++i);
-  for (; i < max_offset; ++i) {
+  memset(res, 0, length * sizeof(*res));
+  for (int i = min_offset; i < max_offset; ++i) {
     res[i] = autocorr1(tdata, length, m, var, i);
   }
-  for (; i < length; res[i] = 0.0, ++i);
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -119,7 +130,6 @@ int autocorrpeak(
   return res;
 }
 
-
 EMSCRIPTEN_KEEPALIVE
 void prominence(
   fftval_t *fft,
@@ -127,16 +137,26 @@ void prominence(
   int length,
   int start,
   int end,
-  int radius
+  int radius,
+  bool normalize
 ) {
   start = clamp(start, 1, length - 1);
   end = clamp(end, 1, length - 1);
   if (radius < 1) {
     radius = length;
   }
-  int i = 0;
-  for (; i < start; res[i] = 0, ++i);
-  for (; i < end; ++i) {
+
+  memset(res, 0, length * sizeof(*res));
+
+  fftval_t max_mag = FFTVAL_MIN;
+  if (normalize) {
+    max_mag = max_magnitude(fft, start, end);
+    if (max_mag == FFTVAL_MIN) {
+      return;
+    }
+  }
+
+  for (int i = start; i < end; ++i) {
     fftval_t cur = fft[i];
     fftval_t left = cur;
     fftval_t right = cur;
@@ -168,8 +188,10 @@ void prominence(
       }
     }
     res[i] = cur - max(left, right);
+    if (normalize) {
+      res[i] = (unsigned)res[i] * FFTVAL_MAX / max_mag;
+    }
   }
-  for (; i < length; res[i] = 0, ++i);
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -181,7 +203,8 @@ int prominencepeak(
   int end,
   int radius,
   fftval_t threshold,
-  fftpeak_t type
+  fftpeak_t type,
+  bool normalize
 ) {
   start = clamp(start, 1, length - 1);
   end = clamp(end, 1, length - 1);
@@ -189,7 +212,7 @@ int prominencepeak(
     radius = length;
   }
 
-  prominence(fft, prdata, length, start, end, radius);
+  prominence(fft, prdata, length, start, end, radius, normalize);
 
   fftval_t max = FFTVAL_MIN;
   int res = -1;

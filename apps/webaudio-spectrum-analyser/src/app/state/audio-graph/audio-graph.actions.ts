@@ -59,4 +59,7 @@ export const audioGraphAction: StoreActions = {
   setFftPeakProminenceThreshold: action<number>(
     'set fft peak prominence threshold'
   ),
+  setFftPeakProminenceNormalize: action<boolean>(
+    'set fft peak prominence normalize'
+  ),
 };
