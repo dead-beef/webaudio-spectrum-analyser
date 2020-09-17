@@ -6,6 +6,7 @@ import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 //import { PitchDetection, MethodOf } from '../../interfaces';
 import { PitchDetection } from '../../interfaces';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
+import { AUDIO_GRAPH_STATE_DEFAULTS } from './audio-graph.model';
 import { audioGraphAction } from './audio-graph.actions';
 import { AudioGraphState } from './audio-graph.store';
 
@@ -25,7 +26,13 @@ export class AudioGraphService {
     const state = this.store.selectSnapshot(AudioGraphState.state);
     console.log('state', state);
     if (state !== null && state !== undefined) {
-      this.graph.setState(state);
+      try {
+        this.graph.setState(state);
+      } catch (err) {
+        console.warn('invalid state', state);
+        //this.store.reset(AUDIO_GRAPH_STATE_DEFAULTS);
+        void this.dispatch('setState', AUDIO_GRAPH_STATE_DEFAULTS);
+      }
     }
   }
 
