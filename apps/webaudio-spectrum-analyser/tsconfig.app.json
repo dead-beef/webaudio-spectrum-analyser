@@ -3,8 +3,13 @@
     "outDir": "../../dist/out-tsc",
     "types": ["wasm", "util"]
   },
-  "exclude": ["src/test-setup.ts", "**/*.spec.ts", "**/.#*.ts"],
+  "exclude": [
+    "src/test-setup.ts",
+    "**/*.spec.ts",
+    "**/.#*.ts",
+    "**/test.util.ts"
+  ],
   "extends": "./tsconfig.json",
   "files": ["src/main.ts", "src/polyfills.ts"],
-  "include": ["**/*.d.ts"]
+  "include": ["**/*.ts"]
 }
