@@ -363,20 +363,35 @@ export class FrequencyChartComponent
     const sampleRate = this.graph.sampleRate;
     const fftSize = data.length * 2;
     const binSize = sampleRate / fftSize;
+    let drawing = true;
+    let y = 0;
     ctx.strokeStyle = '#ff44ff';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, yMax);
     for (let i = 0; i < data.length; ++i) {
+      if (data[i] === data[i - 1]) {
+        drawing = false;
+        continue;
+      }
+      if (!drawing) {
+        drawing = true;
+        const prevF = (i - 1) * binSize;
+        const prevX = this.frequencyToCanvas(prevF);
+        ctx.lineTo(prevX, y);
+      }
       const f = i * binSize;
       const x = this.frequencyToCanvas(f);
-      const y = yMax - yScale * data[i];
+      y = yMax - yScale * data[i];
       ctx.lineTo(x, y);
+    }
+    if (!drawing) {
+      ctx.lineTo(this.width, y);
     }
     ctx.stroke();
 
     ctx.strokeStyle = '#aa00aa';
-    const y = yMin + (yMax - yMin) * (1 - this.graph.prominenceThreshold);
+    y = yMin + (yMax - yMin) * (1 - this.graph.prominenceThreshold);
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(this.width, y);
