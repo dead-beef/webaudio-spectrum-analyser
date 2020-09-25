@@ -131,10 +131,6 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "eslintConfig": "apps/webaudio-spectrum-analyser/.eslintrc",
-            "exclude": [
-              "**/node_modules/**",
-              "!apps/webaudio-spectrum-analyser/**"
-            ],
             "lintFilePatterns": ["apps/webaudio-spectrum-analyser/**/*.ts"]
           }
         },
@@ -168,10 +164,6 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "eslintConfig": "apps/webaudio-spectrum-analyser-e2e/.eslintrc",
-            "exclude": [
-              "**/node_modules/**",
-              "!apps/webaudio-spectrum-analyser-e2e/**"
-            ],
             "lintFilePatterns": ["apps/webaudio-spectrum-analyser-e2e/**/*.ts"]
           }
         }
