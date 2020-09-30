@@ -5,7 +5,7 @@ import {
   Prominence,
   WasmBuffer,
 } from '../../interfaces';
-import * as wasmModule from '../../wasm/math.c';
+import * as wasmModule from '../../wasm/index.c';
 
 class AudioMathInstance {
   private _wasm: Nullable<WasmModule<AudioMathWasmFunctions>> = null;
