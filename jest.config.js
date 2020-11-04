@@ -17,12 +17,14 @@ module.exports = {
   testMatch: ['**/+(*.)+(spec|test).+(ts|js)?(x)'],
   globals: {
     'ts-jest': {
-      tsConfig: '<rootDir>/tsconfig.spec.json',
+      tsconfig: '<rootDir>/tsconfig.spec.json',
       stringifyContentPathRegex: '\\.html$',
-      astTransformers: [
-        'jest-preset-angular/build/InlineFilesTransformer',
-        'jest-preset-angular/build/StripStylesTransformer',
-      ],
+      astTransformers: {
+        before: [
+          'jest-preset-angular/build/InlineFilesTransformer',
+          'jest-preset-angular/build/StripStylesTransformer',
+        ],
+      },
     },
   },
   transform: {
@@ -32,7 +34,15 @@ module.exports = {
   transformIgnorePatterns: ['node_modules/(?!@ngrx)'],
   moduleFileExtensions: ['ts', 'html', 'js', 'json'],
   resolver: '@nrwl/jest/plugins/resolver',
-  coverageReporters: ['html'],
+  coverageReporters: ['html-spa', 'json-summary'],
   collectCoverage: true,
+  coverageThreshold: {
+    global: {
+      branches: 0,
+      functions: 0,
+      lines: 0,
+      statements: 0,
+    },
+  },
   cacheDirectory: '/tmp/jest_rs/webaudio-spectrum-analyser',
 };

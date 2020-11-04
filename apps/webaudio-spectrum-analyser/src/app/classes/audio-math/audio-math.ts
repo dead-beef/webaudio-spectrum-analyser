@@ -48,28 +48,31 @@ class AudioMathInstance {
    * Constructor.
    */
   constructor() {
-    const init: WasmModuleFactory<AudioMathWasmFunctions> = wasmModule.init;
-    init((imports: WasmImports) => {
-      //console.warn('imports', imports);
-      imports['emscripten_resize_heap'] = (...args) => {
-        console.warn('emscripten_resize_heap', args);
-      };
-      imports['segfault'] = () => {
-        throw new Error('segfault');
-      };
-      imports['alignfault'] = () => {
-        throw new Error('alignfault');
-      };
-      return imports;
-    })
-      .then((wasm_: WasmModule<AudioMathWasmFunctions>) => {
-        window['wasm'] = wasm_;
-        this.wasm = wasm_;
+    const init: WasmModuleFactory<AudioMathWasmFunctions> | undefined =
+      wasmModule.init;
+    if (typeof init !== 'undefined') {
+      init((imports: WasmImports) => {
+        //console.warn('imports', imports);
+        imports['emscripten_resize_heap'] = (...args) => {
+          console.warn('emscripten_resize_heap', args);
+        };
+        imports['segfault'] = () => {
+          throw new Error('segfault');
+        };
+        imports['alignfault'] = () => {
+          throw new Error('alignfault');
+        };
+        return imports;
       })
-      .catch((err: Error) => {
-        console.error(err);
-        this.wasmError = err;
-      });
+        .then((wasm_: WasmModule<AudioMathWasmFunctions>) => {
+          window['wasm'] = wasm_;
+          this.wasm = wasm_;
+        })
+        .catch((err: Error) => {
+          console.error(err);
+          this.wasmError = err;
+        });
+    }
   }
 
   /**
