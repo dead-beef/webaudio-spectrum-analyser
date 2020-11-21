@@ -77,7 +77,7 @@ jobs:
         id: install
         run: |
           npm i -g typescript @angular/cli @nrwl/cli &&
-          yarn install --frozen-lockfile &&
+          yarn install --frozen-lockfile --ignore-scripts &&
           yarn ngcc
 
       - name: Lint affected
