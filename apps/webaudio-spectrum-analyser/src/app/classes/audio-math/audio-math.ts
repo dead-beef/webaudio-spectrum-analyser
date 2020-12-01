@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import {
   AudioMathWasmFunctions,
   Autocorrelation,
@@ -6,8 +7,6 @@ import {
   WasmBuffer,
 } from '../../interfaces';
 import * as wasmModule from '../../wasm/math.c';
-
-import { environment } from '../../../environments/environment';
 
 class AudioMathInstance {
   private _wasm: Nullable<WasmModule<AudioMathWasmFunctions>> = null;
