@@ -7,6 +7,8 @@ import {
 } from '../../interfaces';
 import * as wasmModule from '../../wasm/math.c';
 
+import { environment } from '../../../environments/environment';
+
 class AudioMathInstance {
   private _wasm: Nullable<WasmModule<AudioMathWasmFunctions>> = null;
 
@@ -50,7 +52,9 @@ class AudioMathInstance {
   constructor() {
     const init: WasmModuleFactory<AudioMathWasmFunctions> | undefined =
       wasmModule.init;
-    if (typeof init !== 'undefined') {
+    if (typeof init === 'undefined') {
+      this.wasmError = new Error('wasm module not found');
+    } else {
       init((imports: WasmImports) => {
         //console.warn('imports', imports);
         imports['emscripten_resize_heap'] = (...args) => {
@@ -65,7 +69,9 @@ class AudioMathInstance {
         return imports;
       })
         .then((wasm_: WasmModule<AudioMathWasmFunctions>) => {
-          window['wasm'] = wasm_;
+          if (!environment.production) {
+            window['wasm'] = wasm_;
+          }
           this.wasm = wasm_;
         })
         .catch((err: Error) => {
