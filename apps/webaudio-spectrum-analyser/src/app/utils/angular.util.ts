@@ -32,5 +32,8 @@ export abstract class UntilDestroy implements OnDestroy {
   /**
    * Lifecycle hook.
    */
-  public ngOnDestroy() {}
+  public ngOnDestroy() {
+    this.destroyed.next(true);
+    this.destroyed.complete();
+  }
 }
