@@ -131,14 +131,19 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "eslintConfig": "apps/webaudio-spectrum-analyser/.eslintrc",
-            "lintFilePatterns": ["apps/webaudio-spectrum-analyser/**/*.ts"]
+            "lintFilePatterns": [
+              "apps/webaudio-spectrum-analyser/**/*.ts"
+            ]
           }
         },
         "test": {
           "builder": "@nrwl/jest:jest",
           "options": {
             "jestConfig": "apps/webaudio-spectrum-analyser/jest.config.js"
-          }
+          },
+          "outputs": [
+            "coverage/apps/webaudio-spectrum-analyser"
+          ]
         }
       }
     },
@@ -164,7 +169,9 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "eslintConfig": "apps/webaudio-spectrum-analyser-e2e/.eslintrc",
-            "lintFilePatterns": ["apps/webaudio-spectrum-analyser-e2e/**/*.ts"]
+            "lintFilePatterns": [
+              "apps/webaudio-spectrum-analyser-e2e/**/*.ts"
+            ]
           }
         }
       }
