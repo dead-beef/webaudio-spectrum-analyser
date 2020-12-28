@@ -1,19 +1,20 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { environment } from '../../../environments/environment';
 import { AudioGraphSourceNode, Layouts } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
-import { UntilDestroy } from '../../utils/angular.util';
-import { stateFormControl } from '../../utils/ngxs.util';
+import { stateFormControl } from '../../utils';
 
+@UntilDestroy()
 @Component({
   selector: 'app-wave-options',
   templateUrl: './wave-options.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WaveOptionsComponent extends UntilDestroy implements OnInit {
+export class WaveOptionsComponent implements OnInit {
   public layout = Layouts.VERTICAL;
 
   public readonly form = new FormGroup({
@@ -21,13 +22,13 @@ export class WaveOptionsComponent extends UntilDestroy implements OnInit {
       null,
       this.graph.select(AudioGraphState.waveShape),
       (t: OscillatorType) => this.graph.dispatch('setWaveShape', t),
-      this.destroyed$
+      untilDestroyed(this)
     ),
     frequency: stateFormControl(
       null,
       this.graph.select(AudioGraphState.waveFrequency),
       (f: number) => this.graph.dispatch('setWaveFrequency', f),
-      this.destroyed$,
+      untilDestroyed(this),
       environment.throttle
     ),
   });
@@ -36,9 +37,7 @@ export class WaveOptionsComponent extends UntilDestroy implements OnInit {
    * Constructor.
    * @param graphService
    */
-  constructor(private readonly graph: AudioGraphService) {
-    super();
-  }
+  constructor(private readonly graph: AudioGraphService) {}
 
   /**
    * Lifecycle hook.

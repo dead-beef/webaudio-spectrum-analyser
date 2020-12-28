@@ -1,20 +1,20 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { environment } from '../../../environments/environment';
 import { AudioGraphFilterNode, Layouts } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
-import { UntilDestroy } from '../../utils/angular.util';
-import { stateFormControl } from '../../utils/ngxs.util';
-import { deepEqual } from '../../utils/rxjs.util';
+import { deepEqual, stateFormControl } from '../../utils';
 
+@UntilDestroy()
 @Component({
   selector: 'app-filter-options',
   templateUrl: './filter-options.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FilterOptionsComponent extends UntilDestroy {
+export class FilterOptionsComponent {
   public layout = Layouts.VERTICAL;
 
   public filter$ = this.graph.select(AudioGraphState.filter);
@@ -37,7 +37,7 @@ export class FilterOptionsComponent extends UntilDestroy {
       null,
       this.graph.select(AudioGraphState.filter),
       (f: AudioGraphFilterNode) => this.graph.dispatch('setFilter', f),
-      this.destroyed$
+      untilDestroyed(this)
     ),
 
     iir: stateFormControl(
@@ -51,7 +51,7 @@ export class FilterOptionsComponent extends UntilDestroy {
       }),
       this.graph.select(AudioGraphState.iirState),
       data => this.graph.dispatch('setIirState', data),
-      this.destroyed$,
+      untilDestroyed(this),
       environment.throttle,
       deepEqual
     ),
@@ -66,7 +66,7 @@ export class FilterOptionsComponent extends UntilDestroy {
       }),
       this.graph.select(AudioGraphState.convolverState),
       data => this.graph.dispatch('setConvolverState', data),
-      this.destroyed$,
+      untilDestroyed(this),
       environment.throttle,
       deepEqual
     ),
@@ -76,34 +76,34 @@ export class FilterOptionsComponent extends UntilDestroy {
         null,
         this.graph.select(AudioGraphState.biquadType),
         (t: BiquadFilterType) => this.graph.dispatch('setBiquadType', t),
-        this.destroyed$
+        untilDestroyed(this)
       ),
       frequency: stateFormControl(
         null,
         this.graph.select(AudioGraphState.biquadFrequency),
         (f: number) => this.graph.dispatch('setBiquadFrequency', f),
-        this.destroyed$,
+        untilDestroyed(this),
         environment.throttle
       ),
       detune: stateFormControl(
         null,
         this.graph.select(AudioGraphState.biquadDetune),
         (d: number) => this.graph.dispatch('setBiquadDetune', d),
-        this.destroyed$,
+        untilDestroyed(this),
         environment.throttle
       ),
       gain: stateFormControl(
         null,
         this.graph.select(AudioGraphState.biquadGain),
         (g: number) => this.graph.dispatch('setBiquadGain', g),
-        this.destroyed$,
+        untilDestroyed(this),
         environment.throttle
       ),
       q: stateFormControl(
         null,
         this.graph.select(AudioGraphState.biquadQ),
         (q: number) => this.graph.dispatch('setBiquadQ', q),
-        this.destroyed$,
+        untilDestroyed(this),
         environment.throttle
       ),
     }),
@@ -113,14 +113,14 @@ export class FilterOptionsComponent extends UntilDestroy {
         null,
         this.graph.select(AudioGraphState.pitchShift),
         (s: number) => this.graph.dispatch('setPitchShift', s),
-        this.destroyed$,
+        untilDestroyed(this),
         environment.throttle
       ),
       bufferTime: stateFormControl(
         null,
         this.graph.select(AudioGraphState.pitchShifterBufferTime),
         (t: number) => this.graph.dispatch('setPitchShifterBufferTime', t),
-        this.destroyed$,
+        untilDestroyed(this),
         environment.throttle
       ),
     }),
@@ -137,7 +137,5 @@ export class FilterOptionsComponent extends UntilDestroy {
    * Constructor.
    * @param graph
    */
-  constructor(private readonly graph: AudioGraphService) {
-    super();
-  }
+  constructor(private readonly graph: AudioGraphService) {}
 }

@@ -6,25 +6,24 @@ import {
   OnDestroy,
   ViewChild,
 } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BehaviorSubject, fromEvent } from 'rxjs';
-import { distinctUntilChanged, map, merge, takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, map, merge } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import { PitchDetection, Point } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
-import { UntilDestroy } from '../../utils/angular.util';
-import { throttleTime_ } from '../../utils/rxjs.util';
+import { getEventPoint, throttleTime_ } from '../../utils';
 
+@UntilDestroy()
 @Component({
   selector: 'app-frequency-chart',
   templateUrl: './frequency-chart.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FrequencyChartComponent
-  extends UntilDestroy
-  implements AfterViewInit, OnDestroy {
+export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvas') public canvas: Nullable<
     ElementRef<HTMLCanvasElement>
   > = null;
@@ -88,9 +87,7 @@ export class FrequencyChartComponent
    * Constructor.
    * @param graphService
    */
-  constructor(private readonly graphService: AudioGraphService) {
-    super();
-  }
+  constructor(private readonly graphService: AudioGraphService) {}
 
   /**
    * Lifecycle hook.
@@ -103,28 +100,11 @@ export class FrequencyChartComponent
       void fromEvent(canvas, 'click')
         .pipe(
           merge(fromEvent(canvas, 'mousemove'), fromEvent(canvas, 'touchmove')),
-          takeUntil(this.destroyed$),
-          map(
-            (ev: Event): Point => {
-              let x: number;
-              let y: number;
-              const bbox: DOMRect = canvas.getBoundingClientRect();
-              if ('touches' in ev) {
-                const ev_ = ev as TouchEvent;
-                const touch: Touch = ev_.touches[0];
-                x = touch.clientX;
-                y = touch.clientY;
-              } else {
-                const ev_ = ev as MouseEvent;
-                x = ev_.clientX;
-                y = ev_.clientY;
-              }
-              return {
-                x: x - bbox.x,
-                y: y - bbox.y,
-              };
-            }
-          )
+          untilDestroyed(this),
+          map((ev: Event) => {
+            const bbox: DOMRect = canvas.getBoundingClientRect();
+            return getEventPoint(ev, bbox.x, bbox.y);
+          })
         )
         .subscribe((p: Point) => {
           this.point = p;

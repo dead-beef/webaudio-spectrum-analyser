@@ -5,9 +5,9 @@ import { Observable } from 'rxjs';
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 //import { PitchDetection, MethodOf } from '../../interfaces';
 import { PitchDetection } from '../../interfaces';
-import { AUDIO_GRAPH } from '../../utils/injection-tokens';
-import { AUDIO_GRAPH_STATE_DEFAULTS } from './audio-graph.model';
+import { AUDIO_GRAPH } from '../../utils';
 import { audioGraphAction } from './audio-graph.actions';
+import { AUDIO_GRAPH_STATE_DEFAULTS } from './audio-graph.model';
 import { AudioGraphState } from './audio-graph.store';
 
 @Injectable({

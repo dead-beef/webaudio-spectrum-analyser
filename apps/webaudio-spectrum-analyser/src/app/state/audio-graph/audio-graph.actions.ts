@@ -4,7 +4,7 @@ import {
   AudioGraphSourceNode,
   FftPeakType,
 } from '../../interfaces';
-import { actionConstructor, StoreActions } from '../../utils/ngxs.util';
+import { actionConstructor, StoreActions } from '../../utils';
 import {
   AudioGraphStateModel,
   ConvolverState,

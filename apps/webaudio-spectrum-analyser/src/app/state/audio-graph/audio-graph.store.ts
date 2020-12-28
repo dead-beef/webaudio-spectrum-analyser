@@ -16,12 +16,11 @@ import {
   FftPeakType,
   PitchDetectionId,
 } from '../../interfaces';
-import { AUDIO_GRAPH } from '../../utils/injection-tokens';
-import { StoreAction } from '../../utils/ngxs.util';
+import { AUDIO_GRAPH, StoreAction } from '../../utils';
 import { audioGraphAction } from './audio-graph.actions';
 import {
-  AUDIO_GRAPH_STATE_TOKEN,
   AUDIO_GRAPH_STATE_DEFAULTS,
+  AUDIO_GRAPH_STATE_TOKEN,
   AudioGraphStateModel,
   ConvolverState,
   IirState,

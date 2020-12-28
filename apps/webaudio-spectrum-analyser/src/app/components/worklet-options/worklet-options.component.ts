@@ -5,23 +5,22 @@ import {
   OnInit,
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BehaviorSubject } from 'rxjs';
 
 import { WorkletNode } from '../../classes/worklet-node/worklet-node';
 import { AudioGraphSourceNode, Layouts } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
-import { UntilDestroy } from '../../utils/angular.util';
-import { stateFormControl } from '../../utils/ngxs.util';
+import { stateFormControl } from '../../utils';
 
+@UntilDestroy()
 @Component({
   selector: 'app-worklet-options',
   templateUrl: './worklet-options.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WorkletOptionsComponent
-  extends UntilDestroy
-  implements OnInit, OnDestroy {
+export class WorkletOptionsComponent implements OnInit, OnDestroy {
   public layout = Layouts.VERTICAL;
 
   private readonly loaded = new BehaviorSubject<boolean>(false);
@@ -39,7 +38,7 @@ export class WorkletOptionsComponent
       null,
       this.graph.select(AudioGraphState.workletType),
       (t: number) => this.graph.dispatch('setWorkletType', t),
-      this.destroyed$
+      untilDestroyed(this)
     ),
   });
 
@@ -47,9 +46,7 @@ export class WorkletOptionsComponent
    * Constructor.
    * @param graph
    */
-  constructor(private readonly graph: AudioGraphService) {
-    super();
-  }
+  constructor(private readonly graph: AudioGraphService) {}
 
   /**
    * Lifecycle hook.

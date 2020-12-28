@@ -7,25 +7,23 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Observable } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { AudioGraphSourceNode } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
-import { UntilDestroy } from '../../utils/angular.util';
-import { stateFormControl } from '../../utils/ngxs.util';
+import { stateFormControl } from '../../utils';
 import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
 
+@UntilDestroy()
 @Component({
   selector: 'app-audio-graph',
   templateUrl: './audio-graph.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AudioGraphComponent
-  extends UntilDestroy
-  implements AfterViewInit, OnDestroy {
+export class AudioGraphComponent implements AfterViewInit, OnDestroy {
   @ViewChild(FrequencyChartComponent)
   public chart: Nullable<FrequencyChartComponent> = null;
 
@@ -38,7 +36,7 @@ export class AudioGraphComponent
       null,
       this.graph.select(AudioGraphState.volume),
       (v: number) => this.graph.dispatch('setVolume', v),
-      this.destroyed$,
+      untilDestroyed(this),
       environment.throttle
     ),
   });
@@ -67,9 +65,7 @@ export class AudioGraphComponent
    * Constructor.
    * @param graph
    */
-  constructor(private readonly graph: AudioGraphService) {
-    super();
-  }
+  constructor(private readonly graph: AudioGraphService) {}
 
   /**
    * Lifecycle hook.
@@ -78,7 +74,7 @@ export class AudioGraphComponent
     try {
       this.audio = this.audioRef!.nativeElement;
       this.audio.srcObject = this.graph.getOutputStream();
-      void this.paused$.pipe(takeUntil(this.destroyed$)).subscribe(paused => {
+      void this.paused$.pipe(untilDestroyed(this)).subscribe(paused => {
         if (this.audio === null) {
           return;
         }
@@ -89,7 +85,7 @@ export class AudioGraphComponent
           this.setVolume(this.volume);
         }
       });
-      void this.volume$.pipe(takeUntil(this.destroyed$)).subscribe(volume => {
+      void this.volume$.pipe(untilDestroyed(this)).subscribe(volume => {
         this.setVolume(volume);
       });
     } catch (err) {
