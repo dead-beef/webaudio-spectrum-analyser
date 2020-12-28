@@ -1,11 +1,6 @@
 import { AbstractControl, FormControl } from '@angular/forms';
-import { Observable } from 'rxjs';
-import {
-  catchError,
-  distinctUntilChanged,
-  flatMap,
-  takeUntil,
-} from 'rxjs/operators';
+import { MonoTypeOperatorFunction, Observable } from 'rxjs';
+import { catchError, distinctUntilChanged, flatMap } from 'rxjs/operators';
 
 import { throttleTime_ } from './rxjs.util';
 
@@ -52,7 +47,7 @@ export function stateFormControl<T>(
   formControlOrState: AbstractControl | any,
   value$: Observable<T>,
   setState: (value: T) => Observable<any>,
-  destroyed$: Observable<any>,
+  untilDestroyed: MonoTypeOperatorFunction<T>,
   throttle?: number,
   compare?: (prev: T, next: T) => boolean
 ): AbstractControl {
@@ -70,7 +65,7 @@ export function stateFormControl<T>(
   }
   void valueChanges$
     .pipe(
-      takeUntil(destroyed$),
+      untilDestroyed,
       distinctUntilChanged(compare),
       flatMap(setState),
       catchError(function error(err, caught) {
@@ -80,7 +75,7 @@ export function stateFormControl<T>(
     )
     .subscribe();
   void value$
-    .pipe(takeUntil(destroyed$), distinctUntilChanged(compare))
+    .pipe(untilDestroyed, distinctUntilChanged(compare))
     .subscribe(fc.setValue.bind(fc));
   return fc;
 }

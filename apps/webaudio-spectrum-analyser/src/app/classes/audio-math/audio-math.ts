@@ -6,7 +6,7 @@ import {
   Prominence,
   WasmBuffer,
 } from '../../interfaces';
-import * as wasmModule from '../../wasm/math.c';
+import * as wasmModule from '../../wasm/index.c';
 
 class AudioMathInstance {
   private _wasm: Nullable<WasmModule<AudioMathWasmFunctions>> = null;
@@ -301,7 +301,7 @@ class AudioMathInstance {
 
     return {
       value: output,
-      peak: res,
+      peak: res >= 0 ? res : NaN,
     };
   }
 
@@ -315,9 +315,11 @@ class AudioMathInstance {
     start: number = 0,
     end: number = fft.length - 1,
     radius: number = 0,
-    threshold: number = 0.1
+    threshold: number = 0.1,
+    normalize: boolean = false
   ): Prominence {
     output = this.resize(output, fft.length);
+    threshold = Math.floor(threshold * 255);
 
     const wasm = this.wasm;
     if (!wasm) {
@@ -338,14 +340,15 @@ class AudioMathInstance {
       end,
       radius,
       threshold,
-      peakType
+      peakType,
+      normalize
     );
 
     output = this.copyFromBuffer(output, this.outputBuffer);
 
     return {
       value: output,
-      peak: res,
+      peak: res >= 0 ? res : NaN,
     };
   }
 

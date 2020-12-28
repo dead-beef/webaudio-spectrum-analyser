@@ -40,8 +40,11 @@ export interface BiquadState {
 
 export interface FftPeakState {
   type: FftPeakType;
-  prominenceRadius: number;
-  prominenceThreshold: number;
+  prominence: {
+    radius: number;
+    threshold: number;
+    normalize: boolean;
+  };
 }
 
 export interface AudioGraphStateModel {
@@ -81,7 +84,7 @@ export interface AudioGraphStateModel {
   };
 }
 
-export const audioGraphStateDefaults: AudioGraphStateModel = {
+export const AUDIO_GRAPH_STATE_DEFAULTS: AudioGraphStateModel = {
   paused: true,
   suspended: true,
   volume: 0.5,
@@ -100,8 +103,11 @@ export const audioGraphStateDefaults: AudioGraphStateModel = {
   },
   fftp: {
     type: FftPeakType.MAX_MAGNITUDE,
-    prominenceRadius: 0,
-    prominenceThreshold: 0.1,
+    prominence: {
+      radius: 0,
+      threshold: 0.1,
+      normalize: false,
+    },
   },
   wave: {
     shape: 'sine',

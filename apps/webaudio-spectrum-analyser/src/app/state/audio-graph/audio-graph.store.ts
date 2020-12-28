@@ -16,12 +16,11 @@ import {
   FftPeakType,
   PitchDetectionId,
 } from '../../interfaces';
-import { AUDIO_GRAPH } from '../../utils/injection-tokens';
-import { StoreAction } from '../../utils/ngxs.util';
+import { AUDIO_GRAPH, StoreAction } from '../../utils';
 import { audioGraphAction } from './audio-graph.actions';
 import {
+  AUDIO_GRAPH_STATE_DEFAULTS,
   AUDIO_GRAPH_STATE_TOKEN,
-  audioGraphStateDefaults,
   AudioGraphStateModel,
   ConvolverState,
   IirState,
@@ -30,7 +29,7 @@ import {
 
 @State<AudioGraphStateModel>({
   name: AUDIO_GRAPH_STATE_TOKEN,
-  defaults: audioGraphStateDefaults,
+  defaults: AUDIO_GRAPH_STATE_DEFAULTS,
 })
 // eslint-disable-next-line @angular-eslint/use-injectable-provided-in
 @Injectable()
@@ -292,7 +291,7 @@ export class AudioGraphState {
    */
   @Selector()
   public static fftPeakProminenceRadius(state: AudioGraphStateModel) {
-    return state.fftp.prominenceRadius;
+    return state.fftp.prominence.radius;
   }
 
   /**
@@ -301,7 +300,16 @@ export class AudioGraphState {
    */
   @Selector()
   public static fftPeakProminenceThreshold(state: AudioGraphStateModel) {
-    return state.fftp.prominenceThreshold;
+    return state.fftp.prominence.threshold;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static fftPeakProminenceNormalize(state: AudioGraphStateModel) {
+    return state.fftp.prominence.normalize;
   }
 
   /**
@@ -854,7 +862,15 @@ export class AudioGraphState {
     { payload }: StoreAction<number>
   ) {
     this.graph.prominenceRadius = payload;
-    return ctx.setState(patch({ fftp: patch({ prominenceRadius: payload }) }));
+    return ctx.setState(
+      patch({
+        fftp: patch({
+          prominence: patch({
+            radius: payload,
+          }),
+        }),
+      })
+    );
   }
 
   /**
@@ -871,7 +887,31 @@ export class AudioGraphState {
     return ctx.setState(
       patch({
         fftp: patch({
-          prominenceThreshold: payload,
+          prominence: patch({
+            threshold: payload,
+          }),
+        }),
+      })
+    );
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setFftPeakProminenceNormalize)
+  public setFftPeakProminenceNormalize(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<boolean>
+  ) {
+    this.graph.prominenceNormalize = payload;
+    return ctx.setState(
+      patch({
+        fftp: patch({
+          prominence: patch({
+            normalize: payload,
+          }),
         }),
       })
     );

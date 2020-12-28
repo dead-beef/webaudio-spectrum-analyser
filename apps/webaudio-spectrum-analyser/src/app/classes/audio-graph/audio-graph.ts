@@ -54,6 +54,8 @@ export class AudioGraph {
 
   public prominenceThreshold = 0.1;
 
+  public prominenceNormalize = false;
+
   public fftPeakType: FftPeakType = FftPeakType.MAX_MAGNITUDE;
 
   public debug = false;
@@ -209,16 +211,21 @@ export class AudioGraph {
     this.nodes.input.delayTime.value = state.delay;
     this.fftSize = state.fftSize;
     this.smoothing = state.smoothing;
+    this.debug = state.debug;
+
     this.minPitch = state.pitch.min;
     this.maxPitch = state.pitch.max;
-    this.debug = state.debug;
     for (const pd of this.pitch) {
       pd.enabled = state.pitch[pd.short];
     }
+
     this.nodes.wave.type = state.wave.shape;
     this.nodes.wave.frequency.value = state.wave.frequency;
+
     this.setFilter(state.filter.id);
+
     this.setIir(state.filter.iir.feedforward, state.filter.iir.feedback);
+
     this.setConvolver(
       state.filter.convolver.duration,
       state.filter.convolver.decay,
@@ -226,17 +233,22 @@ export class AudioGraph {
       state.filter.convolver.overtones,
       state.filter.convolver.overtoneDecay
     );
+
     this.nodes.filter.biquad.type = state.filter.biquad.type;
     this.nodes.filter.biquad.frequency.value = state.filter.biquad.frequency;
     this.nodes.filter.biquad.detune.value = state.filter.biquad.detune;
     this.nodes.filter.biquad.gain.value = state.filter.biquad.gain;
     this.nodes.filter.biquad.Q.value = state.filter.biquad.q;
+
     this.nodes.filter.pitchShifter.shift = state.filter.pitchShifter.shift;
     this.nodes.filter.pitchShifter.bufferTime =
       state.filter.pitchShifter.bufferTime;
+
     this.fftPeakType = state.fftp.type;
-    this.prominenceRadius = state.fftp.prominenceRadius;
-    this.prominenceThreshold = state.fftp.prominenceThreshold;
+
+    this.prominenceRadius = state.fftp.prominence.radius;
+    this.prominenceThreshold = state.fftp.prominence.threshold;
+    this.prominenceNormalize = state.fftp.prominence.normalize;
   }
 
   /**
@@ -675,7 +687,8 @@ export class AudioGraph {
       start,
       end,
       this.prominenceRadius,
-      this.prominenceThreshold * 255
+      this.prominenceThreshold,
+      this.prominenceNormalize
     );
 
     this.prominenceData[i] = prominence.value;

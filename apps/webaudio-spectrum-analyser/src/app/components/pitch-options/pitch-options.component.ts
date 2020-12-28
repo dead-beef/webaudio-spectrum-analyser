@@ -1,19 +1,20 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { environment } from '../../../environments/environment';
 import { FftPeakType, Layouts } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
-import { UntilDestroy } from '../../utils/angular.util';
-import { stateFormControl } from '../../utils/ngxs.util';
+import { stateFormControl } from '../../utils';
 
+@UntilDestroy()
 @Component({
   selector: 'app-pitch-options',
   templateUrl: './pitch-options.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PitchOptionsComponent extends UntilDestroy {
+export class PitchOptionsComponent {
   public layout = Layouts.VERTICAL;
 
   public readonly pitch = this.graph.listPitchDetection();
@@ -37,7 +38,7 @@ export class PitchOptionsComponent extends UntilDestroy {
                 id: pd.short,
                 enabled: e,
               }),
-            this.destroyed$
+            untilDestroyed(this)
           ),
         ])
       )
@@ -46,41 +47,48 @@ export class PitchOptionsComponent extends UntilDestroy {
       null,
       this.graph.select(AudioGraphState.debug),
       (d: boolean) => this.graph.dispatch('setDebug', d),
-      this.destroyed$
+      untilDestroyed(this)
     ),
     minPitch: stateFormControl(
       null,
       this.graph.select(AudioGraphState.minPitch),
       (p: number) => this.graph.dispatch('setMinPitch', p),
-      this.destroyed$,
+      untilDestroyed(this),
       environment.throttle
     ),
     maxPitch: stateFormControl(
       null,
       this.graph.select(AudioGraphState.maxPitch),
       (p: number) => this.graph.dispatch('setMaxPitch', p),
-      this.destroyed$,
+      untilDestroyed(this),
       environment.throttle
     ),
     peakType: stateFormControl(
       null,
       this.graph.select(AudioGraphState.fftPeakType),
       (t: FftPeakType) => this.graph.dispatch('setFftPeakType', t),
-      this.destroyed$,
+      untilDestroyed(this),
       environment.throttle
     ),
     prominenceRadius: stateFormControl(
       null,
       this.graph.select(AudioGraphState.fftPeakProminenceRadius),
       (x: number) => this.graph.dispatch('setFftPeakProminenceRadius', x),
-      this.destroyed$,
+      untilDestroyed(this),
       environment.throttle
     ),
     prominenceThreshold: stateFormControl(
       null,
       this.graph.select(AudioGraphState.fftPeakProminenceThreshold),
       (x: number) => this.graph.dispatch('setFftPeakProminenceThreshold', x),
-      this.destroyed$,
+      untilDestroyed(this),
+      environment.throttle
+    ),
+    prominenceNormalize: stateFormControl(
+      null,
+      this.graph.select(AudioGraphState.fftPeakProminenceNormalize),
+      (x: boolean) => this.graph.dispatch('setFftPeakProminenceNormalize', x),
+      untilDestroyed(this),
       environment.throttle
     ),
   });
@@ -89,7 +97,5 @@ export class PitchOptionsComponent extends UntilDestroy {
    * Constructor.
    * @param graph
    */
-  constructor(private readonly graph: AudioGraphService) {
-    super();
-  }
+  constructor(private readonly graph: AudioGraphService) {}
 }

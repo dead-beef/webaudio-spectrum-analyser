@@ -4,7 +4,7 @@ import {
   AudioGraphSourceNode,
   FftPeakType,
 } from '../../interfaces';
-import { actionConstructor, StoreActions } from '../../utils/ngxs.util';
+import { actionConstructor, StoreActions } from '../../utils';
 import {
   AudioGraphStateModel,
   ConvolverState,
@@ -58,5 +58,8 @@ export const audioGraphAction: StoreActions = {
   setFftPeakProminenceRadius: action<number>('set fft peak prominence radius'),
   setFftPeakProminenceThreshold: action<number>(
     'set fft peak prominence threshold'
+  ),
+  setFftPeakProminenceNormalize: action<boolean>(
+    'set fft peak prominence normalize'
   ),
 };
