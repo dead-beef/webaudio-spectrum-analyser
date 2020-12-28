@@ -1,6 +1,6 @@
 module.exports = {
   name: 'webaudio-spectrum-analyser',
-  preset: '../../jest.config.js',
+  preset: '../../jest.preset.js',
   coverageDirectory: '../../coverage/apps/webaudio-spectrum-analyser',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   snapshotSerializers: [

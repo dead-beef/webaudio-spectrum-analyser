@@ -39,7 +39,7 @@ installProjectDependencies() {
 installGlobalDependencies() {
   log 'installing global dependencies...'
   # sudo
-  cmd npm install -g @angular/cli@latest @nestjs/cli@latest @nrwl/cli@latest typescript@latest firebase-tools@latest @compodoc/compodoc@latest commitizen@latest cz-conventional-changelog@latest clang-format@latest yarn@latest
+  cmd npm install -g @angular/cli@latest @nestjs/cli@latest @nrwl/cli@latest typescript@latest firebase-tools@latest @compodoc/compodoc@latest commitizen@latest cz-conventional-changelog@latest clang-format@latest yarn@latest npm-check-updates@latest
   YARN=1
 }
 

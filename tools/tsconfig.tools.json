@@ -4,12 +4,8 @@
     "outDir": "../dist/out-tsc/tools",
     "rootDir": ".",
     "target": "es5",
-    "types": [
-      "node"
-    ]
+    "types": ["node"]
   },
-  "extends": "../tsconfig.base.json",
-  "include": [
-    "**/*.ts"
-  ]
+  "extends": "../tsconfig.json",
+  "include": ["**/*.ts"]
 }

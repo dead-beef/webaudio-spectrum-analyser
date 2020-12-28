@@ -2,6 +2,8 @@
 
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
+![Master](https://github.com/dead-beef/webaudio-spectrum-analyser/workflows/Master/badge.svg) ![PR validation](https://github.com/dead-beef/webaudio-spectrum-analyser/workflows/PR%20validation/badge.svg)
+
 ## Overview
 
 ## Requirements
@@ -146,6 +148,142 @@ Webpack bundle analyzer is used for application bundles analysis.
 ```bash
 yarn analyze:webaudio-spectrum-analyser
 ```
+
+## General Tooling
+
+This project was generated using [Nx](https://nx.dev).
+
+<p align="center"><img src="https://raw.githubusercontent.com/nrwl/nx/master/nx-logo.png" width="450"></p>
+
+🔎 **Nx is a set of Angular CLI power-ups for modern development.**
+
+### Quick Start & Documentation
+
+- [Nx Documentation](https://nx.dev)
+- [30-minute video showing all Nx features](https://nx.dev/getting-started/what-is-nx)
+- [Interactive Tutorial](https://nx.dev/tutorial/01-create-application)
+
+### Adding capabilities to your workspace
+
+Nx supports many plugins which add capabilities for developing different types of applications and different tools.
+
+These capabilities include generating applications, libraries, .etc as well as the devtools to test, and build projects as well.
+
+Below are some plugins which you can add to your workspace:
+
+| Application type                       | Command                  |
+| -------------------------------------- | ------------------------ |
+| [Angular](https://angular.io)          | `ng add @nrwl/angular`   |
+| [React](https://reactjs.org)           | `ng add @nrwl/react`     |
+| Web (no framework frontends)           | `ng add @nrwl/web`       |
+| [Nest](https://nestjs.com)             | `ng add @nrwl/nest`      |
+| [Express](https://expressjs.com)       | `ng add @nrwl/express`   |
+| [Node](https://nodejs.org)             | `ng add @nrwl/node`      |
+| [Storybook](https://storybook.js.org/) | `ng add @nrwl/storybook` |
+
+### Generating an application
+
+To generate an application run:
+
+```bash
+ng g @nrwl/angular:app my-app
+```
+
+> You can use any of the plugins above to generate applications as well.
+
+When using Nx, you can create multiple applications and libraries in the same workspace.
+
+### Generating a library
+
+To generate a library run:
+
+```bash
+ng g @nrwl/angular:lib my-lib
+```
+
+> You can also use any of the plugins above to generate libraries as well.
+
+Libraries are sharable across libraries and applications.
+
+It can be imported from `@nx-ng-starter/mylib`.
+
+### Running a development server
+
+To start a dev server run:
+
+```bash
+ng serve my-app
+```
+
+Navigate to http://localhost:4200/.
+
+The app will automatically reload if you change any of the source files.
+
+### Code scaffolding
+
+To generate a new component run:
+
+```bash
+ng g component my-component --project=my-app
+```
+
+### Building applications
+
+To build the project run:
+
+```bash
+ng build my-app
+```
+
+The build artifacts will be stored in the `dist/` directory.
+
+Use the `--prod` flag for a production build.
+
+### Unit testing with [Jest](https://jestjs.io)
+
+To execute the unit tests run:
+
+```bash
+ng test my-app
+```
+
+To execute the unit tests affected by a change run:
+
+```bash
+npm run affected:test
+```
+
+### End-to-end testing with [Cypress](https://www.cypress.io)
+
+To execute the end-to-end tests run:
+
+```bash
+ng e2e my-app
+```
+
+To execute the end-to-end tests affected by a change run:
+
+```bash
+npm run affected:e2e
+```
+
+### Understanding your workspace
+
+To see a diagram of the dependencies of your projects run:
+
+```bash
+npm run dep-graph
+```
+
+### Generating a storybook for a feature or ui library
+
+```bash
+npx nx g @nrwl/angular:storybook-configuration project-name
+```
+
+### Further help
+
+Visit the [Nx Documentation](https://nx.dev) to learn more.
 
 ## Licenses
 

@@ -138,7 +138,8 @@
           "builder": "@nrwl/jest:jest",
           "options": {
             "jestConfig": "apps/webaudio-spectrum-analyser/jest.config.js"
-          }
+          },
+          "outputs": ["coverage/apps/webaudio-spectrum-analyser"]
         }
       }
     },
