@@ -26,9 +26,8 @@ import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.comp
 export class AudioGraphComponent
   extends UntilDestroy
   implements AfterViewInit, OnDestroy {
-  @ViewChild(FrequencyChartComponent) public chart: Nullable<
-    FrequencyChartComponent
-  > = null;
+  @ViewChild(FrequencyChartComponent)
+  public chart: Nullable<FrequencyChartComponent> = null;
 
   @ViewChild('audio') public audioRef: Nullable<
     ElementRef<HTMLAudioElement>

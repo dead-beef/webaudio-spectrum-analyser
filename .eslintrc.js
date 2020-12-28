@@ -12,7 +12,10 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
-    project: path.join(path.dirname(__filename), 'tsconfig.base.json'),
+    project: [
+      path.join(path.dirname(__filename), 'tsconfig.json'),
+      path.join(path.dirname(__filename), 'tsconfig.eslint-js.json'),
+    ],
   },
   extends: [
     'eslint:recommended',
@@ -315,7 +318,8 @@ module.exports = {
     'prefer-promise-reject-errors': 'error',
     'prefer-rest-params': 'warn',
     'prettier/prettier': 'error',
-    'simple-import-sort/sort': 'error',
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
     'sort-imports': 'off', // handled by simple-import-sort/sort
     radix: 'error',
     'require-atomic-updates': 'error',
@@ -401,6 +405,24 @@ module.exports = {
 
   overrides: [
     {
+      files: '**/*.js',
+      parser: 'esprima',
+      parserOptions: {
+        ecmaVersion: 2020,
+        sourceType: 'module',
+      },
+      extends: [
+        'eslint:recommended',
+        'plugin:prettier/recommended',
+        'plugin:@angular-eslint/recommended',
+      ],
+      plugins: [
+        'prettier',
+        '@angular-eslint', // https://github.com/angular-eslint/angular-eslint
+        'simple-import-sort', // https://github.com/lydell/eslint-plugin-simple-import-sort
+      ],
+    },
+    {
       files: '**/main.ts',
       rules: {
         'no-console': 'off',
@@ -409,7 +431,8 @@ module.exports = {
     {
       files: '**/test-setup.ts',
       rules: {
-        'simple-import-sort/sort': 'off',
+        'simple-import-sort/imports': 'error',
+        'simple-import-sort/exports': 'error',
       },
     },
     {

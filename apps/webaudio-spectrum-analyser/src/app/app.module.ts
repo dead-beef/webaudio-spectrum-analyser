@@ -92,7 +92,10 @@ import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
       },
     }),
     AudioGraphStoreModule,
-    RouterModule.forRoot(ROUTES, { useHash: true }),
+    RouterModule.forRoot(ROUTES, {
+      useHash: true,
+      relativeLinkResolution: 'legacy',
+    }),
   ],
   providers: [
     { provide: WINDOW, useFactory: getWindow },
