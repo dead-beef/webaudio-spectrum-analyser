@@ -5,13 +5,15 @@
 #include <string.h>
 
 #define EPS 0.01
+#define FFTVAL_MIN 0.0
+#define FFTVAL_MAX 1.0
 
 #define clamp(x, min, max) ((x) < (min) ? (min) : (x) > (max) ? (max) : (x))
 #define max(x, y) ((x) > (y) ? (x) : (y))
 #define min(x, y) ((x) > (y) ? (y) : (x))
 
-typedef unsigned char tdval_t;
-typedef unsigned char fftval_t;
+typedef float tdval_t;
+typedef float fftval_t;
 
 typedef enum {
   MIN_FREQUENCY = 1,
@@ -23,11 +25,6 @@ typedef enum {
   TRUE = 1,
   FALSE = 0
 } bool;
-
-enum {
-  FFTVAL_MIN = 0,
-  FFTVAL_MAX = 255
-};
 
 double mean(tdval_t *data, int length);
 double variance(tdval_t *data, int length, double mean);

@@ -255,13 +255,15 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
    * @param yMin
    * @param yMax
    */
-  private drawFrequencyData(data: Uint8Array, yMin: number, yMax: number) {
+  private drawFrequencyData(data: Float32Array, yMin: number, yMax: number) {
     const ctx = this.context;
     if (ctx === null) {
       return;
     }
 
-    const yScale = (yMax - yMin) / 255.0;
+    const dMin = this.graph.minDecibels;
+    const dMax = this.graph.maxDecibels;
+    const yScale = (yMax - yMin) / (dMax - dMin);
     const sampleRate = this.graph.sampleRate;
     const fftSize = data.length * 2;
     const binSize = sampleRate / fftSize;
@@ -281,14 +283,14 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
     for (let i = start; i < data.length; ++i) {
       const f = i * binSize + halfBinSize;
       const x = this.frequencyToCanvas(f);
-      if (data[i] === data[i - 1] && prevX > 0) {
+      if (Math.abs(data[i] - data[i - 1]) < 0.5 && prevX > 0) {
         drawing = false;
       } else {
         if (!drawing) {
           drawing = true;
-          ctx.lineTo(prevX, yMax - yScale * data[i - 1]);
+          ctx.lineTo(prevX, yMax - yScale * Math.max(0, data[i - 1] - dMin));
         }
-        const y = yScale * data[i];
+        const y = yScale * Math.max(0, data[i] - dMin);
         ctx.lineTo(prevX, yMax - y);
         ctx.lineTo(x, yMax - y);
       }
@@ -334,12 +336,14 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
    * @param yMin
    * @param yMax
    */
-  public drawProminenceData(data: Uint8Array, yMin: number, yMax: number) {
+  public drawProminenceData(data: Float32Array, yMin: number, yMax: number) {
     const ctx = this.context;
     if (ctx === null) {
       return;
     }
-    const yScale = (yMax - yMin) / 255.0;
+    const dMin = this.graph.minDecibels;
+    const dMax = this.graph.maxDecibels;
+    const yScale = (yMax - yMin) / (dMax - dMin);
     const sampleRate = this.graph.sampleRate;
     const fftSize = data.length * 2;
     const binSize = sampleRate / fftSize;
@@ -398,7 +402,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
 
       this.graph.fdata.forEach((data, i) => {
         this.drawFrequencyData(data, i * plotHeight, (i + 1) * plotHeight);
-        const value = Math.round(this.graph.byteToDecibels(data[point]));
+        const value = Math.round(data[point]);
         this.pointValues[i].next(value);
       });
       this.drawGrid(plotCount);

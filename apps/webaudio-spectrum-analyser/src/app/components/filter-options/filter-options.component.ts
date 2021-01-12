@@ -25,6 +25,7 @@ export class FilterOptionsComponent {
     { id: AudioGraphFilterNode.BIQUAD, name: 'Biquad' },
     { id: AudioGraphFilterNode.CONVOLVER, name: 'Convolver' },
     { id: AudioGraphFilterNode.PITCH_SHIFTER, name: 'Pitch shifter' },
+    { id: AudioGraphFilterNode.WORKLET, name: 'Worklet' },
   ];
 
   public readonly iirFilterOrder = [0, 1, 2];
@@ -124,6 +125,8 @@ export class FilterOptionsComponent {
         environment.throttle
       ),
     }),
+
+    worklet: new FormGroup({}),
   });
 
   public readonly iirForm = this.form.controls.iir as FormGroup;

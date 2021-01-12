@@ -9,7 +9,8 @@ import {
 import { AudioGraphStateModel } from '../../state/audio-graph/audio-graph.model';
 import { AudioMath } from '../audio-math/audio-math';
 import { PitchShifterNode } from '../pitch-shifter-node/pitch-shifter-node';
-import { WorkletNode } from '../worklet-node/worklet-node';
+import { WorkletNodeFactory } from '../worklet-node-factory/worklet-node-factory';
+import { GeneratorProcessor, FilterProcessor } from '../worklet-processor';
 
 export class AudioGraph {
   public context: AudioContext;
@@ -18,7 +19,11 @@ export class AudioGraph {
 
   public stream: MediaStream;
 
+  public workletFactory: WorkletNodeFactory;
+
   public workletReady: Promise<void>;
+
+  public workletFilterReady: Promise<void>;
 
   public filter: AudioGraphFilterNode = AudioGraphFilterNode.NONE;
 
@@ -30,13 +35,16 @@ export class AudioGraph {
 
   public deviceStream: Nullable<MediaStream> = null;
 
-  public fdata: Uint8Array[] = [];
+  public fdata: Float32Array[] = [];
 
-  public tdata: Uint8Array = new Uint8Array(1);
+  public tdata: Float32Array = new Float32Array(1);
 
   public autocorrdata: Float32Array = new Float32Array(1);
 
-  public prominenceData: Uint8Array[] = [new Uint8Array(1), new Uint8Array(1)];
+  public prominenceData: Float32Array[] = [
+    new Float32Array(1),
+    new Float32Array(1),
+  ];
 
   public canAnalyse = true;
 
@@ -185,6 +193,7 @@ export class AudioGraph {
         biquad: this.context.createBiquadFilter(),
         convolver: this.context.createConvolver(),
         pitchShifter: new PitchShifterNode(this.context),
+        worklet: null,
       },
       filteredInput: this.context.createGain(),
       analysers: [],
@@ -195,11 +204,32 @@ export class AudioGraph {
     this.createAnalysers();
     this.stream = this.nodes.output.stream;
 
-    this.workletReady = WorkletNode.register(this.context).then(() => {
-      this.nodes.worklet = WorkletNode.create(this.context);
-      window['params'] = this.nodes.worklet.parameters;
-    });
+    this.workletFactory = new WorkletNodeFactory(this.context);
+
+    this.workletReady = this.workletFactory
+      .create(GeneratorProcessor)
+      .then(node => {
+        this.nodes.worklet = node;
+        //window['params'] = node.parameters;
+      });
     this.workletReady.catch(err => console.warn(err));
+
+    this.workletFilterReady = this.workletFactory
+      .create(FilterProcessor)
+      .then(node => {
+        this.nodes.filter.worklet = node;
+        //window['params'] = node.parameters;
+        return AudioMath.wasmReady;
+      })
+      .then(wasm => {
+        this.nodes.filter.worklet!.port.postMessage({
+          type: 'init',
+          module: wasm.raw.module,
+          memorySize: wasm.emModule.buffer.byteLength,
+          sampleRate: this.sampleRate,
+        });
+      });
+    this.workletFilterReady.catch(err => console.warn(err));
   }
 
   /**
@@ -373,6 +403,9 @@ export class AudioGraph {
       case AudioGraphFilterNode.PITCH_SHIFTER:
         node = this.nodes.filter.pitchShifter;
         break;
+      case AudioGraphFilterNode.WORKLET:
+        node = this.nodes.filter.worklet;
+        break;
       default:
         throw new Error('invalid filter ' + String(node));
     }
@@ -380,12 +413,27 @@ export class AudioGraph {
     this.nodes.input.disconnect();
     for (const k in this.nodes.filter) {
       if (Object.prototype.hasOwnProperty.call(this.nodes.filter, k)) {
-        this.nodes.filter[k as keyof AudioGraphFilters].disconnect();
+        const node_ = this.nodes.filter[k as keyof AudioGraphFilters];
+        if (node_ !== null) {
+          node_.disconnect();
+        }
       }
     }
 
     if (node === null) {
-      this.nodes.input.connect(this.nodes.filteredInput);
+      if (filter === AudioGraphFilterNode.WORKLET) {
+        void this.workletFilterReady.then(() => {
+          node = this.nodes.filter.worklet;
+          if (node === null) {
+            console.error('no worklet filter node');
+            return;
+          }
+          this.nodes.input.connect(node);
+          node.connect(this.nodes.filteredInput);
+        });
+      } else {
+        this.nodes.input.connect(this.nodes.filteredInput);
+      }
     } else {
       this.nodes.input.connect(node);
       node.connect(this.nodes.filteredInput);
@@ -461,7 +509,9 @@ export class AudioGraph {
     });
 
     while (this.fdata.length < this.nodes.analysers.length) {
-      this.fdata.push(new Uint8Array(this.fftSize / 2));
+      const arr = new Float32Array(this.fftSize / 2);
+      arr.fill(this.minDecibels);
+      this.fdata.push(arr);
     }
 
     this.nodes.analysers[0].connect(this.nodes.output);
@@ -475,7 +525,7 @@ export class AudioGraph {
   public clearData(): AudioGraph {
     this.tdata.fill(0);
     for (const d of this.fdata) {
-      d.fill(0);
+      d.fill(this.minDecibels);
     }
     for (const p of this.pitch) {
       for (let i = 0; i < p.values.length; ++i) {
@@ -483,16 +533,6 @@ export class AudioGraph {
       }
     }
     return this;
-  }
-
-  /**
-   * TODO: description
-   * @param d
-   */
-  public byteToDecibels(d: number): number {
-    return (
-      (d / 255.0) * (this.maxDecibels - this.minDecibels) + this.minDecibels
-    );
   }
 
   /**
@@ -589,13 +629,14 @@ export class AudioGraph {
       const node = this.nodes.analysers[i];
       if (i === 0) {
         this.tdata = AudioMath.resize(this.tdata, node.fftSize);
-        node.getByteTimeDomainData(this.tdata);
+        node.getFloatTimeDomainData(this.tdata);
       }
       this.fdata[i] = AudioMath.resize(this.fdata[i], node.frequencyBinCount);
-      node.getByteFrequencyData(this.fdata[i]);
+      node.getFloatFrequencyData(this.fdata[i]);
     }
 
-    const threshold = this.threshold * 255;
+    const threshold =
+      this.minDecibels + this.threshold * (this.maxDecibels - this.minDecibels);
     this.canAnalyse = this.fdata[0].some(f => f > threshold);
 
     return this;
@@ -687,6 +728,8 @@ export class AudioGraph {
       start,
       end,
       this.prominenceRadius,
+      this.minDecibels,
+      this.maxDecibels,
       this.prominenceThreshold,
       this.prominenceNormalize
     );

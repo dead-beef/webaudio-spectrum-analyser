@@ -42,6 +42,7 @@ export interface AudioGraphFilters {
   biquad: BiquadFilterNode;
   convolver: ConvolverNode;
   pitchShifter: IPitchShifterNode;
+  worklet: Nullable<AnyScriptNode>;
 }
 
 export interface AnyScriptNode extends AudioNode {
@@ -49,6 +50,7 @@ export interface AnyScriptNode extends AudioNode {
   parameters: {
     get: (key: string) => AudioParam;
   };
+  port: MessagePort;
 }
 
 export interface AudioGraphNodes {
@@ -76,6 +78,7 @@ export enum AudioGraphFilterNode {
   BIQUAD,
   CONVOLVER,
   PITCH_SHIFTER,
+  WORKLET,
 }
 
 export enum FftPeakType {
@@ -118,7 +121,10 @@ export interface AudioMathWasmFunctions {
     length: number,
     start: number,
     end: number,
-    radius: number
+    radius: number,
+    fftvalMin: number,
+    fftvalMax: number,
+    normalize: boolean
   ) => void;
 
   prominencepeak: (
@@ -128,6 +134,8 @@ export interface AudioMathWasmFunctions {
     start: number,
     end: number,
     radius: number,
+    fftvalMin: number,
+    fftvalMax: number,
     threshold: number,
     type: number,
     normalize: boolean
@@ -140,7 +148,7 @@ export interface Autocorrelation {
 }
 
 export interface Prominence {
-  value: Uint8Array;
+  value: Float32Array;
   peak: number;
 }
 
