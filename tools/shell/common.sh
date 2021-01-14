@@ -92,7 +92,7 @@ usage() {
 
 cmd() {
   printfc "${CMD_COLOR}>" " %s" "$@"
-  eval "$@"
+  "$@"
   local rc=$?
   if (( rc )); then
     error "%s " "process exited with status ${rc}:" "$@"

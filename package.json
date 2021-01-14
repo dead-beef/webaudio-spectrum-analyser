@@ -26,7 +26,7 @@
     "format": "nx format:write",
     "format:check": "nx format:check",
     "format:write": "nx format:write",
-    "postinstall": "npx sort-package-json && npm run ngcc && ./tools/shell/decorate-angular-cli",
+    "postinstall": "npx sort-package-json && npm run ngcc && ./tools/shell/decorate-angular-cli && ./tools/shell/patch-capacitor-android",
     "install:all": "./tools/shell/install all",
     "install:global": "./tools/shell/install global",
     "install:shellcheck": "./tools/shell/install shellcheck",
