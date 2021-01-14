@@ -19,12 +19,17 @@ export class FilterOptionsComponent {
 
   public filter$ = this.graph.select(AudioGraphState.filter);
 
+  public readonly fftSizes: number[] = this.graph
+    .getFftSizes()
+    .filter(s => s >= 128);
+
   public readonly filters = [
     { id: AudioGraphFilterNode.NONE, name: 'None' },
     { id: AudioGraphFilterNode.IIR, name: 'IIR' },
     { id: AudioGraphFilterNode.BIQUAD, name: 'Biquad' },
     { id: AudioGraphFilterNode.CONVOLVER, name: 'Convolver' },
     { id: AudioGraphFilterNode.PITCH_SHIFTER, name: 'Pitch shifter' },
+    { id: AudioGraphFilterNode.WORKLET, name: 'Worklet' },
   ];
 
   public readonly iirFilterOrder = [0, 1, 2];
@@ -122,6 +127,15 @@ export class FilterOptionsComponent {
         (t: number) => this.graph.dispatch('setPitchShifterBufferTime', t),
         untilDestroyed(this),
         environment.throttle
+      ),
+    }),
+
+    worklet: new FormGroup({
+      fftSize: stateFormControl(
+        null,
+        this.graph.select(AudioGraphState.workletFilterFftSize),
+        (s: number) => this.graph.dispatch('setWorkletFilterFftSize', s),
+        untilDestroyed(this)
       ),
     }),
   });

@@ -10,8 +10,8 @@
 #define max(x, y) ((x) > (y) ? (x) : (y))
 #define min(x, y) ((x) > (y) ? (y) : (x))
 
-typedef unsigned char tdval_t;
-typedef unsigned char fftval_t;
+typedef float tdval_t;
+typedef float fftval_t;
 
 typedef enum {
   MIN_FREQUENCY = 1,
@@ -23,11 +23,6 @@ typedef enum {
   TRUE = 1,
   FALSE = 0
 } bool;
-
-enum {
-  FFTVAL_MIN = 0,
-  FFTVAL_MAX = 255
-};
 
 double mean(tdval_t *data, int length);
 double variance(tdval_t *data, int length, double mean);

@@ -11,11 +11,13 @@ import * as wasmModule from '../../wasm/index.c';
 class AudioMathInstance {
   private _wasm: Nullable<WasmModule<AudioMathWasmFunctions>> = null;
 
+  public wasmReady: Promise<WasmModule<AudioMathWasmFunctions>>;
+
   public wasmError: Nullable<Error> = null;
 
   public inputBuffer: WasmBuffer = {
     ptr: [],
-    type: 1,
+    type: 40,
     byteLength: 0,
   };
 
@@ -53,11 +55,15 @@ class AudioMathInstance {
       wasmModule.init;
     if (typeof init === 'undefined') {
       this.wasmError = new Error('wasm module not found');
+      this.wasmReady = Promise.reject(this.wasmError);
     } else {
-      init((imports: WasmImports) => {
+      this.wasmReady = init((imports: WasmImports) => {
         //console.warn('imports', imports);
         imports['emscripten_resize_heap'] = (...args) => {
           console.warn('emscripten_resize_heap', args);
+        };
+        imports['emscripten_memcpy_big'] = (...args) => {
+          console.warn('emscripten_memcpy_big', args);
         };
         imports['segfault'] = () => {
           throw new Error('segfault');
@@ -65,18 +71,19 @@ class AudioMathInstance {
         imports['alignfault'] = () => {
           throw new Error('alignfault');
         };
+
         return imports;
-      })
-        .then((wasm_: WasmModule<AudioMathWasmFunctions>) => {
-          if (!environment.production) {
-            window['wasm'] = wasm_;
-          }
-          this.wasm = wasm_;
-        })
-        .catch((err: Error) => {
-          console.error(err);
-          this.wasmError = err;
-        });
+      }).then((wasm_: WasmModule<AudioMathWasmFunctions>) => {
+        if (!environment.production) {
+          window['wasm'] = wasm_;
+        }
+        this.wasm = wasm_;
+        return this.wasm;
+      });
+      this.wasmReady.catch((err: Error) => {
+        console.error(err);
+        this.wasmError = err;
+      });
     }
   }
 
@@ -170,10 +177,10 @@ class AudioMathInstance {
    * @param src
    */
   public copyToBuffer<T extends TypedArray>(dst: WasmBuffer, src: T) {
-    const type_: WasmMemoryType = src.BYTES_PER_ELEMENT as any;
+    const type_: WasmMemoryType = dst.type;
     this.resizeBuffer(dst, src.length, type_);
     const dst_ = this.wasm!.memoryManager.mem[type_];
-    dst_.set(src, dst.ptr[0]);
+    dst_.set(src, dst.ptr[0] / src.BYTES_PER_ELEMENT);
   }
 
   /**
@@ -198,9 +205,14 @@ class AudioMathInstance {
    * @param arr
    * @param size
    */
-  public resize<T extends TypedArray>(arr: T, size: number): T {
+  public resize<T extends TypedArray>(
+    arr: T,
+    size: number,
+    fill: number = 0
+  ): T {
     if (arr.length !== size) {
       arr = new (arr.constructor as TypedArrayConstructor<T>)(size);
+      arr.fill(fill);
     }
     return arr;
   }
@@ -271,7 +283,7 @@ class AudioMathInstance {
    * @param end
    */
   public autocorrelation(
-    data: Uint8Array,
+    data: Float32Array,
     minOffset: number,
     maxOffset: number,
     output: Float32Array
@@ -309,17 +321,19 @@ class AudioMathInstance {
    * TODO: description
    */
   public prominence(
-    fft: Uint8Array,
-    output: Uint8Array,
+    fft: Float32Array,
+    output: Float32Array,
     peakType: FftPeakType = FftPeakType.MAX_MAGNITUDE,
     start: number = 0,
     end: number = fft.length - 1,
     radius: number = 0,
+    fftMin: number = 0,
+    fftMax: number = 1,
     threshold: number = 0.1,
     normalize: boolean = false
   ): Prominence {
     output = this.resize(output, fft.length);
-    threshold = Math.floor(threshold * 255);
+    threshold = Math.floor(threshold * (fftMax - fftMin));
 
     const wasm = this.wasm;
     if (!wasm) {
@@ -339,6 +353,8 @@ class AudioMathInstance {
       start,
       end,
       radius,
+      fftMin,
+      fftMax,
       threshold,
       peakType,
       normalize

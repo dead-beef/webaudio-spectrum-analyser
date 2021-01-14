@@ -8,6 +8,8 @@ void prominence(
   int start,
   int end,
   int radius,
+  fftval_t fftval_min,
+  fftval_t fftval_max,
   bool normalize
 ) {
   start = clamp(start, 1, length - 1);
@@ -18,12 +20,8 @@ void prominence(
 
   memset(res, 0, length * sizeof(*res));
 
-  fftval_t max_mag = FFTVAL_MIN;
-  if (normalize) {
-    max_mag = max_magnitude(fft, start, end);
-    if (max_mag == FFTVAL_MIN) {
-      return;
-    }
+  for (int i = start; i < end; ++i) {
+    fft[i] = clamp(fft[i], fftval_min, fftval_max);
   }
 
   for (int i = start; i < end; ++i) {
@@ -46,7 +44,7 @@ void prominence(
         }
       }
       if (j < start) {
-        left = FFTVAL_MIN;
+        left = fftval_min;
       }
       for (j = i + 1; j <= end && fft[j] <= cur; ++j) {
         if (fft[j] < right) {
@@ -54,12 +52,16 @@ void prominence(
         }
       }
       if (j > end) {
-        right = FFTVAL_MIN;
+        right = fftval_min;
       }
     }
     res[i] = cur - max(left, right);
-    if (normalize) {
-      res[i] = (unsigned)res[i] * FFTVAL_MAX / max_mag;
+  }
+
+  if (normalize) {
+    float scale = (fftval_max - fftval_min) / max_magnitude(res, start, end);
+    for (int i = start; i < end; ++i) {
+      res[i] = res[i] * scale;
     }
   }
 }
@@ -72,6 +74,8 @@ int prominencepeak(
   int start,
   int end,
   int radius,
+  fftval_t fftval_min,
+  fftval_t fftval_max,
   fftval_t threshold,
   fftpeak_t type,
   bool normalize
@@ -82,9 +86,19 @@ int prominencepeak(
     radius = length;
   }
 
-  prominence(fft, prdata, length, start, end, radius, normalize);
+  prominence(
+    fft,
+    prdata,
+    length,
+    start,
+    end,
+    radius,
+    fftval_min,
+    fftval_max,
+    normalize
+  );
 
-  fftval_t max = FFTVAL_MIN;
+  fftval_t max = fftval_min;
   int res = -1;
   for (int i = start; i < end; ++i) {
     if (prdata[i] < threshold) {

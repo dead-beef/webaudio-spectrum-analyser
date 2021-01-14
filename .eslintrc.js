@@ -262,7 +262,7 @@ module.exports = {
     'max-params': ['warn', 12],
     'no-alert': 'error',
     'no-await-in-loop': 'error',
-    'no-bitwise': 'error',
+    'no-bitwise': 'off',
     'no-dupe-class-members': 'error',
     'no-caller': 'error',
     'no-confusing-arrow': 'error',

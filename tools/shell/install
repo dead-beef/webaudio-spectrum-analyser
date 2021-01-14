@@ -26,6 +26,7 @@ ${DEFAULT}\n\n"
 ##
 installProjectDependencies() {
   log 'installing project dependencies...'
+  cmd git submodule update --init
   if [[ -n $YARN ]]; then
     cmd yarn install
   else

@@ -10,6 +10,8 @@ void prominence(
   int start,
   int end,
   int radius,
+  fftval_t fftval_min,
+  fftval_t fftval_max,
   bool normalize
 );
 
@@ -20,6 +22,8 @@ int prominencepeak(
   int start,
   int end,
   int radius,
+  fftval_t fftval_min,
+  fftval_t fftval_max,
   fftval_t threshold,
   fftpeak_t type,
   bool normalize

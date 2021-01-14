@@ -1,7 +1,8 @@
 import { async, TestBed } from '@angular/core/testing';
 import { NgxsModule } from '@ngxs/store';
 
-import { AUDIO_GRAPH, getAudioGraph } from '../../utils';
+import { AUDIO_GRAPH } from '../../utils';
+import { getMockAudioGraph } from '../../utils/test.util';
 import { AudioGraphStoreModule } from './audio-graph.module';
 import { AudioGraphService } from './audio-graph.service';
 
@@ -14,7 +15,7 @@ describe('AudioGraphService', () => {
       providers: [
         {
           provide: AUDIO_GRAPH,
-          useFactory: getAudioGraph,
+          useFactory: getMockAudioGraph,
         },
       ],
     })
@@ -24,7 +25,7 @@ describe('AudioGraphService', () => {
       });
   }));
 
-  it('should be created', () => {
+  it('should be created', async () => {
     expect(service).toBeDefined();
   });
 });

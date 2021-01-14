@@ -8,7 +8,7 @@ import { FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BehaviorSubject } from 'rxjs';
 
-import { WorkletNode } from '../../classes/worklet-node/worklet-node';
+import { GeneratorProcessor } from '../../classes/worklet-processor';
 import { AudioGraphSourceNode, Layouts } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
@@ -31,7 +31,7 @@ export class WorkletOptionsComponent implements OnInit, OnDestroy {
 
   public readonly error$ = this.error.asObservable();
 
-  public readonly types = WorkletNode.types;
+  public readonly types = GeneratorProcessor.types;
 
   public form = new FormGroup({
     type: stateFormControl(

@@ -2,3 +2,4 @@
 #include "autocorr.c"
 #include "prominence.c"
 #include "fft.c"
+#include "filter.c"
