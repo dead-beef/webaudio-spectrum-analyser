@@ -1,5 +1,4 @@
 import { AnyScriptNode } from '../../interfaces';
-
 import { WorkletProcessorConstructor } from '../worklet-processor';
 
 export class WorkletNodeFactory {

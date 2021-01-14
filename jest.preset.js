@@ -11,7 +11,7 @@ function getWasmOptions() {
       rules: [],
     },
   });
-  return cfg.module.rules[0].use.options;
+  return cfg.module.rules[0].use[0].options;
 }
 
 module.exports = {

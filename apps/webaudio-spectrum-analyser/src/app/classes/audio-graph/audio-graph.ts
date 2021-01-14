@@ -10,7 +10,7 @@ import { AudioGraphStateModel } from '../../state/audio-graph/audio-graph.model'
 import { AudioMath } from '../audio-math/audio-math';
 import { PitchShifterNode } from '../pitch-shifter-node/pitch-shifter-node';
 import { WorkletNodeFactory } from '../worklet-node-factory/worklet-node-factory';
-import { GeneratorProcessor, FilterProcessor } from '../worklet-processor';
+import { FilterProcessor, GeneratorProcessor } from '../worklet-processor';
 
 export class AudioGraph {
   public context: AudioContext;

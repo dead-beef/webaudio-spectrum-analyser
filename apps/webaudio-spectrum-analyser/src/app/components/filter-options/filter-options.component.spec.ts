@@ -5,8 +5,8 @@ import { NgxsModule } from '@ngxs/store';
 
 import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
-import { getAudioGraph } from '../../utils/factories';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
+import { getMockAudioGraph } from '../../utils/test.util';
 import { InputFrequencyComponent } from '../input-frequency/input-frequency.component';
 import { InputRangeComponent } from '../input-range/input-range.component';
 import { FilterOptionsComponent } from './filter-options.component';
@@ -33,7 +33,7 @@ describe('FilterOptionsComponent', () => {
       providers: [
         {
           provide: AUDIO_GRAPH,
-          useFactory: getAudioGraph,
+          useFactory: getMockAudioGraph,
         },
       ],
     })

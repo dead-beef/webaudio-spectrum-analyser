@@ -58,7 +58,7 @@ class AudioMathInstance {
       this.wasmReady = Promise.reject(this.wasmError);
     } else {
       this.wasmReady = init((imports: WasmImports) => {
-        console.warn('imports', imports);
+        //console.warn('imports', imports);
         imports['emscripten_resize_heap'] = (...args) => {
           console.warn('emscripten_resize_heap', args);
         };

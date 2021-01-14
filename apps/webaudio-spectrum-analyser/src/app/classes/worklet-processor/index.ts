@@ -1,3 +1,3 @@
-export * from './util';
-export * from './generator-processor';
 export * from './filter-processor';
+export * from './generator-processor';
+export * from './util';

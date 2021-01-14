@@ -19,7 +19,8 @@ export class FilterOptionsComponent {
 
   public filter$ = this.graph.select(AudioGraphState.filter);
 
-  public readonly fftSizes: number[] = this.graph.getFftSizes()
+  public readonly fftSizes: number[] = this.graph
+    .getFftSizes()
     .filter(s => s >= 128);
 
   public readonly filters = [
@@ -134,8 +135,7 @@ export class FilterOptionsComponent {
         null,
         this.graph.select(AudioGraphState.workletFilterFftSize),
         (s: number) => this.graph.dispatch('setWorkletFilterFftSize', s),
-        untilDestroyed(this),
-        environment.throttle
+        untilDestroyed(this)
       ),
     }),
   });

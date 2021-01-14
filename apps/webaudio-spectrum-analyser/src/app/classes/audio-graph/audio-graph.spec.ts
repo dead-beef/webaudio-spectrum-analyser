@@ -14,7 +14,10 @@ describe('AudioGraph', () => {
     }).compileComponents();
   }));
 
-  it('should create an instance', () => {
-    expect(new AudioGraph()).toBeTruthy();
+  it('should create an instance', async () => {
+    const graph = new AudioGraph();
+    expect(graph).toBeTruthy();
+    await graph.workletReady;
+    await graph.workletFilterReady;
   });
 });
