@@ -27,6 +27,9 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Git Submodules Init
+        uses: chris-short/github-action-git-submodules@v0.1.0
+
       - name: Get variables (yarn cache directory path, commit hash)
         id: get-variables
         run: echo "::set-output name=yarncachedir::$(yarn cache dir)"; echo "::set-output name=commitsha::$(echo ${GITHUB_SHA})"
