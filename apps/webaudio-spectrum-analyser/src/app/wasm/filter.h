@@ -5,11 +5,10 @@
 #include "fft.h"
 
 void filter(
-  kiss_fft_cpx *input,
+  tdval_t *input,
   tdval_t *output,
-  int inputSize,
-  int outputSize,
-  int sampleRate
+  int length,
+  int sample_rate
 );
 
 #endif

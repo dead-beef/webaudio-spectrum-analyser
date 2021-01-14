@@ -53,6 +53,7 @@ export const audioGraphAction: StoreActions = {
   setBiquadGain: action<number>('set biquad filter gain'),
   setPitchShift: action<number>('set pitch shift'),
   setPitchShifterBufferTime: action<number>('set pitch shifter buffer time'),
+  setWorkletFilterFftSize: action<number>('set worklet filter fft size'),
 
   setFftPeakType: action<FftPeakType>('set fft peak type'),
   setFftPeakProminenceRadius: action<number>('set fft peak prominence radius'),

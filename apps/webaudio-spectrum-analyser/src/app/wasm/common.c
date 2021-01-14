@@ -18,8 +18,11 @@ double variance(tdval_t *data, int length, double mean) {
 }
 
 fftval_t max_magnitude(fftval_t *fft, int start, int end) {
-  fftval_t ret = FFTVAL_MIN;
-  for (int i = start; i < end; ++i) {
+  if (start >= end) {
+    return 0;
+  }
+  fftval_t ret = fft[start];
+  for (int i = start + 1; i < end; ++i) {
     if (fft[i] > ret) {
       ret = fft[i];
     }

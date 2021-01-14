@@ -5,8 +5,6 @@
 #include <string.h>
 
 #define EPS 0.01
-#define FFTVAL_MIN 0.0
-#define FFTVAL_MAX 1.0
 
 #define clamp(x, min, max) ((x) < (min) ? (min) : (x) > (max) ? (max) : (x))
 #define max(x, y) ((x) > (y) ? (x) : (y))

@@ -281,6 +281,15 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
+  public static workletFilterFftSize(state: AudioGraphStateModel) {
+    return state.filter.worklet.fftSize;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
   public static fftPeakType(state: AudioGraphStateModel) {
     return state.fftp.type;
   }
@@ -835,6 +844,34 @@ export class AudioGraphState {
         }),
       })
     );
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphAction.setWorkletFilterFftSize)
+  public setWorkletFilterFftSize(
+    ctx: StateContext<AudioGraphStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    return this.graph.workletFilterReady.then(() => {
+      const param: AudioParam = this.graph.nodes.filter.worklet!.parameters.get(
+        'fftSize'
+      );
+      //console.log(param);
+      param.value = payload;
+      return ctx.setState(
+        patch({
+          filter: patch({
+            worklet: patch({
+              fftSize: payload,
+            }),
+          }),
+        })
+      );
+    });
   }
 
   /**

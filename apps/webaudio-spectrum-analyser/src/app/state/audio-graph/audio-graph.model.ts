@@ -30,6 +30,10 @@ export interface PitchShifterState {
   bufferTime: number;
 }
 
+export interface WorkletFilterState {
+  fftSize: number;
+}
+
 export interface BiquadState {
   type: BiquadFilterType;
   frequency: number;
@@ -81,6 +85,7 @@ export interface AudioGraphStateModel {
     biquad: BiquadState;
     iir: IirState;
     pitchShifter: PitchShifterState;
+    worklet: WorkletFilterState;
   };
 }
 
@@ -142,6 +147,9 @@ export const AUDIO_GRAPH_STATE_DEFAULTS: AudioGraphStateModel = {
     pitchShifter: {
       shift: 0,
       bufferTime: 0.1,
+    },
+    worklet: {
+      fftSize: 4096,
     },
   },
 };

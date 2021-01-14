@@ -279,6 +279,22 @@ export class AudioGraph {
     this.prominenceRadius = state.fftp.prominence.radius;
     this.prominenceThreshold = state.fftp.prominence.threshold;
     this.prominenceNormalize = state.fftp.prominence.normalize;
+
+    if (typeof state.worklet.type === 'number') {
+      void this.workletReady.then(() => {
+        const param: AudioParam = this.nodes.worklet!.parameters.get('type');
+        param.value = state.worklet.type;
+      });
+    }
+
+    if (typeof state.filter.worklet.fftSize === 'number') {
+      void this.workletFilterReady.then(() => {
+        const param: AudioParam = this.nodes.filter.worklet!.parameters.get(
+          'fftSize'
+        );
+        param.value = state.filter.worklet.fftSize;
+      });
+    }
   }
 
   /**

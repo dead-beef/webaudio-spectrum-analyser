@@ -19,6 +19,9 @@ export class FilterOptionsComponent {
 
   public filter$ = this.graph.select(AudioGraphState.filter);
 
+  public readonly fftSizes: number[] = this.graph.getFftSizes()
+    .filter(s => s >= 128);
+
   public readonly filters = [
     { id: AudioGraphFilterNode.NONE, name: 'None' },
     { id: AudioGraphFilterNode.IIR, name: 'IIR' },
@@ -126,7 +129,15 @@ export class FilterOptionsComponent {
       ),
     }),
 
-    worklet: new FormGroup({}),
+    worklet: new FormGroup({
+      fftSize: stateFormControl(
+        null,
+        this.graph.select(AudioGraphState.workletFilterFftSize),
+        (s: number) => this.graph.dispatch('setWorkletFilterFftSize', s),
+        untilDestroyed(this),
+        environment.throttle
+      ),
+    }),
   });
 
   public readonly iirForm = this.form.controls.iir as FormGroup;

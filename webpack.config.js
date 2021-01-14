@@ -4,6 +4,12 @@ module.exports = function webpackConfig(config) {
   const path = require('path');
   const dev = config.mode === 'development';
   const libDir = path.join(__dirname, 'libs/wasm');
+  const includePath = [
+    '-I',
+    libDir,
+    '-I',
+    path.join(libDir, 'kissfft'),
+  ];
   config.resolve.extensions.push('.c', '.cpp');
   config.module.rules.push(
     {
@@ -15,8 +21,7 @@ module.exports = function webpackConfig(config) {
             emccPath: 'emcc',
             emccFlags: [
               '-O2',
-              '-I',
-              libDir,
+              ...includePath,
               '-s',
               'EXTRA_EXPORTED_RUNTIME_METHODS=[\'ccall\',\'cwrap\']',
               '-s',
@@ -33,10 +38,7 @@ module.exports = function webpackConfig(config) {
           loader: 'cpp-dependency-loader',
           options: {
             emccPath: 'emcc',
-            emccFlags: [
-              '-I',
-              libDir,
-            ],
+            emccFlags: includePath,
           },
         },
       ],

@@ -75,5 +75,13 @@
   </ng-container>
 
   <ng-container *ngSwitchCase="AudioGraphFilterNode.WORKLET" formGroupName="worklet">
+    <clr-select-container>
+      <label>FFT Size</label>
+      <select clrSelect formControlName="fftSize">
+        <option *ngFor="let size of fftSizes" [ngValue]="size">
+          {{ size }}
+        </option>
+      </select>
+    </clr-select-container>
   </ng-container>
 </form>
