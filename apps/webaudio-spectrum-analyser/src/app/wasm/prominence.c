@@ -2,14 +2,14 @@
 
 EMSCRIPTEN_KEEPALIVE
 void prominence(
-  fftval_t *fft,
-  fftval_t *res,
+  fftmag_t *fft,
+  fftmag_t *res,
   int length,
   int start,
   int end,
   int radius,
-  fftval_t fftval_min,
-  fftval_t fftval_max,
+  fftmag_t fftmag_min,
+  fftmag_t fftmag_max,
   bool normalize
 ) {
   start = clamp(start, 1, length - 1);
@@ -21,13 +21,13 @@ void prominence(
   memset(res, 0, length * sizeof(*res));
 
   for (int i = start; i < end; ++i) {
-    fft[i] = clamp(fft[i], fftval_min, fftval_max);
+    fft[i] = clamp(fft[i], fftmag_min, fftmag_max);
   }
 
   for (int i = start; i < end; ++i) {
-    fftval_t cur = fft[i];
-    fftval_t left = cur;
-    fftval_t right = cur;
+    fftmag_t cur = fft[i];
+    fftmag_t left = cur;
+    fftmag_t right = cur;
     if (fft[i] >= fft[i - 1] && fft[i] >= fft[i + 1]) {
       int start = i - radius;
       int end = i + radius;
@@ -44,7 +44,7 @@ void prominence(
         }
       }
       if (j < start) {
-        left = fftval_min;
+        left = fftmag_min;
       }
       for (j = i + 1; j <= end && fft[j] <= cur; ++j) {
         if (fft[j] < right) {
@@ -52,14 +52,14 @@ void prominence(
         }
       }
       if (j > end) {
-        right = fftval_min;
+        right = fftmag_min;
       }
     }
     res[i] = cur - max(left, right);
   }
 
   if (normalize) {
-    float scale = (fftval_max - fftval_min) / max_magnitude(res, start, end);
+    float scale = (fftmag_max - fftmag_min) / max_magnitude(res, start, end);
     for (int i = start; i < end; ++i) {
       res[i] = res[i] * scale;
     }
@@ -68,15 +68,15 @@ void prominence(
 
 EMSCRIPTEN_KEEPALIVE
 int prominencepeak(
-  fftval_t *fft,
-  fftval_t *prdata,
+  fftmag_t *fft,
+  fftmag_t *prdata,
   int length,
   int start,
   int end,
   int radius,
-  fftval_t fftval_min,
-  fftval_t fftval_max,
-  fftval_t threshold,
+  fftmag_t fftmag_min,
+  fftmag_t fftmag_max,
+  fftmag_t threshold,
   fftpeak_t type,
   bool normalize
 ) {
@@ -93,18 +93,18 @@ int prominencepeak(
     start,
     end,
     radius,
-    fftval_min,
-    fftval_max,
+    fftmag_min,
+    fftmag_max,
     normalize
   );
 
-  fftval_t max = fftval_min;
+  fftmag_t max = fftmag_min;
   int res = -1;
   for (int i = start; i < end; ++i) {
     if (prdata[i] < threshold) {
       continue;
     }
-    fftval_t value;
+    fftmag_t value;
     switch (type) {
       case MAX_PROMINENCE:
         value = prdata[i];

@@ -7,27 +7,21 @@ void filter(
   int length,
   int sample_rate
 ) {
-  kiss_fft_scalar windowed[length];
-  kiss_fft_cpx fft[1 + length / 2];
-  kiss_fft_cpx _cfg_alloc[2 * length];
-  size_t cfg_size = sizeof(_cfg_alloc);
-  kiss_fftr_cfg cfg = (kiss_fftr_cfg)(_cfg_alloc);
+  fftval_t ft[1 + length / 2];
 
-  for (int i = 0; i < length; ++i) {
-    input[i] /= length;
-  }
-  window(input, windowed, length);
+  normalize(input, input, length);
+  window(input, input, length);
+  fft(input, ft, length);
 
-  cfg = kiss_fftr_alloc(length, FALSE, cfg, &cfg_size);
-  kiss_fftr(cfg, windowed, fft);
+  double bin_size = (double)sample_rate / length;
 
-  kiss_fft_scalar bin_size = (kiss_fft_scalar)sample_rate / length;
-
-  for (int i = 50; i <= length / 2; ++i) {
-    fft[i].r = 0;
-    fft[i].i = 0;
+  for (int i = 0; i <= length / 2; ++i) {
+    double frequency = i * bin_size;
+    if (frequency > 1000 && frequency < 5000) {
+      ft[i].r = 0;
+      ft[i].i = 0;
+    }
   }
 
-  cfg = kiss_fftr_alloc(length, TRUE, cfg, &cfg_size);
-  kiss_fftri(cfg, fft, output);
+  ifft(ft, output, length);
 }

@@ -4,27 +4,27 @@
 #include "common.h"
 
 void prominence(
-  fftval_t *fft,
-  fftval_t *res,
+  fftmag_t *fft,
+  fftmag_t *res,
   int length,
   int start,
   int end,
   int radius,
-  fftval_t fftval_min,
-  fftval_t fftval_max,
+  fftmag_t fftmag_min,
+  fftmag_t fftmag_max,
   bool normalize
 );
 
 int prominencepeak(
-  fftval_t *fft,
-  fftval_t *prdata,
+  fftmag_t *fft,
+  fftmag_t *prdata,
   int length,
   int start,
   int end,
   int radius,
-  fftval_t fftval_min,
-  fftval_t fftval_max,
-  fftval_t threshold,
+  fftmag_t fftmag_min,
+  fftmag_t fftmag_max,
+  fftmag_t threshold,
   fftpeak_t type,
   bool normalize
 );
