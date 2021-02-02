@@ -16,9 +16,17 @@
 
 ### Optional
 
+#### Android
+
 - [Android SDK](https://developer.android.com/studio#command-tools)
 
-#### Committing changes to repo
+#### Tools
+
+- [GCC](https://gcc.gnu.org/)
+- [Make](https://www.gnu.org/software/make/)
+- [libavcodec](https://www.ffmpeg.org/libavcodec.html), [libavformat](https://www.ffmpeg.org/libavformat.html), [libavfilter](https://www.ffmpeg.org/libavfilter.html), [libavutil](https://www.ffmpeg.org/libavutil.html)
+
+### Committing changes to repo
 
 Using commitizen cli is mandatory, [reference](https://github.com/commitizen/cz-cli).
 
@@ -90,6 +98,12 @@ EOF
 ./tools/shell/build-android
 
 adb install -r android/build/release-signed.apk
+```
+
+### Tools
+
+```bash
+make -C tools/audio
 ```
 
 ## Testing

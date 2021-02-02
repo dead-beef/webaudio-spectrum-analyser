@@ -29,14 +29,21 @@ void prominence(
     fftmag_t left = cur;
     fftmag_t right = cur;
     if (fft[i] >= fft[i - 1] && fft[i] >= fft[i + 1]) {
-      int start = i - radius;
-      int end = i + radius;
+      int start;
+      int end;
       int j;
-      if (start < 0) {
+      if (radius <= 0) {
         start = 0;
-      }
-      if (end >= length) {
         end = length - 1;
+      } else {
+        start = i - radius;
+        end = i + radius;
+        if (start < 0) {
+          start = 0;
+        }
+        if (end >= length) {
+          end = length - 1;
+        }
       }
       for (j = i - 1; j >= start && fft[j] <= cur; --j) {
         if (fft[j] < left) {
