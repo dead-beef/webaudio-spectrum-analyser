@@ -17,7 +17,9 @@ void fft(tdval_t *in, fftval_t *out, int length);
 
 void ifft(fftval_t *in, tdval_t *out, int length);
 
-void smooth_fft(fftval_t *in, fftval_t *out, int length, float factor);
+void smooth_fft_val(fftval_t *in, fftval_t *out, int length, float factor);
+
+void smooth_fft_mag(fftmag_t *in, fftmag_t *out, int length, float factor);
 
 void magnitude(fftval_t *in, fftmag_t *out, int length);
 
@@ -30,18 +32,19 @@ void magnitude_to_decibels(
   fftmag_t max_decibels
 );
 
-float interpolate_x(float left, float peak, float right);
+fftmag_t max_magnitude(fftmag_t *fft, int start, int end);
 
-float interpolate_y(float left, float peak, float right, float x);
+float interpolate_peak(fftmag_t *mag, int bin_count, int i, fftmag_t *value);
 
-float interpolate_y2(float left, float peak, float right);
-
-float interpolate_peak(
-  fftval_t *bins,
-  fftmag_t *mag,
-  int bin_count,
+void fft_scale(
+  fftval_t *fft_buf,
+  fftmag_t *magnitude_buf,
+  fftmag_t *prominence_buf,
+  int length,
   int i,
-  fftval_t *value
+  int radius,
+  float factor,
+  int smooth
 );
 
 #endif

@@ -12,7 +12,7 @@ void prominence(
   int radius,
   fftmag_t fftmag_min,
   fftmag_t fftmag_max,
-  bool normalize
+  int normalize
 );
 
 int prominencepeak(
@@ -26,7 +26,7 @@ int prominencepeak(
   fftmag_t fftmag_max,
   fftmag_t threshold,
   fftpeak_t type,
-  bool normalize
+  int normalize
 );
 
 #endif

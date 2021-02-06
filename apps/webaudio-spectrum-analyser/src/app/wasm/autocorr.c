@@ -25,7 +25,6 @@ void autocorr(
 ) {
   double m = mean(tdata, length);
   double var = variance(tdata, length, m);
-  int i = 0;
   memset(res, 0, length * sizeof(*res));
   for (int i = min_offset; i < max_offset; ++i) {
     res[i] = autocorr1(tdata, length, m, var, i);
@@ -50,7 +49,7 @@ int autocorrpeak(
 
   int res = -1;
   float max = -2.0;
-  bool found_min = FALSE;
+  int found_min = FALSE;
 
   ++min_offset;
   --max_offset;

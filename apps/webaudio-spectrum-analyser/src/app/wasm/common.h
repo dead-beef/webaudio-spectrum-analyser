@@ -19,13 +19,13 @@ typedef enum {
   MAX_PROMINENCE = 3,
 } fftpeak_t;
 
-typedef enum {
+enum {
   TRUE = 1,
   FALSE = 0
-} bool;
+};
 
 double mean(tdval_t *data, int length);
 double variance(tdval_t *data, int length, double mean);
-fftmag_t max_magnitude(fftmag_t *fft, int start, int end);
+double rms(tdval_t *data, int length);
 
 #endif

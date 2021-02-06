@@ -1,4 +1,5 @@
 #include "prominence.h"
+#include "fft.h"
 
 EMSCRIPTEN_KEEPALIVE
 void prominence(
@@ -10,7 +11,7 @@ void prominence(
   int radius,
   fftmag_t fftmag_min,
   fftmag_t fftmag_max,
-  bool normalize
+  int normalize
 ) {
   start = clamp(start, 1, length - 1);
   end = clamp(end, 1, length - 1);
@@ -85,7 +86,7 @@ int prominencepeak(
   fftmag_t fftmag_max,
   fftmag_t threshold,
   fftpeak_t type,
-  bool normalize
+  int normalize
 ) {
   start = clamp(start, 1, length - 1);
   end = clamp(end, 1, length - 1);

@@ -37,11 +37,18 @@ void ifft(fftval_t *in, tdval_t *out, int length) {
   kiss_fftri(cfg, in, out);
 }
 
-void smooth_fft(fftval_t *in, fftval_t *out, int length, float factor) {
+void smooth_fft_val(fftval_t *in, fftval_t *out, int length, float factor) {
   double factor_in = 1.0 - factor;
   for (int i = 0; i < length; ++i) {
     out[i].r = factor * out[i].r + factor_in * in[i].r;
     out[i].i = factor * out[i].i + factor_in * in[i].i;
+  }
+}
+
+void smooth_fft_mag(fftmag_t *in, fftmag_t *out, int length, float factor) {
+  double factor_in = 1.0 - factor;
+  for (int i = 0; i < length; ++i) {
+    out[i] = factor * out[i] + factor_in * in[i];
   }
 }
 
@@ -72,42 +79,69 @@ void magnitude_to_decibels(
   }
 }
 
-float interpolate_x(float left, float peak, float right) {
-  float c = peak;
-  float b = (right - left) / 2.0;
-  float a = left + b - c;
-  if (fabs(a) < 1e-3) {
-    return 0.0;
+fftmag_t max_magnitude(fftmag_t *fft, int start, int end) {
+  if (start >= end) {
+    return 0;
   }
-  return -b / (2.0 * a);
+  fftmag_t ret = fft[start];
+  for (int i = start + 1; i < end; ++i) {
+    if (fft[i] > ret) {
+      ret = fft[i];
+    }
+  }
+  return ret;
 }
 
-float interpolate_y(float left, float peak, float right, float x) {
-  float c = peak;
-  float b = (right - left) / 2.0;
-  float a = left + b - c;
-  return x * (a * x + b) + c;
-}
-
-float interpolate_y2(float left, float peak, float right) {
-  float x = interpolate_x(left, peak, right);
-  return interpolate_y(left, peak, right, x);
-}
-
-float interpolate_peak(
-  fftval_t *bins,
-  fftmag_t *mag,
-  int bin_count,
-  int i,
-  fftval_t *value
-) {
+float interpolate_peak(fftmag_t *mag, int bin_count, int i, fftmag_t *value) {
   if (i <= 0 || i >= bin_count) {
-    *value = bins[i];
+    *value = mag[i];
     return 0.0;
   }
-  float x = interpolate_x(mag[i - 1], mag[i], mag[i + 1]);
-  //value->r = interpolate_y(bins[i - 1].r, bins[i].r, bins[i + 1].r, x);
-  //value->i = interpolate_y(bins[i - 1].i, bins[i].i, bins[i + 1].i, x);
-  *value = bins[i];
+  fftmag_t left = mag[i - 1];
+  fftmag_t peak = mag[i];
+  fftmag_t right = mag[i + 1];
+
+  double c = peak;
+  double b = (right - left) / 2.0;
+  double a = left + b - c;
+
+  double x = -b / (2.0 * a);
+  *value = x * (a * x + b) + c;
+
   return x;
+}
+
+void fft_scale(
+  fftval_t *fft_buf,
+  fftmag_t *magnitude_buf,
+  fftmag_t *prominence_buf,
+  int length,
+  int i,
+  int radius,
+  float factor,
+  int smooth
+) {
+  double wnd_k = /* 2.0 * */ M_PI / (/* 2.0 * */ radius);
+  for (int j = -radius; j <= radius; ++j) {
+    int k = i + j;
+    if (k >= 0 && k < length) {
+      double scale;
+      if (smooth) {
+        double wnd = 0.5 * (1.0 - cos(wnd_k * (j + radius)));
+        scale = wnd * factor + (1.0 - wnd) /* * 1.0 */;
+      } else {
+        scale = factor;
+      }
+      if (fft_buf) {
+        fft_buf[k].r *= scale;
+        fft_buf[k].i *= scale;
+      }
+      if (magnitude_buf) {
+        magnitude_buf[k] *= scale;
+      }
+      if (prominence_buf) {
+        prominence_buf[k] *= scale;
+      }
+    }
+  }
 }
