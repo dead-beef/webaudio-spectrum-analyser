@@ -649,6 +649,13 @@ export class AudioGraph {
       }
       this.fdata[i] = AudioMath.resize(this.fdata[i], node.frequencyBinCount);
       node.getFloatFrequencyData(this.fdata[i]);
+      for (let j = 0; j < this.fdata[i].length; ++j) {
+        const db = this.fdata[i][j];
+        this.fdata[i][j] = Math.min(
+          Math.max(this.minDecibels, db),
+          this.maxDecibels
+        );
+      }
     }
 
     const threshold =
