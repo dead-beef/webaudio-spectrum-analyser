@@ -20,6 +20,10 @@ typedef enum {
   OT_FFT_PEAKS
 } output_type_t;
 
+const fftmag_t MIN_DB = -100;
+const fftmag_t MAX_DB = 0;
+const fftmag_t DB_REF = 1;
+
 typedef struct {
   const char *input;
   output_type_t output_type;
@@ -32,13 +36,15 @@ typedef struct {
   float min_frequency;
   float max_frequency;
   float min_prominence;
+  float threshold;
 } options_t;
 
 typedef struct {
   options_t *options;
+  float *frame_buf;
   fftval_t *fft_buf;
-  fftval_t *smooth_fft_buf;
   fftmag_t *fft_mag_buf;
+  fftmag_t *smooth_fft_mag_buf;
   fftmag_t *prominence_buf;
   int *peak_buf;
   float bin_size;
@@ -46,6 +52,8 @@ typedef struct {
   int init;
   int sample_rate;
   int frame;
+  int _frame;
+  int ignored_frames;
   int interval;
   int min_peak_index;
   int max_peak_index;
@@ -58,6 +66,8 @@ int init_data(data_t *data, int sample_rate, int fft_size) {
   data->bins = 1 + fft_size / 2;
   data->bin_size = (float)sample_rate / fft_size;
   data->frame = 0;
+  data->_frame = 0;
+  data->ignored_frames = 0;
   if (data->options->interval_seconds) {
     data->interval = round(data->options->interval * data->bin_size);
   } else {
@@ -65,22 +75,29 @@ int init_data(data_t *data, int sample_rate, int fft_size) {
   }
   data->min_peak_index = round(data->options->min_frequency / data->bin_size);
   data->max_peak_index = round(data->options->max_frequency / data->bin_size);
+  data->min_peak_index = clamp(data->min_peak_index, 0, data->bins - 1);
+  data->max_peak_index = clamp(data->max_peak_index, 0, data->bins - 1);
 
   if (data->options->output_type == OT_FFT
       || data->options->output_type == OT_FFT_PEAKS) {
+    HANDLE_NULL(data->frame_buf = calloc(fft_size, sizeof(*data->frame_buf)), "Could not allocate frame buffer");
     HANDLE_NULL(data->fft_buf = calloc(data->bins, sizeof(*data->fft_buf)), "Could not allocate fft buffer");
-    HANDLE_NULL(data->smooth_fft_buf = calloc(data->bins, sizeof(*data->smooth_fft_buf)), "Could not allocate fft buffer");
+    HANDLE_NULL(data->fft_mag_buf = calloc(data->bins, sizeof(*data->fft_mag_buf)), "Could not allocate fft magnitude buffer");
+    HANDLE_NULL(data->smooth_fft_mag_buf = calloc(data->bins, sizeof(*data->smooth_fft_mag_buf)), "Could not allocate fft magnitude buffer");
+    for (int i = 0; i < data->bins; ++i) {
+      data->smooth_fft_mag_buf[i] = MIN_DB;
+    }
   } else {
+    data->frame_buf = NULL;
     data->fft_buf = NULL;
-    data->smooth_fft_buf = NULL;
+    data->fft_mag_buf = NULL;
+    data->smooth_fft_mag_buf = NULL;
   }
 
   if (data->options->output_type == OT_FFT_PEAKS) {
-    HANDLE_NULL(data->fft_mag_buf = calloc(data->bins, sizeof(*data->fft_mag_buf)), "Could not allocate fft magnitude buffer");
     HANDLE_NULL(data->prominence_buf = calloc(data->bins, sizeof(*data->prominence_buf)), "Could not allocate prominence buffer");
     HANDLE_NULL(data->peak_buf = calloc(data->options->max_peaks, sizeof(*data->peak_buf)), "Could not allocate fft peak index buffer");
   } else {
-    data->fft_mag_buf = NULL;
     data->prominence_buf = NULL;
     data->peak_buf = NULL;
   }
@@ -92,8 +109,8 @@ ON_ERROR
 }
 
 void free_data(data_t *data) {
+  FREE(data->frame_buf);
   FREE(data->fft_buf);
-  FREE(data->smooth_fft_buf);
   FREE(data->fft_mag_buf);
   FREE(data->prominence_buf);
   FREE(data->peak_buf);
@@ -110,6 +127,9 @@ int noop(
 }
 
 int print_frame(float *frame, int size, int sample_rate, void *data) {
+  if (!frame) {
+    return 0;
+  }
   data_t *d = (data_t*)data;
   if (d->init) {
     d->sample_rate = sample_rate;
@@ -137,7 +157,8 @@ void print_fft_header(data_t *data) {
   }
 }
 
-void print_fft_values(fftval_t *fft_buf, data_t *data) {
+void print_fft_values(data_t *data) {
+  fftval_t *fft_buf = data->fft_buf;
   for (int i = 0; i < data->bins; ++i) {
     float frequency = data->bin_size * i;
     fprintf(
@@ -151,7 +172,8 @@ void print_fft_values(fftval_t *fft_buf, data_t *data) {
   fputc('\n', stdout);
 }
 
-void print_fft_magnitudes(fftmag_t *fft_mag_buf, data_t *data) {
+void print_fft_magnitudes(data_t *data) {
+  fftmag_t *fft_mag_buf = data->smooth_fft_mag_buf;
   for (int i = 0; i < data->bins; ++i) {
     float frequency = data->bin_size * i;
     fprintf(stdout, "%7.1f %7.2f\n", frequency, fft_mag_buf[i]);
@@ -159,23 +181,11 @@ void print_fft_magnitudes(fftmag_t *fft_mag_buf, data_t *data) {
   fputc('\n', stdout);
 }
 
-void print_fft_peaks(fftval_t *fft_buf, data_t *data) {
-  const fftmag_t MIN_DB = -100;
-  const fftmag_t MAX_DB = 0;
-  const fftmag_t DB_REF = 1;
-
-  fftmag_t *fft_mag_buf = data->fft_mag_buf;
+void print_fft_peaks(data_t *data) {
+  //fftval_t *fft_buf = data->fft_buf;
+  fftmag_t *fft_mag_buf = data->smooth_fft_mag_buf;
   fftmag_t *prominence_buf = data->prominence_buf;
 
-  magnitude(fft_buf, fft_mag_buf, data->bins);
-  magnitude_to_decibels(
-    fft_mag_buf,
-    fft_mag_buf,
-    data->bins,
-    DB_REF,
-    MIN_DB,
-    MAX_DB
-  );
   prominence(
     fft_mag_buf,
     prominence_buf,
@@ -203,25 +213,19 @@ void print_fft_peaks(fftval_t *fft_buf, data_t *data) {
     }
   }
 
-  const char *FMT = "  %7.1f %13.10f %13.10f";
+  const char *FMT = "  %7.1f %7.1f";
   if (peaks >= data->options->min_peaks) {
     int i;
     for (i = 0; i < peaks; ++i) {
       int j = peak_buf[i];
-      fftval_t peak;
-      float offset = interpolate_peak(
-        fft_buf,
-        fft_mag_buf,
-        data->bins,
-        j,
-        &peak
-      );
+      fftmag_t peak;
+      float offset = interpolate_peak(fft_mag_buf, data->bins, j, &peak);
       //print_log("%f %f %f %f %f", j * data->bin_size, fft_mag_buf[j - 1], fft_mag_buf[j], fft_mag_buf[j + 1], offset);
       float frequency = data->bin_size * (j + offset);
-      fprintf(stdout, FMT, frequency, peak.r, peak.i);
+      fprintf(stdout, FMT, frequency, peak);
     }
     for (; i < peak_buf_size; ++i) {
-      fprintf(stdout, FMT, 0.0f, 0.0f, 0.0f);
+      fprintf(stdout, FMT, 0.0f, 0.0f);
     }
     fprintf(stdout, "\n\n");
   }
@@ -230,34 +234,111 @@ void print_fft_peaks(fftval_t *fft_buf, data_t *data) {
 void print_fft(data_t *data) {
   switch (data->options->output_type) {
     case OT_FFT:
-      print_fft_values(data->smooth_fft_buf, data);
+      print_fft_values(data);
       break;
     case OT_FFT_PEAKS:
-      print_fft_peaks(data->smooth_fft_buf, data);
+      print_fft_peaks(data);
       break;
     default:
       break;
   }
 }
 
-int fft_frame(float *frame, int size, int sample_rate, void *data) {
+int do_fft_frame(float *frame, int size, int sample_rate, void *data) {
   data_t *d = (data_t*)data;
+
   if (d->init) {
     HANDLE_RC(init_data(d, sample_rate, size), NULL);
     print_fft_header(d);
   }
 
+  ++d->_frame;
   normalize(frame, frame, size);
   window(frame, frame, size);
   fft(frame, d->fft_buf, size);
-  smooth_fft(d->fft_buf, d->smooth_fft_buf, d->bins, d->options->fft_smoothing);
+
+  magnitude(d->fft_buf, d->fft_mag_buf, d->bins);
+  magnitude_to_decibels(
+    d->fft_mag_buf,
+    d->fft_mag_buf,
+    d->bins,
+    DB_REF,
+    MIN_DB,
+    MAX_DB
+  );
+
+
+  if (d->options->threshold > MIN_DB) {
+    int skip = 1;
+    for (int i = 0; i < d->bins; ++i) {
+      if (d->fft_mag_buf[i] < d->options->threshold) {
+        d->fft_mag_buf[i] = MIN_DB;
+      } else if (i >= d->min_peak_index && i <= d->max_peak_index) {
+        skip = 0;
+      }
+    }
+    if (skip) {
+      ++d->ignored_frames;
+      return 0;
+    }
+    /*fftmag_t max_mag = max_magnitude(
+      d->fft_mag_buf,
+      d->min_peak_index,
+      d->max_peak_index + 1
+    );
+    //print_log("%f %f %f", 10 * log10(rms(frame, size)), max_mag, d->options->threshold);
+    if (max_mag < d->options->threshold) {
+      //print_log("ignoring frame #%d", d->_frame);
+      ++d->ignored_frames;
+      return 0;
+    }*/
+  }
+
+  smooth_fft_mag(
+    d->fft_mag_buf,
+    d->smooth_fft_mag_buf,
+    d->bins,
+    d->options->fft_smoothing
+  );
 
   ++d->frame;
   if (d->interval >= 0 && d->frame > d->interval) {
     d->frame = 0;
     print_fft(d);
-    //memset(smooth_fft_buf, 0, d->bins * sizeof(*smooth_fft_buf));
+    /*for (int i = 0; i < data->bins; ++i) {
+      smooth_fft_mag_buf[i] = MIN_DB;
+    }*/
   }
+
+  return 0;
+
+ON_ERROR
+  return -1;
+}
+
+int fft_frame(float *frame, int size, int sample_rate, void *data_) {
+  data_t *data = (data_t*)data_;
+
+  if (!frame) {
+    HANDLE_RC(do_fft_frame(data->frame_buf, size, sample_rate, data), NULL);
+    if (data->frame || data->options->interval < 0) {
+      print_fft(data);
+    }
+    return 0;
+  }
+
+  if (data->init) {
+    HANDLE_RC(init_data(data, sample_rate, size), NULL);
+    print_fft_header(data);
+  } else {
+    int offset = size / 2;
+    memmove(data->frame_buf, data->frame_buf + offset, offset * sizeof(*frame));
+    memmove(data->frame_buf + offset, frame, (size - offset) * sizeof(*frame));
+    HANDLE_RC(do_fft_frame(data->frame_buf, size, sample_rate, data), NULL);
+  }
+
+  memmove(data->frame_buf, frame, size * sizeof(*frame));
+  HANDLE_RC(do_fft_frame(frame, size, sample_rate, data), NULL);
 
   return 0;
 
@@ -268,7 +349,7 @@ ON_ERROR
 void print_usage(const char *name, const options_t *defaults) {
   fprintf(
     stderr,
-    "usage: %s [-h] [-t {none,pcm,fft,fft_peaks}] [-f SIZE] [-s SMOOTHING] [-i INTERVAL] [-p MIN MAX] [-P PROMINENCE] [-F MIN MAX] [--] <file>\n"
+    "usage: %s [-h] [-t {none,pcm,fft,fft_peaks}] [-f SIZE] [-s SMOOTHING] [-i INTERVAL] [-p MIN MAX] [-P PROMINENCE] [-T THRESHOLD] [-F MIN MAX] [--] <file>\n"
     "\n"
     "positional arguments:\n"
     "  file                      audio file to process\n"
@@ -285,7 +366,7 @@ void print_usage(const char *name, const options_t *defaults) {
     "                            (default: none)\n"
     "  -f SIZE, --fft-size SIZE  fft size (default: %d)\n"
     "  -s SMOOTHING, --fft-smoothing SMOOTHING\n"
-    "                            fft smoothing factor (default: %.2f)\n"
+    "                            fft magnitude smoothing factor (default: %.2f)\n"
     "  -i INTERVAL, --interval INTERVAL\n"
     "                            interval between processing smoothed fft\n"
     "                            <n> - process every <n> iterations\n"
@@ -298,6 +379,9 @@ void print_usage(const char *name, const options_t *defaults) {
     "  -P PROMINENCE, --prominence PROMINENCE\n"
     "                            minimum fft peak prominence in decibels\n"
     "                            (default: %.1f)\n"
+    "  -T THRESHOLD, --threshold THRESHOLD\n"
+    "                            ignore frames with max fft magnitude < THRESHOLD\n"
+    "                            (default: %f)\n"
     "  -F MIN MAX, --frequency MIN MAX\n"
     "                            minimum and maximum frequencies of fft peaks\n"
     "                            (default: %.1f %.1f)\n"
@@ -308,6 +392,7 @@ void print_usage(const char *name, const options_t *defaults) {
     defaults->min_peaks,
     defaults->max_peaks,
     defaults->min_prominence,
+    defaults->threshold,
     defaults->min_frequency,
     defaults->max_frequency
   );
@@ -318,14 +403,15 @@ int parse_args(int argc, char **argv, options_t *opts) {
     .input = NULL,
     .output_type = OT_NONE,
     .fft_size = 4096,
-    .fft_smoothing = 0.9,
-    .interval = -1,
+    .fft_smoothing = 0.99,
+    .interval = 0,
     .interval_seconds = 0,
     .min_peaks = 1,
     .max_peaks = 4,
     .min_frequency = 20.0,
     .max_frequency = 20000.0,
-    .min_prominence = 20.0
+    .min_prominence = 10.0,
+    .threshold = -100.0
   };
   *opts = defaults;
 
@@ -362,6 +448,8 @@ int parse_args(int argc, char **argv, options_t *opts) {
       opts->output_type = val;
     } else if (!strcmp(argv[i], "-P") || !strcmp(argv[i], "--prominence")) {
       HANDLE_RC(parse_float_arg(argc, argv, &i, &opts->min_prominence), NULL);
+    } else if (!strcmp(argv[i], "-T") || !strcmp(argv[i], "--threshold")) {
+      HANDLE_RC(parse_float_arg(argc, argv, &i, &opts->threshold), NULL);
     } else if (!strcmp(argv[i], "-p") || !strcmp(argv[i], "--peaks")) {
       int *vals[2] = { &opts->min_peaks, &opts->max_peaks };
       HANDLE_RC(parse_int_args(argc, argv, &i, vals, 2), NULL);
@@ -440,12 +528,14 @@ int main(int argc, char **argv)
       ERROR("Output type %d is not implemented", (int)opts.output_type);
   }
 
-  HANDLE_RC(decode_audio(opts.input, opts.fft_size, process_frame, &process_frame_data, FALSE), NULL);
+  HANDLE_RC(decode_audio(opts.input, opts.fft_size, process_frame, &process_frame_data, TRUE), NULL);
+
+  if (process_frame_data.ignored_frames) {
+    print_log("Ignored frames: %d", process_frame_data.ignored_frames);
+  }
 
   if (opts.output_type == OT_PCM) {
     print_log("\nffplay -f f32le -ac 1 -ar %d", process_frame_data.sample_rate);
-  } else if (process_frame_data.frame || opts.interval < 0) {
-    print_fft(&process_frame_data);
   }
 
   free_data(&process_frame_data);

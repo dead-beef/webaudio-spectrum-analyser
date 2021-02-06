@@ -19,7 +19,6 @@ typedef struct {
   const char *output;
   int fft_size;
   int sample_rate;
-  int overlap;
   float duration;
   int threshold;
   int gain;
@@ -31,11 +30,12 @@ typedef struct {
   int input_line;
   fftval_t *fft_buf;
   float *ifft_buf;
+  float *ifft_prev_buf;
   float *peak_buf;
-  char *peak_fmt;
   char *line;
   int line_size;
   int fft_size;
+  int frame_size;
   int fft_buf_size;
   int peak_buf_size;
   int min_peaks;
@@ -46,6 +46,8 @@ typedef struct {
   float gain;
   float bin_size;
   int frame;
+  int first_frame;
+  int last_frame;
 } data_t;
 
 
@@ -88,14 +90,17 @@ int read_next_frame(data_t *data) {
     }
 
     if (data->is_fft_peaks) {
-      HANDLE_RC(parse_float_array(data->line, data->peak_buf, data->max_peaks * 3, data->max_peaks * 3), "Could not parse line #%d", data->input_line);
+      HANDLE_RC(parse_float_array(data->line, data->peak_buf, data->max_peaks * 2, data->max_peaks * 2), "Could not parse line #%d", data->input_line);
       end = 1;
-      for (int k = 0; k < data->peak_buf_size; k += 3) {
+      for (int k = 0; k < data->peak_buf_size; k += 2) {
         float f = data->peak_buf[k];
         if (f > 1e-5) {
-          int bin = round(f / data->bin_size - 0.5);
-          float re = data->peak_buf[k + 1];
-          float im = data->peak_buf[k + 2];
+          float bin_f = f / data->bin_size - 0.5;
+          int bin = floor(bin_f);
+          //int bin2 = ceil(bin_f);
+          float db = data->peak_buf[k + 1];
+          float re = pow(10.0, db / 10.0);
+          float im = 0;
           //print_log("%f %d %f %f", f, bin, re, im);
           data->fft_buf[bin].r = re;
           data->fft_buf[bin].i = im;
@@ -125,19 +130,6 @@ int read_next_frame(data_t *data) {
   }
 
   ifft(data->fft_buf, data->ifft_buf, data->fft_size);
-  /*if (data->options->overlap) {
-    ifft(data->fft_buf, data->ifft_buf, data->fft_size);
-    int j;
-    int center = data->fft_size / 2;
-    for (j = 0; j < center; ++j) {
-      data->ifft_buf[j] += data->ifft_buf[j + center];
-    }
-    for (; j < data->fft_size; ++j) {
-      data->ifft_buf[j] = data->ifft_buf[j - center];
-    }
-  } else {
-    ifft(data->fft_buf, data->ifft_buf, data->fft_size);
-  }*/
 
   return ret;
 
@@ -149,18 +141,39 @@ int generate_frame(float *buf, int length, int sample_rate, void *data_) {
   data_t *data = data_;
   if (data->frame == 0) {
     int eof;
+    if (data->ifft_prev_buf) {
+      memmove(
+        data->ifft_prev_buf,
+        data->ifft_buf,
+        data->fft_size * sizeof(*data->ifft_buf)
+      );
+    }
     HANDLE_RC(eof = read_next_frame(data), NULL);
     if (eof) {
+      if (!data->is_fft_peaks && !data->last_frame) {
+        data->last_frame = 1;
+        memmove(buf, data->ifft_buf + length, length * sizeof(*buf));
+        return 0;
+      }
       return 1;
     }
   }
 
-  memmove(buf, data->ifft_buf, length * sizeof(*buf));
+  if (data->is_fft_peaks) {
+    memmove(buf, data->ifft_buf, length * sizeof(*buf));
+  } else if (!data->first_frame) {
+    data->first_frame = 1;
+    memmove(buf, data->ifft_buf, length * sizeof(*buf));
+  } else {
+    for (int i = 0; i < length; ++i) {
+      buf[i] = data->ifft_buf[i] + data->ifft_prev_buf[length + i];
+    }
+  }
   ++data->frame;
 
   double time = (double)(data->frame) * length / sample_rate;
   //print_log("time %.2f", time);
-  if (time > data->options->duration + 1) {
+  if (time > data->options->duration) {
     data->frame = 0;
   }
 
@@ -176,7 +189,6 @@ void destroy_data(data_t *data) {
   FREE(data->fft_buf);
   FREE(data->ifft_buf);
   FREE(data->peak_buf);
-  FREE(data->peak_fmt);
 }
 
 int init_data(data_t *data) {
@@ -193,6 +205,7 @@ int init_data(data_t *data) {
     ERROR("Unexpected end of file");
   }
 
+
   rc = sscanf(buf, " type = %31s", type);
   if (rc < 0) {
     ERROR("Could not read input file header: %s", strerror(errno));
@@ -200,8 +213,6 @@ int init_data(data_t *data) {
     ERROR("Invalid input file header: missing type: \"%s\"", buf);
   } else if (!strcmp(type, "fft")) {
     data->is_fft_peaks = 0;
-    data->peak_fmt = NULL;
-    data->peak_buf = NULL;
     data->peak_buf_size = 0;
     data->min_peaks = 0;
     data->max_peaks = 0;
@@ -217,10 +228,13 @@ int init_data(data_t *data) {
     } else if (rc < 2) {
       ERROR("Invalid input file header: missing sample_rate or fft_size: \"%s\"", buf);
     }
+    data->frame_size = data->fft_size / 2;
   } else if (!strcmp(type, "fft_peaks")) {
     data->is_fft_peaks = 1;
     data->sample_rate = data->options->sample_rate;
     data->fft_size = data->options->fft_size;
+    data->frame_size = data->fft_size;
+    data->ifft_prev_buf = NULL;
     rc = sscanf(
       buf,
       " %*s min_peaks = %d max_peaks = %d ",
@@ -233,27 +247,27 @@ int init_data(data_t *data) {
       ERROR("Invalid input file header: missing min_peaks or max_peaks: \"%s\"", buf);
     }
 
-    data->peak_buf_size = 3 * data->max_peaks;
+    data->peak_buf_size = 2 * data->max_peaks;
     data->line_size = 20 * data->peak_buf_size;
-    HANDLE_NULL(data->peak_buf = calloc(data->peak_buf_size, sizeof(*data->peak_buf)), "Could not allocate fft peak buffer");
-
-    int peak_fmt_size = data->peak_buf_size * 3;
-    HANDLE_NULL(data->peak_fmt = calloc(peak_fmt_size, sizeof(*data->peak_fmt)), "Could not allocate fft peak format buffer");
-    int i = 0;
-    while (i < peak_fmt_size) {
-      data->peak_fmt[i++] = ' ';
-      data->peak_fmt[i++] = '%';
-      data->peak_fmt[i++] = 'f';
-    }
   } else {
     ERROR("Invalid input file type: \"%s\"", buf);
   }
 
+  data->frame = 0;
+  data->first_frame = 0;
+  data->last_frame = 0;
   data->bin_size = (float)data->sample_rate / data->fft_size;
   data->fft_buf_size = 1 + data->fft_size / 2;
   HANDLE_NULL(data->fft_buf = calloc(data->fft_buf_size, sizeof(*data->fft_buf)), "Could not allocate fft buffer");
   HANDLE_NULL(data->ifft_buf = calloc(data->fft_size, sizeof(*data->ifft_buf)), "Could not allocate inverse fft buffer");
   HANDLE_NULL(data->line = calloc(data->line_size, sizeof(*data->line)), "Could not allocate line buffer");
+  if (!data->is_fft_peaks) {
+    HANDLE_NULL(data->ifft_prev_buf = calloc(data->fft_size, sizeof(*data->ifft_prev_buf)), "Could not allocate inverse fft buffer");
+    data->peak_buf = NULL;
+  } else {
+    HANDLE_NULL(data->peak_buf = calloc(data->peak_buf_size, sizeof(*data->peak_buf)), "Could not allocate fft peak buffer");
+    data->ifft_prev_buf = NULL;
+  }
 
   data->threshold2 = pow(10.0, data->options->threshold / 5.0);
   data->gain = pow(10.0, data->options->gain / 10.0);
@@ -290,8 +304,6 @@ void print_usage(const char *name, const options_t *defaults) {
     "                            (default: %d)\n"
     "  -g GAIN, --gain GAIN      gain in decibels\n"
     "                            (default: %d)\n"
-    "  -o, --overlap             enable overlapping (default)\n"
-    "  -no, --no-overlap         disable overlapping\n"
     "\n",
     name,
     defaults->fft_size,
@@ -308,8 +320,7 @@ int parse_args(int argc, char **argv, options_t *opts) {
     .output = NULL,
     .fft_size = 4096,
     .sample_rate = 44100,
-    .duration = 4.0,
-    .overlap = 1,
+    .duration = 0.0,
     .threshold = -100,
     .gain = 0.0
   };
@@ -340,10 +351,6 @@ int parse_args(int argc, char **argv, options_t *opts) {
       HANDLE_RC(parse_int_arg(argc, argv, &i, &opts->threshold), NULL);
     } else if (!strcmp(argv[i], "-g") || !strcmp(argv[i], "--gain")) {
       HANDLE_RC(parse_int_arg(argc, argv, &i, &opts->gain), NULL);
-    } else if (!strcmp(argv[i], "-o") || !strcmp(argv[i], "--overlap")) {
-      opts->overlap = 1;
-    } else if (!strcmp(argv[i], "-no") || !strcmp(argv[i], "--no-overlap")) {
-      opts->overlap = 0;
     } else if(argv[i][0] == '-') {
       ERROR("Invalid option: %s", argv[i]);
     } else {
@@ -379,7 +386,7 @@ int main(int argc, char **argv)
   HANDLE_RC(parse_args(argc, argv, &opts), NULL);
   HANDLE_RC(init_data(&data), NULL);
   print_log("infile = %s; outfile = %s; type = %d; fft_size = %d; sample_rate = %d;", opts.input, opts.output, data.is_fft_peaks, data.fft_size, data.sample_rate);
-  HANDLE_RC(encode_audio(opts.output, data.fft_size, data.sample_rate, generate_frame, &data), NULL);
+  HANDLE_RC(encode_audio(opts.output, data.frame_size, data.sample_rate, generate_frame, &data), NULL);
 
   destroy_data(&data);
   return 0;

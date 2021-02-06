@@ -168,6 +168,7 @@ int decode_audio(
 
   int packets = 0, total_packets = 0;
   int frames = 0, filtered_frames = 0, processed_frames = 0;
+  int samples = 0;
   int rc;
   while((rc = av_read_frame(fctx, packet)) != AVERROR_EOF) {
     if (rc < 0) {
@@ -203,6 +204,7 @@ int decode_audio(
           const float *data = (float*)filtered_frame->data[0];
           int data_length = filtered_frame->nb_samples;
           int data_offset = 0;
+          samples += data_length;
 
           while (data_length + frame_buffer_offset >= frame_size) {
             int copy = frame_size - frame_buffer_offset;
@@ -251,12 +253,15 @@ int decode_audio(
     HANDLE_RC(process_frame(frame_buffer, frame_size, sample_rate, process_frame_data), "Could not process frame #%d", filtered_frames);
   }
 
+  HANDLE_RC(rc = process_frame(NULL, frame_size, RESAMPLE_RATE, process_frame_data), "Could not process end of file");
+
 end:
   print_log("Processed frames: %d", processed_frames);
   print_log("Filtered frames: %d", filtered_frames);
   print_log("Audio frames: %d", frames);
   print_log("Audio packets: %d", packets);
   print_log("Total packets: %d", total_packets);
+  print_log("Total samples: %d", samples);
 
   avfilter_graph_free(&graph);
   avformat_close_input(&fctx);
@@ -419,7 +424,7 @@ static int encode_frame(
     if (rc < 0) {
       ERROR("Could not receive packet #%d: %s", *packets, av_err2str(rc));
     }
-    HANDLE_AV_ERROR(av_write_frame(fctx, packet), "Could not write packet #%d: %s", *packets);
+    HANDLE_AV_ERROR(av_interleaved_write_frame(fctx, packet), "Could not write packet #%d: %s", *packets);
     av_packet_unref(packet);
   }
   return 0;
@@ -492,9 +497,16 @@ int encode_audio(
     HANDLE_RC(encode_frame(fctx, ctx, frame, packet, &frames, &packets), NULL);
   }
 
+  int padding = ctx->sample_rate / frame->nb_samples;
+  memset(frame->data[0], 0, frame->nb_samples * sizeof(*buf));
+  for (int i = 0; i < padding; ++i) {
+    HANDLE_RC(encode_frame(fctx, ctx, frame, packet, &frames, &packets), NULL);
+  }
+
   HANDLE_RC(encode_frame(fctx, ctx, NULL, packet, &frames, &packets), NULL);
 
   print_log("Generated frames: %d", generated_frames);
+  print_log("Padding frames: %d", padding);
   print_log("Encoded frames: %d", frames);
   print_log("Encoded packets: %d", packets);
 
