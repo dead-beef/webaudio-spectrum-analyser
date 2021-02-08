@@ -23,3 +23,7 @@ declare type MethodOf<T> = {
 declare type Nullable<T> = T | null;
 
 declare type AnyError = Error | MediaError | string;
+
+declare type AudioWorkletProcessorParmeters<T extends string> = {
+  [key in T]: Float32Array;
+}

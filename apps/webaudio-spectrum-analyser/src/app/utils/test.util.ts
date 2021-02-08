@@ -292,6 +292,18 @@ export function getMockAudioGraph() {
     setConvolver: function () {
       return this;
     },
+    setPitchShifter: function () {
+      return this;
+    },
+    setWorkletSourceParameters: function () {
+      return this;
+    },
+    setWorkletFilterParameters: function () {
+      return this;
+    },
+    setState: function () {
+      return this;
+    },
     createAnalysers: function () {
       return this;
     },

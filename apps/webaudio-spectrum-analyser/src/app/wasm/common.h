@@ -11,7 +11,7 @@
 #define min(x, y) ((x) > (y) ? (y) : (x))
 
 typedef float tdval_t;
-typedef float fftval_t;
+typedef float fftmag_t;
 
 typedef enum {
   MIN_FREQUENCY = 1,
@@ -19,13 +19,13 @@ typedef enum {
   MAX_PROMINENCE = 3,
 } fftpeak_t;
 
-typedef enum {
+enum {
   TRUE = 1,
   FALSE = 0
-} bool;
+};
 
 double mean(tdval_t *data, int length);
 double variance(tdval_t *data, int length, double mean);
-fftval_t max_magnitude(fftval_t *fft, int start, int end);
+double rms(tdval_t *data, int length);
 
 #endif

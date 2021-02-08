@@ -7,15 +7,18 @@ import {
 import { actionConstructor, StoreActions } from '../../utils';
 import {
   AudioGraphStateModel,
+  BiquadState,
   ConvolverState,
   IirState,
   PitchDetectionState,
+  PitchShifterState,
+  WorkletFilterState,
 } from './audio-graph.model';
 
 const action = actionConstructor('AudioGraph');
 
 export const audioGraphAction: StoreActions = {
-  setState: action<Partial<AudioGraphStateModel>>('set state'),
+  setState: action<AudioGraphStateModel>('set state'),
 
   play: action<void>('play'),
   pause: action<void>('pause'),
@@ -46,14 +49,9 @@ export const audioGraphAction: StoreActions = {
   setFilter: action<AudioGraphFilterNode>('set filter'),
   setConvolverState: action<ConvolverState>('set convolver filter state'),
   setIirState: action<IirState>('set iir filter state'),
-  setBiquadType: action<BiquadFilterType>('set biquad filter type'),
-  setBiquadFrequency: action<number>('set biquad filter frequency'),
-  setBiquadQ: action<number>('set biquad filter q factor'),
-  setBiquadDetune: action<number>('set biquad filter detune'),
-  setBiquadGain: action<number>('set biquad filter gain'),
-  setPitchShift: action<number>('set pitch shift'),
-  setPitchShifterBufferTime: action<number>('set pitch shifter buffer time'),
-  setWorkletFilterFftSize: action<number>('set worklet filter fft size'),
+  setBiquadState: action<BiquadState>('set biquad filter state'),
+  setPitchShifterState: action<PitchShifterState>('set pitch shifter state'),
+  setWorkletFilterState: action<WorkletFilterState>('set worklet filter state'),
 
   setFftPeakType: action<FftPeakType>('set fft peak type'),
   setFftPeakProminenceRadius: action<number>('set fft peak prominence radius'),

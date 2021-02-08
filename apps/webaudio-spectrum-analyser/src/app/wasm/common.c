@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include <math.h>
+
 double mean(tdval_t *data, int length) {
   double sum = 0.0;
   for (int i = 0; i < length; ++i) {
@@ -17,15 +19,10 @@ double variance(tdval_t *data, int length, double mean) {
   return sum / length;
 }
 
-fftval_t max_magnitude(fftval_t *fft, int start, int end) {
-  if (start >= end) {
-    return 0;
+double rms(tdval_t *data, int length) {
+  double sum = 0.0;
+  for (int i = 0; i < length; ++i) {
+    sum += data[i] * data[i];
   }
-  fftval_t ret = fft[start];
-  for (int i = start + 1; i < end; ++i) {
-    if (fft[i] > ret) {
-      ret = fft[i];
-    }
-  }
-  return ret;
+  return sqrt(sum / length);
 }

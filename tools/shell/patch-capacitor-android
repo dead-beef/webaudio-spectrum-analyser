@@ -1,0 +1,26 @@
+#!/bin/bash
+
+cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+source tools/shell/common.sh
+shopt -s lastpipe
+
+cmd cd node_modules/@capacitor/android/capacitor
+
+cmd sed -i \
+    -r 's/^([^/].*implementation.*(firebase|play-services).*)$/\/\/\1/' \
+    build.gradle
+
+cmd sed -i \
+    -r 's/^([^/].*(PushNotifications|Geolocation).*)$/\/\/\1/' \
+    src/main/java/com/getcapacitor/Bridge.java
+
+cmd sed -i \
+    -r 's/^([^<].*uses-permission.*)$/<!--\1-->/' \
+    src/main/AndroidManifest.xml
+
+find src \
+     '(' -iname '*firebase*' -or -iname '*geolocation*' -or -iname '*pushnotifications*' ')' \
+     -not -iname '*.disabled' \
+     | while read fname; do
+       cmd mv "$fname" "${fname}.disabled"
+     done

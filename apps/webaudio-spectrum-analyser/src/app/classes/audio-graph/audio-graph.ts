@@ -1,4 +1,5 @@
 import {
+  AnyScriptNode,
   AudioGraphFilterNode,
   AudioGraphFilters,
   AudioGraphNodes,
@@ -6,7 +7,14 @@ import {
   FftPeakType,
   PitchDetection,
 } from '../../interfaces';
-import { AudioGraphStateModel } from '../../state/audio-graph/audio-graph.model';
+import {
+  AudioGraphStateModel,
+  BiquadState,
+  ConvolverState,
+  IirState,
+  PitchShifterState,
+  WorkletFilterState,
+} from '../../state/audio-graph/audio-graph.model';
 import { AudioMath } from '../audio-math/audio-math';
 import { PitchShifterNode } from '../pitch-shifter-node/pitch-shifter-node';
 import { WorkletNodeFactory } from '../worklet-node-factory/worklet-node-factory';
@@ -254,25 +262,10 @@ export class AudioGraph {
 
     this.setFilter(state.filter.id);
 
-    this.setIir(state.filter.iir.feedforward, state.filter.iir.feedback);
-
-    this.setConvolver(
-      state.filter.convolver.duration,
-      state.filter.convolver.decay,
-      state.filter.convolver.frequency,
-      state.filter.convolver.overtones,
-      state.filter.convolver.overtoneDecay
-    );
-
-    this.nodes.filter.biquad.type = state.filter.biquad.type;
-    this.nodes.filter.biquad.frequency.value = state.filter.biquad.frequency;
-    this.nodes.filter.biquad.detune.value = state.filter.biquad.detune;
-    this.nodes.filter.biquad.gain.value = state.filter.biquad.gain;
-    this.nodes.filter.biquad.Q.value = state.filter.biquad.q;
-
-    this.nodes.filter.pitchShifter.shift = state.filter.pitchShifter.shift;
-    this.nodes.filter.pitchShifter.bufferTime =
-      state.filter.pitchShifter.bufferTime;
+    this.setIir(state.filter.iir);
+    this.setBiquad(state.filter.biquad);
+    this.setPitchShifter(state.filter.pitchShifter);
+    this.setConvolver(state.filter.convolver);
 
     this.fftPeakType = state.fftp.type;
 
@@ -280,21 +273,8 @@ export class AudioGraph {
     this.prominenceThreshold = state.fftp.prominence.threshold;
     this.prominenceNormalize = state.fftp.prominence.normalize;
 
-    if (typeof state.worklet.type === 'number') {
-      void this.workletReady.then(() => {
-        const param: AudioParam = this.nodes.worklet!.parameters.get('type');
-        param.value = state.worklet.type;
-      });
-    }
-
-    if (typeof state.filter.worklet.fftSize === 'number') {
-      void this.workletFilterReady.then(() => {
-        const param: AudioParam = this.nodes.filter.worklet!.parameters.get(
-          'fftSize'
-        );
-        param.value = state.filter.worklet.fftSize;
-      });
-    }
+    void this.setWorkletSourceParameters(state.worklet);
+    void this.setWorkletFilterParameters(state.filter.worklet);
   }
 
   /**
@@ -462,8 +442,34 @@ export class AudioGraph {
   /**
    * TODO: description
    */
-  public setIir(feedforward: number[], feedback: number[]): AudioGraph {
-    const node = this.context.createIIRFilter(feedforward, feedback);
+  public setBiquad(state: BiquadState): AudioGraph {
+    const node = this.nodes.filter.biquad;
+    node.type = state.type;
+    node.frequency.value = state.frequency;
+    node.detune.value = state.detune;
+    node.gain.value = state.gain;
+    node.Q.value = state.q;
+    return this;
+  }
+
+  /**
+   * TODO: description
+   */
+  public setPitchShifter(state: PitchShifterState): AudioGraph {
+    const node = this.nodes.filter.pitchShifter;
+    node.shift = state.shift;
+    node.bufferTime = state.bufferTime;
+    return this;
+  }
+
+  /**
+   * TODO: description
+   */
+  public setIir(state: IirState): AudioGraph {
+    const node = this.context.createIIRFilter(
+      state.feedforward,
+      state.feedback
+    );
     if (this.filter === AudioGraphFilterNode.IIR) {
       this.nodes.input.disconnect();
       this.nodes.filter.iir.disconnect();
@@ -477,30 +483,61 @@ export class AudioGraph {
   /**
    * TODO: description
    */
-  public setConvolver(
-    duration: number,
-    decay: number,
-    frequency: number,
-    overtones: number,
-    overtoneDecay: number
-  ) {
+  public setConvolver(state: ConvolverState) {
     const data = AudioMath.impulseResponse(
       this.sampleRate,
-      duration,
-      decay,
-      frequency,
-      overtones,
-      overtoneDecay
+      state.duration,
+      state.decay,
+      state.frequency,
+      state.overtones,
+      state.overtoneDecay
     );
     const buffer = this.context.createBuffer(
       2,
-      this.context.sampleRate * duration,
+      this.context.sampleRate * state.duration,
       this.context.sampleRate
     );
     for (let i = 0; i < buffer.numberOfChannels; ++i) {
       buffer.copyToChannel(data, i);
     }
     this.nodes.filter.convolver.buffer = buffer;
+  }
+
+  /**
+   * TODO: description
+   */
+  public setWorkletNodeParameters(
+    node: AnyScriptNode,
+    params: Record<string, number>
+  ) {
+    for (const key in params) {
+      if (Object.prototype.hasOwnProperty.call(params, key)) {
+        const param: AudioParam = node.parameters.get(key);
+        param.value = Number(params[key]);
+      }
+    }
+  }
+
+  /**
+   * TODO: description
+   */
+  public setWorkletSourceParameters(
+    params: Record<string, number>
+  ): Promise<void> {
+    return this.workletReady.then(() => {
+      this.setWorkletNodeParameters(this.nodes.worklet!, params);
+    });
+  }
+
+  /**
+   * TODO: description
+   */
+  public setWorkletFilterParameters(
+    params: Partial<WorkletFilterState>
+  ): Promise<void> {
+    return this.workletFilterReady.then(() => {
+      this.setWorkletNodeParameters(this.nodes.filter.worklet!, params as any);
+    });
   }
 
   /**
@@ -641,6 +678,8 @@ export class AudioGraph {
       return this;
     }
 
+    let nan = false;
+
     for (let i = 0; i < this.nodes.analysers.length; i += 1) {
       const node = this.nodes.analysers[i];
       if (i === 0) {
@@ -649,11 +688,25 @@ export class AudioGraph {
       }
       this.fdata[i] = AudioMath.resize(this.fdata[i], node.frequencyBinCount);
       node.getFloatFrequencyData(this.fdata[i]);
+      for (let j = 0; j < this.fdata[i].length; ++j) {
+        const db = this.fdata[i][j];
+        if (isNaN(db)) {
+          nan = true;
+        }
+        this.fdata[i][j] = Math.min(
+          Math.max(this.minDecibels, db),
+          this.maxDecibels
+        );
+      }
     }
 
     const threshold =
       this.minDecibels + this.threshold * (this.maxDecibels - this.minDecibels);
-    this.canAnalyse = this.fdata[0].some(f => f > threshold);
+    this.canAnalyse = !nan && this.fdata[0].some(f => f > threshold);
+
+    /*if (nan) {
+      this.createAnalysers();
+    }*/
 
     return this;
   }

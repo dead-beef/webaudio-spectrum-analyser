@@ -1,3 +1,4 @@
+import { WorkletFilterParam } from '../../interfaces';
 import { AudioWorkletProcessor } from './util';
 
 export class FilterProcessor extends AudioWorkletProcessor {
@@ -22,6 +23,7 @@ export class FilterProcessor extends AudioWorkletProcessor {
     return 1;
   }
 
+  /* eslint-disable max-lines-per-function */
   /**
    * TODO: description
    */
@@ -34,8 +36,80 @@ export class FilterProcessor extends AudioWorkletProcessor {
         maxValue: 16384,
         automationRate: 'k-rate',
       },
+      {
+        name: 'type',
+        defaultValue: 0,
+        minValue: 0,
+        automationRate: 'k-rate',
+      },
+      {
+        name: 'gain',
+        defaultValue: 0,
+        automationRate: 'k-rate',
+      },
+      {
+        name: 'minPitch',
+        defaultValue: 90,
+        minValue: 20,
+        maxValue: 20000,
+        automationRate: 'k-rate',
+      },
+      {
+        name: 'maxPitch',
+        defaultValue: 250,
+        minValue: 20,
+        maxValue: 20000,
+        automationRate: 'k-rate',
+      },
+      {
+        name: 'minHarmonic',
+        defaultValue: 1,
+        minValue: 1,
+        automationRate: 'k-rate',
+      },
+      {
+        name: 'maxHarmonic',
+        defaultValue: 1,
+        minValue: 1,
+        automationRate: 'k-rate',
+      },
+      {
+        name: 'step',
+        defaultValue: 1,
+        minValue: 1,
+        automationRate: 'k-rate',
+      },
+      {
+        name: 'prominenceThreshold',
+        defaultValue: 5,
+        minValue: 0,
+        maxValue: 100,
+        automationRate: 'k-rate',
+      },
+      {
+        name: 'fScaleRadius',
+        defaultValue: 60,
+        minValue: 0,
+        maxValue: 20000,
+        automationRate: 'k-rate',
+      },
+      {
+        name: 'harmonicSearchRadius',
+        defaultValue: 0.3,
+        minValue: 0,
+        maxValue: 1,
+        automationRate: 'k-rate',
+      },
+      {
+        name: 'smoothScale',
+        defaultValue: 0,
+        minValue: 0,
+        maxValue: 1,
+        automationRate: 'k-rate',
+      },
     ];
   }
+  /* eslint-enable max-lines-per-function */
 
   public readonly blockSize = 128;
 
@@ -57,11 +131,52 @@ export class FilterProcessor extends AudioWorkletProcessor {
 
   private _fftSize = 4096;
 
-  public wasmFilter: (
+  public wasmFilterStart: (
     input: number,
-    output: number,
-    length: number,
-    sampleRate: number
+    fft: number,
+    fftSize: number
+  ) => void = () => {};
+
+  public wasmFilterEnd: (
+    input: number,
+    fft: number,
+    fftSize: number
+  ) => void = () => {};
+
+  public wasmGain: (
+    fft: number,
+    fftSize: number,
+    gain: number
+  ) => void = () => {};
+
+  public wasmAddHarmonics: (
+    fft: number,
+    fftSize: number,
+    sampleRate: number,
+    minPitch: number,
+    maxPitch: number,
+    minHarmonic: number,
+    maxHarmonic: number,
+    step: number,
+    prominenceThreshold: number,
+    fScaleRadius: number,
+    harmonicSearchRadius: number,
+    smoothScale: number
+  ) => void = () => {};
+
+  public wasmRemoveHarmonics: (
+    fft: number,
+    fftSize: number,
+    sampleRate: number,
+    minPitch: number,
+    maxPitch: number,
+    minHarmonic: number,
+    maxHarmonic: number,
+    step: number,
+    prominenceThreshold: number,
+    fScaleRadius: number,
+    harmonicSearchRadius: number,
+    smoothScale: number
   ) => void = () => {};
 
   /**
@@ -122,6 +237,8 @@ export class FilterProcessor extends AudioWorkletProcessor {
       const importObj = {
         env: {
           table: new WebAssembly.Table({
+            //initial: 2,
+            //maximum: 64,
             initial: 0,
             maximum: 0,
             element: 'anyfunc',
@@ -148,7 +265,11 @@ export class FilterProcessor extends AudioWorkletProcessor {
       void WebAssembly.instantiate(mod, importObj).then(instance => {
         this.wasm = instance;
         this.memory = memory;
-        this.wasmFilter = this.wasm.exports.filter as any;
+        this.wasmFilterStart = this.wasm.exports.filter_start as any;
+        this.wasmFilterEnd = this.wasm.exports.filter_end as any;
+        this.wasmGain = this.wasm.exports.gain as any;
+        this.wasmAddHarmonics = this.wasm.exports.add_harmonics as any;
+        this.wasmRemoveHarmonics = this.wasm.exports.remove_harmonics as any;
         console.log('instance', instance);
       });
     }
@@ -206,10 +327,63 @@ export class FilterProcessor extends AudioWorkletProcessor {
   /**
    * TODO: description
    */
+  public filter(
+    inputPtr: number,
+    outputPtr: number,
+    fftPtr: number,
+    parameters: AudioWorkletProcessorParmeters<WorkletFilterParam>
+  ): void {
+    const filterType = Math.round(parameters.type[0]);
+    this.wasmFilterStart(inputPtr, fftPtr, this.fftSize);
+    switch (filterType) {
+      case 0:
+        break;
+      case 1:
+        this.wasmRemoveHarmonics(
+          fftPtr,
+          this.fftSize,
+          this.sampleRate,
+          parameters.minPitch[0],
+          parameters.maxPitch[0],
+          parameters.minHarmonic[0],
+          parameters.maxHarmonic[0],
+          parameters.step[0],
+          parameters.prominenceThreshold[0],
+          parameters.fScaleRadius[0],
+          parameters.harmonicSearchRadius[0],
+          parameters.smoothScale[0]
+        );
+        break;
+      case 2:
+        this.wasmAddHarmonics(
+          fftPtr,
+          this.fftSize,
+          this.sampleRate,
+          parameters.minPitch[0],
+          parameters.maxPitch[0],
+          parameters.minHarmonic[0],
+          parameters.maxHarmonic[0],
+          parameters.step[0],
+          parameters.prominenceThreshold[0],
+          parameters.fScaleRadius[0],
+          parameters.harmonicSearchRadius[0],
+          parameters.smoothScale[0]
+        );
+        break;
+      default:
+        break;
+    }
+    this.wasmGain(fftPtr, this.fftSize, parameters.gain[0]);
+    this.wasmFilterEnd(outputPtr, fftPtr, this.fftSize);
+  }
+
+  /**
+   * TODO: description
+   */
   public process(
     inputs: Float32Array[][],
     outputs: Float32Array[][],
-    parameters: { [key: string]: Float32Array }
+    parameters: AudioWorkletProcessorParmeters<WorkletFilterParam>
   ): boolean {
     try {
       if (this.wasm === null || this.memory === null) {
@@ -217,9 +391,7 @@ export class FilterProcessor extends AudioWorkletProcessor {
         return true;
       }
 
-      if (Object.prototype.hasOwnProperty.call(parameters, 'fftSize')) {
-        this.fftSize = parameters['fftSize'][0];
-      }
+      this.fftSize = parameters.fftSize[0];
 
       let update = false;
       this.unusedInput += this.blockSize;
@@ -258,9 +430,12 @@ export class FilterProcessor extends AudioWorkletProcessor {
           const inputPtr =
             this.memory.buffer.byteLength - inputBuffer.byteLength;
           const outputPtr = inputPtr - outputBuffer.byteLength;
+          const fftPtr = outputPtr - 2 * outputBuffer.byteLength;
 
           this.copyToMemory(inputBuffer.buffer, inputPtr);
-          this.wasmFilter(inputPtr, outputPtr, this.fftSize, this.sampleRate);
+
+          this.filter(inputPtr, outputPtr, fftPtr, parameters);
+
           outputBuffer.set(outputBuffer2);
           this.copyFromMemory(outputBuffer2.buffer, outputPtr);
         } else {

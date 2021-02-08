@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 //import { PitchDetection, MethodOf } from '../../interfaces';
 import { PitchDetection } from '../../interfaces';
-import { AUDIO_GRAPH } from '../../utils';
+import { AUDIO_GRAPH, deepCopy } from '../../utils';
 import { audioGraphAction } from './audio-graph.actions';
 import { AUDIO_GRAPH_STATE_DEFAULTS } from './audio-graph.model';
 import { AudioGraphState } from './audio-graph.store';
@@ -23,15 +23,22 @@ export class AudioGraphService {
     private readonly store: Store,
     @Inject(AUDIO_GRAPH) public readonly graph: AudioGraph
   ) {
-    const state = this.store.selectSnapshot(AudioGraphState.state);
+    const defaults = deepCopy(AUDIO_GRAPH_STATE_DEFAULTS);
+    let state = this.store.selectSnapshot(AudioGraphState.state);
     console.log('state', state);
     if (state !== null && state !== undefined) {
       try {
-        this.graph.setState(state);
+        state = {
+          ...defaults,
+          ...state,
+        };
+        console.log('state with defaults', state);
+        //this.graph.setState(state);
+        void this.dispatch('setState', state);
       } catch (err) {
         console.warn('invalid state', state);
         //this.store.reset(AUDIO_GRAPH_STATE_DEFAULTS);
-        void this.dispatch('setState', AUDIO_GRAPH_STATE_DEFAULTS);
+        void this.dispatch('setState', defaults);
       }
     }
   }

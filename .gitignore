@@ -11,6 +11,11 @@
 *.wasm.js
 *.mem
 wasm/*.js
+/tools/audio/*
+!/tools/audio/include/
+!/tools/audio/src/
+!/tools/audio/Makefile
+# !/tools/audio/*.py
 
 # dependencies
 /node_modules
@@ -24,6 +29,7 @@ wasm/*.js
 .settings/
 *.sublime-workspace
 .gradle/
+.dir-locals.el
 
 # IDE - VSCode
 .vscode/*
