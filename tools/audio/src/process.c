@@ -213,15 +213,15 @@ void print_fft_peaks(data_t *data) {
     }
   }
 
-  const char *FMT = "  %7.1f %7.1f";
+  const char *FMT = "  %7.1lf %7.1lf";
   if (peaks >= data->options->min_peaks) {
     int i;
     for (i = 0; i < peaks; ++i) {
       int j = peak_buf[i];
       fftmag_t peak;
-      float offset = interpolate_peak(fft_mag_buf, data->bins, j, &peak);
+      double offset = interpolate_peak(fft_mag_buf, data->bins, j, &peak);
       //print_log("%f %f %f %f %f", j * data->bin_size, fft_mag_buf[j - 1], fft_mag_buf[j], fft_mag_buf[j + 1], offset);
-      float frequency = data->bin_size * (j + offset);
+      double frequency = data->bin_size * (j + offset);
       fprintf(stdout, FMT, frequency, peak);
     }
     for (; i < peak_buf_size; ++i) {

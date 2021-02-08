@@ -22,9 +22,12 @@ import {
   AUDIO_GRAPH_STATE_DEFAULTS,
   AUDIO_GRAPH_STATE_TOKEN,
   AudioGraphStateModel,
+  BiquadState,
   ConvolverState,
   IirState,
   PitchDetectionState,
+  PitchShifterState,
+  WorkletFilterState,
 } from './audio-graph.model';
 
 @State<AudioGraphStateModel>({
@@ -200,44 +203,8 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static biquadType(state: AudioGraphStateModel) {
-    return state.filter.biquad.type;
-  }
-
-  /**
-   * Selector
-   * @param state
-   */
-  @Selector()
-  public static biquadFrequency(state: AudioGraphStateModel) {
-    return state.filter.biquad.frequency;
-  }
-
-  /**
-   * Selector
-   * @param state
-   */
-  @Selector()
-  public static biquadDetune(state: AudioGraphStateModel) {
-    return state.filter.biquad.detune;
-  }
-
-  /**
-   * Selector
-   * @param state
-   */
-  @Selector()
-  public static biquadQ(state: AudioGraphStateModel) {
-    return state.filter.biquad.q;
-  }
-
-  /**
-   * Selector
-   * @param state
-   */
-  @Selector()
-  public static biquadGain(state: AudioGraphStateModel) {
-    return state.filter.biquad.gain;
+  public static biquadState(state: AudioGraphStateModel) {
+    return state.filter.biquad;
   }
 
   /**
@@ -263,8 +230,8 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static pitchShift(state: AudioGraphStateModel) {
-    return state.filter.pitchShifter.shift;
+  public static pitchShifterState(state: AudioGraphStateModel) {
+    return state.filter.pitchShifter;
   }
 
   /**
@@ -272,17 +239,8 @@ export class AudioGraphState {
    * @param state
    */
   @Selector()
-  public static pitchShifterBufferTime(state: AudioGraphStateModel) {
-    return state.filter.pitchShifter.bufferTime;
-  }
-
-  /**
-   * Selector
-   * @param state
-   */
-  @Selector()
-  public static workletFilterFftSize(state: AudioGraphStateModel) {
-    return state.filter.worklet.fftSize;
+  public static workletFilterState(state: AudioGraphStateModel) {
+    return state.filter.worklet;
   }
 
   /**
@@ -329,8 +287,9 @@ export class AudioGraphState {
   @Action(audioGraphAction.setState)
   public setState(
     ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<Partial<AudioGraphStateModel>>
+    { payload }: StoreAction<AudioGraphStateModel>
   ) {
+    this.graph.setState(payload);
     return ctx.patchState(payload);
   }
 
@@ -667,8 +626,7 @@ export class AudioGraphState {
     ctx: StateContext<AudioGraphStateModel>,
     { payload }: StoreAction<IirState>
   ) {
-    const { feedforward, feedback } = payload;
-    this.graph.setIir(feedforward, feedback);
+    this.graph.setIir(payload);
     return ctx.setState(patch({ filter: patch({ iir: payload }) }));
   }
 
@@ -682,13 +640,7 @@ export class AudioGraphState {
     ctx: StateContext<AudioGraphStateModel>,
     { payload }: StoreAction<ConvolverState>
   ) {
-    this.graph.setConvolver(
-      payload.duration,
-      payload.decay,
-      payload.frequency,
-      payload.overtones,
-      payload.overtoneDecay
-    );
+    this.graph.setConvolver(payload);
     return ctx.setState(patch({ filter: patch({ convolver: payload }) }));
   }
 
@@ -697,18 +649,16 @@ export class AudioGraphState {
    * @param ctx
    * @param payload
    */
-  @Action(audioGraphAction.setBiquadType)
-  public setBiquadType(
+  @Action(audioGraphAction.setBiquadState)
+  public setBiquadState(
     ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<BiquadFilterType>
+    { payload }: StoreAction<BiquadState>
   ) {
-    this.graph.nodes.filter.biquad.type = payload;
+    this.graph.setBiquad(payload);
     return ctx.setState(
       patch({
         filter: patch({
-          biquad: patch({
-            type: payload,
-          }),
+          biquad: payload,
         }),
       })
     );
@@ -719,18 +669,16 @@ export class AudioGraphState {
    * @param ctx
    * @param payload
    */
-  @Action(audioGraphAction.setBiquadFrequency)
-  public setBiquadFrequency(
+  @Action(audioGraphAction.setPitchShifterState)
+  public setPitchShifterState(
     ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<number>
+    { payload }: StoreAction<PitchShifterState>
   ) {
-    this.graph.nodes.filter.biquad.frequency.value = payload;
+    this.graph.setPitchShifter(payload);
     return ctx.setState(
       patch({
         filter: patch({
-          biquad: patch({
-            frequency: payload,
-          }),
+          pitchShifter: payload,
         }),
       })
     );
@@ -741,137 +689,19 @@ export class AudioGraphState {
    * @param ctx
    * @param payload
    */
-  @Action(audioGraphAction.setBiquadDetune)
-  public setBiquadDetune(
+  @Action(audioGraphAction.setWorkletFilterState)
+  public async setWorkletFilterState(
     ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<number>
+    { payload }: StoreAction<WorkletFilterState>
   ) {
-    this.graph.nodes.filter.biquad.detune.value = payload;
+    await this.graph.setWorkletFilterParameters(payload);
     return ctx.setState(
       patch({
         filter: patch({
-          biquad: patch({
-            detune: payload,
-          }),
+          worklet: payload,
         }),
       })
     );
-  }
-
-  /**
-   * Action
-   * @param ctx
-   * @param payload
-   */
-  @Action(audioGraphAction.setBiquadGain)
-  public setBiquadGain(
-    ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<number>
-  ) {
-    this.graph.nodes.filter.biquad.gain.value = payload;
-    return ctx.setState(
-      patch({
-        filter: patch({
-          biquad: patch({
-            gain: payload,
-          }),
-        }),
-      })
-    );
-  }
-
-  /**
-   * Action
-   * @param ctx
-   * @param payload
-   */
-  @Action(audioGraphAction.setBiquadQ)
-  public setBiquadQ(
-    ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<number>
-  ) {
-    this.graph.nodes.filter.biquad.Q.value = payload;
-    return ctx.setState(
-      patch({
-        filter: patch({
-          biquad: patch({
-            q: payload,
-          }),
-        }),
-      })
-    );
-  }
-
-  /**
-   * Action
-   * @param ctx
-   * @param payload
-   */
-  @Action(audioGraphAction.setPitchShift)
-  public setPitchShift(
-    ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<number>
-  ) {
-    this.graph.nodes.filter.pitchShifter.shift = payload;
-    return ctx.setState(
-      patch({
-        filter: patch({
-          pitchShifter: patch({
-            shift: payload,
-          }),
-        }),
-      })
-    );
-  }
-
-  /**
-   * Action
-   * @param ctx
-   * @param payload
-   */
-  @Action(audioGraphAction.setPitchShifterBufferTime)
-  public setPitchShifterBufferTime(
-    ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<number>
-  ) {
-    this.graph.nodes.filter.pitchShifter.bufferTime = payload;
-    return ctx.setState(
-      patch({
-        filter: patch({
-          pitchShifter: patch({
-            bufferTime: payload,
-          }),
-        }),
-      })
-    );
-  }
-
-  /**
-   * Action
-   * @param ctx
-   * @param payload
-   */
-  @Action(audioGraphAction.setWorkletFilterFftSize)
-  public setWorkletFilterFftSize(
-    ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<number>
-  ) {
-    return this.graph.workletFilterReady.then(() => {
-      const param: AudioParam = this.graph.nodes.filter.worklet!.parameters.get(
-        'fftSize'
-      );
-      //console.log(param);
-      param.value = payload;
-      return ctx.setState(
-        patch({
-          filter: patch({
-            worklet: patch({
-              fftSize: payload,
-            }),
-          }),
-        })
-      );
-    });
   }
 
   /**

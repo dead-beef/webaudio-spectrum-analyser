@@ -79,6 +79,19 @@ void magnitude_to_decibels(
   }
 }
 
+void magnitude_from_decibels(
+  fftmag_t *in,
+  fftmag_t *out,
+  int length,
+  fftmag_t reference
+) {
+  for (int i = 0; i < length; ++i) {
+    double val = in[i];
+    val = pow(10.0, val / 10.0) * reference;
+    out[i] = val;
+  }
+}
+
 fftmag_t max_magnitude(fftmag_t *fft, int start, int end) {
   if (start >= end) {
     return 0;
@@ -92,9 +105,11 @@ fftmag_t max_magnitude(fftmag_t *fft, int start, int end) {
   return ret;
 }
 
-float interpolate_peak(fftmag_t *mag, int bin_count, int i, fftmag_t *value) {
+double interpolate_peak(fftmag_t *mag, int bin_count, int i, fftmag_t *value) {
   if (i <= 0 || i >= bin_count) {
-    *value = mag[i];
+    if (value) {
+      *value = mag[i];
+    }
     return 0.0;
   }
   fftmag_t left = mag[i - 1];
@@ -106,15 +121,15 @@ float interpolate_peak(fftmag_t *mag, int bin_count, int i, fftmag_t *value) {
   double a = left + b - c;
 
   double x = -b / (2.0 * a);
-  *value = x * (a * x + b) + c;
+  if (value) {
+    *value = x * (a * x + b) + c;
+  }
 
   return x;
 }
 
 void fft_scale(
   fftval_t *fft_buf,
-  fftmag_t *magnitude_buf,
-  fftmag_t *prominence_buf,
   int length,
   int i,
   int radius,
@@ -132,15 +147,35 @@ void fft_scale(
       } else {
         scale = factor;
       }
-      if (fft_buf) {
-        fft_buf[k].r *= scale;
-        fft_buf[k].i *= scale;
-      }
-      if (magnitude_buf) {
-        magnitude_buf[k] *= scale;
-      }
-      if (prominence_buf) {
-        prominence_buf[k] *= scale;
+      fft_buf[k].r *= scale;
+      fft_buf[k].i *= scale;
+    }
+  }
+}
+
+void fft_copy(
+  fftval_t *fft_buf,
+  int length,
+  int src,
+  int dst,
+  int radius,
+  float scale,
+  int smooth
+) {
+  double wnd_k = /* 2.0 * */ M_PI / (/* 2.0 * */ radius);
+  for (int j = -radius; j <= radius; ++j) {
+    int src_ = src + j;
+    int dst_ = dst + j;
+    if (src_ >= 0 && src_ < length && dst_ >= 0 && dst_ < length) {
+      if (smooth) {
+        double wnd = 0.5 * (1.0 - cos(wnd_k * (j + radius)));
+        fft_buf[dst_].r =
+          wnd * scale * fft_buf[src_].r + (1.0 - wnd) * fft_buf[dst_].r;
+        fft_buf[dst_].i =
+          wnd * scale * fft_buf[src_].i + (1.0 - wnd) * fft_buf[dst_].i;
+      } else {
+        fft_buf[dst_].r = scale * fft_buf[src_].r;
+        fft_buf[dst_].i = scale * fft_buf[src_].i;
       }
     }
   }

@@ -1,9 +1,13 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { environment } from '../../../environments/environment';
-import { AudioGraphFilterNode, Layouts } from '../../interfaces';
+import {
+  AudioGraphFilterNode,
+  Layouts,
+  WorkletFilterType,
+} from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { deepEqual, stateFormControl } from '../../utils';
@@ -32,6 +36,12 @@ export class FilterOptionsComponent {
     { id: AudioGraphFilterNode.WORKLET, name: 'Worklet' },
   ];
 
+  public readonly workletFilterTypes = [
+    { id: WorkletFilterType.NONE, name: 'None' },
+    { id: WorkletFilterType.REMOVE_HARMONICS, name: 'Remove harmonics' },
+    { id: WorkletFilterType.ADD_HARMONICS, name: 'Add harmonics' },
+  ];
+
   public readonly iirFilterOrder = [0, 1, 2];
 
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -47,12 +57,8 @@ export class FilterOptionsComponent {
 
     iir: stateFormControl(
       new FormGroup({
-        feedforward: new FormArray(
-          this.iirFilterOrder.map(() => new FormControl(0))
-        ),
-        feedback: new FormArray(
-          this.iirFilterOrder.map(() => new FormControl(0))
-        ),
+        feedforward: this.fb.array(this.iirFilterOrder),
+        feedback: this.fb.array(this.iirFilterOrder),
       }),
       this.graph.select(AudioGraphState.iirState),
       data => this.graph.dispatch('setIirState', data),
@@ -62,12 +68,12 @@ export class FilterOptionsComponent {
     ),
 
     convolver: stateFormControl(
-      new FormGroup({
-        duration: new FormControl(),
-        decay: new FormControl(),
-        frequency: new FormControl(),
-        overtones: new FormControl(),
-        overtoneDecay: new FormControl(),
+      this.fb.group({
+        duration: 0,
+        decay: 0,
+        frequency: 0,
+        overtones: 0,
+        overtoneDecay: 0,
       }),
       this.graph.select(AudioGraphState.convolverState),
       data => this.graph.dispatch('setConvolverState', data),
@@ -76,68 +82,54 @@ export class FilterOptionsComponent {
       deepEqual
     ),
 
-    biquad: new FormGroup({
-      type: stateFormControl(
-        null,
-        this.graph.select(AudioGraphState.biquadType),
-        (t: BiquadFilterType) => this.graph.dispatch('setBiquadType', t),
-        untilDestroyed(this)
-      ),
-      frequency: stateFormControl(
-        null,
-        this.graph.select(AudioGraphState.biquadFrequency),
-        (f: number) => this.graph.dispatch('setBiquadFrequency', f),
-        untilDestroyed(this),
-        environment.throttle
-      ),
-      detune: stateFormControl(
-        null,
-        this.graph.select(AudioGraphState.biquadDetune),
-        (d: number) => this.graph.dispatch('setBiquadDetune', d),
-        untilDestroyed(this),
-        environment.throttle
-      ),
-      gain: stateFormControl(
-        null,
-        this.graph.select(AudioGraphState.biquadGain),
-        (g: number) => this.graph.dispatch('setBiquadGain', g),
-        untilDestroyed(this),
-        environment.throttle
-      ),
-      q: stateFormControl(
-        null,
-        this.graph.select(AudioGraphState.biquadQ),
-        (q: number) => this.graph.dispatch('setBiquadQ', q),
-        untilDestroyed(this),
-        environment.throttle
-      ),
-    }),
+    biquad: stateFormControl(
+      this.fb.group({
+        type: '',
+        frequency: 0,
+        detune: 0,
+        gain: 0,
+        q: 0,
+      }),
+      this.graph.select(AudioGraphState.biquadState),
+      data => this.graph.dispatch('setBiquadState', data),
+      untilDestroyed(this),
+      environment.throttle,
+      deepEqual
+    ),
 
-    pitchShifter: new FormGroup({
-      shift: stateFormControl(
-        null,
-        this.graph.select(AudioGraphState.pitchShift),
-        (s: number) => this.graph.dispatch('setPitchShift', s),
-        untilDestroyed(this),
-        environment.throttle
-      ),
-      bufferTime: stateFormControl(
-        null,
-        this.graph.select(AudioGraphState.pitchShifterBufferTime),
-        (t: number) => this.graph.dispatch('setPitchShifterBufferTime', t),
-        untilDestroyed(this),
-        environment.throttle
-      ),
-    }),
+    pitchShifter: stateFormControl(
+      this.fb.group({
+        shift: 0,
+        bufferTime: 0,
+      }),
+      this.graph.select(AudioGraphState.pitchShifterState),
+      data => this.graph.dispatch('setPitchShifterState', data),
+      untilDestroyed(this),
+      environment.throttle,
+      deepEqual
+    ),
 
-    worklet: new FormGroup({
-      fftSize: stateFormControl(
-        null,
-        this.graph.select(AudioGraphState.workletFilterFftSize),
-        (s: number) => this.graph.dispatch('setWorkletFilterFftSize', s),
-        untilDestroyed(this)
-      ),
-    }),
+    worklet: stateFormControl(
+      this.fb.group({
+        fftSize: 0,
+        type: 0,
+        gain: 0,
+        minPitch: 0,
+        maxPitch: 0,
+        minHarmonic: 0,
+        maxHarmonic: 0,
+        step: 0,
+        prominenceThreshold: 0,
+        fScaleRadius: 0,
+        harmonicSearchRadius: 0,
+        smoothScale: 0,
+      }),
+      this.graph.select(AudioGraphState.workletFilterState),
+      data => this.graph.dispatch('setWorkletFilterState', data),
+      untilDestroyed(this),
+      environment.throttle,
+      deepEqual
+    ),
   });
 
   public readonly iirForm = this.form.controls.iir as FormGroup;
@@ -151,5 +143,8 @@ export class FilterOptionsComponent {
    * Constructor.
    * @param graph
    */
-  constructor(private readonly graph: AudioGraphService) {}
+  constructor(
+    private readonly fb: FormBuilder,
+    private readonly graph: AudioGraphService
+  ) {}
 }

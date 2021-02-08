@@ -83,5 +83,42 @@
         </option>
       </select>
     </clr-select-container>
+    <app-input-range name="Gain" [min]="-10" [max]="10" [step]="1" formControlName="gain">
+    </app-input-range>
+
+    <clr-select-container>
+      <label>Filter</label>
+      <select clrSelect formControlName="type">
+        <option *ngFor="let type of workletFilterTypes" [ngValue]="type.id">
+          {{ type.name }}
+        </option>
+      </select>
+    </clr-select-container>
+    <app-input-frequency name="Min Pitch" formControlName="minPitch">
+    </app-input-frequency>
+    <app-input-frequency name="Max Pitch" formControlName="maxPitch">
+    </app-input-frequency>
+    <app-input-range name="Min Harmonic" [min]="1" [max]="200" [step]="1" formControlName="minHarmonic">
+    </app-input-range>
+    <app-input-range name="Max Harmonic" [min]="1" [max]="200" [step]="1" formControlName="maxHarmonic">
+    </app-input-range>
+    <app-input-range name="Step" [min]="1" [max]="10" [step]="1" formControlName="step">
+    </app-input-range>
+    <app-input-range name="Prominence Threshold" [min]="0" [max]="100" [step]="0.1" formControlName="prominenceThreshold">
+    </app-input-range>
+    <app-input-range name="Scale Radius" [min]="0" [max]="1000" [step]="0.1" formControlName="fScaleRadius">
+    </app-input-range>
+    <app-input-range name="Harmonic Search Radius" [min]="0" [max]="1" [step]="0.01" formControlName="harmonicSearchRadius">
+    </app-input-range>
+    <clr-checkbox-container>
+      <clr-checkbox-wrapper>
+        <input
+          type="checkbox"
+          clrCheckbox
+          formControlName="smoothScale"
+        />
+        <label>Smooth Scale</label>
+      </clr-checkbox-wrapper>
+    </clr-checkbox-container>
   </ng-container>
 </form>

@@ -200,6 +200,10 @@ clr-tabs {
 
     li.nav-item {
       margin-right: 0.9rem;
+
+      button:focus {
+        outline: none;
+      }
     }
   }
 }

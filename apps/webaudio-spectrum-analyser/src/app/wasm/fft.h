@@ -32,18 +32,33 @@ void magnitude_to_decibels(
   fftmag_t max_decibels
 );
 
+void magnitude_from_decibels(
+  fftmag_t *in,
+  fftmag_t *out,
+  int length,
+  fftmag_t reference
+);
+
 fftmag_t max_magnitude(fftmag_t *fft, int start, int end);
 
-float interpolate_peak(fftmag_t *mag, int bin_count, int i, fftmag_t *value);
+double interpolate_peak(fftmag_t *mag, int bin_count, int i, fftmag_t *value);
 
 void fft_scale(
   fftval_t *fft_buf,
-  fftmag_t *magnitude_buf,
-  fftmag_t *prominence_buf,
   int length,
   int i,
   int radius,
   float factor,
+  int smooth
+);
+
+void fft_copy(
+  fftval_t *fft_buf,
+  int length,
+  int src,
+  int dst,
+  int radius,
+  float scale,
   int smooth
 );
 

@@ -1,3 +1,4 @@
+import { WorkletGeneratorParam } from '../../interfaces';
 import { AudioWorkletProcessor } from './util';
 
 export class GeneratorProcessor extends AudioWorkletProcessor {
@@ -68,13 +69,10 @@ export class GeneratorProcessor extends AudioWorkletProcessor {
   public process(
     inputs: Float32Array[][],
     outputs: Float32Array[][],
-    parameters: { [key: string]: Float32Array }
+    parameters: AudioWorkletProcessorParmeters<WorkletGeneratorParam>
   ): boolean {
     try {
-      let type_ = 0;
-      if (Object.prototype.hasOwnProperty.call(parameters, 'type')) {
-        type_ = parameters['type'][0];
-      }
+      const type_ = parameters.type[0];
       const channels: Float32Array[] = outputs[0];
       for (let i = 0; i < channels.length; ++i) {
         this.generate(type_, channels[i]);

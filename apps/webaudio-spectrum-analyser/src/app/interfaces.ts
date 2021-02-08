@@ -87,6 +87,29 @@ export enum FftPeakType {
   MAX_PROMINENCE = 3,
 }
 
+export enum WorkletFilterType {
+  NONE,
+  REMOVE_HARMONICS,
+  ADD_HARMONICS,
+  _MAX_VALUE,
+}
+
+export type WorkletFilterParam =
+  | 'fftSize'
+  | 'type'
+  | 'gain'
+  | 'minPitch'
+  | 'maxPitch'
+  | 'minHarmonic'
+  | 'maxHarmonic'
+  | 'step'
+  | 'prominenceThreshold'
+  | 'fScaleRadius'
+  | 'harmonicSearchRadius'
+  | 'smoothScale';
+
+export type WorkletGeneratorParam = 'type';
+
 export interface AudioGraphSource {
   node: AudioGraphSourceNode;
   data?: any;

@@ -32,6 +32,17 @@ export interface PitchShifterState {
 
 export interface WorkletFilterState {
   fftSize: number;
+  type: number;
+  gain: number;
+  minPitch: number;
+  maxPitch: number;
+  minHarmonic: number;
+  maxHarmonic: number;
+  step: number;
+  prominenceThreshold: number;
+  fScaleRadius: number;
+  harmonicSearchRadius: number;
+  smoothScale: boolean;
 }
 
 export interface BiquadState {
@@ -150,6 +161,17 @@ export const AUDIO_GRAPH_STATE_DEFAULTS: AudioGraphStateModel = {
     },
     worklet: {
       fftSize: 4096,
+      type: 0,
+      gain: 0,
+      minPitch: 90,
+      maxPitch: 250,
+      minHarmonic: 1,
+      maxHarmonic: 200,
+      step: 2,
+      prominenceThreshold: 5,
+      fScaleRadius: 60,
+      harmonicSearchRadius: 0.3,
+      smoothScale: false,
     },
   },
 };
