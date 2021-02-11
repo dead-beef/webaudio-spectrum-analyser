@@ -33,7 +33,7 @@ module.exports = {
     '^.+\\.(ts|js|html)$': 'ts-jest',
     '^.+\\.(c|cpp)$': ['jest-cpp-wasm', getWasmOptions()],
   },
-  transformIgnorePatterns: ['node_modules/(?!@ngrx)'],
+  transformIgnorePatterns: ['node_modules/(?!@ngrx|@cds|lit-|ramda)'],
   moduleFileExtensions: ['ts', 'html', 'js', 'json'],
   resolver: '@nrwl/jest/plugins/resolver',
   coverageReporters: ['html-spa', 'json-summary'],

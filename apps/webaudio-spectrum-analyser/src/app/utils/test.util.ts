@@ -122,6 +122,12 @@ export function mockAudioContext() {
         onmessage: () => {},
       };
 
+      public parameters = {
+        get: () => {
+          return {};
+        },
+      };
+
       public connect() {}
 
       public disconnect() {}
@@ -287,6 +293,9 @@ export function getMockAudioGraph() {
       return this;
     },
     setIir: function () {
+      return this;
+    },
+    setBiquad: function () {
       return this;
     },
     setConvolver: function () {
