@@ -1,11 +1,12 @@
 @import 'vars';
 
+@import '@cds/core/global';
 @import '@clr/ui/clr-ui-dark';
 @import '@clr/icons/clr-icons';
 @import 'simplebar/dist/simplebar';
 @import 'font-awesome/scss/font-awesome';
 
-html {
+html:not([cds-text]) {
   font-size: $font-size;
   @media (max-width: $width-md - 1px) {
     font-size: $font-size-sm;
@@ -110,6 +111,8 @@ clr-icon {
   width: $icon-size;
   height: $icon-size;
 
+  header .header-nav &,
+  .header .header-nav &,
   header .header-nav .nav-link &,
   .header .header-nav .nav-link & {
     width: $icon-size-header;

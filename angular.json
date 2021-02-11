@@ -49,7 +49,18 @@
                 "lazy": false
               }
             ],
-            "scripts": [],
+            "scripts": [
+              {
+                "input": "node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
+                "bundleName": "custom-elements-es5-adapter",
+                "lazy": false
+              },
+              {
+                "input": "node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js",
+                "bundleName": "webcomponents-bundle",
+                "lazy": false
+              }
+            ],
             "allowedCommonJsDependencies": [
               "core-js/modules/es.array.filter",
               "core-js/modules/es.array.for-each",
