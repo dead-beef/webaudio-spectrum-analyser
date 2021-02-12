@@ -7,7 +7,6 @@ import { throttleTime_ } from './rxjs.util';
 export class StoreAction<T> {
   public static readonly type: string;
 
-  // eslint-disable-next-line require-jsdoc
   constructor(public payload: T) {}
 }
 
@@ -28,7 +27,6 @@ export function actionConstructor(scope: string) {
     return class {
       public static readonly type: string = `[${scope}]: ${name}`;
 
-      // eslint-disable-next-line require-jsdoc
       constructor(public payload: T) {}
     };
   }

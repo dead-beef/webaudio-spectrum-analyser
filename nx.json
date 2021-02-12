@@ -17,6 +17,9 @@
         "type:application",
         "platform:browser"
       ]
+    },
+    "tools": {
+      "tags": ["scope:tools", "type:workspace"]
     }
   },
   "tasksRunnerOptions": {

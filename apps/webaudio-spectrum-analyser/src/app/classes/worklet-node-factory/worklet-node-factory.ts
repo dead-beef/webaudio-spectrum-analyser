@@ -99,7 +99,6 @@ registerProcessor('${processor.key}', ${processor.name});`;
     }
 
     //console.log('create workletnode');
-    // eslint-disable-next-line compat/compat
     const node = new AudioWorkletNode(this.context, processor.key, {
       numberOfInputs: processor.inputs,
       numberOfOutputs: processor.outputs,
