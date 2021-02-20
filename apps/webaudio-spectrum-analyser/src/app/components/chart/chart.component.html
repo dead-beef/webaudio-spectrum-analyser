@@ -1,0 +1,36 @@
+<div class="chart-header">
+  <form class="chart-title" [formGroup]="form">
+    <!-- {{ title$ | async }} -->
+    <select clrSelect formControlName="type">
+      <option *ngFor="let type of types" [ngValue]="type.id">
+        {{ type.name }}
+      </option>
+    </select>
+  </form>
+  <div class="chart-buttons">
+    <button class="btn" (click)="toggleLayout()">
+      <cds-icon shape="grid-view"></cds-icon>
+    </button>
+    <button class="btn" (click)="moveUp()">
+      <cds-icon shape="angle"></cds-icon>
+    </button>
+    <button class="btn" (click)="moveDown()">
+      <cds-icon shape="angle" direction="down"></cds-icon>
+    </button>
+    <button class="btn" (click)="add()">
+      <cds-icon shape="plus"></cds-icon>
+    </button>
+    <button class="btn" (click)="remove()">
+      <cds-icon shape="times"></cds-icon>
+    </button>
+  </div>
+</div>
+<div class="chart-body" [ngSwitch]="type$ | async">
+  <app-time-domain-chart *ngSwitchCase="ChartType.TIME_DOMAIN">
+  </app-time-domain-chart>
+  <app-frequency-chart *ngSwitchCase="ChartType.FREQUENCY">
+  </app-frequency-chart>
+  <div *ngSwitchDefault>
+    type = {{ type$ | async }}
+  </div>
+</div>

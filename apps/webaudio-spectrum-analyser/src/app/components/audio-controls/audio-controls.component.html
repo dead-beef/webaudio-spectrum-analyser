@@ -16,9 +16,9 @@
       (click)="toggle()"
       [disabled]="error !== null"
     >
-      <clr-icon shape="play" *ngIf="paused else pause"></clr-icon>
+      <cds-icon shape="play" *ngIf="paused else pause"></cds-icon>
       <ng-template #pause>
-        <clr-icon shape="pause"></clr-icon>
+        <cds-icon shape="pause"></cds-icon>
       </ng-template>
     </button>
   </div>

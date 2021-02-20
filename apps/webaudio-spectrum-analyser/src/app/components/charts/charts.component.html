@@ -1,0 +1,4 @@
+<div [attr.class]="layout$ | async">
+  <app-chart *ngFor="let i of index$ | async; trackBy: trackBy" [index]="i">
+  </app-chart>
+</div>

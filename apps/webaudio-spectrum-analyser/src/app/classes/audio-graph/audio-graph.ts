@@ -4,6 +4,7 @@ import {
   AudioGraphFilters,
   AudioGraphNodes,
   AudioGraphSourceNode,
+  AudioGraphUpdateHandler,
   FftPeakType,
   PitchDetection,
 } from '../../interfaces';
@@ -35,6 +36,14 @@ export class AudioGraph {
 
   public filter: AudioGraphFilterNode = AudioGraphFilterNode.NONE;
 
+  private _frame = 0;
+
+  private readonly _updateLoopBound = this._updateLoop.bind(this);
+
+  private readonly _onUpdate: AudioGraphUpdateHandler[] = [];
+
+  public updating = false;
+
   public paused = true;
 
   public suspended = true;
@@ -43,16 +52,13 @@ export class AudioGraph {
 
   public deviceStream: Nullable<MediaStream> = null;
 
-  public fdata: Float32Array[] = [];
+  public fdata: Float32Array = new Float32Array(1);
 
   public tdata: Float32Array = new Float32Array(1);
 
   public autocorrdata: Float32Array = new Float32Array(1);
 
-  public prominenceData: Float32Array[] = [
-    new Float32Array(1),
-    new Float32Array(1),
-  ];
+  public prominenceData: Float32Array = new Float32Array(1);
 
   public canAnalyse = true;
 
@@ -61,8 +67,6 @@ export class AudioGraph {
   public minPitch = 20;
 
   public maxPitch = 20000;
-
-  public recalculatePitch = true;
 
   public threshold = 0.2;
 
@@ -98,40 +102,36 @@ export class AudioGraph {
 
   public readonly pitch: PitchDetection[] = [
     {
+      id: 'ZCR',
       name: 'Zero-crossing rate',
-      short: 'ZCR',
-      color: '#6f998a',
       calc: this.zcr.bind(this),
       timeDomain: true,
       enabled: true,
-      values: [0, 0],
+      value: 0,
     },
     {
+      id: 'FFTM',
       name: 'FFT max',
-      short: 'FFTM',
-      color: '#96996f',
       calc: this.fftmax.bind(this),
       timeDomain: false,
       enabled: false,
-      values: [0, 0],
+      value: 0,
     },
     {
+      id: 'FFTP',
       name: 'FFT peak',
-      short: 'FFTP',
-      color: '#7e6f99',
       calc: this.fftpeak.bind(this),
       timeDomain: false,
       enabled: false,
-      values: [0, 0],
+      value: 0,
     },
     {
+      id: 'AC',
       name: 'Autocorrelation',
-      short: 'AC',
-      color: '#996f83',
       calc: this.autocorr.bind(this),
       timeDomain: true,
       enabled: false,
-      values: [0, 0],
+      value: 0,
     },
   ];
 
@@ -148,28 +148,24 @@ export class AudioGraph {
    * FFT size setter.
    */
   public set fftSize(size: number) {
-    for (const node of this.nodes.analysers) {
-      node.fftSize = size;
-    }
+    this.nodes.analyser.fftSize = size;
     this._fftSize = size;
   }
 
-  private _smoothing: number[] = [0.5, 0.99];
+  private _smoothing = 0.5;
 
   /**
    * Smoothing getter.
    */
-  public get smoothing(): number[] {
+  public get smoothing(): number {
     return this._smoothing;
   }
 
   /**
    * Smoothing setter.
    */
-  public set smoothing(value: number[]) {
-    this.nodes.analysers.forEach((node, i) => {
-      node.smoothingTimeConstant = value[i];
-    });
+  public set smoothing(value: number) {
+    this.nodes.analyser.smoothingTimeConstant = value;
     this._smoothing = value;
   }
 
@@ -204,12 +200,13 @@ export class AudioGraph {
         worklet: null,
       },
       filteredInput: this.context.createGain(),
-      analysers: [],
+      analyser: this.createAnalyserNode(),
       output: this.context.createMediaStreamDestination(),
     };
     this.nodes.wave.start();
     this.nodes.input.connect(this.nodes.filteredInput);
-    this.createAnalysers();
+    this.nodes.filteredInput.connect(this.nodes.analyser);
+    this.nodes.analyser.connect(this.nodes.output);
     this.stream = this.nodes.output.stream;
 
     this.workletFactory = new WorkletNodeFactory(this.context);
@@ -254,7 +251,7 @@ export class AudioGraph {
     this.minPitch = state.pitch.min;
     this.maxPitch = state.pitch.max;
     for (const pd of this.pitch) {
-      pd.enabled = state.pitch[pd.short];
+      pd.enabled = state.pitch[pd.id];
     }
 
     this.nodes.wave.type = state.wave.shape;
@@ -281,6 +278,9 @@ export class AudioGraph {
    * TODO: description
    */
   public destroy() {
+    if (this.updating) {
+      this.stopUpdating();
+    }
     if (this.context) {
       void this.context.close();
       //this.context = null;
@@ -315,6 +315,50 @@ export class AudioGraph {
       // TODO
     }
     this.paused = true;
+    return this;
+  }
+
+  /**
+   * TODO: description
+   */
+  public startUpdating(): AudioGraph {
+    if (!this.updating) {
+      this.updating = true;
+      this._frame = requestAnimationFrame(this._updateLoopBound);
+    }
+    return this;
+  }
+
+  /**
+   * TODO: description
+   */
+  public stopUpdating(): AudioGraph {
+    if (this.updating) {
+      this.updating = false;
+      cancelAnimationFrame(this._frame);
+      this._frame = 0;
+    }
+    return this;
+  }
+
+  /**
+   * TODO: description
+   */
+  public onUpdate(cb: AudioGraphUpdateHandler): AudioGraph {
+    if (!this._onUpdate.includes(cb)) {
+      this._onUpdate.push(cb);
+    }
+    return this;
+  }
+
+  /**
+   * TODO: description
+   */
+  public offUpdate(cb: AudioGraphUpdateHandler): AudioGraph {
+    const i = this._onUpdate.indexOf(cb);
+    if (i >= 0) {
+      this._onUpdate.splice(i, 1);
+    }
     return this;
   }
 
@@ -483,7 +527,7 @@ export class AudioGraph {
   /**
    * TODO: description
    */
-  public setConvolver(state: ConvolverState) {
+  public setConvolver(state: ConvolverState): AudioGraph {
     const data = AudioMath.impulseResponse(
       this.sampleRate,
       state.duration,
@@ -501,6 +545,7 @@ export class AudioGraph {
       buffer.copyToChannel(data, i);
     }
     this.nodes.filter.convolver.buffer = buffer;
+    return this;
   }
 
   /**
@@ -543,31 +588,29 @@ export class AudioGraph {
   /**
    * TODO: description
    */
-  public createAnalysers(): AudioGraph {
-    for (const node of this.nodes.analysers) {
-      node.disconnect();
-    }
+  public createAnalyserNode(): AnalyserNode {
+    const node = this.context.createAnalyser();
+    node.fftSize = this.fftSize;
+    node.maxDecibels = this.maxDecibels;
+    node.minDecibels = this.minDecibels;
+    node.smoothingTimeConstant = this.smoothing;
+    return node;
+  }
+
+  /**
+   * TODO: description
+   */
+  public resetAnalyserNode(): AudioGraph {
+    this.nodes.analyser.disconnect();
     this.nodes.filteredInput.disconnect();
 
-    this.nodes.analysers = [
-      this.context.createAnalyser(),
-      this.context.createAnalyser(),
-    ];
-    this.nodes.analysers.forEach((node, i) => {
-      node.fftSize = this.fftSize;
-      node.maxDecibels = this.maxDecibels;
-      node.minDecibels = this.minDecibels;
-      node.smoothingTimeConstant = this.smoothing[i];
-      this.nodes.filteredInput.connect(node);
-    });
+    this.nodes.analyser = this.createAnalyserNode();
+    this.nodes.filteredInput.connect(this.nodes.analyser);
+    this.nodes.analyser.connect(this.nodes.output);
 
-    while (this.fdata.length < this.nodes.analysers.length) {
-      const arr = new Float32Array(this.fftSize / 2);
-      arr.fill(this.minDecibels);
-      this.fdata.push(arr);
-    }
-
-    this.nodes.analysers[0].connect(this.nodes.output);
+    const arr = new Float32Array(this.fftSize / 2);
+    arr.fill(this.minDecibels);
+    this.fdata = arr;
 
     return this;
   }
@@ -577,13 +620,9 @@ export class AudioGraph {
    */
   public clearData(): AudioGraph {
     this.tdata.fill(0);
-    for (const d of this.fdata) {
-      d.fill(this.minDecibels);
-    }
+    this.fdata.fill(this.minDecibels);
     for (const p of this.pitch) {
-      for (let i = 0; i < p.values.length; ++i) {
-        p.values[i] = 0;
-      }
+      p.value = 0;
     }
     return this;
   }
@@ -673,39 +712,33 @@ export class AudioGraph {
   /**
    * TODO: description
    */
-  public update(): AudioGraph {
-    if (this.paused) {
-      return this;
-    }
-
+  public getData(): AudioGraph {
     let nan = false;
 
-    for (let i = 0; i < this.nodes.analysers.length; i += 1) {
-      const node = this.nodes.analysers[i];
-      if (i === 0) {
-        this.tdata = AudioMath.resize(this.tdata, node.fftSize);
-        node.getFloatTimeDomainData(this.tdata);
+    const node = this.nodes.analyser;
+
+    this.tdata = AudioMath.resize(this.tdata, node.fftSize);
+    node.getFloatTimeDomainData(this.tdata);
+
+    this.fdata = AudioMath.resize(this.fdata, node.frequencyBinCount);
+    node.getFloatFrequencyData(this.fdata);
+    for (let i = 0; i < this.fdata.length; ++i) {
+      const db = this.fdata[i];
+      if (isNaN(db)) {
+        nan = true;
       }
-      this.fdata[i] = AudioMath.resize(this.fdata[i], node.frequencyBinCount);
-      node.getFloatFrequencyData(this.fdata[i]);
-      for (let j = 0; j < this.fdata[i].length; ++j) {
-        const db = this.fdata[i][j];
-        if (isNaN(db)) {
-          nan = true;
-        }
-        this.fdata[i][j] = Math.min(
-          Math.max(this.minDecibels, db),
-          this.maxDecibels
-        );
-      }
+      this.fdata[i] = Math.min(
+        Math.max(this.minDecibels, db),
+        this.maxDecibels
+      );
     }
 
     const threshold =
       this.minDecibels + this.threshold * (this.maxDecibels - this.minDecibels);
-    this.canAnalyse = !nan && this.fdata[0].some(f => f > threshold);
+    this.canAnalyse = !nan && this.fdata.some(f => f > threshold);
 
     /*if (nan) {
-      this.createAnalysers();
+      this.resetAnalyserNode();
     }*/
 
     return this;
@@ -714,35 +747,16 @@ export class AudioGraph {
   /**
    * TODO: description
    */
-  public analyse(): AudioGraph {
-    this.update();
-
-    if (!this.canAnalyse) {
-      return this;
-    }
-
+  public analyseData(): AudioGraph {
     for (const pd of this.pitch) {
       if (!pd.enabled) {
-        pd.values.fill(0);
+        pd.value = -1;
         continue;
       }
-      if (this.paused && pd.values.every(v => v > 1)) {
+      if (this.paused && pd.value >= 0) {
         continue;
       }
-      if (this.recalculatePitch && !pd.timeDomain) {
-        for (let i = 0; i < this.smoothing.length; ++i) {
-          pd.values[i] = pd.calc(i);
-        }
-      } else {
-        const value: number = pd.calc(0);
-        pd.values.forEach((prev, i) => {
-          if (prev > 1) {
-            pd.values[i] = AudioMath.smooth(this.smoothing[i], prev, value);
-          } else {
-            pd.values[i] = value;
-          }
-        });
-      }
+      pd.value = pd.calc();
     }
 
     return this;
@@ -750,9 +764,44 @@ export class AudioGraph {
 
   /**
    * TODO: description
+   */
+  public update() {
+    let updated = false;
+    let analysed = false;
+    if (this.paused) {
+      /*if (this.canAnalyse && this.stateChanged) {
+        analysed = true;
+        this.analyseData();
+        this.stateChanged = false;
+      }*/
+    } else {
+      updated = true;
+      this.getData();
+      if (this.canAnalyse) {
+        analysed = true;
+        this.analyseData();
+      }
+    }
+    for (const cb of this._onUpdate) {
+      cb(updated, analysed);
+    }
+  }
+
+  /**
+   * TODO: description
+   */
+  private _updateLoop() {
+    this.update();
+    if (this.updating) {
+      this._frame = requestAnimationFrame(this._updateLoopBound);
+    }
+  }
+
+  /**
+   * TODO: description
    * @param i
    */
-  public zcr(i: number): number {
+  public zcr(): number {
     let res: number = AudioMath.zcr(this.tdata);
     res *= this.sampleRate;
     res = AudioMath.clampPitch(res, this.minPitch, this.maxPitch);
@@ -763,8 +812,8 @@ export class AudioGraph {
    * TODO: description
    * @param i
    */
-  public fftmax(i: number): number {
-    const fdata = this.fdata[i];
+  public fftmax(): number {
+    const fdata = this.fdata;
     const fscale: number = this.fftSize / this.sampleRate;
     const start: number = Math.floor(this.minPitch * fscale);
     const end: number = Math.floor(this.maxPitch * fscale) + 1;
@@ -784,15 +833,15 @@ export class AudioGraph {
    * TODO: description
    * @param i
    */
-  public fftpeak(i: number): number {
-    const fdata = this.fdata[i];
+  public fftpeak(): number {
+    const fdata = this.fdata;
     const fscale: number = this.fftSize / this.sampleRate;
     const start: number = Math.floor(this.minPitch * fscale);
     const end: number = Math.floor(this.maxPitch * fscale) + 1;
 
     const prominence = AudioMath.prominence(
-      this.fdata[i],
-      this.prominenceData[i],
+      this.fdata,
+      this.prominenceData,
       this.fftPeakType,
       start,
       end,
@@ -803,7 +852,7 @@ export class AudioGraph {
       this.prominenceNormalize
     );
 
-    this.prominenceData[i] = prominence.value;
+    this.prominenceData = prominence.value;
     let res: number = prominence.peak;
 
     if (res > 0 && res < fdata.length - 1) {
@@ -822,7 +871,7 @@ export class AudioGraph {
    * TODO: description
    * @param i
    */
-  public autocorr(i: number): number {
+  public autocorr(): number {
     const start = Math.floor(this.sampleRate / this.maxPitch);
     const end = Math.floor(this.sampleRate / this.minPitch) + 1;
     const ac = AudioMath.autocorrelation(

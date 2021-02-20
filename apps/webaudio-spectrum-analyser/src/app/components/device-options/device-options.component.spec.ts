@@ -4,8 +4,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { ClarityModule } from '@clr/angular';
 import { NgxsModule } from '@ngxs/store';
 
-import { getAudioGraph } from '../../utils/factories';
+import { ErrorPipe } from '../../pipes/error/error.pipe';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
+import { getMockAudioGraph } from '../../utils/test.util';
 import { AlertComponent } from '../alert/alert.component';
 import { DeviceOptionsComponent } from './device-options.component';
 
@@ -22,11 +23,11 @@ describe('DeviceOptionsComponent', () => {
         NgxsModule.forRoot([]),
         ClarityModule,
       ],
-      declarations: [DeviceOptionsComponent, AlertComponent],
+      declarations: [DeviceOptionsComponent, AlertComponent, ErrorPipe],
       providers: [
         {
           provide: AUDIO_GRAPH,
-          useFactory: getAudioGraph,
+          useFactory: getMockAudioGraph,
         },
       ],
     }).compileComponents();

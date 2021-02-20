@@ -1,28 +1,24 @@
 <audio #audio></audio>
 
 <div class="clr-row">
-  <div class="clr-col-12 clr-col-md-6 clr-col-lg-7 clr-col-xl-8">
-    <div class="frequency-chart-container">
-      <app-frequency-chart></app-frequency-chart>
-    </div>
+  <div class="charts-container clr-col-12 clr-col-md-6 clr-col-lg-7 clr-col-xl-8">
+    <app-charts></app-charts>
   </div>
 
   <div class="clr-col-12 clr-col-md-6 clr-col-lg-5 clr-col-xl-4">
-    <app-alert [(error)]="error"></app-alert>
-
     <form clrForm [formGroup]="form" class="clr-row clr-align-items-center">
-      <div class="clr-col-auto">
+      <div class="clr-col-auto padding-none">
         <button class="btn btn-icon btn-flat" (click)="toggle()">
-          <clr-icon shape="play" *ngIf="(paused$ | async) else pause"></clr-icon>
+          <cds-icon shape="play" *ngIf="(paused$ | async) else pause"></cds-icon>
           <ng-template #pause>
-            <clr-icon shape="pause"></clr-icon>
+            <cds-icon shape="pause"></cds-icon>
           </ng-template>
         </button>
         <button class="btn btn-icon btn-flat" (click)="reset()">
-          <clr-icon shape="eraser"></clr-icon>
+          <cds-icon shape="axis-chart"></cds-icon>
         </button>
       </div>
-      <div class="clr-col">
+      <div class="clr-col padding-none">
         <app-input-range
           [min]="0.01"
           [max]="1"

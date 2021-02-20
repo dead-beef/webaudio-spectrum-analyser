@@ -3,6 +3,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClarityModule } from '@clr/angular';
 import { NgxsModule } from '@ngxs/store';
 
+import { ErrorPipe } from '../../pipes/error/error.pipe';
 import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
@@ -27,6 +28,7 @@ describe('FilterOptionsComponent', () => {
       declarations: [
         FilterOptionsComponent,
         UnitsPipe,
+        ErrorPipe,
         InputFrequencyComponent,
         InputRangeComponent,
       ],

@@ -1,10 +1,15 @@
 import {
   asyncScheduler,
+  fromEvent,
   MonoTypeOperatorFunction,
   Observable,
   SchedulerLike,
   Subscription,
 } from 'rxjs';
+import { map, merge } from 'rxjs/operators';
+
+import { Point } from '../interfaces';
+import { getEventPoint } from './misc';
 
 /**
  * TODO: description
@@ -70,4 +75,21 @@ export function throttleTime_<T>(
 
       return unsubscribe;
     });
+}
+
+/**
+ * TODO: description
+ */
+export function hoverPoints(
+  el: HTMLElement,
+  untilDestroyed: MonoTypeOperatorFunction<Event>
+): Observable<Point> {
+  return fromEvent(el, 'click').pipe(
+    merge(fromEvent(el, 'mousemove'), fromEvent(el, 'touchmove')),
+    untilDestroyed,
+    map((ev: Event) => {
+      const bbox: DOMRect = el.getBoundingClientRect();
+      return getEventPoint(ev, bbox.x, bbox.y);
+    })
+  );
 }

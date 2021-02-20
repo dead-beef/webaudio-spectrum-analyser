@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { ClarityModule } from '@clr/angular';
 import { NgxsModule } from '@ngxs/store';
 
+import { ErrorPipe } from '../../pipes/error/error.pipe';
 import { SafeUrlPipe } from '../../pipes/safe-url/safe-url.pipe';
 import { TimePipe } from '../../pipes/time/time.pipe';
 import { getAudioGraph } from '../../utils/factories';
@@ -31,6 +32,7 @@ describe('FileOptionsComponent', () => {
         AlertComponent,
         SafeUrlPipe,
         TimePipe,
+        ErrorPipe,
         AudioControlsComponent,
         mockComponent('audio', {
           nativeElement: {
