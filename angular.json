@@ -21,7 +21,6 @@
             "polyfills": "apps/webaudio-spectrum-analyser/src/polyfills.ts",
             "tsConfig": "apps/webaudio-spectrum-analyser/tsconfig.app.json",
             "aot": true,
-            "extractCss": true,
             "customWebpackConfig": {
               "path": "webpack.config.js"
             },
@@ -40,25 +39,21 @@
             "styles": [
               {
                 "input": "apps/webaudio-spectrum-analyser/src/css/vendor.scss",
-                "bundleName": "css/vendor",
-                "lazy": false
+                "bundleName": "css/vendor"
               },
               {
                 "input": "apps/webaudio-spectrum-analyser/src/css/styles.scss",
-                "bundleName": "css/styles",
-                "lazy": false
+                "bundleName": "css/styles"
               }
             ],
             "scripts": [
               {
                 "input": "node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
-                "bundleName": "custom-elements-es5-adapter",
-                "lazy": false
+                "bundleName": "custom-elements-es5-adapter"
               },
               {
                 "input": "node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js",
-                "bundleName": "webcomponents-bundle",
-                "lazy": false
+                "bundleName": "webcomponents-bundle"
               }
             ],
             "allowedCommonJsDependencies": [
@@ -83,7 +78,6 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": true,
               "aot": true,
               "extractLicenses": true,
@@ -100,7 +94,6 @@
               "optimization": true,
               "outputHashing": "none",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
@@ -153,6 +146,50 @@
           "outputs": ["coverage/apps/webaudio-spectrum-analyser"]
         }
       }
+    },
+    "tools": {
+      "architect": {
+        "help": {
+          "builder": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              {
+                "command": "npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/package-commands.ts"
+              }
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "eslintConfig": "tools/.eslintrc.json",
+            "lintFilePatterns": ["tools/ts/**/*.{js,ts}"]
+          }
+        },
+        "update-check": {
+          "builder": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              {
+                "command": "npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --check"
+              }
+            ]
+          }
+        },
+        "update-migrate": {
+          "builder": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              {
+                "command": "npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --check --jsonUpgraded; npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --migrate=start; yarn install && yarn ngcc && npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --migrate=execute; rm -rf migrations.json migrations-packages.json"
+              }
+            ]
+          }
+        }
+      },
+      "projectType": "application",
+      "root": "tools",
+      "sourceRoot": "tools/src"
     },
     "webaudio-spectrum-analyser-e2e": {
       "root": "apps/webaudio-spectrum-analyser-e2e",

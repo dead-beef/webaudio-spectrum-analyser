@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.eslint.json"
+    },
+    {
+      "path": "./tsconfig.tools.json"
+    }
+  ]
+}

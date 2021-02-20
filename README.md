@@ -4,13 +4,13 @@
 
 ![Master](https://github.com/dead-beef/webaudio-spectrum-analyser/workflows/Master/badge.svg) ![PR validation](https://github.com/dead-beef/webaudio-spectrum-analyser/workflows/PR%20validation/badge.svg)
 
-## Overview
-
 ## Requirements
+
+### Mandatory
 
 - [Node.js](https://nodejs.org/)
 - [NPM](https://nodejs.org/)
-- **[Yarn](https://yarnpkg.com/)** `Is preferred package manager for dependencies installation in the project root`
+- [Yarn](https://yarnpkg.com/)
 - [Emscripten](https://emscripten.org/)
 - [Git](https://git-scm.com/)
 
@@ -25,6 +25,19 @@
 - [GCC](https://gcc.gnu.org/)
 - [Make](https://www.gnu.org/software/make/)
 - [libavcodec](https://www.ffmpeg.org/libavcodec.html), [libavformat](https://www.ffmpeg.org/libavformat.html), [libavfilter](https://www.ffmpeg.org/libavfilter.html), [libavutil](https://www.ffmpeg.org/libavutil.html)
+
+### Preferred package manager
+
+- [Yarn](https://www.npmjs.com/package/yarn) is a preferred package manager for dependencies installation in the project root.
+- [npm](https://www.npmjs.com/) is a preferred package manager for dependencies installation in the `functions` folder if any.
+
+### Package scripts reference
+
+The project has lots of package scripts, check it in the `package.json` located in the project root, or use the following command (see terminal output for usage tips)
+
+```
+yarn workspace:help
+```
 
 ### Committing changes to repo
 

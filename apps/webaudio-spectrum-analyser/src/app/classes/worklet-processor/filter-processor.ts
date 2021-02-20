@@ -23,10 +23,10 @@ export class FilterProcessor extends AudioWorkletProcessor {
     return 1;
   }
 
-  /* eslint-disable max-lines-per-function */
   /**
    * TODO: description
    */
+  // eslint-disable-next-line max-lines-per-function
   public static get parameterDescriptors(): AudioParamDescriptor[] {
     return [
       {
@@ -109,7 +109,6 @@ export class FilterProcessor extends AudioWorkletProcessor {
       },
     ];
   }
-  /* eslint-enable max-lines-per-function */
 
   public readonly blockSize = 128;
 

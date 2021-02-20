@@ -1,7 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-/* eslint-disable max-lines-per-function,require-jsdoc */
-
 export class MockAudioNode {
   public connect() {}
 
@@ -111,6 +109,7 @@ export class MockAudioContext {
   }
 }
 
+// eslint-disable-next-line require-jsdoc
 export function mockAudioContext() {
   Object.defineProperty(window.URL, 'createObjectURL', {
     value: () => 'objectUrl',
@@ -183,6 +182,7 @@ export function mockComponent(selector: string, props?: Record<string, any>) {
 /**
  * TODO: description
  */
+// eslint-disable-next-line max-lines-per-function, require-jsdoc
 export function getMockAudioGraph() {
   const ctx = new MockAudioContext();
   return {

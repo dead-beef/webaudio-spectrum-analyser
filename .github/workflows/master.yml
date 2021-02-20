@@ -90,7 +90,7 @@ jobs:
         run: npx nx run-many --target=lint --all --parallel --maxParallel=2
 
       - name: Unit test all
-        run: npx nx run-many --target=test --all --passWithNoTests --codeCoverage=false --watch=false --maxWorkers=2 --ci --updateSnapshot
+        run: npx nx run-many --target=test --all --passWithNoTests --code-coverage=false --watch=false --runInBand --ci --updateSnapshot
 
       - name: Deploy webaudio-spectrum-analyser
         id: deploy

@@ -100,8 +100,6 @@ export function deepEqual(x: any, y: any): boolean {
     return arrayEqual(x, y);
   }
   if (typeof x === 'object') {
-    /* eslint-disable no-prototype-builtins */
-    /* eslint-enable no-prototype-builtins */
     return objectEqual(x, y);
   }
   return x === y;

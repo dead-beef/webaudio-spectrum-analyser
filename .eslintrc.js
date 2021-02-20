@@ -22,22 +22,37 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'prettier/@typescript-eslint',
     'plugin:prettier/recommended',
+    'plugin:eslint-comments/recommended',
     'plugin:@angular-eslint/recommended',
   ],
   plugins: [
     'prettier',
     '@typescript-eslint', // https://github.com/typescript-eslint/typescript-eslint
     '@angular-eslint', // https://github.com/angular-eslint/angular-eslint
-    'deprecation', // https://github.com/gund/eslint-plugin-deprecation
     'simple-import-sort', // https://github.com/lydell/eslint-plugin-simple-import-sort
     'rxjs', // https://github.com/cartant/eslint-plugin-rxjs
     'compat', // https://www.npmjs.com/package/eslint-plugin-compat
+    'eslint-comments', // https://mysticatea.github.io/eslint-plugin-eslint-comments/rules/
     '@nrwl/eslint-plugin-nx',
-    '@nrwl/nx',
   ],
   ignorePatterns: ['*.min.js', 'node_modules/'],
 
   rules: {
+    'eslint-comments/no-unused-disable': 'error',
+    'eslint-comments/no-use': [
+      'error',
+      {
+        allow: ['eslint-disable-next-line'],
+      },
+    ],
+    'eslint-comments/disable-enable-pair': ['error', { allowWholeFile: false }],
+    'eslint-comments/require-description': ['warn', { ignore: [] }],
+    'eslint-comments/no-restricted-disable': [
+      'warn',
+      '*',
+      '!no-console',
+      '!prettier',
+    ],
     '@typescript-eslint/await-thenable': 'error',
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/ban-types': [
@@ -235,7 +250,6 @@ module.exports = {
     'constructor-super': 'error',
     complexity: ['warn', 10],
     'default-param-last': 'off', // handled by @typescript-eslint rule
-    'deprecation/deprecation': 'off',
     eqeqeq: 'error',
     'func-name-matching': ['error', 'always'],
     'guard-for-in': 'error',
@@ -329,9 +343,10 @@ module.exports = {
       {
         require: {
           FunctionDeclaration: true,
-          MethodDefinition: true,
+          MethodDefinition: false,
           ClassDeclaration: false,
-          ArrowFunctionExpression: true,
+          ArrowFunctionExpression: false,
+          FunctionExpression: false,
         },
       },
     ],
