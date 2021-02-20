@@ -2273,15 +2273,10 @@
   resolved "https://registry.yarnpkg.com/@clr/angular/-/angular-3.1.5.tgz#3ec2988437019c66e927239d5acf15de61c7ad81"
   integrity sha512-LaNvTJ7m3I38q2EMf+gsMRAW/n7/pF9AvTsmc0onWmT8nYuMRIpylqOfo80QpLrR1s9GHVGUqSVAPjiMlkShBg==
 
-"@clr/icons@3.1.5":
-  version "3.1.5"
-  resolved "https://registry.yarnpkg.com/@clr/icons/-/icons-3.1.5.tgz#6706fefbd16bf90ab441b2a078ad651b98b282a6"
-  integrity sha512-uWOOSPnI1nVItE8q6zf9IzkCjsqlFgOkUcDJWHdU71TIKe/ZLwoIbNAj7iz5phsAI6ehW3JRVioLGHH26/ZiyQ==
-
-"@clr/ui@3.1.5":
-  version "3.1.5"
-  resolved "https://registry.yarnpkg.com/@clr/ui/-/ui-3.1.5.tgz#196e47b7f634a9839b9f5c76b0d70f37a0f5b7bb"
-  integrity sha512-0XLdHQT7+bSCfK/4+i5SOq/6ZlzDyqc+hyqmXUx7RCncm4PNf/LUj4oOxEJDBVG6uU4dG3AJHIemmlBFqIIz/w==
+"@clr/ui@5.0.1":
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/@clr/ui/-/ui-5.0.1.tgz#8d68334ef812b1a975bfd1eecc311ab61f488e31"
+  integrity sha512-htdkOcQCctlHwpMwkKeZg+P+Zz0X67vG8i/FxJfQ0NXVVryiC67w3L4sZDiyXC+8sHA1C7mRMnP6oIEp8zcVQQ==
 
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"

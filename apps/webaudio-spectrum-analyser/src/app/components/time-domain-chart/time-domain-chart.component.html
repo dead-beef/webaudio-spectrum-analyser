@@ -1,0 +1,8 @@
+<app-canvas (pointChange)="setPoint($event)">
+</app-canvas>
+
+<div class="chart-footer">
+  <span *ngIf="pointTime$ | async as t">
+    {{ t | units:'s' }} {{ pointValue$ | async | number:'1.2-2' }}
+  </span>
+</div>

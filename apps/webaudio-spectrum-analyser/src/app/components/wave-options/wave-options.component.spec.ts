@@ -3,8 +3,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClarityModule } from '@clr/angular';
 import { NgxsModule } from '@ngxs/store';
 
-import { getAudioGraph } from '../../utils/factories';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
+import { getMockAudioGraph } from '../../utils/test.util';
 import { InputFrequencyComponent } from '../input-frequency/input-frequency.component';
 import { WaveOptionsComponent } from './wave-options.component';
 
@@ -24,7 +24,7 @@ describe('WaveOptionsComponent', () => {
       providers: [
         {
           provide: AUDIO_GRAPH,
-          useFactory: getAudioGraph,
+          useFactory: getMockAudioGraph,
         },
       ],
     })

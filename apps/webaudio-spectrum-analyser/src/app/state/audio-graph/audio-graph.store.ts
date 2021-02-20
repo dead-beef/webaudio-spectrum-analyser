@@ -360,7 +360,7 @@ export class AudioGraphState {
    */
   @Action(audioGraphAction.reset)
   public reset(ctx: StateContext<AudioGraphStateModel>) {
-    this.graph.createAnalysers().clearData();
+    this.graph.resetAnalyserNode().clearData();
     return ctx;
   }
 
@@ -444,7 +444,7 @@ export class AudioGraphState {
   @Action(audioGraphAction.setSmoothing)
   public setSmoothing(
     ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<number[]>
+    { payload }: StoreAction<number>
   ) {
     this.graph.smoothing = payload;
     return ctx.patchState({ smoothing: payload });
@@ -512,7 +512,7 @@ export class AudioGraphState {
     const data = {};
     data[id] = enabled;
     for (const pd of this.graph.pitch) {
-      if (pd.short === id) {
+      if (pd.id === id) {
         pd.enabled = enabled;
         break;
       }

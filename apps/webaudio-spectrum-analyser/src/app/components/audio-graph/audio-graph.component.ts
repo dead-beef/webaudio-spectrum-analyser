@@ -15,7 +15,6 @@ import { AudioGraphSourceNode } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { stateFormControl } from '../../utils';
-import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.component';
 
 @UntilDestroy()
 @Component({
@@ -24,9 +23,6 @@ import { FrequencyChartComponent } from '../frequency-chart/frequency-chart.comp
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AudioGraphComponent implements AfterViewInit, OnDestroy {
-  @ViewChild(FrequencyChartComponent)
-  public chart: Nullable<FrequencyChartComponent> = null;
-
   @ViewChild('audio') public audioRef: Nullable<
     ElementRef<HTMLAudioElement>
   > = null;
@@ -57,8 +53,6 @@ export class AudioGraphComponent implements AfterViewInit, OnDestroy {
 
   public audio: Nullable<HTMLAudioElement> = null;
 
-  public error: Nullable<AnyError> = null;
-
   public volume = 0.5;
 
   /**
@@ -71,27 +65,22 @@ export class AudioGraphComponent implements AfterViewInit, OnDestroy {
    * Lifecycle hook.
    */
   public ngAfterViewInit() {
-    try {
-      this.audio = this.audioRef!.nativeElement;
-      this.audio.srcObject = this.graph.getOutputStream();
-      void this.paused$.pipe(untilDestroyed(this)).subscribe(paused => {
-        if (this.audio === null) {
-          return;
-        }
-        if (paused) {
-          this.audio.pause();
-        } else {
-          void this.audio.play();
-          this.setVolume(this.volume);
-        }
-      });
-      void this.volume$.pipe(untilDestroyed(this)).subscribe(volume => {
-        this.setVolume(volume);
-      });
-    } catch (err) {
-      console.error(err);
-      this.error = err;
-    }
+    this.audio = this.audioRef!.nativeElement;
+    this.audio.srcObject = this.graph.getOutputStream();
+    void this.paused$.pipe(untilDestroyed(this)).subscribe(paused => {
+      if (this.audio === null) {
+        return;
+      }
+      if (paused) {
+        this.audio.pause();
+      } else {
+        void this.audio.play();
+        this.setVolume(this.volume);
+      }
+    });
+    void this.volume$.pipe(untilDestroyed(this)).subscribe(volume => {
+      this.setVolume(volume);
+    });
   }
 
   /**

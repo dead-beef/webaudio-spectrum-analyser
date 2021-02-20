@@ -53,7 +53,7 @@ class AudioMathInstance {
   constructor() {
     const init: WasmModuleFactory<AudioMathWasmFunctions> | undefined =
       wasmModule.init;
-    if (typeof init === 'undefined') {
+    if (!init) {
       this.wasmError = new Error('wasm module not found');
       this.wasmReady = Promise.reject(this.wasmError);
     } else {

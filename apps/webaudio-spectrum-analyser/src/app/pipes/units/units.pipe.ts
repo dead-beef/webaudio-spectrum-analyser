@@ -11,30 +11,45 @@ export class UnitsPipe implements PipeTransform {
     { value: 1e3, prefix: 'k' },
     { value: 1, prefix: '' },
     { value: 1e-3, prefix: 'm' },
+    { value: 1e-6, prefix: 'u' },
   ];
+
+  /**
+   * TODO: description
+   */
+  private getUnit(value: number): Nullable<Unit> {
+    for (const unit of this.units) {
+      if (value >= unit.value) {
+        return unit;
+      }
+    }
+    const minUnit = this.units[this.units.length - 1];
+    if (value < minUnit.value / 10) {
+      return null;
+    }
+    return minUnit;
+  }
 
   /**
    * TODO: description
    * @param value
    */
-  public transform(value: Nullable<number>, name: string = ''): string {
+  public transform(
+    value: Nullable<number>,
+    unitName: string = '',
+    usePrefix: boolean = true
+  ): string {
     if (value === null || isNaN(value)) {
       return 'N/A';
     }
-    let maxUnit: Nullable<Unit> = null;
-    value = Number(value);
-    for (const unit of this.units) {
-      if (value >= unit.value) {
-        if (maxUnit === null || maxUnit.value < unit.value) {
-          maxUnit = unit;
-        }
+    let prefix = '';
+    if (usePrefix) {
+      const unit = this.getUnit(value);
+      if (unit !== null) {
+        value /= unit.value;
+        prefix = unit.prefix;
       }
     }
-    let prefix = '';
-    if (maxUnit !== null) {
-      value /= maxUnit.value;
-      prefix = maxUnit.prefix;
-    }
-    return value.toFixed(1).concat(prefix, name);
+    return value.toFixed(1).concat(prefix, unitName);
   }
 }

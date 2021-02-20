@@ -29,13 +29,13 @@ export class PitchOptionsComponent {
     enabled: new FormGroup(
       Object.fromEntries(
         this.pitch.map(pd => [
-          pd.short,
+          pd.id,
           stateFormControl(
             null,
-            this.graph.select(AudioGraphState.pitchEnabled(pd.short)),
+            this.graph.select(AudioGraphState.pitchEnabled(pd.id)),
             (e: boolean) =>
               this.graph.dispatch('setPitchDetection', {
-                id: pd.short,
+                id: pd.id,
                 enabled: e,
               }),
             untilDestroyed(this)

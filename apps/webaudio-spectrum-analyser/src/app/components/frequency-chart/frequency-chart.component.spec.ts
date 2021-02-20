@@ -4,9 +4,9 @@ import { NgxsModule } from '@ngxs/store';
 
 import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
-import { getAudioGraph } from '../../utils/factories';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
-import { AlertComponent } from '../alert/alert.component';
+import { getMockAudioGraph } from '../../utils/test.util';
+import { CanvasComponent } from '../canvas/canvas.component';
 import { FrequencyChartComponent } from './frequency-chart.component';
 
 describe('FrequencyChartComponent', () => {
@@ -16,11 +16,11 @@ describe('FrequencyChartComponent', () => {
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
       imports: [NgxsModule.forRoot([]), AudioGraphStoreModule, ClarityModule],
-      declarations: [FrequencyChartComponent, AlertComponent, UnitsPipe],
+      declarations: [FrequencyChartComponent, CanvasComponent, UnitsPipe],
       providers: [
         {
           provide: AUDIO_GRAPH,
-          useFactory: getAudioGraph,
+          useFactory: getMockAudioGraph,
         },
       ],
     }).compileComponents();

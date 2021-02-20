@@ -70,7 +70,7 @@ export interface AudioGraphStateModel {
   sourceNode: AudioGraphSourceNode;
   delay: number;
   fftSize: number;
-  smoothing: number[];
+  smoothing: number;
   pitch: {
     min: number;
     max: number;
@@ -108,7 +108,7 @@ export const AUDIO_GRAPH_STATE_DEFAULTS: AudioGraphStateModel = {
   sourceNode: AudioGraphSourceNode.WAVE,
   delay: 0,
   fftSize: 2048,
-  smoothing: [0.5, 0.99],
+  smoothing: 0.5,
   pitch: {
     min: 20,
     max: 20000,

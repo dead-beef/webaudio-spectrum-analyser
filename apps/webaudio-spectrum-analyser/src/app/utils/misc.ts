@@ -1,4 +1,4 @@
-import { Point } from '../interfaces';
+import { Point, Size } from '../interfaces';
 
 /**
  * TODO: description
@@ -53,7 +53,7 @@ export function deepCopy(x: any): any {
  * @param x
  * @param y
  */
-export function arrayEqual(x: any[], y: any) {
+export function arrayEqual(x: any[], y: any): boolean {
   if (!Array.isArray(y)) {
     return false;
   }
@@ -65,7 +65,7 @@ export function arrayEqual(x: any[], y: any) {
  * @param x
  * @param y
  */
-export function objectEqual(x: Record<string, any>, y: any) {
+export function objectEqual(x: Record<string, any>, y: any): boolean {
   if (typeof y !== 'object') {
     return false;
   }
@@ -95,7 +95,7 @@ export function objectEqual(x: Record<string, any>, y: any) {
  * @param x
  * @param y
  */
-export function deepEqual(x: any, y: any) {
+export function deepEqual(x: any, y: any): boolean {
   if (Array.isArray(x)) {
     return arrayEqual(x, y);
   }
@@ -103,4 +103,37 @@ export function deepEqual(x: any, y: any) {
     return objectEqual(x, y);
   }
   return x === y;
+}
+
+/**
+ * TODO: description
+ */
+export function range(n: number): number[] {
+  return new Array(n).fill(0).map((x, i) => i);
+}
+
+/**
+ * TODO: description
+ */
+export function updateCanvasSize(
+  canvas: Optional<HTMLCanvasElement>,
+  size: Size
+): boolean {
+  if (!canvas) {
+    return false;
+  }
+  const newWidth = canvas.clientWidth;
+  const newHeight = canvas.clientHeight;
+  let resized = false;
+  if (size.width !== newWidth) {
+    //console.log('set canvas width');
+    size.width = canvas.width = newWidth;
+    resized = true;
+  }
+  if (size.height !== newHeight) {
+    //console.log('set canvas height');
+    size.height = canvas.height = newHeight;
+    resized = true;
+  }
+  return resized;
 }
