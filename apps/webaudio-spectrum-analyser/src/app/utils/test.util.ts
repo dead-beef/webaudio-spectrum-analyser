@@ -195,6 +195,7 @@ export function getMockAudioGraph() {
       file: ctx.createDelay(),
       device: ctx.createDelay(),
       worklet: ctx.createDelay(),
+      analyser: ctx.createAnalyser(),
       filter: {
         iir: ctx.createIIRFilter(),
         biquad: ctx.createBiquadFilter(),
@@ -214,10 +215,10 @@ export function getMockAudioGraph() {
     deviceLoading: false,
     deviceStream: null,
 
-    fdata: [new Float32Array(1), new Float32Array(1)],
+    fdata: new Float32Array(1),
     tdata: new Float32Array(1),
     autocorrdata: new Float32Array(1),
-    prominenceData: [new Float32Array(1), new Float32Array(1)],
+    prominenceData: new Float32Array(1),
     canAnalyse: true,
     volume: 0.5,
     minPitch: 20,
@@ -236,45 +237,17 @@ export function getMockAudioGraph() {
 
     fftSizes: [2048],
     fftSize: 2048,
-    smoothing: [0.5, 0.99],
+    smoothing: 0.5,
     sampleRate: 44000,
 
     pitch: [
       {
-        name: 'Zero-crossing rate',
-        short: 'ZCR',
-        color: '#6f998a',
+        name: 'Test',
+        id: 'test',
         calc: () => 0,
         timeDomain: true,
         enabled: true,
-        values: [0, 0],
-      },
-      {
-        name: 'FFT max',
-        short: 'FFTM',
-        color: '#96996f',
-        calc: () => 0,
-        timeDomain: false,
-        enabled: false,
-        values: [0, 0],
-      },
-      {
-        name: 'FFT peak',
-        short: 'FFTP',
-        color: '#7e6f99',
-        calc: () => 0,
-        timeDomain: false,
-        enabled: false,
-        values: [0, 0],
-      },
-      {
-        name: 'Autocorrelation',
-        short: 'AC',
-        color: '#996f83',
-        calc: () => 0,
-        timeDomain: true,
-        enabled: false,
-        values: [0, 0],
+        value: 0,
       },
     ],
 
@@ -313,7 +286,7 @@ export function getMockAudioGraph() {
     setState: function () {
       return this;
     },
-    createAnalysers: function () {
+    resetAnalyserNode: function () {
       return this;
     },
     clearData: function () {
@@ -325,10 +298,16 @@ export function getMockAudioGraph() {
     setElement: function () {
       return this;
     },
-    update: function () {
+    onUpdate: function () {
       return this;
     },
-    analyse: function () {
+    offUpdate: function () {
+      return this;
+    },
+    startUpdating: function () {
+      return this;
+    },
+    stopUpdating: function () {
       return this;
     },
   };

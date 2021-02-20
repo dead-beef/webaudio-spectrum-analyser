@@ -2352,11 +2352,6 @@
   dependencies:
     tslib "^2.0.0"
 
-"@clr/icons@5.0.1":
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/@clr/icons/-/icons-5.0.1.tgz#6c74898af5221fd86384859fad0708b81c0962c5"
-  integrity sha512-NNYl4Umlp5fRGlE1tJSlNjEI3nW8DYKUGL7Uc9vPmSG+oTsI4NVOM+tz4hiD65gw4PeAceUvUd7YI2/m8Epp8g==
-
 "@clr/ui@5.0.1":
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/@clr/ui/-/ui-5.0.1.tgz#8d68334ef812b1a975bfd1eecc311ab61f488e31"

@@ -11,7 +11,7 @@
         [disabled]="disabled$ | async"
         (click)="refresh()"
       >
-        <clr-icon shape="refresh" size="24"></clr-icon>
+        <cds-icon shape="refresh" size="24"></cds-icon>
       </button>
 
       <span class="spinner spinner-inline" *ngIf="disabled$ | async"> </span>

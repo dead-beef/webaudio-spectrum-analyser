@@ -1,0 +1,4 @@
+<canvas #canvas (mouseleave)="setPoint(null)">
+</canvas>
+<div *ngIf="pointCss$ | async as s" [attr.style]="s" [attr.class]="pointStyle">
+</div>

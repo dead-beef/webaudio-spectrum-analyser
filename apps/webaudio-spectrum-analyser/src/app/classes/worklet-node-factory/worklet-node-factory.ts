@@ -30,7 +30,7 @@ export class WorkletNodeFactory {
       '$1 extends AudioWorkletProcessor {'
     );
     const source = `${classSource}
-registerProcessor('${processor.key}', ${processor.name});`;
+registerProcessor(${JSON.stringify(processor.key)}, ${processor.name});`;
     //console.log('worklet source', source);
     const blob = new Blob([source], {
       type: 'text/javascript',

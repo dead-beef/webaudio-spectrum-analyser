@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { environment } from '../../../environments/environment';
 import { Layouts } from '../../interfaces';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
-import { deepEqual, stateFormControl } from '../../utils';
+import { stateFormControl } from '../../utils';
 
 @UntilDestroy()
 @Component({
@@ -36,17 +36,13 @@ export class GraphOptionsComponent {
       untilDestroyed(this)
     ),
     smoothing: stateFormControl(
-      new FormArray(this.graph.graph.smoothing.map(() => new FormControl(0))),
+      null,
       this.graph.select(AudioGraphState.smoothing),
-      (s: number[]) => this.graph.dispatch('setSmoothing', s),
+      (s: number) => this.graph.dispatch('setSmoothing', s),
       untilDestroyed(this),
-      environment.throttle,
-      deepEqual
+      environment.throttle
     ),
   });
-
-  public readonly smoothingForm: FormArray = this.form.controls
-    .smoothing as FormArray;
 
   /**
    * Constructor.

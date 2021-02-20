@@ -3,8 +3,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClarityModule } from '@clr/angular';
 import { NgxsModule } from '@ngxs/store';
 
-import { getAudioGraph } from '../../utils/factories';
+import { ErrorPipe } from '../../pipes/error/error.pipe';
 import { AUDIO_GRAPH } from '../../utils/injection-tokens';
+import { getMockAudioGraph } from '../../utils/test.util';
 import { AlertComponent } from '../alert/alert.component';
 import { WorkletOptionsComponent } from './worklet-options.component';
 
@@ -20,11 +21,11 @@ describe('WorkletOptionsComponent', () => {
         ReactiveFormsModule,
         NgxsModule.forRoot([]),
       ],
-      declarations: [WorkletOptionsComponent, AlertComponent],
+      declarations: [WorkletOptionsComponent, AlertComponent, ErrorPipe],
       providers: [
         {
           provide: AUDIO_GRAPH,
-          useFactory: getAudioGraph,
+          useFactory: getMockAudioGraph,
         },
       ],
     }).compileComponents();

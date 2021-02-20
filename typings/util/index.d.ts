@@ -22,6 +22,8 @@ declare type MethodOf<T> = {
 
 declare type Nullable<T> = T | null;
 
+declare type Optional<T> = T | null | undefined;
+
 declare type AnyError = Error | MediaError | string;
 
 declare type AudioWorkletProcessorParmeters<T extends string> = {

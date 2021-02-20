@@ -2,7 +2,6 @@
 
 @import '@cds/core/global';
 @import '@clr/ui/clr-ui-dark';
-@import '@clr/icons/clr-icons';
 @import 'simplebar/dist/simplebar';
 @import 'font-awesome/scss/font-awesome';
 
@@ -27,6 +26,8 @@ html:not([cds-text]) {
 
 header,
 .header {
+  background-color: $header;
+
   .header-actions,
   .header-nav,
   .settings,
@@ -107,7 +108,7 @@ section,
   overflow-wrap: break-word;
 }
 
-clr-icon {
+cds-icon {
   width: $icon-size;
   height: $icon-size;
 
@@ -122,6 +123,18 @@ clr-icon {
   &.lg {
     width: $icon-size-lg;
     height: $icon-size-lg;
+  }
+
+  .btn & {
+    &[direction="right"] {
+      transform: translate3d(0, -0.1rem, 0) rotate(90deg);
+    }
+    &[direction="down"] {
+      transform: translate3d(0, -0.1rem, 0) rotate(180deg);
+    }
+    &[direction="left"] {
+      transform: translate3d(0, -0.1rem, 0) rotate(270deg);
+    }
   }
 }
 
@@ -185,6 +198,7 @@ clr-range-container {
 
     .clr-control-container {
       width: 100%;
+      min-width: 100%;
 
       .clr-range-wrapper {
         align-items: center;
@@ -203,12 +217,16 @@ clr-tabs {
 
     li.nav-item {
       margin-right: 0.9rem;
-
-      button:focus {
-        outline: none;
-      }
     }
   }
+}
+
+button:focus {
+  outline: none;
+}
+
+.btn:active {
+  box-shadow: none;
 }
 
 input[type='range'] {

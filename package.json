@@ -87,7 +87,6 @@
     "@capacitor/android": "2.4.5",
     "@cds/core": "5.0.1",
     "@clr/angular": "5.0.1",
-    "@clr/icons": "5.0.1",
     "@clr/ui": "5.0.1",
     "@ngneat/until-destroy": "8.0.3",
     "@ngxs/store": "3.7.1",

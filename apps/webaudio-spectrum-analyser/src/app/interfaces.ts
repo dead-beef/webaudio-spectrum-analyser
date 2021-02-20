@@ -8,6 +8,11 @@ export interface Point {
   y: number;
 }
 
+export interface Size {
+  width: number;
+  height: number;
+}
+
 export interface FileData {
   name: string;
   url: string;
@@ -23,13 +28,12 @@ export interface Stats {
 export type PitchDetectionId = 'ZCR' | 'FFTM' | 'FFTP' | 'AC';
 
 export interface PitchDetection {
+  id: PitchDetectionId;
   name: string;
-  short: PitchDetectionId;
-  color: string;
-  calc: (i: number) => number;
+  calc: () => number;
   timeDomain: boolean;
   enabled: boolean;
-  values: number[];
+  value: number;
 }
 
 export interface IPitchShifterNode extends GainNode {
@@ -61,7 +65,7 @@ export interface AudioGraphNodes {
   input: DelayNode;
   filter: AudioGraphFilters;
   filteredInput: GainNode;
-  analysers: AnalyserNode[];
+  analyser: AnalyserNode;
   output: MediaStreamAudioDestinationNode;
 }
 
@@ -114,6 +118,11 @@ export interface AudioGraphSource {
   node: AudioGraphSourceNode;
   data?: any;
 }
+
+export type AudioGraphUpdateHandler = (
+  updated: boolean,
+  analysed: boolean
+) => any;
 
 export interface WasmBuffer {
   ptr: number[];
@@ -177,4 +186,16 @@ export interface Prominence {
 
 export enum Layouts {
   VERTICAL = 'vertical',
+}
+
+export enum ChartLayout {
+  VERTICAL,
+  HORIZONTAL,
+  GRID,
+  _COUNT,
+}
+
+export enum ChartType {
+  TIME_DOMAIN,
+  FREQUENCY,
 }

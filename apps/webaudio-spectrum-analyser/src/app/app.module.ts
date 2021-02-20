@@ -16,6 +16,9 @@ import { ROUTES } from './app.routes';
 import { AlertComponent } from './components/alert/alert.component';
 import { AudioControlsComponent } from './components/audio-controls/audio-controls.component';
 import { AudioGraphComponent } from './components/audio-graph/audio-graph.component';
+import { CanvasComponent } from './components/canvas/canvas.component';
+import { ChartComponent } from './components/chart/chart.component';
+import { ChartsComponent } from './components/charts/charts.component';
 import { CommonOptionsComponent } from './components/common-options/common-options.component';
 import { DeviceOptionsComponent } from './components/device-options/device-options.component';
 import { FileOptionsComponent } from './components/file-options/file-options.component';
@@ -25,6 +28,7 @@ import { GraphOptionsComponent } from './components/graph-options/graph-options.
 import { InputFrequencyComponent } from './components/input-frequency/input-frequency.component';
 import { InputRangeComponent } from './components/input-range/input-range.component';
 import { PitchOptionsComponent } from './components/pitch-options/pitch-options.component';
+import { TimeDomainChartComponent } from './components/time-domain-chart/time-domain-chart.component';
 import { WaveOptionsComponent } from './components/wave-options/wave-options.component';
 import { WorkletOptionsComponent } from './components/worklet-options/worklet-options.component';
 import { InputFileUrlDirective } from './directives/input-file-url/input-file-url.directive';
@@ -34,6 +38,7 @@ import { SafeUrlPipe } from './pipes/safe-url/safe-url.pipe';
 import { TimePipe } from './pipes/time/time.pipe';
 import { UnitsPipe } from './pipes/units/units.pipe';
 import { AudioGraphStoreModule } from './state/audio-graph/audio-graph.module';
+import { AudioGraphUiStoreModule } from './state/audio-graph-ui/audio-graph-ui.module';
 import { getAudioGraph, getDocument, getWindow } from './utils/factories';
 import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
 
@@ -59,6 +64,10 @@ import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
     GraphOptionsComponent,
     FilterOptionsComponent,
     PitchOptionsComponent,
+    ChartsComponent,
+    ChartComponent,
+    TimeDomainChartComponent,
+    CanvasComponent,
   ],
   imports: [
     BrowserModule,
@@ -74,24 +83,9 @@ import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
       disabled: environment.production,
       collapsed: true,
     }),
-    NgxsStoragePluginModule.forRoot({
-      beforeSerialize: (obj: Record<string, any>, key: string) => {
-        //console.log('beforeSerialize', key, obj);
-        if (Object.prototype.hasOwnProperty.call(obj, 'AudioGraph')) {
-          return {
-            ...obj,
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            AudioGraph: {
-              ...obj.AudioGraph,
-              paused: true,
-              suspended: true,
-            },
-          };
-        }
-        return obj;
-      },
-    }),
+    NgxsStoragePluginModule.forRoot(),
     AudioGraphStoreModule,
+    AudioGraphUiStoreModule,
     RouterModule.forRoot(ROUTES, {
       useHash: true,
       relativeLinkResolution: 'legacy',

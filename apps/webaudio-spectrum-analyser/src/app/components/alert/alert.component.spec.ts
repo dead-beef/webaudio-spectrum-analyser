@@ -1,5 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ClarityModule } from '@clr/angular';
 
+import { ErrorPipe } from '../../pipes/error/error.pipe';
 import { AlertComponent } from './alert.component';
 
 describe('AlertComponent', () => {
@@ -8,7 +10,8 @@ describe('AlertComponent', () => {
 
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
-      declarations: [AlertComponent],
+      imports: [ClarityModule],
+      declarations: [AlertComponent, ErrorPipe],
     }).compileComponents();
   }));
 

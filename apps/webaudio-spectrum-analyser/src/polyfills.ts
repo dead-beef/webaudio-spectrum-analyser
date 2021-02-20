@@ -61,8 +61,21 @@ import 'zone.js/dist/zone'; // Included with Angular CLI.
  */
 //import '@webcomponents/webcomponentsjs/custom-elements-es5-adapter';
 //import '@webcomponents/webcomponentsjs/webcomponents-bundle';
-import '@clr/icons/clr-icons.min';
+//import '@clr/icons/clr-icons.min';
 import 'simplebar/dist/simplebar';
+import '@cds/core/icon/register.js';
 
 import { default as Stats } from 'stats.js/src/Stats';
 window['Stats'] = Stats;
+
+import { ClarityIcons } from '@cds/core/icon';
+import { loadChartIconSet } from '@cds/core/icon/collections/chart';
+import { loadCoreIconSet } from '@cds/core/icon/collections/core';
+import { loadEssentialIconSet } from '@cds/core/icon/collections/essential';
+import { loadMediaIconSet } from '@cds/core/icon/collections/media';
+
+window['ClarityIcons'] = ClarityIcons;
+loadCoreIconSet();
+loadChartIconSet();
+loadMediaIconSet();
+loadEssentialIconSet();
