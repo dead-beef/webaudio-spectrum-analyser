@@ -4,9 +4,9 @@
 #include <stddef.h>
 #include <stdarg.h>
 
-const char *error_func = NULL;
-const char *error_file = NULL;
-int error_line = 0;
+__thread const char *error_func = NULL;
+__thread const char *error_file = NULL;
+__thread int error_line = 0;
 
 void set_traceback(const char *func, const char *file, int line) {
   error_func = func;

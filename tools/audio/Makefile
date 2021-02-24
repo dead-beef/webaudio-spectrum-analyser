@@ -15,7 +15,7 @@ BIN_DIR := .
 OBJ_DIR := build/obj
 DEP_DIR := build/dep
 
-LDFLAGS := -lm -lavcodec -lavformat -lavfilter -lavutil
+LDFLAGS := -lm -lavcodec -lavformat -lavfilter -lavutil -lpthread
 
 make_path = $(addsuffix $(1), $(basename $(subst $(2), $(3), $(4))))
 src_to_obj = $(call make_path,.o, $(SRC_DIR), $(OBJ_DIR), $(1))
@@ -71,6 +71,19 @@ ALL_EXECUTABLES += $(GAW_EXECUTABLE)
 
 $(GAW_EXECUTABLE): $(GAW_OBJECTS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(GAW_LDFLAGS)
+
+
+FA_CFILES := $(SRC_DIR)/filter.c
+FA_OBJECTS := $(foreach src, $(FA_CFILES), $(call src_to_obj, $(src)))
+FA_OBJECTS += $(WASM_OBJ)
+FA_OBJECTS += $(COMMON_OBJECTS)
+FA_EXECUTABLE := $(BIN_DIR)/filter
+FA_LDFLAGS :=
+ALL_CFILES += $(FA_CFILES)
+ALL_EXECUTABLES += $(FA_EXECUTABLE)
+
+$(FA_EXECUTABLE): $(FA_OBJECTS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(FA_LDFLAGS)
 
 
 DEPS := $(foreach src, $(ALL_CFILES), $(call src_to_dep, $(src)))

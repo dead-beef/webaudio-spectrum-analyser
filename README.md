@@ -25,6 +25,7 @@
 - [GCC](https://gcc.gnu.org/)
 - [Make](https://www.gnu.org/software/make/)
 - [libavcodec](https://www.ffmpeg.org/libavcodec.html), [libavformat](https://www.ffmpeg.org/libavformat.html), [libavfilter](https://www.ffmpeg.org/libavfilter.html), [libavutil](https://www.ffmpeg.org/libavutil.html)
+- [pthreads](https://en.wikipedia.org/wiki/POSIX_Threads)
 
 ### Preferred package manager
 

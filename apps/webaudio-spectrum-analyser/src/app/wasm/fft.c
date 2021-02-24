@@ -3,6 +3,21 @@
 #include <math.h>
 #include <float.h>
 
+#ifdef CLI
+#include <stdio.h>
+#endif
+
+void* no_fft_malloc(size_t size __attribute__((unused))) {
+#ifdef CLI
+  fprintf(stderr, "no_fft_malloc\n");
+#endif
+  abort();
+}
+
+void no_fft_free(void *ptr __attribute__((unused))) {
+  fprintf(stderr, "no_fft_free\n");
+}
+
 #include <kissfft/kiss_fft.c>
 #include <kissfft/tools/kiss_fftr.c>
 
@@ -26,6 +41,11 @@ void fft(tdval_t *in, fftval_t *out, int length) {
   size_t cfg_size = sizeof(_cfg_alloc);
   kiss_fftr_cfg cfg = (kiss_fftr_cfg)(_cfg_alloc);
   cfg = kiss_fftr_alloc(length, FALSE, cfg, &cfg_size);
+#ifdef CLI
+  if (!cfg) {
+    fprintf(stderr, "Could not allocate fft config\n");
+  }
+#endif
   kiss_fftr(cfg, in, out);
 }
 
@@ -34,6 +54,11 @@ void ifft(fftval_t *in, tdval_t *out, int length) {
   size_t cfg_size = sizeof(_cfg_alloc);
   kiss_fftr_cfg cfg = (kiss_fftr_cfg)(_cfg_alloc);
   cfg = kiss_fftr_alloc(length, TRUE, cfg, &cfg_size);
+#ifdef CLI
+  if (!cfg) {
+    fprintf(stderr, "Could not allocate inverse fft config\n");
+  }
+#endif
   kiss_fftri(cfg, in, out);
 }
 

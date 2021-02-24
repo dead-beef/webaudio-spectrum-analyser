@@ -3,4 +3,6 @@
 
 #define EMSCRIPTEN_KEEPALIVE
 
+#define CLI
+
 #endif

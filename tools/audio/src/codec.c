@@ -13,6 +13,8 @@
 #include <libavfilter/buffersrc.h>
 #include <libavutil/opt.h>
 
+#include <pthread.h>
+
 
 #define _S(x) #x
 #define S(x) _S(x)
@@ -298,7 +300,7 @@ ON_ERROR
 }
 
 
-static const AVCodec* get_audio_codec_from_filename(const char *fname) {
+/*static const AVCodec* get_audio_codec_from_filename(const char *fname) {
   const AVCodec *codec = NULL;
   enum AVCodecID codec_id = AV_CODEC_ID_NONE;
   AVOutputFormat *fmt = av_guess_format(NULL, fname, NULL);
@@ -313,7 +315,7 @@ static const AVCodec* get_audio_codec_from_filename(const char *fname) {
   return codec;
 ON_ERROR
   return NULL;
-}
+}*/
 
 static int check_sample_fmt(const AVCodec *codec, enum AVSampleFormat fmt)
 {
@@ -537,5 +539,158 @@ ON_ERROR
     }
     avformat_free_context(fctx);
   }
+  return -1;
+}
+
+
+typedef struct {
+  pthread_mutex_t mutex;
+  pthread_cond_t input_ready;
+  pthread_cond_t output_ready;
+  int error;
+  int eof;
+
+  const char *input_fname;
+  const char *output_fname;
+
+  float *input_frame;
+  float *output_frame;
+  int frame_size;
+
+  filter_frame_t filter_frame;
+  void *filter_frame_data;
+} filter_thread_data_t;
+
+
+static int filter_decode(
+  float *buf,
+  int length __attribute__((unused)),
+  int sample_rate __attribute__((unused)),
+  void *data_
+) {
+  filter_thread_data_t *data = data_;
+  pthread_mutex_lock(&data->mutex);
+  int ret = data->error;
+  data->input_frame = buf;
+  data->eof = !data->input_frame;
+  pthread_cond_signal(&data->input_ready);
+  if (!ret) {
+    pthread_cond_wait(&data->output_ready, &data->mutex);
+    ret = data->error;
+  }
+  pthread_mutex_unlock(&data->mutex);
+  return ret;
+}
+
+static int filter_encode(
+  float *buf,
+  int length __attribute__((unused)),
+  int sample_rate,
+  void *data_
+) {
+  filter_thread_data_t *data = data_;
+  pthread_mutex_lock(&data->mutex);
+  int ret = data->error;
+  if (ret) {
+    pthread_cond_signal(&data->output_ready);
+  } else {
+    if (!(data->input_frame || data->eof || data->error)) {
+      pthread_cond_wait(&data->input_ready, &data->mutex);
+    }
+    if (data->error) {
+      ret = data->error;
+    } else {
+      data->output_frame = buf;
+      do {
+        ret = data->filter_frame(
+          data->input_frame,
+          data->output_frame,
+          data->frame_size,
+          sample_rate,
+          data->filter_frame_data
+        );
+      } while (data->eof && !ret);
+      if (ret < 0) {
+        data->error = ret;
+      }
+      data->input_frame = NULL;
+      pthread_cond_signal(&data->output_ready);
+    }
+  }
+  pthread_mutex_unlock(&data->mutex);
+  return ret;
+}
+
+static void* filter_decode_thread(void *data_) {
+  filter_thread_data_t *data = data_;
+  int rc = decode_audio(
+    data->input_fname,
+    data->frame_size,
+    filter_decode,
+    data,
+    1
+  );
+  if (rc) {
+    pthread_mutex_lock(&data->mutex);
+    data->error = rc;
+    data->input_frame = NULL;
+    data->eof = 1;
+    pthread_cond_signal(&data->input_ready);
+    pthread_mutex_unlock(&data->mutex);
+  }
+  return NULL;
+}
+
+static void* filter_encode_thread(void *data_) {
+  filter_thread_data_t *data = data_;
+  int rc = encode_audio(
+    data->output_fname,
+    data->frame_size,
+    RESAMPLE_RATE,
+    filter_encode,
+    data
+  );
+  if (rc) {
+    pthread_mutex_lock(&data->mutex);
+    data->error = rc;
+    pthread_cond_signal(&data->output_ready);
+    pthread_mutex_unlock(&data->mutex);
+  }
+  return NULL;
+}
+
+int filter_audio(
+  const char *input_fname,
+  const char *output_fname,
+  int frame_size,
+  filter_frame_t filter_frame,
+  void *filter_frame_data
+) {
+  filter_thread_data_t data = {
+    .error = 0,
+    .eof = 0,
+    .mutex = PTHREAD_MUTEX_INITIALIZER,
+    .input_ready = PTHREAD_COND_INITIALIZER,
+    .output_ready = PTHREAD_COND_INITIALIZER,
+    .input_fname = input_fname,
+    .output_fname = output_fname,
+    .input_frame = NULL,
+    .output_frame = NULL,
+    .frame_size = frame_size,
+    .filter_frame = filter_frame,
+    .filter_frame_data = filter_frame_data
+  };
+
+  pthread_t decode, encode;
+
+  pthread_create(&decode, NULL, filter_decode_thread, &data);
+  pthread_create(&encode, NULL, filter_encode_thread, &data);
+
+  pthread_join(decode, NULL);
+  pthread_join(encode, NULL);
+
+  HANDLE_RC(data.error, NULL);
+  return 0;
+ON_ERROR
   return -1;
 }

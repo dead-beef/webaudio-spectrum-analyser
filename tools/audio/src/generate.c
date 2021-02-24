@@ -188,6 +188,7 @@ void destroy_data(data_t *data) {
   FREE(data->line);
   FREE(data->fft_buf);
   FREE(data->ifft_buf);
+  FREE(data->ifft_prev_buf);
   FREE(data->peak_buf);
 }
 

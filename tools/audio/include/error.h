@@ -11,9 +11,9 @@
 #define HANDLE_ERRNO(rc, format, ...) if((rc) < 0) ERROR(format __VA_OPT__(,) __VA_ARGS__, strerror(errno));
 #define HANDLE_AV_ERROR(rc, format, ...) { int _rc = (rc); if(_rc < 0) ERROR(format __VA_OPT__(,) __VA_ARGS__, av_err2str(_rc)); }
 
-extern const char *error_func;
-extern const char *error_file;
-extern int error_line;
+extern __thread const char *error_func;
+extern __thread const char *error_file;
+extern __thread int error_line;
 
 void print_error(const char *format, ...);
 
