@@ -15,7 +15,9 @@ void* no_fft_malloc(size_t size __attribute__((unused))) {
 }
 
 void no_fft_free(void *ptr __attribute__((unused))) {
+#ifdef CLI
   fprintf(stderr, "no_fft_free\n");
+#endif
 }
 
 #include <kissfft/kiss_fft.c>

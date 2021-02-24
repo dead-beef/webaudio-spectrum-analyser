@@ -601,15 +601,13 @@ static int filter_encode(
       ret = data->error;
     } else {
       data->output_frame = buf;
-      do {
-        ret = data->filter_frame(
-          data->input_frame,
-          data->output_frame,
-          data->frame_size,
-          sample_rate,
-          data->filter_frame_data
-        );
-      } while (data->eof && !ret);
+      ret = data->filter_frame(
+        data->input_frame,
+        data->output_frame,
+        data->frame_size,
+        sample_rate,
+        data->filter_frame_data
+      );
       if (ret < 0) {
         data->error = ret;
       }
