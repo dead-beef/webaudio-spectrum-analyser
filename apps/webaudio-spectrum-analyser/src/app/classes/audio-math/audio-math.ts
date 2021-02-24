@@ -71,6 +71,9 @@ class AudioMathInstance {
         imports['alignfault'] = () => {
           throw new Error('alignfault');
         };
+        imports['abort'] = () => {
+          throw new Error('aborted');
+        };
 
         return imports;
       }).then((wasm_: WasmModule<AudioMathWasmFunctions>) => {

@@ -259,6 +259,9 @@ export class FilterProcessor extends AudioWorkletProcessor {
           alignfault: () => {
             throw new Error('alignfault');
           },
+          abort: () => {
+            throw new Error('aborted');
+          },
         },
       };
       void WebAssembly.instantiate(mod, importObj).then(instance => {

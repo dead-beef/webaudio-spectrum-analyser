@@ -3,7 +3,13 @@
 
 #include "common.h"
 
+#ifdef CLI
+#define NDEBUG 0
+#else
 #define NDEBUG 1
+#endif
+#define KISS_FFT_MALLOC no_fft_malloc
+#define KISS_FFT_FREE no_fft_free
 #define kiss_fft_scalar tdval_t
 #define fftval_t kiss_fft_cpx
 #include <kissfft/kiss_fft.h>
