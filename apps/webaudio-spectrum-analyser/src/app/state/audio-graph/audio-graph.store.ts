@@ -13,8 +13,14 @@ import {
   AudioGraphFilterNode,
   AudioGraphSource,
   AudioGraphSourceNode,
+  BiquadState,
+  ConvolverState,
   FftPeakType,
+  IirState,
   PitchDetectionId,
+  PitchDetectionState,
+  PitchShifterState,
+  WorkletFilterState,
 } from '../../interfaces';
 import { AUDIO_GRAPH, StoreAction } from '../../utils';
 import { audioGraphAction } from './audio-graph.actions';
@@ -22,12 +28,6 @@ import {
   AUDIO_GRAPH_STATE_DEFAULTS,
   AUDIO_GRAPH_STATE_TOKEN,
   AudioGraphStateModel,
-  BiquadState,
-  ConvolverState,
-  IirState,
-  PitchDetectionState,
-  PitchShifterState,
-  WorkletFilterState,
 } from './audio-graph.model';
 
 @State<AudioGraphStateModel>({

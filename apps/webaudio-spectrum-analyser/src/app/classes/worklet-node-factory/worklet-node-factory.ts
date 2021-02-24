@@ -1,5 +1,7 @@
-import { AnyScriptNode } from '../../interfaces';
-import { WorkletProcessorConstructor } from '../worklet-processor';
+import {
+  AnyScriptNode,
+  WorkletProcessorConstructor,
+} from '../worklet-processor';
 
 export class WorkletNodeFactory {
   public readonly url: Record<string, string> = {};

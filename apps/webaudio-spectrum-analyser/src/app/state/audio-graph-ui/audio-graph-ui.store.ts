@@ -20,9 +20,8 @@ import { audioGraphUiAction } from './audio-graph-ui.actions';
 import {
   AUDIO_GRAPH_UI_STATE_DEFAULTS,
   AUDIO_GRAPH_UI_STATE_TOKEN,
-  AudioGraphUiStateModel,
-  SetChartType,
 } from './audio-graph-ui.model';
+import { AudioGraphUiStateModel, SetChartType } from './interfaces';
 
 @State<AudioGraphUiStateModel>({
   name: AUDIO_GRAPH_UI_STATE_TOKEN,

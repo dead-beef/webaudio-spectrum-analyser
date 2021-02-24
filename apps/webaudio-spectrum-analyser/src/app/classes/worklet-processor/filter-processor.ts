@@ -1,4 +1,4 @@
-import { WorkletFilterParam } from '../../interfaces';
+import { WorkletFilterParam } from './interfaces';
 import { AudioWorkletProcessor } from './util';
 
 export class FilterProcessor extends AudioWorkletProcessor {

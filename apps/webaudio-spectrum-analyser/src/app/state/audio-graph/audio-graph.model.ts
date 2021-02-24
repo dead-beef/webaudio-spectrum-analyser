@@ -3,102 +3,11 @@ import { StateToken } from '@ngxs/store';
 import {
   AudioGraphFilterNode,
   AudioGraphSourceNode,
+  AudioGraphState,
   FftPeakType,
-  PitchDetectionId,
 } from '../../interfaces';
 
-export interface PitchDetectionState {
-  id: PitchDetectionId;
-  enabled: boolean;
-}
-
-export interface IirState {
-  feedforward: number[];
-  feedback: number[];
-}
-
-export interface ConvolverState {
-  duration: number;
-  decay: number;
-  frequency: number;
-  overtones: number;
-  overtoneDecay: number;
-}
-
-export interface PitchShifterState {
-  shift: number;
-  bufferTime: number;
-}
-
-export interface WorkletFilterState {
-  fftSize: number;
-  type: number;
-  gain: number;
-  minPitch: number;
-  maxPitch: number;
-  minHarmonic: number;
-  maxHarmonic: number;
-  step: number;
-  prominenceThreshold: number;
-  fScaleRadius: number;
-  harmonicSearchRadius: number;
-  smoothScale: boolean;
-}
-
-export interface BiquadState {
-  type: BiquadFilterType;
-  frequency: number;
-  detune: number;
-  q: number;
-  gain: number;
-}
-
-export interface FftPeakState {
-  type: FftPeakType;
-  prominence: {
-    radius: number;
-    threshold: number;
-    normalize: boolean;
-  };
-}
-
-export interface AudioGraphStateModel {
-  paused: boolean;
-  suspended: boolean;
-  volume: number;
-  debug: boolean;
-  sourceNode: AudioGraphSourceNode;
-  delay: number;
-  fftSize: number;
-  smoothing: number;
-  pitch: {
-    min: number;
-    max: number;
-    ZCR: boolean;
-    FFTM: boolean;
-    FFTP: boolean;
-    AC: boolean;
-  };
-  fftp: FftPeakState;
-  wave: {
-    shape: OscillatorType;
-    frequency: number;
-  };
-  device: {
-    id: Nullable<string>;
-  };
-  worklet: {
-    type: number;
-  };
-  filter: {
-    id: AudioGraphFilterNode;
-    convolver: ConvolverState;
-    biquad: BiquadState;
-    iir: IirState;
-    pitchShifter: PitchShifterState;
-    worklet: WorkletFilterState;
-  };
-}
+export type AudioGraphStateModel = AudioGraphState;
 
 export const AUDIO_GRAPH_STATE_DEFAULTS: AudioGraphStateModel = {
   paused: true,

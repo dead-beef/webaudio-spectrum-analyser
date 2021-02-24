@@ -1,5 +1,5 @@
-import { IPitchShifterNode } from '../../interfaces';
 import { AudioMath } from '../audio-math/audio-math';
+import { IPitchShifterNode } from './interfaces';
 
 export class PitchShifterNode extends GainNode implements IPitchShifterNode {
   public readonly shiftUp: AudioBufferSourceNode[];

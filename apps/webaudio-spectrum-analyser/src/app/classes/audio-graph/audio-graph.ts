@@ -1,25 +1,26 @@
+import { AudioMath } from '../audio-math/audio-math';
+import { FftPeakType } from '../audio-math/interfaces';
+import { PitchShifterNode } from '../pitch-shifter-node/pitch-shifter-node';
+import { WorkletNodeFactory } from '../worklet-node-factory/worklet-node-factory';
 import {
   AnyScriptNode,
+  FilterProcessor,
+  GeneratorProcessor,
+} from '../worklet-processor';
+import {
   AudioGraphFilterNode,
   AudioGraphFilters,
   AudioGraphNodes,
   AudioGraphSourceNode,
+  AudioGraphState,
   AudioGraphUpdateHandler,
-  FftPeakType,
-  PitchDetection,
-} from '../../interfaces';
-import {
-  AudioGraphStateModel,
   BiquadState,
   ConvolverState,
   IirState,
+  PitchDetection,
   PitchShifterState,
   WorkletFilterState,
-} from '../../state/audio-graph/audio-graph.model';
-import { AudioMath } from '../audio-math/audio-math';
-import { PitchShifterNode } from '../pitch-shifter-node/pitch-shifter-node';
-import { WorkletNodeFactory } from '../worklet-node-factory/worklet-node-factory';
-import { FilterProcessor, GeneratorProcessor } from '../worklet-processor';
+} from './interfaces';
 
 export class AudioGraph {
   public context: AudioContext;
@@ -241,7 +242,7 @@ export class AudioGraph {
    * TODO: description
    * @param state
    */
-  public setState(state: AudioGraphStateModel) {
+  public setState(state: AudioGraphState) {
     this.volume = state.volume;
     this.nodes.input.delayTime.value = state.delay;
     this.fftSize = state.fftSize;

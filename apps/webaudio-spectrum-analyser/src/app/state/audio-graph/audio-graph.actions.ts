@@ -2,18 +2,16 @@ import {
   AudioGraphFilterNode,
   AudioGraphSource,
   AudioGraphSourceNode,
-  FftPeakType,
-} from '../../interfaces';
-import { actionConstructor, StoreActions } from '../../utils';
-import {
-  AudioGraphStateModel,
   BiquadState,
   ConvolverState,
+  FftPeakType,
   IirState,
   PitchDetectionState,
   PitchShifterState,
   WorkletFilterState,
-} from './audio-graph.model';
+} from '../../interfaces';
+import { actionConstructor, StoreActions } from '../../utils';
+import { AudioGraphStateModel } from './audio-graph.model';
 
 const action = actionConstructor('AudioGraph');
 

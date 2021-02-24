@@ -1,12 +1,11 @@
-import { environment } from '../../../environments/environment';
+import * as wasmModule from '../../wasm/index.c';
 import {
   AudioMathWasmFunctions,
   Autocorrelation,
   FftPeakType,
   Prominence,
   WasmBuffer,
-} from '../../interfaces';
-import * as wasmModule from '../../wasm/index.c';
+} from './interfaces';
 
 class AudioMathInstance {
   private _wasm: Nullable<WasmModule<AudioMathWasmFunctions>> = null;
@@ -77,9 +76,9 @@ class AudioMathInstance {
 
         return imports;
       }).then((wasm_: WasmModule<AudioMathWasmFunctions>) => {
-        if (!environment.production) {
+        /*if (!environment.production) {
           window['wasm'] = wasm_;
-        }
+        }*/
         this.wasm = wasm_;
         return this.wasm;
       });
