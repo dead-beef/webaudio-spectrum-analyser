@@ -1,12 +1,11 @@
-import { environment } from '../../../environments/environment';
+import * as wasmModule from '../../wasm/index.c';
 import {
   AudioMathWasmFunctions,
   Autocorrelation,
   FftPeakType,
   Prominence,
   WasmBuffer,
-} from '../../interfaces';
-import * as wasmModule from '../../wasm/index.c';
+} from './interfaces';
 
 class AudioMathInstance {
   private _wasm: Nullable<WasmModule<AudioMathWasmFunctions>> = null;
@@ -77,9 +76,9 @@ class AudioMathInstance {
 
         return imports;
       }).then((wasm_: WasmModule<AudioMathWasmFunctions>) => {
-        if (!environment.production) {
+        /*if (!environment.production) {
           window['wasm'] = wasm_;
-        }
+        }*/
         this.wasm = wasm_;
         return this.wasm;
       });
@@ -277,6 +276,19 @@ class AudioMathInstance {
       prevSign = sign;
     }
     return res / (2 * data.length);
+  }
+
+  /**
+   * TODO: description
+   * @param data
+   */
+  public rms(data: Float32Array): number {
+    const wasm = this.wasm;
+    if (!wasm) {
+      return 0;
+    }
+    this.copyToBuffer(this.inputBuffer, data);
+    return wasm.exports.rms(this.inputBuffer.ptr[0], data.length);
   }
 
   /**

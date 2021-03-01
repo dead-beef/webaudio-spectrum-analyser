@@ -1,13 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ClarityModule } from '@clr/angular';
-import { NgxsModule } from '@ngxs/store';
 
 import { ErrorPipe } from '../../pipes/error/error.pipe';
 import { UnitsPipe } from '../../pipes/units/units.pipe';
-import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
-import { AUDIO_GRAPH } from '../../utils/injection-tokens';
-import { getMockAudioGraph } from '../../utils/test.util';
+import { getComponentImports, getMockProviders } from '../../utils/test.util';
 import { InputFrequencyComponent } from '../input-frequency/input-frequency.component';
 import { InputRangeComponent } from '../input-range/input-range.component';
 import { FilterOptionsComponent } from './filter-options.component';
@@ -18,13 +13,7 @@ describe('FilterOptionsComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [
-        ClarityModule,
-        FormsModule,
-        ReactiveFormsModule,
-        NgxsModule.forRoot([]),
-        AudioGraphStoreModule,
-      ],
+      imports: getComponentImports(),
       declarations: [
         FilterOptionsComponent,
         UnitsPipe,
@@ -32,12 +21,7 @@ describe('FilterOptionsComponent', () => {
         InputFrequencyComponent,
         InputRangeComponent,
       ],
-      providers: [
-        {
-          provide: AUDIO_GRAPH,
-          useFactory: getMockAudioGraph,
-        },
-      ],
+      providers: getMockProviders(),
     })
       .compileComponents()
       .then(() => {

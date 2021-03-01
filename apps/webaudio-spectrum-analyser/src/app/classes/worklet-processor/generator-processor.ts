@@ -1,4 +1,4 @@
-import { WorkletGeneratorParam } from '../../interfaces';
+import { WorkletGeneratorParam } from './interfaces';
 import { AudioWorkletProcessor } from './util';
 
 export class GeneratorProcessor extends AudioWorkletProcessor {

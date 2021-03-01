@@ -1,6 +1,6 @@
 import { ChartLayout } from '../../interfaces';
 import { actionConstructor, StoreActions } from '../../utils';
-import { AudioGraphUiStateModel, SetChartType } from './audio-graph-ui.model';
+import { AudioGraphUiStateModel, SetChartType } from './interfaces';
 
 const action = actionConstructor('AudioGraphUi');
 

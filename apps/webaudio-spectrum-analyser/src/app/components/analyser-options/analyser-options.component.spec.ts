@@ -4,17 +4,17 @@ import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { getComponentImports, getMockProviders } from '../../utils/test.util';
 import { InputFrequencyComponent } from '../input-frequency/input-frequency.component';
 import { InputRangeComponent } from '../input-range/input-range.component';
-import { GraphOptionsComponent } from './graph-options.component';
+import { AnalyserOptionsComponent } from './analyser-options.component';
 
-describe('GraphOptionsComponent', () => {
-  let component: GraphOptionsComponent;
-  let fixture: ComponentFixture<GraphOptionsComponent>;
+describe('AnalyserOptionsComponent', () => {
+  let component: AnalyserOptionsComponent;
+  let fixture: ComponentFixture<AnalyserOptionsComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: getComponentImports(),
       declarations: [
-        GraphOptionsComponent,
+        AnalyserOptionsComponent,
         UnitsPipe,
         InputFrequencyComponent,
         InputRangeComponent,
@@ -23,7 +23,7 @@ describe('GraphOptionsComponent', () => {
     })
       .compileComponents()
       .then(() => {
-        fixture = TestBed.createComponent(GraphOptionsComponent);
+        fixture = TestBed.createComponent(AnalyserOptionsComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
       });

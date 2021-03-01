@@ -1,17 +1,8 @@
 import { StateToken } from '@ngxs/store';
 
-import { ChartLayout, ChartType } from '../../interfaces';
+import { AudioGraphUiStateModel, ChartLayout, ChartType } from './interfaces';
 
-export interface SetChartType {
-  index: number;
-  type: ChartType;
-}
-
-export interface AudioGraphUiStateModel {
-  chartCount: number;
-  chartType: ChartType[];
-  chartLayout: ChartLayout;
-}
+export { AudioGraphUiStateModel } from './interfaces';
 
 export const AUDIO_GRAPH_UI_STATE_DEFAULTS: AudioGraphUiStateModel = {
   chartCount: 2,

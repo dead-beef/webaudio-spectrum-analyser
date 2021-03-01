@@ -21,7 +21,7 @@
         None
       </option>
       <option *ngFor="let dev of devices" [ngValue]="dev.deviceId">
-        {{ dev.label || dev.deviceId }}
+        {{ dev.label || dev.deviceId || '&lt;no label&gt;' }}
       </option>
     </select>
   </clr-select-container>

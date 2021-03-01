@@ -1,12 +1,10 @@
 import { Inject, Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 //import { PitchDetection, MethodOf } from '../../interfaces';
-import { PitchDetection } from '../../interfaces';
-import { AUDIO_GRAPH, deepCopy } from '../../utils';
+import { AUDIO_GRAPH, initState } from '../../utils';
 import { audioGraphAction } from './audio-graph.actions';
 import { AUDIO_GRAPH_STATE_DEFAULTS } from './audio-graph.model';
 import { AudioGraphState } from './audio-graph.store';
@@ -24,28 +22,12 @@ export class AudioGraphService {
     private readonly store: Store,
     @Inject(AUDIO_GRAPH) public readonly graph: AudioGraph
   ) {
-    const defaults = deepCopy(AUDIO_GRAPH_STATE_DEFAULTS);
-    let state = this.store.selectSnapshot(AudioGraphState.state);
-    console.log('state', state);
-    if (state !== null && state !== undefined) {
-      state = {
-        ...defaults,
-        ...state,
-        paused: true,
-        suspended: true,
-      };
-      console.log('state with defaults', state);
-      //this.graph.setState(state);
-      void this.dispatch('setState', state)
-        .pipe(
-          catchError(err => {
-            console.warn('invalid state', state);
-            //this.store.reset(AUDIO_GRAPH_STATE_DEFAULTS);
-            return this.dispatch('setState', defaults);
-          })
-        )
-        .subscribe();
-    }
+    initState(
+      store,
+      AUDIO_GRAPH_STATE_DEFAULTS,
+      AudioGraphState.initState,
+      audioGraphAction.setState
+    );
     graph.startUpdating();
   }
 
@@ -68,13 +50,6 @@ export class AudioGraphService {
    */
   public getMaxDelay(): number {
     return this.graph.maxDelay;
-  }
-
-  /**
-   * TODO: description
-   */
-  public listPitchDetection(): PitchDetection[] {
-    return this.graph.pitch;
   }
 
   /**

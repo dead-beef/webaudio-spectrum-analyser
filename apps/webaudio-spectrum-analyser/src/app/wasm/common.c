@@ -19,6 +19,7 @@ double variance(tdval_t *data, int length, double mean) {
   return sum / length;
 }
 
+EMSCRIPTEN_KEEPALIVE
 double rms(tdval_t *data, int length) {
   double sum = 0.0;
   for (int i = 0; i < length; ++i) {

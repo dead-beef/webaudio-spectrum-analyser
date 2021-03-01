@@ -1,25 +1,24 @@
+import { AudioMath } from '../audio-math/audio-math';
+import { PitchShifterNode } from '../pitch-shifter-node/pitch-shifter-node';
+import { WorkletNodeFactory } from '../worklet-node-factory/worklet-node-factory';
 import {
   AnyScriptNode,
+  FilterProcessor,
+  GeneratorProcessor,
+} from '../worklet-processor';
+import {
   AudioGraphFilterNode,
   AudioGraphFilters,
   AudioGraphNodes,
   AudioGraphSourceNode,
+  AudioGraphState,
   AudioGraphUpdateHandler,
-  FftPeakType,
-  PitchDetection,
-} from '../../interfaces';
-import {
-  AudioGraphStateModel,
   BiquadState,
   ConvolverState,
   IirState,
   PitchShifterState,
   WorkletFilterState,
-} from '../../state/audio-graph/audio-graph.model';
-import { AudioMath } from '../audio-math/audio-math';
-import { PitchShifterNode } from '../pitch-shifter-node/pitch-shifter-node';
-import { WorkletNodeFactory } from '../worklet-node-factory/worklet-node-factory';
-import { FilterProcessor, GeneratorProcessor } from '../worklet-processor';
+} from './interfaces';
 
 export class AudioGraph {
   public context: AudioContext;
@@ -52,33 +51,9 @@ export class AudioGraph {
 
   public deviceStream: Nullable<MediaStream> = null;
 
-  public fdata: Float32Array = new Float32Array(1);
-
-  public tdata: Float32Array = new Float32Array(1);
-
-  public autocorrdata: Float32Array = new Float32Array(1);
-
-  public prominenceData: Float32Array = new Float32Array(1);
-
-  public canAnalyse = true;
-
   public volume = 0.5;
 
-  public minPitch = 20;
-
-  public maxPitch = 20000;
-
-  public threshold = 0.2;
-
-  public prominenceRadius = 0;
-
-  public prominenceThreshold = 0.1;
-
-  public prominenceNormalize = false;
-
-  public fftPeakType: FftPeakType = FftPeakType.MAX_MAGNITUDE;
-
-  public debug = false;
+  public autoResetAnalyserNode = false;
 
   public readonly minDecibels = -100;
 
@@ -98,41 +73,6 @@ export class AudioGraph {
     8192,
     16384,
     32768,
-  ];
-
-  public readonly pitch: PitchDetection[] = [
-    {
-      id: 'ZCR',
-      name: 'Zero-crossing rate',
-      calc: this.zcr.bind(this),
-      timeDomain: true,
-      enabled: true,
-      value: 0,
-    },
-    {
-      id: 'FFTM',
-      name: 'FFT max',
-      calc: this.fftmax.bind(this),
-      timeDomain: false,
-      enabled: false,
-      value: 0,
-    },
-    {
-      id: 'FFTP',
-      name: 'FFT peak',
-      calc: this.fftpeak.bind(this),
-      timeDomain: false,
-      enabled: false,
-      value: 0,
-    },
-    {
-      id: 'AC',
-      name: 'Autocorrelation',
-      calc: this.autocorr.bind(this),
-      timeDomain: true,
-      enabled: false,
-      value: 0,
-    },
   ];
 
   private _fftSize = 2048;
@@ -241,18 +181,11 @@ export class AudioGraph {
    * TODO: description
    * @param state
    */
-  public setState(state: AudioGraphStateModel) {
+  public setState(state: AudioGraphState) {
     this.volume = state.volume;
     this.nodes.input.delayTime.value = state.delay;
     this.fftSize = state.fftSize;
     this.smoothing = state.smoothing;
-    this.debug = state.debug;
-
-    this.minPitch = state.pitch.min;
-    this.maxPitch = state.pitch.max;
-    for (const pd of this.pitch) {
-      pd.enabled = state.pitch[pd.id];
-    }
 
     this.nodes.wave.type = state.wave.shape;
     this.nodes.wave.frequency.value = state.wave.frequency;
@@ -263,12 +196,6 @@ export class AudioGraph {
     this.setBiquad(state.filter.biquad);
     this.setPitchShifter(state.filter.pitchShifter);
     this.setConvolver(state.filter.convolver);
-
-    this.fftPeakType = state.fftp.type;
-
-    this.prominenceRadius = state.fftp.prominence.radius;
-    this.prominenceThreshold = state.fftp.prominence.threshold;
-    this.prominenceNormalize = state.fftp.prominence.normalize;
 
     void this.setWorkletSourceParameters(state.worklet);
     void this.setWorkletFilterParameters(state.filter.worklet);
@@ -367,30 +294,25 @@ export class AudioGraph {
    * @param node
    * @param data
    */
-  public enable(node: AudioGraphSourceNode, data?: any): Promise<void> {
-    try {
-      console.log('enable', node /*, data*/);
-      switch (node) {
-        case AudioGraphSourceNode.DEVICE:
-          //this.setDevice(null);
-          break;
-        case AudioGraphSourceNode.FILE:
-          this.setElement(data);
-          break;
-        case AudioGraphSourceNode.WAVE:
-          this.nodes.wave.connect(this.nodes.input);
-          break;
-        case AudioGraphSourceNode.WORKLET:
-          return this.workletReady.then(() => {
-            console.log(this.nodes.worklet);
-            this.nodes.worklet!.connect(this.nodes.input);
-          });
-        default:
-          throw new Error('invalid node ' + String(node));
-      }
-      return Promise.resolve();
-    } catch (err) {
-      return Promise.reject(err);
+  public async enable(node: AudioGraphSourceNode, data?: any): Promise<void> {
+    console.log('enable', node /*, data*/);
+    switch (node) {
+      case AudioGraphSourceNode.DEVICE:
+        //this.setDevice(null);
+        break;
+      case AudioGraphSourceNode.FILE:
+        this.setElement(data);
+        break;
+      case AudioGraphSourceNode.WAVE:
+        this.nodes.wave.connect(this.nodes.input);
+        break;
+      case AudioGraphSourceNode.WORKLET:
+        await this.workletReady;
+        //console.log(this.nodes.worklet);
+        this.nodes.worklet!.connect(this.nodes.input);
+        break;
+      default:
+        throw new Error('invalid node ' + String(node));
     }
   }
 
@@ -566,23 +488,21 @@ export class AudioGraph {
   /**
    * TODO: description
    */
-  public setWorkletSourceParameters(
+  public async setWorkletSourceParameters(
     params: Record<string, number>
   ): Promise<void> {
-    return this.workletReady.then(() => {
-      this.setWorkletNodeParameters(this.nodes.worklet!, params);
-    });
+    await this.workletReady;
+    this.setWorkletNodeParameters(this.nodes.worklet!, params);
   }
 
   /**
    * TODO: description
    */
-  public setWorkletFilterParameters(
+  public async setWorkletFilterParameters(
     params: Partial<WorkletFilterState>
   ): Promise<void> {
-    return this.workletFilterReady.then(() => {
-      this.setWorkletNodeParameters(this.nodes.filter.worklet!, params as any);
-    });
+    await this.workletFilterReady;
+    this.setWorkletNodeParameters(this.nodes.filter.worklet!, params as any);
   }
 
   /**
@@ -608,50 +528,27 @@ export class AudioGraph {
     this.nodes.filteredInput.connect(this.nodes.analyser);
     this.nodes.analyser.connect(this.nodes.output);
 
-    const arr = new Float32Array(this.fftSize / 2);
-    arr.fill(this.minDecibels);
-    this.fdata = arr;
-
     return this;
   }
 
   /**
    * TODO: description
    */
-  public clearData(): AudioGraph {
-    this.tdata.fill(0);
-    this.fdata.fill(this.minDecibels);
-    for (const p of this.pitch) {
-      p.value = 0;
-    }
-    return this;
-  }
-
-  /**
-   * TODO: description
-   * @param d
-   */
-  public indexOfFrequency(f: number): number {
-    return Math.round((f * this.fftSize) / this.sampleRate);
-  }
-
-  /**
-   * TODO: description
-   */
-  public getDevices(): Promise<MediaDeviceInfo[]> {
+  public async getDevices(): Promise<MediaDeviceInfo[]> {
     if (!navigator?.mediaDevices?.enumerateDevices) {
-      return Promise.reject(new Error('enumerateDevices is not supported'));
+      throw new Error('enumerateDevices is not supported');
     }
-    return navigator.mediaDevices
-      .enumerateDevices()
-      .then(ds => ds.filter(d => d.kind === 'audioinput'));
+    const devs = await navigator.mediaDevices.enumerateDevices();
+    return devs.filter(dev => dev.kind === 'audioinput');
   }
 
   /**
    * TODO: description
    * @param dev
    */
-  public setDevice(dev: Nullable<MediaDeviceInfo | string>): Promise<void> {
+  public async setDevice(
+    dev: Nullable<MediaDeviceInfo | string>
+  ): Promise<void> {
     let deviceId: string;
     if (this.deviceStream) {
       this.deviceStream.getTracks().forEach(track => track.stop());
@@ -662,35 +559,31 @@ export class AudioGraph {
       this.nodes.device = null;
     }
     if (dev === null) {
-      return Promise.resolve();
+      return;
     } else if (typeof dev === 'string') {
       deviceId = dev;
     } else {
       deviceId = dev.deviceId;
     }
     if (!navigator?.mediaDevices?.getUserMedia) {
-      return Promise.reject(new Error('getUserMedia is not supported'));
+      throw new Error('getUserMedia is not supported');
     }
     if (this.deviceLoading) {
-      return Promise.reject(new Error('already setting device'));
+      throw new Error('already setting device');
     }
-    const res = navigator.mediaDevices
-      .getUserMedia({
+    this.deviceLoading = true;
+    try {
+      this.deviceStream = await navigator.mediaDevices.getUserMedia({
         video: false,
         audio: { deviceId },
-      })
-      .then(stream => {
-        this.deviceStream = stream;
-        this.nodes.device = this.context.createMediaStreamSource(
-          this.deviceStream
-        );
-        this.nodes.device.connect(this.nodes.input);
-      })
-      .finally(() => {
-        this.deviceLoading = false;
       });
-    this.deviceLoading = true;
-    return res;
+      this.nodes.device = this.context.createMediaStreamSource(
+        this.deviceStream
+      );
+      this.nodes.device.connect(this.nodes.input);
+    } finally {
+      this.deviceLoading = false;
+    }
   }
 
   /**
@@ -712,78 +605,9 @@ export class AudioGraph {
   /**
    * TODO: description
    */
-  public getData(): AudioGraph {
-    let nan = false;
-
-    const node = this.nodes.analyser;
-
-    this.tdata = AudioMath.resize(this.tdata, node.fftSize);
-    node.getFloatTimeDomainData(this.tdata);
-
-    this.fdata = AudioMath.resize(this.fdata, node.frequencyBinCount);
-    node.getFloatFrequencyData(this.fdata);
-    for (let i = 0; i < this.fdata.length; ++i) {
-      const db = this.fdata[i];
-      if (isNaN(db)) {
-        nan = true;
-      }
-      this.fdata[i] = Math.min(
-        Math.max(this.minDecibels, db),
-        this.maxDecibels
-      );
-    }
-
-    const threshold =
-      this.minDecibels + this.threshold * (this.maxDecibels - this.minDecibels);
-    this.canAnalyse = !nan && this.fdata.some(f => f > threshold);
-
-    /*if (nan) {
-      this.resetAnalyserNode();
-    }*/
-
-    return this;
-  }
-
-  /**
-   * TODO: description
-   */
-  public analyseData(): AudioGraph {
-    for (const pd of this.pitch) {
-      if (!pd.enabled) {
-        pd.value = -1;
-        continue;
-      }
-      if (this.paused && pd.value >= 0) {
-        continue;
-      }
-      pd.value = pd.calc();
-    }
-
-    return this;
-  }
-
-  /**
-   * TODO: description
-   */
   public update() {
-    let updated = false;
-    let analysed = false;
-    if (this.paused) {
-      /*if (this.canAnalyse && this.stateChanged) {
-        analysed = true;
-        this.analyseData();
-        this.stateChanged = false;
-      }*/
-    } else {
-      updated = true;
-      this.getData();
-      if (this.canAnalyse) {
-        analysed = true;
-        this.analyseData();
-      }
-    }
     for (const cb of this._onUpdate) {
-      cb(updated, analysed);
+      cb(this.paused);
     }
   }
 
@@ -795,92 +619,5 @@ export class AudioGraph {
     if (this.updating) {
       this._frame = requestAnimationFrame(this._updateLoopBound);
     }
-  }
-
-  /**
-   * TODO: description
-   * @param i
-   */
-  public zcr(): number {
-    let res: number = AudioMath.zcr(this.tdata);
-    res *= this.sampleRate;
-    res = AudioMath.clampPitch(res, this.minPitch, this.maxPitch);
-    return res;
-  }
-
-  /**
-   * TODO: description
-   * @param i
-   */
-  public fftmax(): number {
-    const fdata = this.fdata;
-    const fscale: number = this.fftSize / this.sampleRate;
-    const start: number = Math.floor(this.minPitch * fscale);
-    const end: number = Math.floor(this.maxPitch * fscale) + 1;
-    let res: number = AudioMath.indexOfMax(fdata, start, end);
-    if (res > 0 && res < fdata.length - 1) {
-      res += AudioMath.interpolatePeak(
-        fdata[res],
-        fdata[res - 1],
-        fdata[res + 1]
-      );
-    }
-    res /= fscale;
-    return res;
-  }
-
-  /**
-   * TODO: description
-   * @param i
-   */
-  public fftpeak(): number {
-    const fdata = this.fdata;
-    const fscale: number = this.fftSize / this.sampleRate;
-    const start: number = Math.floor(this.minPitch * fscale);
-    const end: number = Math.floor(this.maxPitch * fscale) + 1;
-
-    const prominence = AudioMath.prominence(
-      this.fdata,
-      this.prominenceData,
-      this.fftPeakType,
-      start,
-      end,
-      this.prominenceRadius,
-      this.minDecibels,
-      this.maxDecibels,
-      this.prominenceThreshold,
-      this.prominenceNormalize
-    );
-
-    this.prominenceData = prominence.value;
-    let res: number = prominence.peak;
-
-    if (res > 0 && res < fdata.length - 1) {
-      res += AudioMath.interpolatePeak(
-        fdata[res],
-        fdata[res - 1],
-        fdata[res + 1]
-      );
-    }
-    res /= fscale;
-
-    return res;
-  }
-
-  /**
-   * TODO: description
-   * @param i
-   */
-  public autocorr(): number {
-    const start = Math.floor(this.sampleRate / this.maxPitch);
-    const end = Math.floor(this.sampleRate / this.minPitch) + 1;
-    const ac = AudioMath.autocorrelation(
-      this.tdata,
-      start,
-      end,
-      this.autocorrdata
-    );
-    this.autocorrdata = ac.value;
-    return this.sampleRate / ac.peak;
   }
 }

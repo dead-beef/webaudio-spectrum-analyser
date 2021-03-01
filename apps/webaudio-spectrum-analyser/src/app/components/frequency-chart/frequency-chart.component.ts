@@ -7,11 +7,13 @@ import {
 } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
+import { Analyser } from '../../classes/analyser/analyser';
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
-import { PitchDetection, Point } from '../../interfaces';
+import { AnalyserFunction, Point } from '../../interfaces';
 import { ColorService } from '../../services/color/color.service';
+import { AnalyserService } from '../../state/analyser/analyser.service';
+import { AnalyserState } from '../../state/analyser/analyser.store';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
-import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { CanvasComponent } from '../canvas/canvas.component';
 
 @Component({
@@ -26,31 +28,35 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
 
   public readonly graph: AudioGraph = this.graphService.graph;
 
+  public readonly analyser: Analyser = this.analyserService.analyser;
+
   private readonly pointFrequency = new BehaviorSubject<Nullable<number>>(null);
 
   public readonly pointFrequency$ = this.pointFrequency.asObservable();
 
   private readonly pointValue = new BehaviorSubject<number>(
-    this.graph.minDecibels
+    this.analyser.minDecibels
   );
 
   public readonly pointValue$ = this.pointValue.asObservable();
 
-  public readonly pitch = this.graph.pitch;
+  public readonly functions = this.analyser.functions.filter(
+    fn => !fn.timeDomain
+  );
 
-  private readonly pitchValue = this.pitch.map(
+  private readonly values = this.functions.map(
     _ => new BehaviorSubject<number>(0)
   );
 
-  public readonly pitchValue$ = this.pitchValue.map(subject => {
+  public readonly values$ = this.values.map(subject => {
     return subject.asObservable();
   });
 
-  public readonly pitchEnabled$ = this.pitch.map(p => {
-    return this.graphService.select(AudioGraphState.pitchEnabled(p.id));
+  public readonly functionEnabled$ = this.functions.map(fn => {
+    return this.analyserService.select(AnalyserState.functionEnabled(fn.id));
   });
 
-  public readonly pitchColor = this.pitch.map(p => this.color.get(p.id));
+  public readonly valueColor = this.functions.map(fn => this.color.get(fn.id));
 
   /**
    * Constructor.
@@ -58,6 +64,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
    */
   constructor(
     private readonly graphService: AudioGraphService,
+    private readonly analyserService: AnalyserService,
     private readonly color: ColorService
   ) {}
 
@@ -75,7 +82,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
     this.graph.offUpdate(this.animate);
     this.pointFrequency.complete();
     this.pointValue.complete();
-    for (const subject of this.pitchValue) {
+    for (const subject of this.values) {
       subject.complete();
     }
   }
@@ -129,9 +136,9 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
     }
     ctx.stroke();
 
-    if (this.graph.minPitch > 20 || this.graph.maxPitch < 20000) {
-      const x0 = this.frequencyToCanvas(this.graph.minPitch);
-      const x1 = this.frequencyToCanvas(this.graph.maxPitch);
+    if (this.analyser.minPitch > 20 || this.analyser.maxPitch < 20000) {
+      const x0 = this.frequencyToCanvas(this.analyser.minPitch);
+      const x1 = this.frequencyToCanvas(this.analyser.maxPitch);
       ctx.strokeStyle = this.color.get('selection');
       ctx.beginPath();
       ctx.moveTo(x0, 0);
@@ -143,16 +150,15 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * Draws pitch values
-   * @param pitch
+   * Draws values
    */
-  private drawPitchValue(pitch: PitchDetection): void {
+  private drawValue(fn: AnalyserFunction): void {
     const ctx = this.canvas?.context;
     if (!ctx) {
       return;
     }
-    const x = this.frequencyToCanvas(pitch.value);
-    ctx.strokeStyle = this.color.get(pitch.id);
+    const x = this.frequencyToCanvas(fn.value);
+    ctx.strokeStyle = this.color.get(fn.id);
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(x, 0);
@@ -162,9 +168,6 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
 
   /**
    * Draws frequency data.
-   * @param data
-   * @param yMin
-   * @param yMax
    */
   private drawFrequencyData(data: Float32Array) {
     const ctx = this.canvas?.context;
@@ -175,14 +178,14 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
     const width = this.canvas!.size.width;
     const yMin = 0;
     const yMax = this.canvas!.size.height;
-    const dMin = this.graph.minDecibels;
-    const dMax = this.graph.maxDecibels;
+    const dMin = this.analyser.minDecibels;
+    const dMax = this.analyser.maxDecibels;
     const yScale = (yMax - yMin) / (dMax - dMin);
-    const sampleRate = this.graph.sampleRate;
+    const sampleRate = this.analyser.sampleRate;
     const fftSize = data.length * 2;
     const binSize = sampleRate / fftSize;
     const halfBinSize = binSize / 2;
-    const start = this.graph.indexOfFrequency(20);
+    const start = this.analyser.indexOfFrequency(20);
 
     let prevX = 0;
     let drawing = true;
@@ -216,9 +219,6 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
 
   /**
    * Draws autocorrelation data.
-   * @param data
-   * @param yMin
-   * @param yMax
    */
   private drawAutocorrelationData(data: Float32Array) {
     const ctx = this.canvas?.context;
@@ -234,7 +234,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
     ctx.beginPath();
     ctx.moveTo(this.canvas!.size.width + 10, yMid);
     for (let i = 2; i < data.length; ++i) {
-      const f = this.graph.sampleRate / i;
+      const f = this.analyser.sampleRate / i;
       const x = this.frequencyToCanvas(f);
       const y = yMid + yScale * data[i];
       ctx.lineTo(x, y);
@@ -244,22 +244,19 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
 
   /**
    * Draws prominence data.
-   * @param data
-   * @param yMin
-   * @param yMax
    */
   public drawProminenceData(data: Float32Array) {
     const ctx = this.canvas?.context;
     if (!ctx) {
       return;
     }
-    const dMin = this.graph.minDecibels;
-    const dMax = this.graph.maxDecibels;
+    const dMin = this.analyser.minDecibels;
+    const dMax = this.analyser.maxDecibels;
     const width = this.canvas!.size.width;
     const yMin = 0;
     const yMax = this.canvas!.size.height;
     const yScale = (yMax - yMin) / (dMax - dMin);
-    const sampleRate = this.graph.sampleRate;
+    const sampleRate = this.analyser.sampleRate;
     const fftSize = data.length * 2;
     const binSize = sampleRate / fftSize;
     let drawing = true;
@@ -290,7 +287,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
     ctx.stroke();
 
     ctx.strokeStyle = this.color.get('fftp-threshold');
-    y = yMin + (yMax - yMin) * (1 - this.graph.prominenceThreshold);
+    y = yMin + (yMax - yMin) * (1 - this.analyser.prominenceThreshold);
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(width, y);
@@ -317,9 +314,9 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
     if (f === null) {
       return;
     }
-    const fdata = this.graph.fdata;
+    const fdata = this.analyser.fdata;
     let val = NaN;
-    const i = this.graph.indexOfFrequency(f);
+    const i = this.analyser.indexOfFrequency(f);
     if (i >= 0 || i < fdata.length) {
       val = fdata[i];
     }
@@ -329,7 +326,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
   /**
    * Animates canvas.
    */
-  private _animate(updated: boolean, analysed: boolean) {
+  private _animate(paused: boolean) {
     if (this.canvas === null) {
       //console.log('canvas === null');
       return;
@@ -337,31 +334,31 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
 
     const resized = this.canvas.updateSize();
     //console.log('update', updated, analysed, resized);
-    if (!(updated || analysed || resized)) {
+    if (paused && !resized && !this.analyser.updated) {
       return;
     }
 
     this.updatePointValue();
 
     this.canvas.clear();
-    this.drawFrequencyData(this.graph.fdata);
+    this.drawFrequencyData(this.analyser.fdata);
     this.drawGrid();
-    for (let i = 0; i < this.pitch.length; ++i) {
-      if (this.graph.pitch[i].enabled) {
-        this.drawPitchValue(this.graph.pitch[i]);
-        this.pitchValue[i].next(this.graph.pitch[i].value);
+    for (let i = 0; i < this.functions.length; ++i) {
+      if (this.functions[i].enabled) {
+        this.drawValue(this.functions[i]);
+        this.values[i].next(this.functions[i].value);
       }
     }
 
-    if (this.graph.debug) {
-      for (const pd of this.graph.pitch) {
-        if (pd.enabled) {
-          switch (pd.id) {
+    if (this.analyser.debug) {
+      for (const fn of this.functions) {
+        if (fn.enabled) {
+          switch (fn.id) {
             case 'AC':
-              this.drawAutocorrelationData(this.graph.autocorrdata);
+              this.drawAutocorrelationData(this.analyser.autocorrdata);
               break;
             case 'FFTP':
-              this.drawProminenceData(this.graph.prominenceData);
+              this.drawProminenceData(this.analyser.prominenceData);
               break;
             default:
               break;

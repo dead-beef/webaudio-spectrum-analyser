@@ -1,22 +1,4 @@
-export interface WorkletProcessorStatic {
-  readonly key: string;
-  readonly inputs: number;
-  readonly outputs: number;
-  readonly parameterDescriptors: AudioParamDescriptor[];
-}
-
-export interface WorkletProcessor /*extends WorkletProcessorStatic*/ {
-  process(
-    inputs: Float32Array[][],
-    outputs: Float32Array[][],
-    parameters: { [key: string]: Float32Array }
-  ): boolean;
-}
-
-export interface WorkletProcessorConstructor extends WorkletProcessorStatic {
-  readonly name: string;
-  new (): WorkletProcessor;
-}
+import { WorkletProcessor } from './interfaces';
 
 export class AudioWorkletProcessor implements WorkletProcessor {
   /**

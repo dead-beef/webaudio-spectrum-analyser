@@ -1,7 +1,9 @@
 import { AbstractControl, FormControl } from '@angular/forms';
+import { Store } from '@ngxs/store';
 import { MonoTypeOperatorFunction, Observable } from 'rxjs';
 import { catchError, distinctUntilChanged, flatMap } from 'rxjs/operators';
 
+import { deepCopy } from './misc';
 import { throttleTime_ } from './rxjs.util';
 
 export class StoreAction<T> {
@@ -14,6 +16,15 @@ export interface StoreActions {
   [key: string]: any;
 }
 
+export interface Action<T> {
+  payload: T;
+}
+
+export interface ActionConstructor<T> {
+  readonly type: string;
+  new (payload: T): Action<T>;
+}
+
 /**
  * Store action constructor.
  * @param actionScope action scope
@@ -24,7 +35,7 @@ export function actionConstructor(scope: string) {
    * @param name
    */
   function createAction<T>(name: string) {
-    return class {
+    return class implements Action<T> {
       public static readonly type: string = `[${scope}]: ${name}`;
 
       constructor(public payload: T) {}
@@ -76,4 +87,38 @@ export function stateFormControl<T>(
     .pipe(untilDestroyed, distinctUntilChanged(compare))
     .subscribe(fc.setValue.bind(fc));
   return fc;
+}
+
+/**
+ * TODO: description
+ */
+export function initState<T>(
+  store: Store,
+  defaults: T,
+  selector: (any) => T,
+  action: ActionConstructor<T>
+) {
+  defaults = deepCopy(defaults);
+  let state = store.selectSnapshot(selector);
+  console.log('state', state);
+  if (state !== null && state !== undefined) {
+    state = {
+      ...defaults,
+      ...state,
+    };
+  } else {
+    state = defaults;
+  }
+  console.log('state with defaults', state);
+  void store
+    .dispatch(new action(state))
+    .pipe(
+      catchError(err => {
+        console.warn('invalid state', state);
+        console.warn('resetting state');
+        //store.reset(defaults);
+        return store.dispatch(new action(defaults));
+      })
+    )
+    .subscribe();
 }
