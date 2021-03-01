@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-import { Point, AnalyserFunction } from '../../interfaces';
+import { AnalyserFunction, Point } from '../../interfaces';
 import { ColorService } from '../../services/color/color.service';
 import { AnalyserService } from '../../state/analyser/analyser.service';
 import { AnalyserState } from '../../state/analyser/analyser.store';

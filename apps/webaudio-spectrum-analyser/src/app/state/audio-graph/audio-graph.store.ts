@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@angular/core';
 import { Action, Selector, State, StateContext } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
 
-import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import { Analyser } from '../../classes/analyser/analyser';
+import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import {
   AudioGraphFilterNode,
   AudioGraphSource,
@@ -14,7 +14,7 @@ import {
   PitchShifterState,
   WorkletFilterState,
 } from '../../interfaces';
-import { AUDIO_GRAPH, ANALYSER, StoreAction } from '../../utils';
+import { ANALYSER, AUDIO_GRAPH, StoreAction } from '../../utils';
 import { audioGraphAction } from './audio-graph.actions';
 import {
   AUDIO_GRAPH_STATE_DEFAULTS,
