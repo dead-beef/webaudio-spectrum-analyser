@@ -5,4 +5,13 @@
   <span *ngIf="pointTime$ | async as t">
     {{ t | units:'s' }} {{ pointValue$ | async | number:'1.2-2' }}
   </span>
+  <span class="float-right">
+    <span
+      *ngFor="let fn of functions; let i = index"
+      [class.hide]="!(functionEnabled$[i] | async)"
+    >
+      <span [style.color]="valueColor[i]">{{ fn.id }}</span>:
+      {{ values$[i] | async | number:'1.2-2' }}
+    </span>
+  </span>
 </div>

@@ -281,6 +281,19 @@ class AudioMathInstance {
   /**
    * TODO: description
    * @param data
+   */
+  public rms(data: Float32Array): number {
+    const wasm = this.wasm;
+    if (!wasm) {
+      return 0;
+    }
+    this.copyToBuffer(this.inputBuffer, data);
+    return wasm.exports.rms(this.inputBuffer.ptr[0], data.length);
+  }
+
+  /**
+   * TODO: description
+   * @param data
    * @param start
    * @param end
    */

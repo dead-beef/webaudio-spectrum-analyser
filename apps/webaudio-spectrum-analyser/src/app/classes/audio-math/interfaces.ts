@@ -21,6 +21,8 @@ export enum FftPeakType {
 }
 
 export interface AudioMathWasmFunctions {
+  rms: (tdata: number, length: number) => number;
+
   autocorr: (
     tdata: number,
     acdata: number,

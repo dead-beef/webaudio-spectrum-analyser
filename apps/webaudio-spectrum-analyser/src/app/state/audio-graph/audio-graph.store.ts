@@ -1,28 +1,20 @@
 import { Inject, Injectable } from '@angular/core';
-import {
-  Action,
-  createSelector,
-  Selector,
-  State,
-  StateContext,
-} from '@ngxs/store';
+import { Action, Selector, State, StateContext } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
 
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
+import { Analyser } from '../../classes/analyser/analyser';
 import {
   AudioGraphFilterNode,
   AudioGraphSource,
   AudioGraphSourceNode,
   BiquadState,
   ConvolverState,
-  FftPeakType,
   IirState,
-  PitchDetectionId,
-  PitchDetectionState,
   PitchShifterState,
   WorkletFilterState,
 } from '../../interfaces';
-import { AUDIO_GRAPH, StoreAction } from '../../utils';
+import { AUDIO_GRAPH, ANALYSER, StoreAction } from '../../utils';
 import { audioGraphAction } from './audio-graph.actions';
 import {
   AUDIO_GRAPH_STATE_DEFAULTS,
@@ -41,7 +33,10 @@ export class AudioGraphState {
    * Constructor
    * @param store
    */
-  constructor(@Inject(AUDIO_GRAPH) public readonly graph: AudioGraph) {}
+  constructor(
+    @Inject(AUDIO_GRAPH) public readonly graph: AudioGraph,
+    @Inject(ANALYSER) public readonly analyser: Analyser
+  ) {}
 
   /**
    * State selector
@@ -50,6 +45,19 @@ export class AudioGraphState {
   @Selector()
   public static state(state: AudioGraphStateModel) {
     return state;
+  }
+
+  /**
+   * State selector
+   * @param state
+   */
+  @Selector()
+  public static initState(state: AudioGraphStateModel) {
+    return {
+      ...state,
+      paused: true,
+      suspended: true,
+    };
   }
 
   /**
@@ -113,44 +121,6 @@ export class AudioGraphState {
   @Selector()
   public static smoothing(state: AudioGraphStateModel) {
     return state.smoothing;
-  }
-
-  /**
-   * Selector
-   * @param state
-   */
-  @Selector()
-  public static minPitch(state: AudioGraphStateModel) {
-    return state.pitch.min;
-  }
-
-  /**
-   * Selector
-   * @param state
-   */
-  @Selector()
-  public static maxPitch(state: AudioGraphStateModel) {
-    return state.pitch.max;
-  }
-
-  /**
-   * Selector
-   * @param state
-   */
-  @Selector()
-  public static debug(state: AudioGraphStateModel) {
-    return state.debug;
-  }
-
-  /**
-   * Selector
-   * @param id
-   */
-  public static pitchEnabled(id: PitchDetectionId) {
-    return createSelector(
-      [AudioGraphState],
-      (state: AudioGraphStateModel) => state.pitch[id]
-    );
   }
 
   /**
@@ -244,42 +214,6 @@ export class AudioGraphState {
   }
 
   /**
-   * Selector
-   * @param state
-   */
-  @Selector()
-  public static fftPeakType(state: AudioGraphStateModel) {
-    return state.fftp.type;
-  }
-
-  /**
-   * Selector
-   * @param state
-   */
-  @Selector()
-  public static fftPeakProminenceRadius(state: AudioGraphStateModel) {
-    return state.fftp.prominence.radius;
-  }
-
-  /**
-   * Selector
-   * @param state
-   */
-  @Selector()
-  public static fftPeakProminenceThreshold(state: AudioGraphStateModel) {
-    return state.fftp.prominence.threshold;
-  }
-
-  /**
-   * Selector
-   * @param state
-   */
-  @Selector()
-  public static fftPeakProminenceNormalize(state: AudioGraphStateModel) {
-    return state.fftp.prominence.normalize;
-  }
-
-  /**
    * Set AudioGraph state action
    * @param ctx
    * @param payload
@@ -360,7 +294,8 @@ export class AudioGraphState {
    */
   @Action(audioGraphAction.reset)
   public reset(ctx: StateContext<AudioGraphStateModel>) {
-    this.graph.resetAnalyserNode().clearData();
+    this.graph.resetAnalyserNode();
+    this.analyser.clearData();
     return ctx;
   }
 
@@ -448,76 +383,6 @@ export class AudioGraphState {
   ) {
     this.graph.smoothing = payload;
     return ctx.patchState({ smoothing: payload });
-  }
-
-  /**
-   * Action
-   * @param ctx
-   * @param payload
-   */
-  @Action(audioGraphAction.setMinPitch)
-  public setMinPitch(
-    ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<number>
-  ) {
-    this.graph.minPitch = payload;
-    return ctx.setState(
-      patch({
-        pitch: patch({ min: payload }),
-      })
-    );
-  }
-
-  /**
-   * Action
-   * @param ctx
-   * @param payload
-   */
-  @Action(audioGraphAction.setMaxPitch)
-  public setMaxPitch(
-    ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<number>
-  ) {
-    this.graph.maxPitch = payload;
-    return ctx.setState(
-      patch({
-        pitch: patch({ max: payload }),
-      })
-    );
-  }
-
-  /**
-   * Action
-   * @param ctx
-   */
-  @Action(audioGraphAction.setDebug)
-  public setDebug(
-    ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<boolean>
-  ) {
-    this.graph.debug = payload;
-    return ctx.patchState({ debug: payload });
-  }
-
-  /**
-   * Action
-   * @param ctx
-   */
-  @Action(audioGraphAction.setPitchDetection)
-  public setPitchDetection(
-    ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<PitchDetectionState>
-  ) {
-    const { id, enabled } = payload;
-    const data = {};
-    data[id] = enabled;
-    for (const pd of this.graph.pitch) {
-      if (pd.id === id) {
-        pd.enabled = enabled;
-        break;
-      }
-    }
-    return ctx.setState(patch({ pitch: patch(data) }));
   }
 
   /**
@@ -699,86 +564,6 @@ export class AudioGraphState {
       patch({
         filter: patch({
           worklet: payload,
-        }),
-      })
-    );
-  }
-
-  /**
-   * Action
-   * @param ctx
-   * @param payload
-   */
-  @Action(audioGraphAction.setFftPeakType)
-  public setFftPeakType(
-    ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<FftPeakType>
-  ) {
-    this.graph.fftPeakType = payload;
-    return ctx.setState(patch({ fftp: patch({ type: payload }) }));
-  }
-
-  /**
-   * Action
-   * @param ctx
-   * @param payload
-   */
-  @Action(audioGraphAction.setFftPeakProminenceRadius)
-  public setFftPeakProminenceRadius(
-    ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<number>
-  ) {
-    this.graph.prominenceRadius = payload;
-    return ctx.setState(
-      patch({
-        fftp: patch({
-          prominence: patch({
-            radius: payload,
-          }),
-        }),
-      })
-    );
-  }
-
-  /**
-   * Action
-   * @param ctx
-   * @param payload
-   */
-  @Action(audioGraphAction.setFftPeakProminenceThreshold)
-  public setFftPeakProminenceThreshold(
-    ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<number>
-  ) {
-    this.graph.prominenceThreshold = payload;
-    return ctx.setState(
-      patch({
-        fftp: patch({
-          prominence: patch({
-            threshold: payload,
-          }),
-        }),
-      })
-    );
-  }
-
-  /**
-   * Action
-   * @param ctx
-   * @param payload
-   */
-  @Action(audioGraphAction.setFftPeakProminenceNormalize)
-  public setFftPeakProminenceNormalize(
-    ctx: StateContext<AudioGraphStateModel>,
-    { payload }: StoreAction<boolean>
-  ) {
-    this.graph.prominenceNormalize = payload;
-    return ctx.setState(
-      patch({
-        fftp: patch({
-          prominence: patch({
-            normalize: payload,
-          }),
         }),
       })
     );

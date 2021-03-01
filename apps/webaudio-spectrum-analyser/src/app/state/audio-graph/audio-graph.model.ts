@@ -4,7 +4,6 @@ import {
   AudioGraphFilterNode,
   AudioGraphSourceNode,
   AudioGraphState,
-  FftPeakType,
 } from '../../interfaces';
 
 export type AudioGraphStateModel = AudioGraphState;
@@ -13,27 +12,10 @@ export const AUDIO_GRAPH_STATE_DEFAULTS: AudioGraphStateModel = {
   paused: true,
   suspended: true,
   volume: 0.5,
-  debug: false,
   sourceNode: AudioGraphSourceNode.WAVE,
   delay: 0,
   fftSize: 2048,
   smoothing: 0.5,
-  pitch: {
-    min: 20,
-    max: 20000,
-    ZCR: true,
-    FFTM: false,
-    FFTP: false,
-    AC: false,
-  },
-  fftp: {
-    type: FftPeakType.MAX_MAGNITUDE,
-    prominence: {
-      radius: 0,
-      threshold: 0.1,
-      normalize: false,
-    },
-  },
   wave: {
     shape: 'sine',
     frequency: 440,

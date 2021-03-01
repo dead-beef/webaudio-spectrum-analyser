@@ -1,17 +1,5 @@
-import { FftPeakType } from '../audio-math/interfaces';
 import { IPitchShifterNode } from '../pitch-shifter-node/interfaces';
 import { AnyScriptNode } from '../worklet-processor';
-
-export type PitchDetectionId = 'ZCR' | 'FFTM' | 'FFTP' | 'AC';
-
-export interface PitchDetection {
-  id: PitchDetectionId;
-  name: string;
-  calc: () => number;
-  timeDomain: boolean;
-  enabled: boolean;
-  value: number;
-}
 
 export interface AudioGraphFilters {
   iir: IIRFilterNode;
@@ -54,15 +42,7 @@ export interface AudioGraphSource {
   data?: any;
 }
 
-export type AudioGraphUpdateHandler = (
-  updated: boolean,
-  analysed: boolean
-) => any;
-
-export interface PitchDetectionState {
-  id: PitchDetectionId;
-  enabled: boolean;
-}
+export type AudioGraphUpdateHandler = (paused: boolean) => any;
 
 export interface IirState {
   feedforward: number[];
@@ -105,33 +85,14 @@ export interface BiquadState {
   gain: number;
 }
 
-export interface FftPeakState {
-  type: FftPeakType;
-  prominence: {
-    radius: number;
-    threshold: number;
-    normalize: boolean;
-  };
-}
-
 export interface AudioGraphState {
   paused: boolean;
   suspended: boolean;
   volume: number;
-  debug: boolean;
   sourceNode: AudioGraphSourceNode;
   delay: number;
   fftSize: number;
   smoothing: number;
-  pitch: {
-    min: number;
-    max: number;
-    ZCR: boolean;
-    FFTM: boolean;
-    FFTP: boolean;
-    AC: boolean;
-  };
-  fftp: FftPeakState;
   wave: {
     shape: OscillatorType;
     frequency: number;

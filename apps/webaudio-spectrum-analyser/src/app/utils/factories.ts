@@ -1,3 +1,4 @@
+import { Analyser } from '../classes/analyser/analyser';
 import { AudioGraph } from '../classes/audio-graph/audio-graph';
 
 /**
@@ -19,4 +20,11 @@ export function getDocument() {
  */
 export function getAudioGraph() {
   return new AudioGraph();
+}
+
+/**
+ * Analyser factory
+ */
+export function getAnalyser() {
+  return new Analyser();
 }

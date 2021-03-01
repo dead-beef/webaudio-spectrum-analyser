@@ -14,6 +14,7 @@ import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { ROUTES } from './app.routes';
 import { AlertComponent } from './components/alert/alert.component';
+import { AnalyserOptionsComponent } from './components/analyser-options/analyser-options.component';
 import { AudioControlsComponent } from './components/audio-controls/audio-controls.component';
 import { AudioGraphComponent } from './components/audio-graph/audio-graph.component';
 import { CanvasComponent } from './components/canvas/canvas.component';
@@ -27,7 +28,6 @@ import { FrequencyChartComponent } from './components/frequency-chart/frequency-
 import { GraphOptionsComponent } from './components/graph-options/graph-options.component';
 import { InputFrequencyComponent } from './components/input-frequency/input-frequency.component';
 import { InputRangeComponent } from './components/input-range/input-range.component';
-import { PitchOptionsComponent } from './components/pitch-options/pitch-options.component';
 import { TimeDomainChartComponent } from './components/time-domain-chart/time-domain-chart.component';
 import { WaveOptionsComponent } from './components/wave-options/wave-options.component';
 import { WorkletOptionsComponent } from './components/worklet-options/worklet-options.component';
@@ -37,10 +37,21 @@ import { ErrorPipe } from './pipes/error/error.pipe';
 import { SafeUrlPipe } from './pipes/safe-url/safe-url.pipe';
 import { TimePipe } from './pipes/time/time.pipe';
 import { UnitsPipe } from './pipes/units/units.pipe';
+import { AnalyserStoreModule } from './state/analyser/analyser.module';
 import { AudioGraphStoreModule } from './state/audio-graph/audio-graph.module';
 import { AudioGraphUiStoreModule } from './state/audio-graph-ui/audio-graph-ui.module';
-import { getAudioGraph, getDocument, getWindow } from './utils/factories';
-import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
+import {
+  getAnalyser,
+  getAudioGraph,
+  getDocument,
+  getWindow,
+} from './utils/factories';
+import {
+  ANALYSER,
+  APP_ENV,
+  AUDIO_GRAPH,
+  WINDOW,
+} from './utils/injection-tokens';
 
 @NgModule({
   declarations: [
@@ -63,7 +74,7 @@ import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
     InputRangeComponent,
     GraphOptionsComponent,
     FilterOptionsComponent,
-    PitchOptionsComponent,
+    AnalyserOptionsComponent,
     ChartsComponent,
     ChartComponent,
     TimeDomainChartComponent,
@@ -86,6 +97,7 @@ import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
     NgxsStoragePluginModule.forRoot(),
     AudioGraphStoreModule,
     AudioGraphUiStoreModule,
+    AnalyserStoreModule,
     RouterModule.forRoot(ROUTES, {
       useHash: true,
       relativeLinkResolution: 'legacy',
@@ -96,6 +108,7 @@ import { APP_ENV, AUDIO_GRAPH, WINDOW } from './utils/injection-tokens';
     { provide: DOCUMENT, useFactory: getDocument },
     { provide: APP_ENV, useValue: environment },
     { provide: AUDIO_GRAPH, useFactory: getAudioGraph },
+    { provide: ANALYSER, useFactory: getAnalyser },
   ],
   bootstrap: [AppComponent],
 })

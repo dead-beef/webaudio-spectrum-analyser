@@ -1,12 +1,12 @@
 <form clrForm [clrLayout]="layout" [formGroup]="form">
   <clr-checkbox-container formGroupName="enabled">
-    <clr-checkbox-wrapper *ngFor="let pd of pitch">
+    <clr-checkbox-wrapper *ngFor="let fn of functions">
       <input
         type="checkbox"
         clrCheckbox
-        [formControlName]="pd.id"
+        [formControlName]="fn.id"
       />
-      <label>{{ pd.name }}</label>
+      <label>{{ fn.name }}</label>
     </clr-checkbox-wrapper>
   </clr-checkbox-container>
 
@@ -21,13 +21,13 @@
     </clr-checkbox-wrapper>
   </clr-checkbox-container>
 
-  <app-input-frequency name="Min Pitch" formControlName="minPitch">
+  <app-input-frequency name="Min pitch" formControlName="minPitch">
   </app-input-frequency>
-  <app-input-frequency name="Max Pitch" formControlName="maxPitch">
+  <app-input-frequency name="Max pitch" formControlName="maxPitch">
   </app-input-frequency>
 
   <clr-select-container>
-    <label>FFT Peak Type</label>
+    <label>FFT peak type</label>
     <select clrSelect formControlName="peakType">
       <option *ngFor="let t of peakTypes" [ngValue]="t.id">
         {{ t.name }}
@@ -35,7 +35,7 @@
     </select>
   </clr-select-container>
   <app-input-range
-    name="FFT Peak Prominence Radius"
+    name="FFT peak prominence radius"
     [min]="0"
     [max]="1024"
     [step]="1"
@@ -43,7 +43,7 @@
   >
   </app-input-range>
   <app-input-range
-    name="FFT Peak Prominence Threshold"
+    name="FFT peak prominence threshold"
     [min]="0"
     [max]="1"
     [step]="0.01"
@@ -57,7 +57,7 @@
         clrCheckbox
         formControlName="prominenceNormalize"
       />
-      <label>FFT Peak Prominence Normalize</label>
+      <label>FFT peak prominence normalize</label>
     </clr-checkbox-wrapper>
   </clr-checkbox-container>
 </form>

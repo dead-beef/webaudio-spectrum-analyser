@@ -55,13 +55,13 @@
   </ng-container>
 
   <ng-container *ngSwitchCase="AudioGraphFilterNode.CONVOLVER" formGroupName="convolver">
-    <app-input-frequency name="Resonant Frequency" formControlName="frequency">
+    <app-input-frequency name="Resonant frequency" formControlName="frequency">
     </app-input-frequency>
     <app-input-range name="Overtones" [min]="0" [max]="64" [step]="1" formControlName="overtones">
     </app-input-range>
     <app-input-range name="Decay" [min]="0" [max]="1000" formControlName="decay" [log]="true">
     </app-input-range>
-    <app-input-range name="Overtone Decay" [min]="-1" [max]="1" formControlName="overtoneDecay">
+    <app-input-range name="Overtone decay" [min]="-1" [max]="1" formControlName="overtoneDecay">
     </app-input-range>
     <app-input-range name="Duration" [min]="0" [max]="2" [step]="0.001" formControlName="duration">
     </app-input-range>
@@ -70,7 +70,7 @@
   <ng-container *ngSwitchCase="AudioGraphFilterNode.PITCH_SHIFTER" formGroupName="pitchShifter">
     <app-input-range name="Shift" [min]="-2" [max]="2" [step]="0.01" formControlName="shift">
     </app-input-range>
-    <app-input-range name="Buffer Time" [min]="0.1" [max]="2" [step]="0.1" formControlName="bufferTime">
+    <app-input-range name="Buffer time" [min]="0.1" [max]="2" [step]="0.1" formControlName="bufferTime">
     </app-input-range>
   </ng-container>
 
@@ -94,21 +94,21 @@
         </option>
       </select>
     </clr-select-container>
-    <app-input-frequency name="Min Pitch" formControlName="minPitch">
+    <app-input-frequency name="Min pitch" formControlName="minPitch">
     </app-input-frequency>
-    <app-input-frequency name="Max Pitch" formControlName="maxPitch">
+    <app-input-frequency name="Max pitch" formControlName="maxPitch">
     </app-input-frequency>
-    <app-input-range name="Min Harmonic" [min]="1" [max]="200" [step]="1" formControlName="minHarmonic">
+    <app-input-range name="Min harmonic" [min]="1" [max]="200" [step]="1" formControlName="minHarmonic">
     </app-input-range>
-    <app-input-range name="Max Harmonic" [min]="1" [max]="200" [step]="1" formControlName="maxHarmonic">
+    <app-input-range name="Max harmonic" [min]="1" [max]="200" [step]="1" formControlName="maxHarmonic">
     </app-input-range>
     <app-input-range name="Step" [min]="1" [max]="10" [step]="1" formControlName="step">
     </app-input-range>
-    <app-input-range name="Prominence Threshold" [min]="0" [max]="100" [step]="0.1" formControlName="prominenceThreshold">
+    <app-input-range name="Prominence threshold" [min]="0" [max]="100" [step]="0.1" formControlName="prominenceThreshold">
     </app-input-range>
-    <app-input-range name="Scale Radius" [min]="0" [max]="1000" [step]="0.1" formControlName="fScaleRadius">
+    <app-input-range name="Scale radius" [min]="0" [max]="1000" [step]="0.1" formControlName="fScaleRadius">
     </app-input-range>
-    <app-input-range name="Harmonic Search Radius" [min]="0" [max]="1" [step]="0.01" formControlName="harmonicSearchRadius">
+    <app-input-range name="Harmonic search radius" [min]="0" [max]="1" [step]="0.01" formControlName="harmonicSearchRadius">
     </app-input-range>
     <clr-checkbox-container>
       <clr-checkbox-wrapper>
@@ -117,7 +117,7 @@
           clrCheckbox
           formControlName="smoothScale"
         />
-        <label>Smooth Scale</label>
+        <label>Smooth scale</label>
       </clr-checkbox-wrapper>
     </clr-checkbox-container>
   </ng-container>

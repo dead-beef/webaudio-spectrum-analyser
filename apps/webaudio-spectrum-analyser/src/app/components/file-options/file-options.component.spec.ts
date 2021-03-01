@@ -1,15 +1,13 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
-import { ClarityModule } from '@clr/angular';
-import { NgxsModule } from '@ngxs/store';
 
 import { ErrorPipe } from '../../pipes/error/error.pipe';
 import { SafeUrlPipe } from '../../pipes/safe-url/safe-url.pipe';
 import { TimePipe } from '../../pipes/time/time.pipe';
-import { getAudioGraph } from '../../utils/factories';
-import { AUDIO_GRAPH } from '../../utils/injection-tokens';
-import { mockComponent } from '../../utils/test.util';
+import {
+  getComponentImports,
+  getMockProviders,
+  mockComponent,
+} from '../../utils/test.util';
 import { AlertComponent } from '../alert/alert.component';
 import { AudioControlsComponent } from '../audio-controls/audio-controls.component';
 import { FileOptionsComponent } from './file-options.component';
@@ -20,13 +18,7 @@ describe('FileOptionsComponent', () => {
 
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
-      imports: [
-        BrowserModule,
-        FormsModule,
-        ReactiveFormsModule,
-        NgxsModule.forRoot([]),
-        ClarityModule,
-      ],
+      imports: getComponentImports(),
       declarations: [
         FileOptionsComponent,
         AlertComponent,
@@ -41,12 +33,7 @@ describe('FileOptionsComponent', () => {
           },
         }),
       ],
-      providers: [
-        {
-          provide: AUDIO_GRAPH,
-          useFactory: getAudioGraph,
-        },
-      ],
+      providers: getMockProviders(),
     }).compileComponents();
   }));
 

@@ -11,6 +11,7 @@ export class ColorService {
     'ac-chart': '#ff4444',
     'fftp-chart': '#ff44ff',
     'fftp-threshold': '#aa00aa',
+    RMS: '#996f83',
     ZCR: '#6f998a',
     FFTM: '#96996f',
     FFTP: '#7e6f99',

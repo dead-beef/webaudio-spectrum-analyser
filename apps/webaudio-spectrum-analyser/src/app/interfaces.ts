@@ -1,3 +1,4 @@
+export * from './classes/analyser/interfaces';
 export * from './classes/audio-graph/interfaces';
 export * from './classes/audio-math/interfaces';
 export * from './classes/pitch-shifter-node/interfaces';

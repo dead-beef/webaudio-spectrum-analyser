@@ -1,15 +1,13 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ClarityModule } from '@clr/angular';
-import { NgxsModule } from '@ngxs/store';
 
 import { ErrorPipe } from '../../pipes/error/error.pipe';
 import { UnitsPipe } from '../../pipes/units/units.pipe';
-import { AudioGraphStoreModule } from '../../state/audio-graph/audio-graph.module';
-import { AudioGraphUiStoreModule } from '../../state/audio-graph-ui/audio-graph-ui.module';
-import { AUDIO_GRAPH } from '../../utils/injection-tokens';
-import { getMockAudioGraph, mockComponent } from '../../utils/test.util';
+import {
+  getComponentImports,
+  getMockProviders,
+  mockComponent,
+} from '../../utils/test.util';
 import { AlertComponent } from '../alert/alert.component';
 import { CanvasComponent } from '../canvas/canvas.component';
 import { ChartComponent } from '../chart/chart.component';
@@ -28,14 +26,7 @@ describe('AudioGraphComponent', () => {
 
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
-      imports: [
-        NgxsModule.forRoot([]),
-        AudioGraphStoreModule,
-        AudioGraphUiStoreModule,
-        ClarityModule,
-        FormsModule,
-        ReactiveFormsModule,
-      ],
+      imports: getComponentImports(),
       declarations: [
         AudioGraphComponent,
         FrequencyChartComponent,
@@ -57,12 +48,7 @@ describe('AudioGraphComponent', () => {
           },
         }),
       ],
-      providers: [
-        {
-          provide: AUDIO_GRAPH,
-          useFactory: getMockAudioGraph,
-        },
-      ],
+      providers: getMockProviders(),
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
   }));

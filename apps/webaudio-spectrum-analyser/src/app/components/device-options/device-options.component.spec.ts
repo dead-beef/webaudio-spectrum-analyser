@@ -1,12 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
-import { ClarityModule } from '@clr/angular';
-import { NgxsModule } from '@ngxs/store';
 
 import { ErrorPipe } from '../../pipes/error/error.pipe';
-import { AUDIO_GRAPH } from '../../utils/injection-tokens';
-import { getMockAudioGraph } from '../../utils/test.util';
+import { getComponentImports, getMockProviders } from '../../utils/test.util';
 import { AlertComponent } from '../alert/alert.component';
 import { DeviceOptionsComponent } from './device-options.component';
 
@@ -16,20 +11,9 @@ describe('DeviceOptionsComponent', () => {
 
   beforeEach(async(() => {
     void TestBed.configureTestingModule({
-      imports: [
-        BrowserModule,
-        FormsModule,
-        ReactiveFormsModule,
-        NgxsModule.forRoot([]),
-        ClarityModule,
-      ],
+      imports: getComponentImports(),
       declarations: [DeviceOptionsComponent, AlertComponent, ErrorPipe],
-      providers: [
-        {
-          provide: AUDIO_GRAPH,
-          useFactory: getMockAudioGraph,
-        },
-      ],
+      providers: getMockProviders(),
     }).compileComponents();
   }));
 
