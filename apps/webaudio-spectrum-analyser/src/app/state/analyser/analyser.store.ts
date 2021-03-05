@@ -142,6 +142,7 @@ export class AnalyserState {
     { payload }: StoreAction<boolean>
   ) {
     this.analyser.debug = payload;
+    this.analyser.stateChanged = true;
     return ctx.patchState({ debug: payload });
   }
 
