@@ -30,7 +30,9 @@
   </app-time-domain-chart>
   <app-frequency-chart *ngSwitchCase="ChartType.FREQUENCY">
   </app-frequency-chart>
+  <app-spectrogram *ngSwitchCase="ChartType.SPECTROGRAM">
+  </app-spectrogram>
   <div *ngSwitchDefault>
-    type = {{ type$ | async }}
+    No component found for chart type {{ type$ | async }}
   </div>
 </div>

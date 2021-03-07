@@ -49,6 +49,12 @@ export class AnalyserOptionsComponent {
       (d: boolean) => this.analyser.dispatch('setDebug', d),
       untilDestroyed(this)
     ),
+    historySize: stateFormControl(
+      null,
+      this.analyser.select(AnalyserState.historySize),
+      (s: number) => this.analyser.dispatch('setHistorySize', s),
+      untilDestroyed(this)
+    ),
     minPitch: stateFormControl(
       null,
       this.analyser.select(AnalyserState.minPitch),

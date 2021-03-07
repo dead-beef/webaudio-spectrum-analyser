@@ -8,6 +8,7 @@ export enum ChartLayout {
 export enum ChartType {
   TIME_DOMAIN,
   FREQUENCY,
+  SPECTROGRAM,
 }
 
 export interface SetChartType {

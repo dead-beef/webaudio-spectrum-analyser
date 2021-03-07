@@ -21,4 +21,6 @@ export const analyserAction: StoreActions = {
   setFftPeakProminenceNormalize: action<boolean>(
     'set fft peak prominence normalize'
   ),
+
+  setHistorySize: action<number>('set history size'),
 };

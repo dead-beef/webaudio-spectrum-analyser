@@ -21,6 +21,15 @@
     </clr-checkbox-wrapper>
   </clr-checkbox-container>
 
+  <app-input-range
+    name="History size"
+    [min]="1"
+    [max]="1000"
+    [step]="1"
+    formControlName="historySize"
+  >
+  </app-input-range>
+
   <app-input-frequency name="Min pitch" formControlName="minPitch">
   </app-input-frequency>
   <app-input-frequency name="Max pitch" formControlName="maxPitch">

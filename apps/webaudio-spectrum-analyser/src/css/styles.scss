@@ -195,11 +195,35 @@ app-canvas {
     opacity: 0.5;
     pointer-events: none;
     z-index: 2;
+    transform: translate(-50%, -50%);
   }
-  .line-v {
+  .line-v, .cross::before {
     width: 2px;
     height: 200%;
-    transform: translateX(-50%);
+  }
+  .line-h, .cross::after {
+    width: 200%;
+    height: 2px;
+  }
+  .cross {
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    transform: translate(-100%, -100%);
+    &::before, &::after {
+      position: absolute;
+      display: block;
+      content: "";
+      background-color: $fg;
+    }
+    &::before {
+      left: 100%;
+      transform: translateX(-50%);
+    }
+    &::after {
+      top: 100%;
+      transform: translateY(-50%);
+    }
   }
 }
 

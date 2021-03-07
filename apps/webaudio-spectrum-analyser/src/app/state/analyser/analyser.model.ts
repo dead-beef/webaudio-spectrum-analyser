@@ -6,6 +6,7 @@ export type AnalyserStateModel = AnalyserState;
 
 export const ANALYSER_STATE_DEFAULTS: AnalyserStateModel = {
   debug: false,
+  historySize: 240,
   pitch: {
     min: 20,
     max: 20000,

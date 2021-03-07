@@ -77,7 +77,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
   public setPoint(point: Nullable<Point>) {
     let css: Nullable<string> = null;
     if (point) {
-      css = `top: ${(point.y * 100).toFixed(2)}$;
+      css = `top: ${(point.y * 100).toFixed(2)}%;
 left: ${(point.x * 100).toFixed(2)}%`;
     }
     this.pointCss.next(css);
@@ -94,9 +94,43 @@ left: ${(point.x * 100).toFixed(2)}%`;
   /**
    * TODO: description
    */
+  public getSize(): void {
+    if (this.canvas !== null) {
+      this.size.width = this.canvas.nativeElement.clientWidth;
+      this.size.height = this.canvas.nativeElement.clientHeight;
+    }
+  }
+
+  /**
+   * TODO: description
+   */
+  public setSize(width: number, height: number): void {
+    if (this.canvas !== null) {
+      this.canvas.nativeElement.width = width;
+      this.canvas.nativeElement.height = height;
+    }
+  }
+
+  /**
+   * TODO: description
+   */
+  public shift(x: number, y: number): void {
+    if (this.context !== null) {
+      this.context.drawImage(this.context.canvas, x, y);
+    }
+  }
+
+  /**
+   * TODO: description
+   */
   public clear(): void {
     if (this.context !== null) {
-      this.context.clearRect(0, 0, this.size.width, this.size.height);
+      this.context.clearRect(
+        0,
+        0,
+        this.context.canvas.width,
+        this.context.canvas.height
+      );
     }
   }
 }

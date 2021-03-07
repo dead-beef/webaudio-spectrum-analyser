@@ -27,6 +27,7 @@ export interface FftPeakState {
 
 export interface AnalyserState {
   debug: boolean;
+  historySize: number;
   pitch: {
     min: number;
     max: number;

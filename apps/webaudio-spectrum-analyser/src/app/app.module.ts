@@ -28,6 +28,7 @@ import { FrequencyChartComponent } from './components/frequency-chart/frequency-
 import { GraphOptionsComponent } from './components/graph-options/graph-options.component';
 import { InputFrequencyComponent } from './components/input-frequency/input-frequency.component';
 import { InputRangeComponent } from './components/input-range/input-range.component';
+import { SpectrogramComponent } from './components/spectrogram/spectrogram.component';
 import { TimeDomainChartComponent } from './components/time-domain-chart/time-domain-chart.component';
 import { WaveOptionsComponent } from './components/wave-options/wave-options.component';
 import { WorkletOptionsComponent } from './components/worklet-options/worklet-options.component';
@@ -79,6 +80,7 @@ import {
     ChartComponent,
     TimeDomainChartComponent,
     CanvasComponent,
+    SpectrogramComponent,
   ],
   imports: [
     BrowserModule,
