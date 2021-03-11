@@ -393,6 +393,9 @@ class AudioMathInstance {
    * TODO: description
    */
   public cepstrum(fft: Float32Array, output: Float32Array): Float32Array {
+    if (fft.length < 2) {
+      return output;
+    }
     const wasm = this.wasm;
     if (!wasm) {
       return output;
