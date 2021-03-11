@@ -9,7 +9,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Actions, ofActionSuccessful } from '@ngxs/store';
 import { BehaviorSubject } from 'rxjs';
 
-import { /*AnalyserFunction,*/ Point } from '../../interfaces';
+import { AnalyserNumberFunctionId, Point } from '../../interfaces';
 import { ColorService } from '../../services/color/color.service';
 import { AnalyserService } from '../../state/analyser/analyser.service';
 import { AnalyserState } from '../../state/analyser/analyser.store';
@@ -43,6 +43,13 @@ export class SpectrogramComponent implements AfterViewInit, OnDestroy {
   public readonly pointValue$ = this.pointValue.asObservable();
 
   public readonly updateBound = this.update.bind(this);
+
+  private readonly functions: AnalyserNumberFunctionId[] = [
+    'ZCR',
+    'FFTM',
+    'FFTP',
+    'AC',
+  ];
 
   public frames = 240;
 
@@ -187,12 +194,13 @@ export class SpectrogramComponent implements AfterViewInit, OnDestroy {
       img[j + 3] = 255;
     }
 
-    for (const fn of this.analyser.functions) {
-      if (fn.enabled && !fn.timeDomain) {
-        i = this.analyser.indexOfFrequency(fn.value);
+    for (const id of this.functions) {
+      const value: Nullable<number> = this.analyser.getOptional(id);
+      if (value !== null) {
+        i = this.analyser.indexOfFrequency(value);
         if (i >= 0 && i < data.length) {
           i = img.length - 4 * (i + 1);
-          const color = this.color.getRgb(fn.id);
+          const color = this.color.getRgb(id);
           img[i] = color.r;
           img[i + 1] = color.g;
           img[i + 2] = color.b;

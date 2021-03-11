@@ -33,7 +33,6 @@ void autocorr(
 
 EMSCRIPTEN_KEEPALIVE
 int autocorrpeak(
-  tdval_t *tdata,
   float *acdata,
   int length,
   int min_offset,
@@ -44,8 +43,6 @@ int autocorrpeak(
   if (max_offset - min_offset < 4) {
     return -1;
   }
-
-  autocorr(tdata, acdata, length, min_offset, max_offset);
 
   int res = -1;
   float max = -2.0;

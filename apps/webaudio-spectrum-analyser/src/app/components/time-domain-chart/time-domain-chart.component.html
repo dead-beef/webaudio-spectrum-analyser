@@ -10,7 +10,7 @@
       *ngFor="let fn of functions; let i = index"
       [class.hide]="!(functionEnabled$[i] | async)"
     >
-      <span [style.color]="valueColor[i]">{{ fn.id }}</span>:
+      <span [style.color]="valueColor[i]">{{ fn }}</span>:
       {{ values$[i] | async | number:'1.2-2' }}
     </span>
   </span>

@@ -12,6 +12,9 @@ export const ANALYSER_STATE_DEFAULTS: AnalyserStateModel = {
     max: 20000,
   },
   functions: {
+    autocorr: false,
+    prominence: false,
+    cepstrum: false,
     RMS: true,
     ZCR: true,
     FFTM: false,
@@ -19,7 +22,7 @@ export const ANALYSER_STATE_DEFAULTS: AnalyserStateModel = {
     AC: false,
   },
   fftp: {
-    type: FftPeakType.MAX_MAGNITUDE,
+    type: FftPeakType.MIN_FREQUENCY,
     prominence: {
       radius: 0,
       threshold: 0.1,

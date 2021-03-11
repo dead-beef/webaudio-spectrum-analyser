@@ -148,20 +148,75 @@ export function getMockAudioGraph() {
 export function getMockAnalyser() {
   const fns = [
     {
-      name: 'Test',
-      id: 'test',
-      calc: () => 0,
-      timeDomain: true,
-      enabled: true,
+      id: 'autocorr',
+      name: 'Autocorrelation',
+      calc: x => x,
+      enabled: false,
+      value: new Float32Array(),
+      updated: false,
+    },
+    {
+      id: 'prominence',
+      name: 'FFT peak prominence',
+      calc: x => x,
+      enabled: false,
+      value: new Float32Array(),
+      updated: false,
+    },
+    {
+      id: 'cepstrum',
+      name: 'Cepstrum',
+      calc: x => x,
+      enabled: false,
+      value: new Float32Array(),
+      updated: false,
+    },
+
+    {
+      id: 'RMS',
+      name: 'Root mean square',
+      calc: x => x,
+      enabled: false,
       value: 0,
+      updated: false,
+    },
+    {
+      id: 'ZCR',
+      name: 'Zero-crossing rate',
+      calc: x => x,
+      enabled: false,
+      value: 0,
+      updated: false,
+    },
+    {
+      id: 'FFTM',
+      name: 'FFT max',
+      calc: x => x,
+      enabled: false,
+      value: 0,
+      updated: false,
+    },
+    {
+      id: 'FFTP',
+      name: 'FFT peak',
+      calc: x => x,
+      enabled: false,
+      value: 0,
+      updated: false,
+    },
+    {
+      id: 'AC',
+      name: 'Autocorrelation peak',
+      calc: x => x,
+      enabled: false,
+      value: 0,
+      updated: false,
     },
   ];
 
   return {
     fdata: new Float32Array(1),
     tdata: new Float32Array(1),
-    autocorrdata: new Float32Array(1),
-    prominenceData: new Float32Array(1),
     canAnalyse: true,
     hasNan: false,
     volume: 0.5,
@@ -181,6 +236,12 @@ export function getMockAnalyser() {
 
     functions: fns,
     functionById: Object.fromEntries(fns.map(fn => [fn.id, fn])),
+
+    get: k => 0,
+
+    getOptional: k => null,
+
+    getName: k => '',
 
     setState: function () {
       return this;

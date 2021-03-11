@@ -15,8 +15,7 @@ typedef float fftmag_t;
 
 typedef enum {
   MIN_FREQUENCY = 1,
-  MAX_MAGNITUDE = 2,
-  MAX_PROMINENCE = 3,
+  MAX_PROMINENCE = 2,
 } fftpeak_t;
 
 enum {

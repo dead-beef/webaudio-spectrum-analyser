@@ -18,6 +18,7 @@ import { AnalyserOptionsComponent } from './components/analyser-options/analyser
 import { AudioControlsComponent } from './components/audio-controls/audio-controls.component';
 import { AudioGraphComponent } from './components/audio-graph/audio-graph.component';
 import { CanvasComponent } from './components/canvas/canvas.component';
+import { CepstrumChartComponent } from './components/cepstrum-chart/cepstrum-chart.component';
 import { ChartComponent } from './components/chart/chart.component';
 import { ChartsComponent } from './components/charts/charts.component';
 import { CommonOptionsComponent } from './components/common-options/common-options.component';
@@ -81,6 +82,7 @@ import {
     TimeDomainChartComponent,
     CanvasComponent,
     SpectrogramComponent,
+    CepstrumChartComponent,
   ],
   imports: [
     BrowserModule,

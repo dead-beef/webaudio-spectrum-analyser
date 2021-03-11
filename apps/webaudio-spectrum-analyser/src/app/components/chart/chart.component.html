@@ -32,6 +32,8 @@
   </app-frequency-chart>
   <app-spectrogram *ngSwitchCase="ChartType.SPECTROGRAM">
   </app-spectrogram>
+  <app-cepstrum-chart *ngSwitchCase="ChartType.CEPSTRUM">
+  </app-cepstrum-chart>
   <div *ngSwitchDefault>
     No component found for chart type {{ type$ | async }}
   </div>

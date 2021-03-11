@@ -1,15 +1,37 @@
 import { FftPeakType } from '../audio-math/interfaces';
 
-export type AnalyserFunctionId = 'RMS' | 'ZCR' | 'FFTM' | 'FFTP' | 'AC';
-
-export interface AnalyserFunction {
+export interface AnalyserFunction<T> {
   id: AnalyserFunctionId;
   name: string;
-  calc: () => number;
-  timeDomain: boolean;
+  calc: (T) => T;
   enabled: boolean;
-  value: number;
+  value: T;
+  updated: boolean;
 }
+
+export interface AnalyserFunctions {
+  autocorr: AnalyserFunction<Float32Array>;
+  prominence: AnalyserFunction<Float32Array>;
+  cepstrum: AnalyserFunction<Float32Array>;
+
+  RMS: AnalyserFunction<number>;
+  ZCR: AnalyserFunction<number>;
+  FFTM: AnalyserFunction<number>;
+  FFTP: AnalyserFunction<number>;
+  AC: AnalyserFunction<number>;
+}
+
+export type AnalyserFunctionId = keyof AnalyserFunctions;
+
+export type FilterKeysByPropertyType<T, P extends keyof T[keyof T], V> = {
+  [K in keyof T]: T[K][P] extends V ? K : never;
+}[keyof T];
+
+export type AnalyserNumberFunctionId = FilterKeysByPropertyType<
+  AnalyserFunctions,
+  'value',
+  number
+>;
 
 export interface AnalyserFunctionState {
   id: AnalyserFunctionId;

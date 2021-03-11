@@ -1,6 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { getComponentImports, getMockProviders } from '../../utils/test.util';
 import { InputFrequencyComponent } from '../input-frequency/input-frequency.component';
 import { InputRangeComponent } from '../input-range/input-range.component';
@@ -15,7 +14,6 @@ describe('AnalyserOptionsComponent', () => {
       imports: getComponentImports(),
       declarations: [
         AnalyserOptionsComponent,
-        UnitsPipe,
         InputFrequencyComponent,
         InputRangeComponent,
       ],

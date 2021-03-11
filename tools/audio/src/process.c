@@ -20,10 +20,6 @@ typedef enum {
   OT_FFT_PEAKS
 } output_type_t;
 
-const fftmag_t MIN_DB = -100;
-const fftmag_t MAX_DB = 0;
-const fftmag_t DB_REF = 1;
-
 typedef struct {
   const char *input;
   output_type_t output_type;
@@ -85,7 +81,7 @@ int init_data(data_t *data, int sample_rate, int fft_size) {
     HANDLE_NULL(data->fft_mag_buf = calloc(data->bins, sizeof(*data->fft_mag_buf)), "Could not allocate fft magnitude buffer");
     HANDLE_NULL(data->smooth_fft_mag_buf = calloc(data->bins, sizeof(*data->smooth_fft_mag_buf)), "Could not allocate fft magnitude buffer");
     for (int i = 0; i < data->bins; ++i) {
-      data->smooth_fft_mag_buf[i] = MIN_DB;
+      data->smooth_fft_mag_buf[i] = DB_MIN;
     }
   } else {
     data->frame_buf = NULL;
@@ -193,8 +189,8 @@ void print_fft_peaks(data_t *data) {
     data->min_peak_index,
     data->max_peak_index + 1,
     -1,
-    MIN_DB,
-    MAX_DB,
+    DB_MIN,
+    DB_MAX,
     TRUE
   );
 
@@ -256,23 +252,13 @@ int do_fft_frame(float *frame, int size, int sample_rate, void *data) {
   normalize(frame, frame, size);
   window(frame, frame, size);
   fft(frame, d->fft_buf, size);
+  magnitude(d->fft_buf, d->fft_mag_buf, d->bins, TRUE);
 
-  magnitude(d->fft_buf, d->fft_mag_buf, d->bins);
-  magnitude_to_decibels(
-    d->fft_mag_buf,
-    d->fft_mag_buf,
-    d->bins,
-    DB_REF,
-    MIN_DB,
-    MAX_DB
-  );
-
-
-  if (d->options->threshold > MIN_DB) {
+  if (d->options->threshold > DB_MIN) {
     int skip = 1;
     for (int i = 0; i < d->bins; ++i) {
       if (d->fft_mag_buf[i] < d->options->threshold) {
-        d->fft_mag_buf[i] = MIN_DB;
+        d->fft_mag_buf[i] = DB_MIN;
       } else if (i >= d->min_peak_index && i <= d->max_peak_index) {
         skip = 0;
       }
