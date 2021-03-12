@@ -3,7 +3,7 @@ import { FftPeakType } from '../audio-math/interfaces';
 export interface AnalyserFunction<T> {
   id: AnalyserFunctionId;
   name: string;
-  calc: (T) => T;
+  calc: (prev: T) => T;
   enabled: boolean;
   value: T;
   updated: boolean;
@@ -19,13 +19,11 @@ export interface AnalyserFunctions {
   FFTM: AnalyserFunction<number>;
   FFTP: AnalyserFunction<number>;
   AC: AnalyserFunction<number>;
+  CM: AnalyserFunction<number>;
+  CP: AnalyserFunction<number>;
 }
 
 export type AnalyserFunctionId = keyof AnalyserFunctions;
-
-export type FilterKeysByPropertyType<T, P extends keyof T[keyof T], V> = {
-  [K in keyof T]: T[K][P] extends V ? K : never;
-}[keyof T];
 
 export type AnalyserNumberFunctionId = FilterKeysByPropertyType<
   AnalyserFunctions,

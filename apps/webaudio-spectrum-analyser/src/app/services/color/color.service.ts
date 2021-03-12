@@ -18,6 +18,8 @@ export class ColorService {
     FFTM: '#96996f',
     FFTP: '#7e6f99',
     AC: '#996f83',
+    CM: '#8b996f',
+    CP: '#906f99',
     'spectrogram-min': '#26262c',
     'spectrogram-max': '#4aaed9',
   };

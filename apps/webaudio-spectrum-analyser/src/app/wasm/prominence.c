@@ -13,15 +13,15 @@ void prominence(
   fftmag_t fftmag_max,
   int normalize
 ) {
-  start = clamp(start, 1, length - 1);
-  end = clamp(end, 1, length - 1);
+  start = clamp(start, 1, length - 2);
+  end = clamp(end, 1, length - 2);
   if (radius < 1) {
     radius = length;
   }
 
   memset(res, 0, length * sizeof(*res));
 
-  for (int i = start; i < end; ++i) {
+  for (int i = start; i <= end; ++i) {
     fftmag_t cur = fft[i];
     fftmag_t left = fft[i - 1];
     fftmag_t right = fft[i + 1];
@@ -74,11 +74,11 @@ int prominencepeak(
   fftmag_t threshold,
   fftpeak_t type
 ) {
-  start = clamp(start, 1, length - 1);
-  end = clamp(end, 1, length - 1);
+  start = clamp(start, 1, length - 2);
+  end = clamp(end, 1, length - 2);
   fftmag_t max;
   int res = -1;
-  for (int i = start; i < end; ++i) {
+  for (int i = start; i <= end; ++i) {
     if (prdata[i] < threshold) {
       continue;
     }

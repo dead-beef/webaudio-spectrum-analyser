@@ -146,72 +146,28 @@ export function getMockAudioGraph() {
  * TODO: description
  */
 export function getMockAnalyser() {
+  const fn = (id, value) => {
+    return {
+      id,
+      name: id,
+      calc: x => x,
+      enabled: false,
+      value: value,
+      updated: false,
+    };
+  };
   const fns = [
-    {
-      id: 'autocorr',
-      name: 'Autocorrelation',
-      calc: x => x,
-      enabled: false,
-      value: new Float32Array(),
-      updated: false,
-    },
-    {
-      id: 'prominence',
-      name: 'FFT peak prominence',
-      calc: x => x,
-      enabled: false,
-      value: new Float32Array(),
-      updated: false,
-    },
-    {
-      id: 'cepstrum',
-      name: 'Cepstrum',
-      calc: x => x,
-      enabled: false,
-      value: new Float32Array(),
-      updated: false,
-    },
+    fn('autocorr', new Float32Array()),
+    fn('prominence', new Float32Array()),
+    fn('cepstrum', new Float32Array()),
 
-    {
-      id: 'RMS',
-      name: 'Root mean square',
-      calc: x => x,
-      enabled: false,
-      value: 0,
-      updated: false,
-    },
-    {
-      id: 'ZCR',
-      name: 'Zero-crossing rate',
-      calc: x => x,
-      enabled: false,
-      value: 0,
-      updated: false,
-    },
-    {
-      id: 'FFTM',
-      name: 'FFT max',
-      calc: x => x,
-      enabled: false,
-      value: 0,
-      updated: false,
-    },
-    {
-      id: 'FFTP',
-      name: 'FFT peak',
-      calc: x => x,
-      enabled: false,
-      value: 0,
-      updated: false,
-    },
-    {
-      id: 'AC',
-      name: 'Autocorrelation peak',
-      calc: x => x,
-      enabled: false,
-      value: 0,
-      updated: false,
-    },
+    fn('RMS', 0),
+    fn('ZCR', 0),
+    fn('FFTM', 0),
+    fn('FFTP', 0),
+    fn('AC', 0),
+    fn('CM', 0),
+    fn('CP', 0),
   ];
 
   return {
@@ -235,7 +191,7 @@ export function getMockAnalyser() {
     sampleRate: 44000,
 
     functions: fns,
-    functionById: Object.fromEntries(fns.map(fn => [fn.id, fn])),
+    functionById: Object.fromEntries(fns.map(f => [f.id, f])),
 
     get: k => 0,
 

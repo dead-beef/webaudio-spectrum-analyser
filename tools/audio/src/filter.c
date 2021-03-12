@@ -31,7 +31,6 @@ typedef struct {
   int min_harmonic;
   int max_harmonic;
   int step;
-  float prominence_threshold;
   float f_scale_radius;
   float harmonic_search_radius;
   int smooth_scale;
@@ -66,7 +65,6 @@ void do_filter_frame(float *input, int length, int sample_rate, data_t *data) {
         data->options->min_harmonic,
         data->options->max_harmonic,
         data->options->step,
-        data->options->prominence_threshold,
         data->options->f_scale_radius,
         data->options->harmonic_search_radius,
         data->options->smooth_scale
@@ -82,7 +80,6 @@ void do_filter_frame(float *input, int length, int sample_rate, data_t *data) {
         data->options->min_harmonic,
         data->options->max_harmonic,
         data->options->step,
-        data->options->prominence_threshold,
         data->options->f_scale_radius,
         data->options->harmonic_search_radius,
         data->options->smooth_scale
@@ -171,7 +168,7 @@ ON_ERROR
 void print_usage(const char *name, const options_t *defaults) {
   fprintf(
     stderr,
-    "usage: %s [-h] [-t {none,remove_harmonics,add_harmonics}] [-f FFT_SIZE] [-g GAIN] [-F MIN MAX] [-H MIN MAX STEP] [-P PROMINENCE] [-r RADIUS] [-s SEARCH_RADIUS] [-S] [-nS] [--] <input> <output>\n"
+    "usage: %s [-h] [-t {none,remove_harmonics,add_harmonics}] [-f FFT_SIZE] [-g GAIN] [-F MIN MAX] [-H MIN MAX STEP] [-r RADIUS] [-s SEARCH_RADIUS] [-S] [-nS] [--] <input> <output>\n"
     "\n"
     "positional arguments:\n"
     "  input                     input audio file\n"
@@ -194,9 +191,6 @@ void print_usage(const char *name, const options_t *defaults) {
     "  -H MIN MAX STEP, --harmonic MIN MAX STEP\n"
     "                            harmonic range\n"
     "                            (default: %d %d %d)\n"
-    "  -P PROMINENCE, --prominence PROMINENCE\n"
-    "                            minimum fft peak prominence in decibels\n"
-    "                            (default: %.1f)\n"
     "  -r RADIUS, --radius RADIUS\n"
     "                            fft scale/copy radius in hertz\n"
     "                            (default: %.1f)\n"
@@ -214,7 +208,6 @@ void print_usage(const char *name, const options_t *defaults) {
     defaults->min_harmonic,
     defaults->max_harmonic,
     defaults->step,
-    defaults->prominence_threshold,
     defaults->f_scale_radius,
     defaults->harmonic_search_radius
   );
@@ -232,7 +225,6 @@ int parse_args(int argc, char **argv, options_t *opts) {
     .min_harmonic = 1,
     .max_harmonic = 200,
     .step = 2,
-    .prominence_threshold = 5,
     .f_scale_radius = 60,
     .harmonic_search_radius = 0.3,
     .smooth_scale = 0
@@ -275,8 +267,6 @@ int parse_args(int argc, char **argv, options_t *opts) {
     } else if (!strcmp(argv[i], "-H") || !strcmp(argv[i], "--harmonic")) {
       int *vals[3] = { &opts->min_harmonic, &opts->max_harmonic, &opts->step };
       HANDLE_RC(parse_int_args(argc, argv, &i, vals, 3), NULL);
-    } else if (!strcmp(argv[i], "-P") || !strcmp(argv[i], "--prominence")) {
-      HANDLE_RC(parse_float_arg(argc, argv, &i, &opts->prominence_threshold), NULL);
     } else if (!strcmp(argv[i], "-r") || !strcmp(argv[i], "--radius")) {
       HANDLE_RC(parse_float_arg(argc, argv, &i, &opts->f_scale_radius), NULL);
     } else if (!strcmp(argv[i], "-s") || !strcmp(argv[i], "--search-radius")) {

@@ -21,7 +21,7 @@ export interface WorkletProcessorConstructor extends WorkletProcessorStatic {
 export interface AnyScriptNode extends AudioNode {
   //parameters: AudioParamMap;
   parameters: {
-    get: (key: string) => AudioParam;
+    get: (key: string) => Optional<AudioParam>;
   };
   port: MessagePort;
 }
@@ -42,7 +42,6 @@ export type WorkletFilterParam =
   | 'minHarmonic'
   | 'maxHarmonic'
   | 'step'
-  | 'prominenceThreshold'
   | 'fScaleRadius'
   | 'harmonicSearchRadius'
   | 'smoothScale';

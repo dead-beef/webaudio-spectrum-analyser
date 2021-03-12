@@ -109,14 +109,16 @@ class AudioMathInstance {
    * @param left
    * @param right
    */
-  public interpolatePeak(peak: number, left: number, right: number): number {
-    const c = peak;
-    const b = (right - left) / 2;
-    const a = left + b - c;
-    if (Math.abs(a) < 1e-3) {
-      return 0;
+  public interpolatePeak<T extends TypedArray>(data: T, peak: number): number {
+    if (peak > 0 || peak < data.length - 1) {
+      const c = data[peak];
+      const b = (data[peak + 1] - data[peak - 1]) / 2;
+      const a = data[peak - 1] + b - c;
+      if (Math.abs(a) > 1e-4) {
+        peak += -b / (2 * a);
+      }
     }
-    return -b / (2 * a);
+    return peak;
   }
 
   /**
@@ -233,10 +235,10 @@ class AudioMathInstance {
   public indexOfMax<T extends TypedArray>(
     data: T,
     start: number = 0,
-    end: number = data.length
+    end: number = data.length - 1
   ): number {
     if (!data.length) {
-      return -1;
+      return NaN;
     }
 
     start = this.clamp(start, 0, data.length);
@@ -244,13 +246,42 @@ class AudioMathInstance {
 
     let res = -1;
     let max = -Infinity;
-    for (let i = start; i < end; i += 1) {
+    for (let i = start; i <= end; ++i) {
       if (max < data[i]) {
         res = i;
         max = data[i];
       }
     }
-    return res;
+    return res >= 0 ? res : NaN;
+  }
+
+  /**
+   * TODO: description
+   * @param data
+   * @param start
+   * @param end
+   */
+  public indexOfMaxPeak<T extends TypedArray>(
+    data: T,
+    start: number = 1,
+    end: number = data.length - 2
+  ): number {
+    if (!data.length) {
+      return NaN;
+    }
+
+    start = this.clamp(start, 1, data.length - 2);
+    end = this.clamp(end, 1, data.length - 2);
+
+    let res = -1;
+    let max = -Infinity;
+    for (let i = start; i <= end; ++i) {
+      if (data[i] > Math.max(data[i - 1], data[i + 1], max)) {
+        res = i;
+        max = data[i];
+      }
+    }
+    return res >= 0 ? res : NaN;
   }
 
   /**
@@ -320,15 +351,16 @@ class AudioMathInstance {
   ): number {
     const wasm = this.wasm;
     if (!wasm) {
-      return -1;
+      return NaN;
     }
     this.copyToBuffer(this.inputBuffer, acdata);
-    return wasm.exports.autocorrpeak(
+    const ret = wasm.exports.autocorrpeak(
       this.inputBuffer.ptr[0],
       acdata.length,
       minOffset,
       maxOffset
     );
+    return ret > 0 ? ret : NaN;
   }
 
   /**
@@ -337,11 +369,11 @@ class AudioMathInstance {
   public prominence(
     fft: Float32Array,
     output: Float32Array,
-    start: number = 0,
-    end: number = fft.length,
-    radius: number = 0,
-    fftMin: number = 0,
-    fftMax: number = 1,
+    start: number,
+    end: number,
+    radius: number,
+    fftMin: number,
+    fftMax: number,
     normalize: boolean = false
   ): Float32Array {
     const wasm = this.wasm;
@@ -376,10 +408,10 @@ class AudioMathInstance {
   ): number {
     const wasm = this.wasm;
     if (!wasm) {
-      return -1;
+      return NaN;
     }
     this.copyToBuffer(this.inputBuffer, prominence);
-    return wasm.exports.prominencepeak(
+    const ret = wasm.exports.prominencepeak(
       this.inputBuffer.ptr[0],
       prominence.length,
       start,
@@ -387,6 +419,7 @@ class AudioMathInstance {
       threshold,
       peakType
     );
+    return ret > 0 ? ret : NaN;
   }
 
   /**

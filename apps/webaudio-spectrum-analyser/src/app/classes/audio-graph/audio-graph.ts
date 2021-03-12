@@ -479,8 +479,12 @@ export class AudioGraph {
   ) {
     for (const key in params) {
       if (Object.prototype.hasOwnProperty.call(params, key)) {
-        const param: AudioParam = node.parameters.get(key);
-        param.value = Number(params[key]);
+        const param: Optional<AudioParam> = node.parameters.get(key);
+        if (param) {
+          param.value = Number(params[key]);
+        } else {
+          console.warn('setWorkletNodeParameters', key);
+        }
       }
     }
   }

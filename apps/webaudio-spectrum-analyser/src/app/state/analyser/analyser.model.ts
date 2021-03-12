@@ -20,6 +20,8 @@ export const ANALYSER_STATE_DEFAULTS: AnalyserStateModel = {
     FFTM: false,
     FFTP: false,
     AC: false,
+    CM: false,
+    CP: false,
   },
   fftp: {
     type: FftPeakType.MIN_FREQUENCY,

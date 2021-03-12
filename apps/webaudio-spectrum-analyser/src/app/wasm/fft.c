@@ -122,8 +122,24 @@ fftmag_t max_magnitude(fftmag_t *fft, int start, int end) {
   return ret;
 }
 
+int index_of_max_peak(fftmag_t *mag, int bin_count, int start, int end) {
+  int ret = -1;
+  fftmag_t val;
+  start = clamp(start, 1, bin_count - 2);
+  end = clamp(end, 1, bin_count - 2);
+  for (int i = start; i <= end; ++i) {
+    if (mag[i] > mag[i - 1] && mag[i] > mag[i + 1]) {
+      if (ret < 0 || val < mag[i]) {
+        ret = i;
+        val = mag[i];
+      }
+    }
+  }
+  return ret;
+}
+
 double interpolate_peak(fftmag_t *mag, int bin_count, int i, fftmag_t *value) {
-  if (i <= 0 || i >= bin_count) {
+  if (i <= 0 || i >= bin_count - 1) {
     if (value) {
       *value = mag[i];
     }

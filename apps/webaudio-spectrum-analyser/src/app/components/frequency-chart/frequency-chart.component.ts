@@ -45,6 +45,8 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
     'FFTM',
     'FFTP',
     'AC',
+    'CM',
+    'CP',
   ];
 
   private readonly values = this.functions.map(

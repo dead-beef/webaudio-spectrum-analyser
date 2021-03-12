@@ -28,6 +28,8 @@ export class AnalyserOptionsComponent {
     'FFTM',
     'FFTP',
     'AC',
+    'CM',
+    'CP',
   ];
 
   public readonly functionName: string[] = this.functionId.map(id =>

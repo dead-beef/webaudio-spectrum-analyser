@@ -80,13 +80,6 @@ export class FilterProcessor extends AudioWorkletProcessor {
         automationRate: 'k-rate',
       },
       {
-        name: 'prominenceThreshold',
-        defaultValue: 5,
-        minValue: 0,
-        maxValue: 100,
-        automationRate: 'k-rate',
-      },
-      {
         name: 'fScaleRadius',
         defaultValue: 60,
         minValue: 0,
@@ -157,7 +150,6 @@ export class FilterProcessor extends AudioWorkletProcessor {
     minHarmonic: number,
     maxHarmonic: number,
     step: number,
-    prominenceThreshold: number,
     fScaleRadius: number,
     harmonicSearchRadius: number,
     smoothScale: number
@@ -172,7 +164,6 @@ export class FilterProcessor extends AudioWorkletProcessor {
     minHarmonic: number,
     maxHarmonic: number,
     step: number,
-    prominenceThreshold: number,
     fScaleRadius: number,
     harmonicSearchRadius: number,
     smoothScale: number
@@ -350,7 +341,6 @@ export class FilterProcessor extends AudioWorkletProcessor {
           parameters.minHarmonic[0],
           parameters.maxHarmonic[0],
           parameters.step[0],
-          parameters.prominenceThreshold[0],
           parameters.fScaleRadius[0],
           parameters.harmonicSearchRadius[0],
           parameters.smoothScale[0]
@@ -366,7 +356,6 @@ export class FilterProcessor extends AudioWorkletProcessor {
           parameters.minHarmonic[0],
           parameters.maxHarmonic[0],
           parameters.step[0],
-          parameters.prominenceThreshold[0],
           parameters.fScaleRadius[0],
           parameters.harmonicSearchRadius[0],
           parameters.smoothScale[0]

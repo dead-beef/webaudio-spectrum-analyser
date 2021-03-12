@@ -119,7 +119,6 @@ export class FilterOptionsComponent {
         minHarmonic: 0,
         maxHarmonic: 0,
         step: 0,
-        prominenceThreshold: 0,
         fScaleRadius: 0,
         harmonicSearchRadius: 0,
         smoothScale: 0,
