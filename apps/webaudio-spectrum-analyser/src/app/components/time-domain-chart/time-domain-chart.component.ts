@@ -7,10 +7,8 @@ import {
 } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-import { AnalyserNumberFunctionId, Point } from '../../interfaces';
-import { ColorService } from '../../services/color/color.service';
+import { Point } from '../../interfaces';
 import { AnalyserService } from '../../state/analyser/analyser.service';
-import { AnalyserState } from '../../state/analyser/analyser.store';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { CanvasComponent } from '../canvas/canvas.component';
 
@@ -34,21 +32,7 @@ export class TimeDomainChartComponent implements AfterViewInit, OnDestroy {
 
   public readonly pointValue$ = this.pointValue.asObservable();
 
-  public readonly functions: AnalyserNumberFunctionId[] = ['RMS'];
-
-  private readonly values = this.functions.map(
-    _ => new BehaviorSubject<number>(0)
-  );
-
-  public readonly values$ = this.values.map(subject => {
-    return subject.asObservable();
-  });
-
-  public readonly functionEnabled$ = this.functions.map(id => {
-    return this.analyserService.select(AnalyserState.functionEnabled(id));
-  });
-
-  public readonly valueColor = this.functions.map(id => this.color.get(id));
+  public readonly functions = this.analyser.TIME_DOMAIN_FUNCTION_IDS;
 
   public readonly updateBound = this.update.bind(this);
 
@@ -57,8 +41,7 @@ export class TimeDomainChartComponent implements AfterViewInit, OnDestroy {
    */
   constructor(
     private readonly graphService: AudioGraphService,
-    private readonly analyserService: AnalyserService,
-    private readonly color: ColorService
+    private readonly analyserService: AnalyserService
   ) {}
 
   /**
@@ -75,9 +58,6 @@ export class TimeDomainChartComponent implements AfterViewInit, OnDestroy {
     this.graph.offUpdate(this.updateBound);
     this.pointTime.complete();
     this.pointValue.complete();
-    for (const subject of this.values) {
-      subject.complete();
-    }
   }
 
   /**
@@ -136,7 +116,6 @@ export class TimeDomainChartComponent implements AfterViewInit, OnDestroy {
       const value: Nullable<number> = this.analyser.getOptional(fn);
       if (value !== null) {
         this.canvas.hline(yscale(value), fn);
-        this.values[i].next(value);
       }
     }
   }

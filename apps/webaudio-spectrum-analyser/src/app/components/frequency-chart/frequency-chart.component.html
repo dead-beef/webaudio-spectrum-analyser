@@ -5,13 +5,6 @@
   <span *ngIf="pointFrequency$ | async as f">
     {{ f | units:'Hz' }} {{ pointValue$ | async | units:'dB':false }}
   </span>
-  <span class="float-right">
-    <span
-      *ngFor="let fn of functions; let i = index"
-      [class.hide]="!(functionEnabled$[i] | async)"
-    >
-      <span [style.color]="valueColor[i]">{{ fn }}</span>:
-      {{ values$[i] | async | units:'Hz' }}
-    </span>
-  </span>
+  <app-analyser-function-values class="float-right" [ids]="functions" unit="Hz">
+  </app-analyser-function-values>
 </div>

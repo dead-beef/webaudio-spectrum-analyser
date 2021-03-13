@@ -23,13 +23,8 @@ export class AnalyserOptionsComponent {
   ];
 
   public readonly functionId: AnalyserFunctionId[] = [
-    'RMS',
-    'ZCR',
-    'FFTM',
-    'FFTP',
-    'AC',
-    'CM',
-    'CP',
+    ...this.analyser.analyser.TIME_DOMAIN_FUNCTION_IDS,
+    ...this.analyser.analyser.PITCH_FUNCTION_IDS,
   ];
 
   public readonly functionName: string[] = this.functionId.map(id =>
@@ -114,7 +109,6 @@ export class AnalyserOptionsComponent {
 
   /**
    * Constructor.
-   * @param graph
    */
   constructor(private readonly analyser: AnalyserService) {}
 }

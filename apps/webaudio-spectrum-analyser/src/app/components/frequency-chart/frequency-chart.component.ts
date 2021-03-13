@@ -9,10 +9,8 @@ import { BehaviorSubject } from 'rxjs';
 
 import { Analyser } from '../../classes/analyser/analyser';
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
-import { AnalyserNumberFunctionId, Point } from '../../interfaces';
-import { ColorService } from '../../services/color/color.service';
+import { Point } from '../../interfaces';
 import { AnalyserService } from '../../state/analyser/analyser.service';
-import { AnalyserState } from '../../state/analyser/analyser.store';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { CanvasComponent } from '../canvas/canvas.component';
 
@@ -40,28 +38,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
 
   public readonly pointValue$ = this.pointValue.asObservable();
 
-  public readonly functions: AnalyserNumberFunctionId[] = [
-    'ZCR',
-    'FFTM',
-    'FFTP',
-    'AC',
-    'CM',
-    'CP',
-  ];
-
-  private readonly values = this.functions.map(
-    _ => new BehaviorSubject<number>(0)
-  );
-
-  public readonly values$ = this.values.map(subject => {
-    return subject.asObservable();
-  });
-
-  public readonly functionEnabled$ = this.functions.map(fn => {
-    return this.analyserService.select(AnalyserState.functionEnabled(fn));
-  });
-
-  public readonly valueColor = this.functions.map(fn => this.color.get(fn));
+  public readonly functions = this.analyser.PITCH_FUNCTION_IDS;
 
   /**
    * Constructor.
@@ -69,8 +46,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
    */
   constructor(
     private readonly graphService: AudioGraphService,
-    private readonly analyserService: AnalyserService,
-    private readonly color: ColorService
+    private readonly analyserService: AnalyserService
   ) {}
 
   /**
@@ -87,9 +63,6 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
     this.graph.offUpdate(this.animate);
     this.pointFrequency.complete();
     this.pointValue.complete();
-    for (const subject of this.values) {
-      subject.complete();
-    }
   }
 
   /**
@@ -241,7 +214,6 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
       const value: Nullable<number> = this.analyser.getOptional(fn);
       if (value !== null) {
         this.canvas.vline(this.frequencyToCanvas(value), fn);
-        this.values[i].next(value);
       }
     }
 

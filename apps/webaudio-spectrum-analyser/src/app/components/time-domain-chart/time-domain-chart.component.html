@@ -3,15 +3,8 @@
 
 <div class="chart-footer">
   <span *ngIf="pointTime$ | async as t">
-    {{ t | units:'s' }} {{ pointValue$ | async | number:'1.2-2' }}
+    {{ t | units:'s' }} {{ pointValue$ | async | units:'':false:2 }}
   </span>
-  <span class="float-right">
-    <span
-      *ngFor="let fn of functions; let i = index"
-      [class.hide]="!(functionEnabled$[i] | async)"
-    >
-      <span [style.color]="valueColor[i]">{{ fn }}</span>:
-      {{ values$[i] | async | number:'1.2-2' }}
-    </span>
-  </span>
+  <app-analyser-function-values class="float-right" [ids]="functions" [unitPrefix]="false" [precision]="2">
+  </app-analyser-function-values>
 </div>

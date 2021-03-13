@@ -7,10 +7,8 @@ import {
 } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-import { /*AnalyserFunction,*/ Point } from '../../interfaces';
-//import { ColorService } from '../../services/color/color.service';
+import { Point } from '../../interfaces';
 import { AnalyserService } from '../../state/analyser/analyser.service';
-//import { AnalyserState } from '../../state/analyser/analyser.store';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { CanvasComponent } from '../canvas/canvas.component';
 
@@ -34,6 +32,8 @@ export class CepstrumChartComponent implements AfterViewInit, OnDestroy {
 
   public readonly pointValue$ = this.pointValue.asObservable();
 
+  public readonly functions = this.analyser.PITCH_FUNCTION_IDS;
+
   public readonly updateBound = this.update.bind(this);
 
   /**
@@ -41,8 +41,7 @@ export class CepstrumChartComponent implements AfterViewInit, OnDestroy {
    */
   constructor(
     private readonly graphService: AudioGraphService,
-    private readonly analyserService: AnalyserService /*,
-    private readonly color: ColorService*/
+    private readonly analyserService: AnalyserService
   ) {}
 
   /**
@@ -107,9 +106,9 @@ export class CepstrumChartComponent implements AfterViewInit, OnDestroy {
   /**
    * TODO: description
    */
-  /*private frequencyToCanvas(f: number): number {
+  private frequencyToCanvas(f: number): number {
     return this.quefrencyToCanvas(1.0 / f);
-    }*/
+  }
 
   /**
    * TODO: description
@@ -119,6 +118,16 @@ export class CepstrumChartComponent implements AfterViewInit, OnDestroy {
       return;
     }
     this.canvas.log(0.5e-4, 0.5e-1, (x: number) => this.quefrencyToCanvas(x));
+    if (this.analyser.minPitch > 20 || this.analyser.maxPitch < 20000) {
+      this.canvas.vline(
+        this.frequencyToCanvas(this.analyser.minPitch),
+        'selection'
+      );
+      this.canvas.vline(
+        this.frequencyToCanvas(this.analyser.maxPitch),
+        'selection'
+      );
+    }
   }
 
   /**
@@ -136,6 +145,13 @@ export class CepstrumChartComponent implements AfterViewInit, OnDestroy {
       'chart',
       0
     );
+    for (let i = 0; i < this.functions.length; ++i) {
+      const fn = this.functions[i];
+      const value: Nullable<number> = this.analyser.getOptional(fn);
+      if (value !== null) {
+        this.canvas.vline(this.frequencyToCanvas(value), fn);
+      }
+    }
   }
 
   /**

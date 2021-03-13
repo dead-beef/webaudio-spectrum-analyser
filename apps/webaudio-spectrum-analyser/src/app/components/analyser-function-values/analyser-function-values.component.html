@@ -1,0 +1,7 @@
+<span
+  *ngFor="let id of ids; let i = index"
+  [class.hide]="!(functionEnabled$[i] | async)"
+>
+  <span [style.color]="functionColor[i]">{{ id }}</span>:
+  {{ values$[i] | async | units:unit:unitPrefix:precision }}
+</span>

@@ -192,6 +192,8 @@ export function getMockAnalyser() {
 
     functions: fns,
     functionById: Object.fromEntries(fns.map(f => [f.id, f])),
+    PITCH_FUNCTION_IDS: [],
+    TIME_DOMAIN_FUNCTION_IDS: [],
 
     get: k => 0,
 

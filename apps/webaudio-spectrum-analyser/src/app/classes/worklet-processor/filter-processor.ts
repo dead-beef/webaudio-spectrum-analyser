@@ -26,7 +26,6 @@ export class FilterProcessor extends AudioWorkletProcessor {
   /**
    * TODO: description
    */
-  // eslint-disable-next-line max-lines-per-function
   public static get parameterDescriptors(): AudioParamDescriptor[] {
     return [
       {

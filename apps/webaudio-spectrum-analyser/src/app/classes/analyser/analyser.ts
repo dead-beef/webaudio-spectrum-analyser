@@ -4,6 +4,7 @@ import {
   AnalyserFunction,
   AnalyserFunctionId,
   AnalyserFunctions,
+  AnalyserNumberFunctionId,
   AnalyserState,
 } from './interfaces';
 
@@ -71,6 +72,19 @@ export class Analyser {
   public readonly functions: AnalyserFunction<any>[] = Object.values(
     this.functionById
   );
+
+  public readonly PITCH_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
+    'ZCR',
+    'FFTM',
+    'FFTP',
+    'AC',
+    'CM',
+    'CP',
+  ];
+
+  public readonly TIME_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
+    'RMS',
+  ];
 
   /**
    * Constructor.
