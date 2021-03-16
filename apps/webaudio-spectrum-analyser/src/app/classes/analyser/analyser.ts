@@ -351,8 +351,8 @@ export class Analyser {
    * TODO: description
    */
   public autocorr(prev: Float32Array): Float32Array {
-    const start: number = this.indexOfFrequency(this.minPitch);
-    const end: number = this.indexOfFrequency(this.maxPitch);
+    const start = Math.floor(this.sampleRate / this.maxPitch);
+    const end = Math.floor(this.sampleRate / this.minPitch) + 1;
     return AudioMath.autocorr(this.tdata, start, end, prev);
   }
 

@@ -47,11 +47,11 @@ int autocorrpeak(
   }
 
   int res = -1;
-  float max = -2.0;
+  float max = 0.0;
   int found_min = FALSE;
 
-  ++min_offset;
-  --max_offset;
+  //++min_offset;
+  //--max_offset;
 
   for (int i = min_offset; i <= max_offset; ++i) {
     float cur = acdata[i];
@@ -65,7 +65,7 @@ int autocorrpeak(
         res = i;
         max = cur;
       }
-    } else if (cur <= prev && cur <= next && cur < 0.0) {
+    } else if (cur <= prev && cur <= next && cur < EPS) {
       found_min = TRUE;
     }
   }

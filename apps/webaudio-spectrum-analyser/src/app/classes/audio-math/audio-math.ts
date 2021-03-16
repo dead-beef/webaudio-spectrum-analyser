@@ -276,10 +276,14 @@ class AudioMathInstance {
     let res = -1;
     let max = -Infinity;
     for (let i = start; i <= end; ++i) {
-      if (data[i] > Math.max(data[i - 1], data[i + 1], max)) {
-        res = i;
-        max = data[i];
+      if (data[i] < Math.max(data[i - 1], data[i + 1], max)) {
+        continue;
       }
+      if (data[i] === data[i - 1] && data[i] === data[i + 1]) {
+        continue;
+      }
+      res = i;
+      max = data[i];
     }
     return res >= 0 ? res : NaN;
   }
