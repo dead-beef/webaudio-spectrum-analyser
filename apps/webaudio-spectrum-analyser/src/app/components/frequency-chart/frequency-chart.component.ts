@@ -38,7 +38,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
 
   public readonly pointValue$ = this.pointValue.asObservable();
 
-  public readonly functions = this.analyser.PITCH_FUNCTION_IDS;
+  public readonly functions = this.analyser.FREQUENCY_DOMAIN_FUNCTION_IDS;
 
   /**
    * Constructor.

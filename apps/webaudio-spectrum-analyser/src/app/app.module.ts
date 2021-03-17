@@ -14,6 +14,7 @@ import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { ROUTES } from './app.routes';
 import { AlertComponent } from './components/alert/alert.component';
+import { AnalyserFunctionChartComponent } from './components/analyser-function-chart/analyser-function-chart.component';
 import { AnalyserFunctionValuesComponent } from './components/analyser-function-values/analyser-function-values.component';
 import { AnalyserOptionsComponent } from './components/analyser-options/analyser-options.component';
 import { AudioControlsComponent } from './components/audio-controls/audio-controls.component';
@@ -85,6 +86,7 @@ import {
     SpectrogramComponent,
     CepstrumChartComponent,
     AnalyserFunctionValuesComponent,
+    AnalyserFunctionChartComponent,
   ],
   imports: [
     BrowserModule,

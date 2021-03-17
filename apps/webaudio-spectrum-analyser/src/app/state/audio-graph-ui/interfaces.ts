@@ -10,6 +10,8 @@ export enum ChartType {
   FREQUENCY,
   SPECTROGRAM,
   CEPSTRUM,
+  FREQUENCY_DOMAIN_FUNCTIONS,
+  TIME_DOMAIN_FUNCTIONS,
 }
 
 export interface SetChartType {

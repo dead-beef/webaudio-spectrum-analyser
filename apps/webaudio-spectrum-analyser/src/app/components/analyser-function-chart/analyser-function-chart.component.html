@@ -1,0 +1,23 @@
+<app-canvas (pointChange)="setPoint($event)">
+</app-canvas>
+
+<div class="chart-footer">
+  <span *ngIf="pointTime$ | async as t">
+    {{ t | units:'s' }}
+    <span *ngFor="let id of functions; let i = index">
+      <ng-container *ngIf="pointValues$[i] | async as v">
+        <span [style.color]="functionColor[i]">{{ id }}</span>:
+        {{ v | units:unit:unitPrefix:precision }}
+      </ng-container>
+    </span>
+  </span>
+  <span class="float-right">
+    Mean:
+    <span *ngFor="let id of functions; let i = index">
+      <ng-container *ngIf="meanValues$[i] | async as v">
+        <span [style.color]="functionColor[i]">{{ id }}</span>:
+        {{ v | units:unit:unitPrefix:precision }}
+      </ng-container>
+    </span>
+  </span>
+</div>

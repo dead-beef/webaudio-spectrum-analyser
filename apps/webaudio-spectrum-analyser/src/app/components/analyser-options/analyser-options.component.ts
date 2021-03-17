@@ -24,7 +24,7 @@ export class AnalyserOptionsComponent {
 
   public readonly functionId: AnalyserFunctionId[] = [
     ...this.analyser.analyser.TIME_DOMAIN_FUNCTION_IDS,
-    ...this.analyser.analyser.PITCH_FUNCTION_IDS,
+    ...this.analyser.analyser.FREQUENCY_DOMAIN_FUNCTION_IDS,
   ];
 
   public readonly functionName: string[] = this.functionId.map(id =>

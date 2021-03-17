@@ -176,6 +176,7 @@ left: ${(point.x * 100).toFixed(2)}%`;
     x0: number,
     x1: number,
     xscale: (x: number) => number = x => x,
+    horizontal: boolean = true,
     color: string = 'grid',
     lineWidth: number = 2
   ) {
@@ -190,13 +191,25 @@ left: ${(point.x * 100).toFixed(2)}%`;
     let xnext = Math.pow(10, pow + 1);
     let xprev = Math.pow(10, pow - 1);
     let x = x0;
+    let line: (x: number) => void;
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = this.color.get(color);
     ctx.beginPath();
+    if (horizontal) {
+      line = (x_: number) => {
+        x_ = w * xscale(x_);
+        ctx.moveTo(x_, 0);
+        ctx.lineTo(x_, h);
+      };
+    } else {
+      line = (y: number) => {
+        y = h * (1 - xscale(y));
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+      };
+    }
     while (x <= x1) {
-      const x_ = w * xscale(x);
-      ctx.moveTo(x_, 0);
-      ctx.lineTo(x_, h);
+      line(x);
       x += dx;
       if (xnext - x < xprev) {
         x = xnext;
@@ -227,15 +240,21 @@ left: ${(point.x * 100).toFixed(2)}%`;
     const w = ctx.canvas.width;
     const h = ctx.canvas.height;
     const iscale = 1 / (data.length - 1);
+    let line = false;
 
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = this.color.get(color);
     ctx.beginPath();
     for (let i = 0; i < data.length; ++i) {
+      if (isNaN(data[i])) {
+        line = false;
+        continue;
+      }
       const x = w * xscale(i * iscale, i);
       const y = h * (1 - yscale(data[i]));
-      if (i === 0) {
+      if (!line) {
         ctx.moveTo(x, y);
+        line = true;
       } else if (data[i] !== data[i - 1] || data[i] !== data[i + 1]) {
         ctx.lineTo(x, y);
       }

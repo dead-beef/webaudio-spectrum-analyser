@@ -9,7 +9,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Actions, ofActionSuccessful } from '@ngxs/store';
 import { BehaviorSubject } from 'rxjs';
 
-import { AnalyserNumberFunctionId, Point } from '../../interfaces';
+import { Point } from '../../interfaces';
 import { ColorService } from '../../services/color/color.service';
 import { AnalyserService } from '../../state/analyser/analyser.service';
 import { AnalyserState } from '../../state/analyser/analyser.store';
@@ -38,18 +38,9 @@ export class SpectrogramComponent implements AfterViewInit, OnDestroy {
 
   public readonly pointFrequency$ = this.pointFrequency.asObservable();
 
-  private readonly pointValue = new BehaviorSubject<number>(0);
-
-  public readonly pointValue$ = this.pointValue.asObservable();
-
   public readonly updateBound = this.update.bind(this);
 
-  private readonly functions: AnalyserNumberFunctionId[] = [
-    'ZCR',
-    'FFTM',
-    'FFTP',
-    'AC',
-  ];
+  private readonly functions = this.analyser.FREQUENCY_DOMAIN_FUNCTION_IDS;
 
   public frames = 240;
 
@@ -92,7 +83,6 @@ export class SpectrogramComponent implements AfterViewInit, OnDestroy {
     this.graph.offUpdate(this.updateBound);
     this.pointTime.complete();
     this.pointFrequency.complete();
-    this.pointValue.complete();
   }
 
   /**
@@ -156,7 +146,6 @@ export class SpectrogramComponent implements AfterViewInit, OnDestroy {
       }
       const fscale = this.analyser.sampleRate / 2;
       this.pointFrequency.next((1.0 - p.y) * fscale);
-      this.updatePointValue();
     } else {
       this.pointTime.next(null);
       this.pointFrequency.next(null);
@@ -226,23 +215,6 @@ export class SpectrogramComponent implements AfterViewInit, OnDestroy {
   /**
    * TODO: description
    */
-  public updatePointValue(): void {
-    const tdata = this.analyser.tdata;
-    const t = this.pointTime.value;
-    const f = this.pointFrequency.value;
-    if (t !== null && f !== null) {
-      let val = NaN;
-      const i = Math.round(t * this.analyser.sampleRate);
-      if (i >= 0 || i < tdata.length) {
-        val = tdata[i];
-      }
-      this.pointValue.next(val);
-    }
-  }
-
-  /**
-   * TODO: description
-   */
   public update(paused: boolean): void {
     if (!this.canvas) {
       //console.log('canvas === null');
@@ -265,6 +237,5 @@ export class SpectrogramComponent implements AfterViewInit, OnDestroy {
       this.canvas.shift(-1, 0);
     }
     this.drawData();
-    this.updatePointValue();
   }
 }

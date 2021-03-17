@@ -1,6 +1,5 @@
 <div class="chart-header">
   <form class="chart-title" [formGroup]="form">
-    <!-- {{ title$ | async }} -->
     <select clrSelect formControlName="type">
       <option *ngFor="let type of types" [ngValue]="type.id">
         {{ type.name }}
@@ -34,6 +33,10 @@
   </app-spectrogram>
   <app-cepstrum-chart *ngSwitchCase="ChartType.CEPSTRUM">
   </app-cepstrum-chart>
+  <app-analyser-function-chart domain="time" *ngSwitchCase="ChartType.TIME_DOMAIN_FUNCTIONS">
+  </app-analyser-function-chart>
+  <app-analyser-function-chart domain="frequency" *ngSwitchCase="ChartType.FREQUENCY_DOMAIN_FUNCTIONS">
+  </app-analyser-function-chart>
   <div *ngSwitchDefault>
     No component found for chart type {{ type$ | async }}
   </div>

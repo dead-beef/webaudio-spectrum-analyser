@@ -73,7 +73,7 @@ export class Analyser {
     this.functionById
   );
 
-  public readonly PITCH_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
+  public readonly FREQUENCY_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
     'ZCR',
     'FFTM',
     'FFTP',

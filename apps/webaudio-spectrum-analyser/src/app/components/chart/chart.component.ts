@@ -42,6 +42,14 @@ export class ChartComponent implements OnInit, OnChanges {
     { id: ChartType.FREQUENCY, name: 'Frequency domain' },
     { id: ChartType.SPECTROGRAM, name: 'Spectrogram' },
     { id: ChartType.CEPSTRUM, name: 'Cepstrum' },
+    {
+      id: ChartType.TIME_DOMAIN_FUNCTIONS,
+      name: 'Functions (time domain)',
+    },
+    {
+      id: ChartType.FREQUENCY_DOMAIN_FUNCTIONS,
+      name: 'Functions (frequency domain)',
+    },
   ];
 
   public readonly titles: Record<ChartType, string> = Object.fromEntries(
