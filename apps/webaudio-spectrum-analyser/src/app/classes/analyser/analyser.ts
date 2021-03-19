@@ -27,7 +27,7 @@ export class Analyser {
 
   public maxPitch = 20000;
 
-  public threshold = 0.2;
+  public rmsThreshold = 0;
 
   public prominenceRadius = 0;
 
@@ -152,6 +152,7 @@ export class Analyser {
   public setState(state: AnalyserState) {
     this.stateChanged = true;
     this.debug = state.debug;
+    this.rmsThreshold = state.rmsThreshold;
     this.minPitch = state.pitch.min;
     this.maxPitch = state.pitch.max;
     this.fftPeakType = state.fftp.type;
@@ -188,18 +189,20 @@ export class Analyser {
    */
   public analyseData(): Analyser {
     if (!this.canAnalyse) {
-      return this;
-    }
-    for (const fn of this.functions) {
-      fn.updated = false;
-    }
-    for (const fn of this.functions) {
-      if (fn.enabled) {
-        fn.updated = true;
-        fn.value = fn.calc(fn.value);
+      for (const fn of this.functions) {
+        if (typeof fn.value === 'number' && !fn.updated) {
+          fn.updated = true;
+          fn.value = NaN;
+        }
+      }
+    } else {
+      for (const fn of this.functions) {
+        if (fn.enabled) {
+          fn.updated = true;
+          fn.value = fn.calc(fn.value);
+        }
       }
     }
-    this.stateChanged = false;
     return this;
   }
 
@@ -223,17 +226,16 @@ export class Analyser {
       const db = this.fdata[i];
       if (isNaN(db)) {
         nan = true;
+      } else {
+        this.fdata[i] = AudioMath.clamp(db, this.minDecibels, this.maxDecibels);
       }
-      this.fdata[i] = Math.min(
-        Math.max(this.minDecibels, db),
-        this.maxDecibels
-      );
     }
 
-    const threshold =
-      this.minDecibels + this.threshold * (this.maxDecibels - this.minDecibels);
     this.hasNan = nan;
-    this.canAnalyse = !this.hasNan && this.fdata.some(f => f > threshold);
+    this.canAnalyse = !this.hasNan;
+    if (this.rmsThreshold > 0) {
+      this.canAnalyse = this.canAnalyse && this.get('RMS') > this.rmsThreshold;
+    }
 
     return this;
   }
@@ -241,17 +243,25 @@ export class Analyser {
   /**
    * TODO: description
    */
+  public nextFrame(paused: boolean): Analyser {
+    this.updated = !paused || this.stateChanged;
+    this.stateChanged = false;
+    for (const fn of this.functions) {
+      fn.updated = false;
+    }
+    return this;
+  }
+
+  /**
+   * TODO: description
+   */
   public update(paused: boolean, node: AnalyserNode): Analyser {
-    if (paused) {
-      if (this.stateChanged) {
-        this.updated = true;
-        this.analyseData();
-      } else {
-        this.updated = false;
-      }
-    } else {
-      this.updated = true;
-      this.getData(node).analyseData();
+    this.nextFrame(paused);
+    if (!paused) {
+      this.getData(node);
+    }
+    if (this.updated) {
+      this.analyseData();
     }
     return this;
   }

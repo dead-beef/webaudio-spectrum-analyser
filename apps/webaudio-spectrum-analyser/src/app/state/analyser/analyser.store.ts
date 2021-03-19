@@ -67,6 +67,15 @@ export class AnalyserState {
    * @param state
    */
   @Selector()
+  public static rmsThreshold(state: AnalyserStateModel) {
+    return state.rmsThreshold;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
   public static minPitch(state: AnalyserStateModel) {
     return state.pitch.min;
   }
@@ -153,6 +162,20 @@ export class AnalyserState {
     this.analyser.debug = payload;
     this.analyser.stateChanged = true;
     return ctx.patchState({ debug: payload });
+  }
+
+  /**
+   * Action
+   * @param ctx
+   */
+  @Action(analyserAction.setRmsThreshold)
+  public setRmsThreshold(
+    ctx: StateContext<AnalyserStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    this.analyser.rmsThreshold = payload;
+    this.analyser.stateChanged = true;
+    return ctx.patchState({ rmsThreshold: payload });
   }
 
   /**

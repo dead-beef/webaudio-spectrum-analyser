@@ -178,7 +178,7 @@ export function getMockAnalyser() {
     volume: 0.5,
     minPitch: 20,
     maxPitch: 20000,
-    threshold: 0.2,
+    rmsThreshold: 0,
 
     prominenceRadius: 0,
     prominenceThreshold: 0.1,

@@ -55,6 +55,12 @@ export class AnalyserOptionsComponent {
       (d: boolean) => this.analyser.dispatch('setDebug', d),
       untilDestroyed(this)
     ),
+    rmsThreshold: stateFormControl(
+      null,
+      this.analyser.select(AnalyserState.rmsThreshold),
+      (t: number) => this.analyser.dispatch('setRmsThreshold', t),
+      untilDestroyed(this)
+    ),
     historySize: stateFormControl(
       null,
       this.analyser.select(AnalyserState.historySize),

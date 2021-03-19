@@ -65,6 +65,8 @@ export class AnalyserFunctionChartComponent
 
   private logGrid = false;
 
+  private rmsThreshold = false;
+
   public unit = '';
 
   public unitPrefix = false;
@@ -117,6 +119,7 @@ export class AnalyserFunctionChartComponent
         this.functions = this.analyser.TIME_DOMAIN_FUNCTION_IDS;
         this.yScale = (y: number) => y;
         this.logGrid = false;
+        this.rmsThreshold = true;
         this.unit = '';
         this.unitPrefix = false;
         this.precision = 2;
@@ -125,6 +128,7 @@ export class AnalyserFunctionChartComponent
         this.functions = this.analyser.FREQUENCY_DOMAIN_FUNCTION_IDS;
         this.yScale = (y: number) => this.frequencyToCanvas(y);
         this.logGrid = true;
+        this.rmsThreshold = false;
         this.unit = 'Hz';
         this.unitPrefix = true;
         this.precision = 1;
@@ -211,7 +215,13 @@ export class AnalyserFunctionChartComponent
       return;
     }
     if (this.logGrid) {
-      this.canvas.log(20, 20000, y => this.frequencyToCanvas(y), false);
+      this.canvas.log(20, 20000, this.yScale, false);
+    }
+    if (this.rmsThreshold && this.analyser.rmsThreshold > 0) {
+      this.canvas.hline(
+        this.yScale(this.analyser.rmsThreshold),
+        'rms-threshold'
+      );
     }
   }
 
