@@ -62,6 +62,7 @@ export class InputFileUrlDirective implements OnInit, OnDestroy {
     const input: HTMLInputElement = document.createElement('input');
     input.id = this.id;
     input.type = 'file';
+    input.setAttribute('style', 'position: absolute;top:-100%;left:-100%;');
     input.addEventListener('input', this.doLoadFile.bind(this));
     document.body.appendChild(input);
     return input;
