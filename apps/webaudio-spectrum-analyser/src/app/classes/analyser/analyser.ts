@@ -246,8 +246,10 @@ export class Analyser {
   public nextFrame(paused: boolean): Analyser {
     this.updated = !paused || this.stateChanged;
     this.stateChanged = false;
-    for (const fn of this.functions) {
-      fn.updated = false;
+    if (this.updated) {
+      for (const fn of this.functions) {
+        fn.updated = false;
+      }
     }
     return this;
   }
