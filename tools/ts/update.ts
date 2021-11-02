@@ -5,8 +5,7 @@ import {
 } from 'child_process';
 import * as fs from 'fs';
 import readlineSync from 'readline-sync';
-import { Observable, Subscriber, timer } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, Subscriber } from 'rxjs';
 import { argv } from 'yargs';
 
 import { COLORS } from './colors';
@@ -56,40 +55,47 @@ ${COLORS.CYAN}%s${COLORS.DEFAULT} ${COLORS.YELLOW}%s${COLORS.DEFAULT}\n`,
 function spawnCommandSync(
   command: string,
   args: string[] = [],
-  options: SpawnSyncOptionsWithStringEncoding = {
-    env: { FORCE_COLOR: 'true' },
+  options: Partial<SpawnSyncOptionsWithStringEncoding> = {}
+): SpawnSyncReturns<string> {
+  const defaults: SpawnSyncOptionsWithStringEncoding = {
+    env: {
+      ...process.env,
+      FORCE_COLOR: 'true',
+    },
     encoding: 'utf8',
     shell: true,
-  }
-): SpawnSyncReturns<string> {
-  const spawnSyncOutput = spawnSync(command, args, options);
+    stdio: ['ignore', 'inherit', 'inherit'],
+  };
+  const spawnSyncOutput = spawnSync(command, args, { ...defaults, ...options });
 
+  console.log(`${COLORS.CYAN}%s${COLORS.DEFAULT}`, 'Process finished.');
   if (spawnSyncOutput.error) {
     console.log(
-      `${COLORS.CYAN}%s${COLORS.DEFAULT}
-${COLORS.RED}%s:${COLORS.DEFAULT}\n%s
-${COLORS.CYAN}%s:${COLORS.DEFAULT}\n%s
-${COLORS.CYAN}%s:${COLORS.DEFAULT}\n%s\n`,
-      'Process finished.',
+      `${COLORS.RED}%s:${COLORS.DEFAULT}\n%s`,
       'ERROR',
-      spawnSyncOutput.error,
-      'stderr',
-      spawnSyncOutput.stderr,
-      'exit code',
-      spawnSyncOutput.status
-    );
-  } else {
-    console.log(
-      `${COLORS.CYAN}%s${COLORS.DEFAULT}
-${COLORS.CYAN}%s:${COLORS.DEFAULT}\n%s
-${COLORS.CYAN}%s:${COLORS.DEFAULT}\n%s\n`,
-      'Process finished.',
-      'stdout',
-      spawnSyncOutput.stdout,
-      'exit code',
-      spawnSyncOutput.status
+      spawnSyncOutput.error
     );
   }
+  if (spawnSyncOutput.stdout !== null && spawnSyncOutput.stdout.length) {
+    console.log(
+      `${COLORS.CYAN}%s:${COLORS.DEFAULT}\n%s`,
+      'stdout',
+      spawnSyncOutput.stdout
+    );
+  }
+  if (spawnSyncOutput.stderr !== null && spawnSyncOutput.stderr.length) {
+    console.log(
+      `${COLORS.CYAN}%s:${COLORS.DEFAULT}\n%s`,
+      'stderr',
+      spawnSyncOutput.stderr
+    );
+  }
+  const color = spawnSyncOutput.status ? COLORS.RED : COLORS.CYAN;
+  console.log(
+    `${color}%s:${COLORS.DEFAULT}\n%s`,
+    'exit code',
+    spawnSyncOutput.status
+  );
 
   return spawnSyncOutput;
 }
@@ -102,29 +108,37 @@ function executeMigrations(): Observable<SpawnSyncReturns<string> | null> {
     this,
     subscriber: Subscriber<SpawnSyncReturns<string> | null>
   ) {
-    fs.readFile(`${root}/migrations.json`, 'utf8', (error, data) => {
-      if (error !== null) {
+    let i = 0;
+    for (; fs.existsSync(`migrations.${i}.json`); ++i);
+    if (!i) {
+      console.log(
+        `\n${COLORS.GREEN}%s${COLORS.DEFAULT}\n`,
+        '<< NO MIGRATIONS >>'
+      );
+      subscriber.next(null);
+    }
+    while(--i >= 0) {
+      const path = `migrations.${i}.json`
+      console.log(
+        `\n${COLORS.YELLOW}%s${COLORS.DEFAULT}\n`,
+        `<< EXECUTING MIGRATIONS ${path} >>`
+      );
+      const migrationProcessOutput = spawnCommandSync(
+        `yarn nx migrate --run-migrations=${path}`
+      );
+      if (migrationProcessOutput.error || migrationProcessOutput.status) {
         console.log(
-          `\n${COLORS.GREEN}%s${COLORS.DEFAULT}\n`,
-          '<< NO MIGRATIONS >>'
+          `\n${COLORS.RED}%s${COLORS.DEFAULT}\n`,
+          `<< ERROR EXECUTING MIGRATIONS ${path} >>`
         );
-        subscriber.next(null);
+        process.exit(1);
       } else {
-        console.log(
-          `\n${COLORS.YELLOW}%s${COLORS.DEFAULT}\n`,
-          '<< EXECUTING MIGRATIONS >>'
-        );
-        console.log(data);
-
-        const migrationProcessOutput = spawnCommandSync(
-          `yarn nx migrate --run-migrations=${root}/migrations.json`
-        );
-        subscriber.next(migrationProcessOutput);
+        fs.rmSync(path);
       }
-
-      subscriber.complete();
-      subscriber.unsubscribe();
-    });
+      subscriber.next(migrationProcessOutput);
+    }
+    subscriber.complete();
+    subscriber.unsubscribe();
   });
   return result;
 }
@@ -158,9 +172,11 @@ function checkForUpdates(jsonUpgraded = false): TUpdatablePackages {
     `\n${COLORS.YELLOW}%s${COLORS.DEFAULT}\n`,
     'Checking for updates. Wait for it...'
   );
-  const ncuOutput = spawnCommandSync('ncu', args);
+  const ncuOutput = spawnCommandSync('ncu', args, {
+    stdio: ['ignore', 'pipe', 'inherit'],
+  });
   const updatablePackages: TUpdatablePackages = jsonUpgraded
-    ? JSON.parse(ncuOutput.stdout) ?? {}
+    ? JSON.parse(ncuOutput.stdout.substr(ncuOutput.stdout.indexOf('{'))) ?? {}
     : {};
   if (jsonUpgraded) {
     writeUpdateSummary(updatablePackages);
@@ -174,52 +190,52 @@ function checkForUpdates(jsonUpgraded = false): TUpdatablePackages {
 }
 
 /**
- * Executes packages migration procedure recursively.
+ * Executes packages migration procedure.
  * @param config migration configuration
  */
-function migratePackagesRecursively(config: {
-  packageNames: string[];
-  packageNameIndex: number;
-}) {
-  const packageName = config.packageNames[config.packageNameIndex];
-  if (typeof packageName !== 'undefined') {
-    readlineSync.setDefaultOptions({
-      limit: ['yes', 'no', 'y', 'n', 'Y', 'N'],
-    });
-    const question = `> Migrate ${packageName} to the latest version`;
-    /**
-     * @note explicit boolean cast
-     * The question returns boolean, respective types library is outdated (it's always string).
-     */
-    const answer = Boolean(
-      readlineSync.question(`${question} (y/N)? `, {
-        trueValue: ['yes', 'y', 'Y'],
-        falseValue: ['no', 'n', 'N'],
-      })
-    );
+function doMigratePackages(packageNames: string[]) {
+  const migrate: string[] = [];
+  let skipQuestion = false;
+  let answer = false;
 
-    if (answer) {
-      const migratePackageOutput = spawnCommandSync(
-        `yarn nx migrate ${packageName}`
+  readlineSync.setDefaultOptions({
+    limit: ['yes', 'no', 'all', 'y', 'n', 'a', 'Y', 'N', 'A'],
+  });
+
+  for (const packageName of packageNames) {
+    if (!skipQuestion) {
+      const answer_ = readlineSync.question(
+        `> Migrate ${packageName} to the latest version (y/N/a)? `,
+        {
+          trueValue: ['yes', 'y', 'Y'],
+          falseValue: ['no', 'n', 'N'],
+        }
       );
-      if (migratePackageOutput.error) {
-        process.exit(1);
+
+      if (typeof answer_ === 'boolean') {
+        answer = Boolean(answer_);
+      } else if (answer_ === 'all' || answer_ === 'a' || answer_ === 'A') {
+        answer = true;
+        skipQuestion = true;
       }
     }
 
-    const timeout = 150;
-    void timer(timeout)
-      .pipe(
-        tap(() => {
-          if (config.packageNameIndex < config.packageNames.length) {
-            migratePackagesRecursively({
-              packageNames: config.packageNames,
-              packageNameIndex: config.packageNameIndex + 1,
-            });
-          }
-        })
-      )
-      .subscribe();
+    if (answer) {
+      migrate.push(packageName);
+    }
+  }
+  const path = `${root}/migrations.json`;
+  let i = 0;
+  for (const packageName of migrate) {
+    const migratePackageOutput = spawnCommandSync(
+      `yarn nx migrate ${packageName}`
+    );
+    if (migratePackageOutput.error || migratePackageOutput.status) {
+      process.exit(1);
+    }
+    if (fs.existsSync(path)) {
+      fs.renameSync(path, path.replace(/\.json$/, `.${i++}.json`));
+    }
   }
 }
 
@@ -246,11 +262,11 @@ function migratePackages() {
       /**
        * Do live update check to veryfy that json is not outdated.
        */
-      checkForUpdates(false);
+      //checkForUpdates(false);
 
       const packageNames = Object.keys(updatablePackages);
 
-      migratePackagesRecursively({ packageNames, packageNameIndex: 0 });
+      doMigratePackages(packageNames);
     }
   });
 }

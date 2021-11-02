@@ -50,6 +50,10 @@ wasm/*.js
 npm-debug.log
 yarn-error.log
 testem.log
+/migrations
+/migrations.json
+/migrations.*.json
+/migrations-packages.json
 
 # System Files
 .DS_Store

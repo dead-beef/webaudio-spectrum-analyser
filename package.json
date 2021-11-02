@@ -59,8 +59,8 @@
     "test:coverage": "npx nx run-many --target=test --all --codeCoverage=true",
     "workspace:cleanup": "rm -rf ./documentation/* ./coverage/* ./dist/*",
     "workspace:schematic": "nx workspace-schematic",
-    "workspace:update:check": "ng run tools:update-check",
-    "workspace:update:migrate": "ng run tools:update-migrate"
+    "workspace:update:check": "nx run tools:update-check",
+    "workspace:update:migrate": "nx run tools:update-migrate"
   },
   "husky": {
     "hooks": {
@@ -158,6 +158,7 @@
     "jest-canvas-mock": "2.3.1",
     "jest-cpp-wasm": "0.1.0",
     "jest-preset-angular": "8.3.2",
+    "npm-check-updates": "^11.8.5",
     "prettier": "2.2.1",
     "prettier-stylelint": "0.4.2",
     "readline-sync": "1.4.10",

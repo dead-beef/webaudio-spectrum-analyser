@@ -181,7 +181,7 @@
           "options": {
             "commands": [
               {
-                "command": "npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --check --jsonUpgraded; npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --migrate=start; yarn install && yarn ngcc && npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --migrate=execute; rm -rf migrations.json migrations-packages.json"
+                "command": "npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --check --jsonUpgraded && npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --migrate=start && yarn install && yarn ngcc && npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --migrate=execute && rm -f migrations.*.json migrations-packages.json"
               }
             ]
           }
