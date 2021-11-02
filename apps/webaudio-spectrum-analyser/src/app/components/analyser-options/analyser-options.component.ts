@@ -3,7 +3,7 @@ import { FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { environment } from '../../../environments/environment';
-import { FftPeakType, Layouts } from '../../interfaces';
+import { AnalyserFunctionId, FftPeakType, Layouts } from '../../interfaces';
 import { AnalyserService } from '../../state/analyser/analyser.service';
 import { AnalyserState } from '../../state/analyser/analyser.store';
 import { stateFormControl } from '../../utils';
@@ -17,25 +17,31 @@ import { stateFormControl } from '../../utils';
 export class AnalyserOptionsComponent {
   public layout = Layouts.VERTICAL;
 
-  public readonly functions = this.analyser.analyser.functions;
-
   public readonly peakTypes = [
     { id: FftPeakType.MIN_FREQUENCY, name: 'Min frequency' },
-    { id: FftPeakType.MAX_MAGNITUDE, name: 'Max magnitude' },
     { id: FftPeakType.MAX_PROMINENCE, name: 'Max prominence' },
   ];
+
+  public readonly functionId: AnalyserFunctionId[] = [
+    ...this.analyser.analyser.TIME_DOMAIN_FUNCTION_IDS,
+    ...this.analyser.analyser.FREQUENCY_DOMAIN_FUNCTION_IDS,
+  ];
+
+  public readonly functionName: string[] = this.functionId.map(id =>
+    this.analyser.analyser.getName(id)
+  );
 
   public readonly form = new FormGroup({
     enabled: new FormGroup(
       Object.fromEntries(
-        this.functions.map(fn => [
-          fn.id,
+        this.functionId.map(id => [
+          id,
           stateFormControl(
             null,
-            this.analyser.select(AnalyserState.functionEnabled(fn.id)),
+            this.analyser.select(AnalyserState.functionEnabled(id)),
             (e: boolean) =>
               this.analyser.dispatch('setFunctionState', {
-                id: fn.id,
+                id,
                 enabled: e,
               }),
             untilDestroyed(this)
@@ -47,6 +53,18 @@ export class AnalyserOptionsComponent {
       null,
       this.analyser.select(AnalyserState.debug),
       (d: boolean) => this.analyser.dispatch('setDebug', d),
+      untilDestroyed(this)
+    ),
+    rmsThreshold: stateFormControl(
+      null,
+      this.analyser.select(AnalyserState.rmsThreshold),
+      (t: number) => this.analyser.dispatch('setRmsThreshold', t),
+      untilDestroyed(this)
+    ),
+    historySize: stateFormControl(
+      null,
+      this.analyser.select(AnalyserState.historySize),
+      (s: number) => this.analyser.dispatch('setHistorySize', s),
       untilDestroyed(this)
     ),
     minPitch: stateFormControl(
@@ -97,7 +115,6 @@ export class AnalyserOptionsComponent {
 
   /**
    * Constructor.
-   * @param graph
    */
   constructor(private readonly analyser: AnalyserService) {}
 }

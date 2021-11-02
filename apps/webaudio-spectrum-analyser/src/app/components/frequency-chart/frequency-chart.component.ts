@@ -9,10 +9,8 @@ import { BehaviorSubject } from 'rxjs';
 
 import { Analyser } from '../../classes/analyser/analyser';
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
-import { AnalyserFunction, Point } from '../../interfaces';
-import { ColorService } from '../../services/color/color.service';
+import { Point } from '../../interfaces';
 import { AnalyserService } from '../../state/analyser/analyser.service';
-import { AnalyserState } from '../../state/analyser/analyser.store';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { CanvasComponent } from '../canvas/canvas.component';
 
@@ -40,23 +38,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
 
   public readonly pointValue$ = this.pointValue.asObservable();
 
-  public readonly functions = this.analyser.functions.filter(
-    fn => !fn.timeDomain
-  );
-
-  private readonly values = this.functions.map(
-    _ => new BehaviorSubject<number>(0)
-  );
-
-  public readonly values$ = this.values.map(subject => {
-    return subject.asObservable();
-  });
-
-  public readonly functionEnabled$ = this.functions.map(fn => {
-    return this.analyserService.select(AnalyserState.functionEnabled(fn.id));
-  });
-
-  public readonly valueColor = this.functions.map(fn => this.color.get(fn.id));
+  public readonly functions = this.analyser.FREQUENCY_DOMAIN_FUNCTION_IDS;
 
   /**
    * Constructor.
@@ -64,8 +46,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
    */
   constructor(
     private readonly graphService: AudioGraphService,
-    private readonly analyserService: AnalyserService,
-    private readonly color: ColorService
+    private readonly analyserService: AnalyserService
   ) {}
 
   /**
@@ -82,19 +63,13 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
     this.graph.offUpdate(this.animate);
     this.pointFrequency.complete();
     this.pointValue.complete();
-    for (const subject of this.values) {
-      subject.complete();
-    }
   }
 
   /**
    * Converts canvas value to frequency.
    * @param x
    */
-  private canvasToFrequency(x: number, percent: boolean = false): number {
-    if (!percent) {
-      x /= this.canvas!.size.width;
-    }
+  private canvasToFrequency(x: number): number {
     return Math.pow(10, 1.301 + x * 3);
   }
 
@@ -103,7 +78,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
    * @param f
    */
   private frequencyToCanvas(f: number): number {
-    return ((Math.log10(f) - 1.301) / 3) * this.canvas!.size.width;
+    return f <= 0 ? -1 : (Math.log10(f) - 1.301) / 3;
   }
 
   /**
@@ -111,187 +86,77 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
    * @param plotCount
    */
   private drawGrid(): void {
-    const ctx = this.canvas?.context;
-    if (!ctx) {
+    if (this.canvas === null) {
       return;
     }
-    const height = this.canvas!.size.height;
-    const color = this.color.get('grid');
-    ctx.strokeStyle = color;
-    ctx.fillStyle = color;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    for (let i = 20, j = 10; i <= 20000; i += j) {
-      const x = this.frequencyToCanvas(i);
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
-      switch (i) {
-        case 10:
-        case 100:
-        case 1000:
-        case 10000:
-          j = i;
-          break;
-      }
-    }
-    ctx.stroke();
-
+    this.canvas.log(20, 20000, x => this.frequencyToCanvas(x));
     if (this.analyser.minPitch > 20 || this.analyser.maxPitch < 20000) {
-      const x0 = this.frequencyToCanvas(this.analyser.minPitch);
-      const x1 = this.frequencyToCanvas(this.analyser.maxPitch);
-      ctx.strokeStyle = this.color.get('selection');
-      ctx.beginPath();
-      ctx.moveTo(x0, 0);
-      ctx.lineTo(x0, height);
-      ctx.moveTo(x1, 0);
-      ctx.lineTo(x1, height);
-      ctx.stroke();
+      this.canvas.vline(
+        this.frequencyToCanvas(this.analyser.minPitch),
+        'selection'
+      );
+      this.canvas.vline(
+        this.frequencyToCanvas(this.analyser.maxPitch),
+        'selection'
+      );
     }
-  }
-
-  /**
-   * Draws values
-   */
-  private drawValue(fn: AnalyserFunction): void {
-    const ctx = this.canvas?.context;
-    if (!ctx) {
-      return;
-    }
-    const x = this.frequencyToCanvas(fn.value);
-    ctx.strokeStyle = this.color.get(fn.id);
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, this.canvas!.size.height);
-    ctx.stroke();
   }
 
   /**
    * Draws frequency data.
    */
   private drawFrequencyData(data: Float32Array) {
-    const ctx = this.canvas?.context;
-    if (!ctx) {
+    if (this.canvas === null) {
       return;
     }
-
-    const width = this.canvas!.size.width;
-    const yMin = 0;
-    const yMax = this.canvas!.size.height;
-    const dMin = this.analyser.minDecibels;
-    const dMax = this.analyser.maxDecibels;
-    const yScale = (yMax - yMin) / (dMax - dMin);
-    const sampleRate = this.analyser.sampleRate;
-    const fftSize = data.length * 2;
-    const binSize = sampleRate / fftSize;
-    const halfBinSize = binSize / 2;
-    const start = this.analyser.indexOfFrequency(20);
-
-    let prevX = 0;
-    let drawing = true;
-
-    ctx.fillStyle = this.color.get('chart');
-    ctx.lineWidth = 0;
-
-    ctx.beginPath();
-    ctx.moveTo(width, yMax);
-    ctx.lineTo(0, yMax);
-
-    for (let i = start; i < data.length; ++i) {
-      const f = i * binSize + halfBinSize;
-      const x = this.frequencyToCanvas(f);
-      if (Math.abs(data[i] - data[i - 1]) < 0.5 && prevX > 0) {
-        drawing = false;
-      } else {
-        if (!drawing) {
-          drawing = true;
-          ctx.lineTo(prevX, yMax - yScale * Math.max(0, data[i - 1] - dMin));
-        }
-        const y = yScale * Math.max(0, data[i] - dMin);
-        ctx.lineTo(prevX, yMax - y);
-        ctx.lineTo(x, yMax - y);
-      }
-      prevX = x;
-    }
-
-    ctx.fill();
+    const sr2 = this.analyser.sampleRate / 2;
+    const dx = -sr2 / (data.length * 2);
+    const yscale = 1 / (this.analyser.maxDecibels - this.analyser.minDecibels);
+    const y0 = this.analyser.minDecibels;
+    this.canvas.step(
+      data,
+      (x: number) => this.frequencyToCanvas(x * sr2 + dx),
+      (y: number) => yscale * (y - y0),
+      'chart',
+      0
+    );
   }
 
   /**
    * Draws autocorrelation data.
    */
   private drawAutocorrelationData(data: Float32Array) {
-    const ctx = this.canvas?.context;
-    if (!ctx) {
+    if (this.canvas === null) {
       return;
     }
-    const yMin = 0;
-    const yMax = this.canvas!.size.height;
-    const yMid = (yMin + yMax) / 2;
-    const yScale = yMin - yMid;
-    ctx.strokeStyle = this.color.get('ac-chart');
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(this.canvas!.size.width + 10, yMid);
-    for (let i = 2; i < data.length; ++i) {
-      const f = this.analyser.sampleRate / i;
-      const x = this.frequencyToCanvas(f);
-      const y = yMid + yScale * data[i];
-      ctx.lineTo(x, y);
-    }
-    ctx.stroke();
+    const fs = this.analyser.sampleRate;
+    this.canvas.plot(
+      data.subarray(2),
+      (x: number, i: number) => this.frequencyToCanvas(fs / (i + 2)),
+      (y: number) => 0.5 * (1 + y),
+      'ac-chart'
+    );
   }
 
   /**
    * Draws prominence data.
    */
   public drawProminenceData(data: Float32Array) {
-    const ctx = this.canvas?.context;
-    if (!ctx) {
+    if (this.canvas === null) {
       return;
     }
-    const dMin = this.analyser.minDecibels;
-    const dMax = this.analyser.maxDecibels;
-    const width = this.canvas!.size.width;
-    const yMin = 0;
-    const yMax = this.canvas!.size.height;
-    const yScale = (yMax - yMin) / (dMax - dMin);
-    const sampleRate = this.analyser.sampleRate;
-    const fftSize = data.length * 2;
-    const binSize = sampleRate / fftSize;
-    let drawing = true;
-    let y = 0;
-    ctx.strokeStyle = this.color.get('fftp-chart');
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(0, yMax);
-    for (let i = 0; i < data.length; ++i) {
-      if (data[i] === data[i - 1]) {
-        drawing = false;
-        continue;
-      }
-      if (!drawing) {
-        drawing = true;
-        const prevF = (i - 1) * binSize;
-        const prevX = this.frequencyToCanvas(prevF);
-        ctx.lineTo(prevX, y);
-      }
-      const f = i * binSize;
-      const x = this.frequencyToCanvas(f);
-      y = yMax - yScale * data[i];
-      ctx.lineTo(x, y);
-    }
-    if (!drawing) {
-      ctx.lineTo(width, y);
-    }
-    ctx.stroke();
-
-    ctx.strokeStyle = this.color.get('fftp-threshold');
-    y = yMin + (yMax - yMin) * (1 - this.analyser.prominenceThreshold);
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
-    ctx.stroke();
+    const fscale = this.analyser.sampleRate / 2;
+    const yscale = 1 / (this.analyser.maxDecibels - this.analyser.minDecibels);
+    this.canvas.plot(
+      data,
+      (x: number) => this.frequencyToCanvas(x * fscale),
+      (y: number) => y * yscale,
+      'fftp-chart'
+    );
+    this.canvas.hline(
+      yscale * this.analyser.prominenceThreshold,
+      'fftp-threshold'
+    );
   }
 
   /**
@@ -299,7 +164,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
    */
   public setPoint(p: Nullable<Point>): void {
     if (p) {
-      this.pointFrequency.next(this.canvasToFrequency(p.x, true));
+      this.pointFrequency.next(this.canvasToFrequency(p.x));
       this.updatePointValue();
     } else {
       this.pointFrequency.next(null);
@@ -343,27 +208,24 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
     this.canvas.clear();
     this.drawFrequencyData(this.analyser.fdata);
     this.drawGrid();
+
     for (let i = 0; i < this.functions.length; ++i) {
-      if (this.functions[i].enabled) {
-        this.drawValue(this.functions[i]);
-        this.values[i].next(this.functions[i].value);
+      const fn = this.functions[i];
+      const value: Nullable<number> = this.analyser.getOptional(fn);
+      if (value !== null) {
+        this.canvas.vline(this.frequencyToCanvas(value), fn);
       }
     }
 
     if (this.analyser.debug) {
-      for (const fn of this.functions) {
-        if (fn.enabled) {
-          switch (fn.id) {
-            case 'AC':
-              this.drawAutocorrelationData(this.analyser.autocorrdata);
-              break;
-            case 'FFTP':
-              this.drawProminenceData(this.analyser.prominenceData);
-              break;
-            default:
-              break;
-          }
-        }
+      let data: Nullable<Float32Array> = this.analyser.getOptional('autocorr');
+      if (data !== null) {
+        this.drawAutocorrelationData(data);
+      }
+
+      data = this.analyser.getOptional('prominence');
+      if (data !== null) {
+        this.drawProminenceData(data);
       }
     }
   }

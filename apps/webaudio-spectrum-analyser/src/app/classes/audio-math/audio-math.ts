@@ -1,11 +1,5 @@
 import * as wasmModule from '../../wasm/index.c';
-import {
-  AudioMathWasmFunctions,
-  Autocorrelation,
-  FftPeakType,
-  Prominence,
-  WasmBuffer,
-} from './interfaces';
+import { AudioMathWasmFunctions, FftPeakType, WasmBuffer } from './interfaces';
 
 class AudioMathInstance {
   private _wasm: Nullable<WasmModule<AudioMathWasmFunctions>> = null;
@@ -115,14 +109,16 @@ class AudioMathInstance {
    * @param left
    * @param right
    */
-  public interpolatePeak(peak: number, left: number, right: number): number {
-    const c = peak;
-    const b = (right - left) / 2;
-    const a = left + b - c;
-    if (Math.abs(a) < 1e-3) {
-      return 0;
+  public interpolatePeak<T extends TypedArray>(data: T, peak: number): number {
+    if (peak > 0 || peak < data.length - 1) {
+      const c = data[peak];
+      const b = (data[peak + 1] - data[peak - 1]) / 2;
+      const a = data[peak - 1] + b - c;
+      if (Math.abs(a) > 1e-4) {
+        peak += -b / (2 * a);
+      }
     }
-    return -b / (2 * a);
+    return peak;
   }
 
   /**
@@ -156,7 +152,7 @@ class AudioMathInstance {
   public resizeBuffer(
     buf: WasmBuffer,
     length: number,
-    type: WasmMemoryType = 1
+    type: WasmMemoryType = 40
   ) {
     const wasm = this.wasm!;
     const byteLength = length * wasm.memoryManager.mem[type].BYTES_PER_ELEMENT;
@@ -239,10 +235,10 @@ class AudioMathInstance {
   public indexOfMax<T extends TypedArray>(
     data: T,
     start: number = 0,
-    end: number = data.length
+    end: number = data.length - 1
   ): number {
     if (!data.length) {
-      return -1;
+      return NaN;
     }
 
     start = this.clamp(start, 0, data.length);
@@ -250,13 +246,46 @@ class AudioMathInstance {
 
     let res = -1;
     let max = -Infinity;
-    for (let i = start; i < end; i += 1) {
+    for (let i = start; i <= end; ++i) {
       if (max < data[i]) {
         res = i;
         max = data[i];
       }
     }
-    return res;
+    return res >= 0 ? res : NaN;
+  }
+
+  /**
+   * TODO: description
+   * @param data
+   * @param start
+   * @param end
+   */
+  public indexOfMaxPeak<T extends TypedArray>(
+    data: T,
+    start: number = 1,
+    end: number = data.length - 2
+  ): number {
+    if (!data.length) {
+      return NaN;
+    }
+
+    start = this.clamp(start, 1, data.length - 2);
+    end = this.clamp(end, 1, data.length - 2);
+
+    let res = -1;
+    let max = -Infinity;
+    for (let i = start; i <= end; ++i) {
+      if (data[i] < Math.max(data[i - 1], data[i + 1], max)) {
+        continue;
+      }
+      if (data[i] === data[i - 1] && data[i] === data[i + 1]) {
+        continue;
+      }
+      res = i;
+      max = data[i];
+    }
+    return res >= 0 ? res : NaN;
   }
 
   /**
@@ -293,43 +322,49 @@ class AudioMathInstance {
 
   /**
    * TODO: description
-   * @param data
-   * @param start
-   * @param end
    */
-  public autocorrelation(
-    data: Float32Array,
+  public autocorr(
+    tdata: Float32Array,
     minOffset: number,
     maxOffset: number,
     output: Float32Array
-  ): Autocorrelation {
-    output = this.resize(output, data.length);
-
+  ): Float32Array {
     const wasm = this.wasm;
     if (!wasm) {
-      return {
-        value: output,
-        peak: -1,
-      };
+      return output;
     }
-
-    this.copyToBuffer(this.inputBuffer, data);
-    this.resizeBuffer(this.outputBuffer, data.length, this.outputBuffer.type);
-
-    const res: number = wasm.exports.autocorrpeak(
+    this.copyToBuffer(this.inputBuffer, tdata);
+    this.resizeBuffer(this.outputBuffer, tdata.length);
+    wasm.exports.autocorr(
       this.inputBuffer.ptr[0],
       this.outputBuffer.ptr[0],
-      data.length,
+      tdata.length,
       minOffset,
       maxOffset
     );
+    return this.copyFromBuffer(output, this.outputBuffer);
+  }
 
-    output = this.copyFromBuffer(output, this.outputBuffer);
-
-    return {
-      value: output,
-      peak: res >= 0 ? res : NaN,
-    };
+  /**
+   * TODO: description
+   */
+  public autocorrpeak(
+    acdata: Float32Array,
+    minOffset: number,
+    maxOffset: number
+  ): number {
+    const wasm = this.wasm;
+    if (!wasm) {
+      return NaN;
+    }
+    this.copyToBuffer(this.inputBuffer, acdata);
+    const ret = wasm.exports.autocorrpeak(
+      this.inputBuffer.ptr[0],
+      acdata.length,
+      minOffset,
+      maxOffset
+    );
+    return ret > 0 ? ret : NaN;
   }
 
   /**
@@ -338,30 +373,20 @@ class AudioMathInstance {
   public prominence(
     fft: Float32Array,
     output: Float32Array,
-    peakType: FftPeakType = FftPeakType.MAX_MAGNITUDE,
-    start: number = 0,
-    end: number = fft.length - 1,
-    radius: number = 0,
-    fftMin: number = 0,
-    fftMax: number = 1,
-    threshold: number = 0.1,
+    start: number,
+    end: number,
+    radius: number,
+    fftMin: number,
+    fftMax: number,
     normalize: boolean = false
-  ): Prominence {
-    output = this.resize(output, fft.length);
-    threshold = Math.floor(threshold * (fftMax - fftMin));
-
+  ): Float32Array {
     const wasm = this.wasm;
     if (!wasm) {
-      return {
-        value: output,
-        peak: -1,
-      };
+      return output;
     }
-
     this.copyToBuffer(this.inputBuffer, fft);
-    this.resizeBuffer(this.outputBuffer, fft.length, this.outputBuffer.type);
-
-    const res: number = wasm.exports.prominencepeak(
+    this.resizeBuffer(this.outputBuffer, fft.length);
+    wasm.exports.prominence(
       this.inputBuffer.ptr[0],
       this.outputBuffer.ptr[0],
       fft.length,
@@ -370,17 +395,56 @@ class AudioMathInstance {
       radius,
       fftMin,
       fftMax,
-      threshold,
-      peakType,
       normalize
     );
+    return this.copyFromBuffer(output, this.outputBuffer);
+  }
 
-    output = this.copyFromBuffer(output, this.outputBuffer);
+  /**
+   * TODO: description
+   */
+  public prominencepeak(
+    prominence: Float32Array,
+    peakType: FftPeakType = FftPeakType.MIN_FREQUENCY,
+    start: number = 0,
+    end: number = prominence.length,
+    threshold: number = 10
+  ): number {
+    const wasm = this.wasm;
+    if (!wasm) {
+      return NaN;
+    }
+    this.copyToBuffer(this.inputBuffer, prominence);
+    const ret = wasm.exports.prominencepeak(
+      this.inputBuffer.ptr[0],
+      prominence.length,
+      start,
+      end,
+      threshold,
+      peakType
+    );
+    return ret > 0 ? ret : NaN;
+  }
 
-    return {
-      value: output,
-      peak: res >= 0 ? res : NaN,
-    };
+  /**
+   * TODO: description
+   */
+  public cepstrum(fft: Float32Array, output: Float32Array): Float32Array {
+    if (fft.length < 2) {
+      return output;
+    }
+    const wasm = this.wasm;
+    if (!wasm) {
+      return output;
+    }
+    this.copyToBuffer(this.inputBuffer, fft);
+    this.resizeBuffer(this.outputBuffer, 1 + fft.length / 2);
+    wasm.exports.cepstrum(
+      this.inputBuffer.ptr[0],
+      this.outputBuffer.ptr[0],
+      fft.length * 2
+    );
+    return this.copyFromBuffer(output, this.outputBuffer);
   }
 
   /**

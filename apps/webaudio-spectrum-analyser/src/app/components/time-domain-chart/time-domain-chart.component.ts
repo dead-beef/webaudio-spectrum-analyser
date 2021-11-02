@@ -7,10 +7,8 @@ import {
 } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-import { AnalyserFunction, Point } from '../../interfaces';
-import { ColorService } from '../../services/color/color.service';
+import { Point } from '../../interfaces';
 import { AnalyserService } from '../../state/analyser/analyser.service';
-import { AnalyserState } from '../../state/analyser/analyser.store';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { CanvasComponent } from '../canvas/canvas.component';
 
@@ -34,23 +32,7 @@ export class TimeDomainChartComponent implements AfterViewInit, OnDestroy {
 
   public readonly pointValue$ = this.pointValue.asObservable();
 
-  public readonly functions = this.analyser.functions.filter(
-    fn => fn.timeDomain
-  );
-
-  private readonly values = this.functions.map(
-    _ => new BehaviorSubject<number>(0)
-  );
-
-  public readonly values$ = this.values.map(subject => {
-    return subject.asObservable();
-  });
-
-  public readonly functionEnabled$ = this.functions.map(fn => {
-    return this.analyserService.select(AnalyserState.functionEnabled(fn.id));
-  });
-
-  public readonly valueColor = this.functions.map(fn => this.color.get(fn.id));
+  public readonly functions = this.analyser.TIME_DOMAIN_FUNCTION_IDS;
 
   public readonly updateBound = this.update.bind(this);
 
@@ -59,8 +41,7 @@ export class TimeDomainChartComponent implements AfterViewInit, OnDestroy {
    */
   constructor(
     private readonly graphService: AudioGraphService,
-    private readonly analyserService: AnalyserService,
-    private readonly color: ColorService
+    private readonly analyserService: AnalyserService
   ) {}
 
   /**
@@ -77,9 +58,6 @@ export class TimeDomainChartComponent implements AfterViewInit, OnDestroy {
     this.graph.offUpdate(this.updateBound);
     this.pointTime.complete();
     this.pointValue.complete();
-    for (const subject of this.values) {
-      subject.complete();
-    }
   }
 
   /**
@@ -93,70 +71,6 @@ export class TimeDomainChartComponent implements AfterViewInit, OnDestroy {
     } else {
       this.pointTime.next(null);
     }
-  }
-
-  /**
-   * TODO: description
-   */
-  public drawGrid() {
-    const ctx = this.canvas?.context;
-    if (!ctx) {
-      return;
-    }
-    const ymid = this.canvas!.size.height / 2;
-    ctx.strokeStyle = this.color.get('grid');
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(0, ymid);
-    ctx.lineTo(this.canvas!.size.width, ymid);
-    ctx.stroke();
-  }
-
-  /**
-   * TODO: description
-   */
-  private drawValue(fn: AnalyserFunction): void {
-    const ctx = this.canvas?.context;
-    if (!ctx) {
-      return;
-    }
-    const yscale = this.canvas!.size.height / 2;
-    const ymid = yscale;
-    const y = ymid - yscale * fn.value;
-    ctx.strokeStyle = this.color.get(fn.id);
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(this.canvas!.size.width, y);
-    ctx.stroke();
-  }
-
-  /**
-   * TODO: description
-   */
-  public drawData(data: Float32Array) {
-    const ctx = this.canvas?.context;
-    if (!ctx) {
-      return;
-    }
-
-    const xscale = this.canvas!.size.width / (data.length - 1);
-    const yscale = this.canvas!.size.height / 2;
-    const ymid = yscale;
-
-    ctx.strokeStyle = this.color.get('chart');
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    for (let i = 0; i < data.length; ++i) {
-      const x = xscale * i;
-      const y = ymid - yscale * data[i];
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
-    }
-    ctx.stroke();
   }
 
   /**
@@ -191,13 +105,20 @@ export class TimeDomainChartComponent implements AfterViewInit, OnDestroy {
 
     this.updatePointValue();
 
+    const xscale = (x: number) => x;
+    const yscale = (y: number) => 0.5 * (1 + y);
+
     this.canvas.clear();
-    this.drawGrid();
-    this.drawData(this.analyser.tdata);
+    this.canvas.hline(0.5, 'grid');
+    this.canvas.plot(this.analyser.tdata, xscale, yscale);
+    if (this.analyser.rmsThreshold > 0) {
+      this.canvas.hline(yscale(this.analyser.rmsThreshold), 'rms-threshold');
+    }
     for (let i = 0; i < this.functions.length; ++i) {
-      if (this.functions[i].enabled) {
-        this.drawValue(this.functions[i]);
-        this.values[i].next(this.functions[i].value);
+      const fn = this.functions[i];
+      const value: Nullable<number> = this.analyser.getOptional(fn);
+      if (value !== null) {
+        this.canvas.hline(yscale(value), fn);
       }
     }
   }

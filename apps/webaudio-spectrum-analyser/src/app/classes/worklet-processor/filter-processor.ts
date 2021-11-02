@@ -26,7 +26,6 @@ export class FilterProcessor extends AudioWorkletProcessor {
   /**
    * TODO: description
    */
-  // eslint-disable-next-line max-lines-per-function
   public static get parameterDescriptors(): AudioParamDescriptor[] {
     return [
       {
@@ -77,13 +76,6 @@ export class FilterProcessor extends AudioWorkletProcessor {
         name: 'step',
         defaultValue: 1,
         minValue: 1,
-        automationRate: 'k-rate',
-      },
-      {
-        name: 'prominenceThreshold',
-        defaultValue: 5,
-        minValue: 0,
-        maxValue: 100,
         automationRate: 'k-rate',
       },
       {
@@ -157,7 +149,6 @@ export class FilterProcessor extends AudioWorkletProcessor {
     minHarmonic: number,
     maxHarmonic: number,
     step: number,
-    prominenceThreshold: number,
     fScaleRadius: number,
     harmonicSearchRadius: number,
     smoothScale: number
@@ -172,7 +163,6 @@ export class FilterProcessor extends AudioWorkletProcessor {
     minHarmonic: number,
     maxHarmonic: number,
     step: number,
-    prominenceThreshold: number,
     fScaleRadius: number,
     harmonicSearchRadius: number,
     smoothScale: number
@@ -236,10 +226,10 @@ export class FilterProcessor extends AudioWorkletProcessor {
       const importObj = {
         env: {
           table: new WebAssembly.Table({
-            //initial: 2,
-            //maximum: 64,
-            initial: 0,
-            maximum: 0,
+            initial: 4,
+            maximum: 64,
+            //initial: 0,
+            //maximum: 0,
             element: 'anyfunc',
           }),
           tableBase: 0,
@@ -350,7 +340,6 @@ export class FilterProcessor extends AudioWorkletProcessor {
           parameters.minHarmonic[0],
           parameters.maxHarmonic[0],
           parameters.step[0],
-          parameters.prominenceThreshold[0],
           parameters.fScaleRadius[0],
           parameters.harmonicSearchRadius[0],
           parameters.smoothScale[0]
@@ -366,7 +355,6 @@ export class FilterProcessor extends AudioWorkletProcessor {
           parameters.minHarmonic[0],
           parameters.maxHarmonic[0],
           parameters.step[0],
-          parameters.prominenceThreshold[0],
           parameters.fScaleRadius[0],
           parameters.harmonicSearchRadius[0],
           parameters.smoothScale[0]

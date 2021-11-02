@@ -37,15 +37,24 @@ export class ChartComponent implements OnInit, OnChanges {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   public readonly ChartType = ChartType;
 
-  public readonly titles: Record<ChartType, string> = {
-    [ChartType.TIME_DOMAIN]: 'Time domain',
-    [ChartType.FREQUENCY]: 'Frequency domain',
-  };
-
   public readonly types = [
     { id: ChartType.TIME_DOMAIN, name: 'Time domain' },
     { id: ChartType.FREQUENCY, name: 'Frequency domain' },
+    { id: ChartType.SPECTROGRAM, name: 'Spectrogram' },
+    { id: ChartType.CEPSTRUM, name: 'Cepstrum' },
+    {
+      id: ChartType.TIME_DOMAIN_FUNCTIONS,
+      name: 'Functions (time domain)',
+    },
+    {
+      id: ChartType.FREQUENCY_DOMAIN_FUNCTIONS,
+      name: 'Functions (frequency domain)',
+    },
   ];
+
+  public readonly titles: Record<ChartType, string> = Object.fromEntries(
+    this.types.map(t => [t.id, t.name])
+  ) as any;
 
   /**
    * Constructor.

@@ -1,30 +1,30 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { getComponentImports, getMockProviders } from '../../utils/test.util';
 import { AnalyserFunctionValuesComponent } from '../analyser-function-values/analyser-function-values.component';
 import { CanvasComponent } from '../canvas/canvas.component';
-import { FrequencyChartComponent } from './frequency-chart.component';
+import { CepstrumChartComponent } from './cepstrum-chart.component';
 
-describe('FrequencyChartComponent', () => {
-  let component: FrequencyChartComponent;
-  let fixture: ComponentFixture<FrequencyChartComponent>;
+describe('CepstrumChartComponent', () => {
+  let component: CepstrumChartComponent;
+  let fixture: ComponentFixture<CepstrumChartComponent>;
 
-  beforeEach(async(() => {
-    void TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: getComponentImports(),
       declarations: [
-        FrequencyChartComponent,
+        CepstrumChartComponent,
         CanvasComponent,
         UnitsPipe,
         AnalyserFunctionValuesComponent,
       ],
       providers: getMockProviders(),
     }).compileComponents();
-  }));
+  });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FrequencyChartComponent);
+    fixture = TestBed.createComponent(CepstrumChartComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

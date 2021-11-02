@@ -16,8 +16,12 @@ declare interface TypedArrayConstructor<T> {
   new (buffer: ArrayBuffer, byteOffset?: number, length?: number): T;
 }
 
-declare type MethodOf<T> = {
-  [P in keyof T]-?: T[P] extends (...args: any[]) => any ? P : never;
+declare type MethodOf<T, M = (...args: any[]) => any> = {
+  [P in keyof T]-?: T[P] extends M ? P : never;
+}[keyof T];
+
+declare type FilterKeysByPropertyType<T, P extends keyof T[keyof T], V> = {
+  [K in keyof T]-?: T[K][P] extends V ? K : never;
 }[keyof T];
 
 declare type Nullable<T> = T | null;
@@ -28,4 +32,4 @@ declare type AnyError = Error | MediaError | string;
 
 declare type AudioWorkletProcessorParmeters<T extends string> = {
   [key in T]: Float32Array;
-}
+};

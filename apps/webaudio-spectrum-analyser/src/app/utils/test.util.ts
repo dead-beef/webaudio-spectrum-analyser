@@ -146,28 +146,39 @@ export function getMockAudioGraph() {
  * TODO: description
  */
 export function getMockAnalyser() {
+  const fn = (id, value) => {
+    return {
+      id,
+      name: id,
+      calc: x => x,
+      enabled: false,
+      value: value,
+      updated: false,
+    };
+  };
   const fns = [
-    {
-      name: 'Test',
-      id: 'test',
-      calc: () => 0,
-      timeDomain: true,
-      enabled: true,
-      value: 0,
-    },
+    fn('autocorr', new Float32Array()),
+    fn('prominence', new Float32Array()),
+    fn('cepstrum', new Float32Array()),
+
+    fn('RMS', 0),
+    fn('ZCR', 0),
+    fn('FFTM', 0),
+    fn('FFTP', 0),
+    fn('AC', 0),
+    fn('CM', 0),
+    fn('CP', 0),
   ];
 
   return {
     fdata: new Float32Array(1),
     tdata: new Float32Array(1),
-    autocorrdata: new Float32Array(1),
-    prominenceData: new Float32Array(1),
     canAnalyse: true,
     hasNan: false,
     volume: 0.5,
     minPitch: 20,
     maxPitch: 20000,
-    threshold: 0.2,
+    rmsThreshold: 0,
 
     prominenceRadius: 0,
     prominenceThreshold: 0.1,
@@ -180,7 +191,15 @@ export function getMockAnalyser() {
     sampleRate: 44000,
 
     functions: fns,
-    functionById: Object.fromEntries(fns.map(fn => [fn.id, fn])),
+    functionById: Object.fromEntries(fns.map(f => [f.id, f])),
+    FREQUENCY_DOMAIN_FUNCTION_IDS: [],
+    TIME_DOMAIN_FUNCTION_IDS: [],
+
+    get: k => 0,
+
+    getOptional: k => null,
+
+    getName: k => '',
 
     setState: function () {
       return this;

@@ -37,7 +37,8 @@ export class UnitsPipe implements PipeTransform {
   public transform(
     value: Nullable<number>,
     unitName: string = '',
-    usePrefix: boolean = true
+    usePrefix: boolean = true,
+    precision: number = 1
   ): string {
     if (value === null || isNaN(value)) {
       return 'N/A';
@@ -50,6 +51,6 @@ export class UnitsPipe implements PipeTransform {
         prefix = unit.prefix;
       }
     }
-    return value.toFixed(1).concat(prefix, unitName);
+    return value.toFixed(precision).concat(prefix, unitName);
   }
 }

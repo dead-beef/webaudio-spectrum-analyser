@@ -6,6 +6,7 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   Output,
   SimpleChanges,
   ViewChild,
@@ -16,7 +17,8 @@ import {
   templateUrl: './audio-controls.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AudioControlsComponent implements AfterViewInit, OnChanges {
+export class AudioControlsComponent
+  implements AfterViewInit, OnDestroy, OnChanges {
   @Input() public src = '';
 
   @Input() public paused: Nullable<boolean> = true;
@@ -34,6 +36,8 @@ export class AudioControlsComponent implements AfterViewInit, OnChanges {
   public duration = 0;
 
   private timeValue = 0;
+
+  private ignoreEvents = 0;
 
   private nativeElement: Nullable<HTMLAudioElement> = null;
 
@@ -58,6 +62,13 @@ export class AudioControlsComponent implements AfterViewInit, OnChanges {
   public ngAfterViewInit() {
     this.nativeElement = this.audio!.nativeElement;
     this.updateElement();
+  }
+
+  /**
+   * Lifecycle hook.
+   */
+  public ngOnDestroy() {
+    this.nativeElement!.pause();
   }
 
   /**
@@ -91,14 +102,21 @@ export class AudioControlsComponent implements AfterViewInit, OnChanges {
    * TODO: description
    */
   public setPaused(value: boolean) {
-    this.paused = value;
-    this.pausedChange.emit(value);
+    if (this.ignoreEvents) {
+      --this.ignoreEvents;
+    } else {
+      this.paused = value;
+      this.pausedChange.emit(value);
+    }
   }
 
   /**
    * TODO: description
    */
   public updateElement() {
+    if (this.paused !== this.nativeElement!.paused) {
+      ++this.ignoreEvents;
+    }
     if (this.paused) {
       this.nativeElement!.pause();
     } else {

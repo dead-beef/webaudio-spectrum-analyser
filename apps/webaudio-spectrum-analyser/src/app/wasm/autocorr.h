@@ -20,7 +20,6 @@ void autocorr(
 );
 
 int autocorrpeak(
-  tdval_t *tdata,
   float *acdata,
   int length,
   int min_offset,

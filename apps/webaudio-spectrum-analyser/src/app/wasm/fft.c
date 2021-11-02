@@ -64,6 +64,18 @@ void ifft(fftval_t *in, tdval_t *out, int length) {
   kiss_fftri(cfg, in, out);
 }
 
+EMSCRIPTEN_KEEPALIVE
+void cepstrum(fftmag_t *fft_buf, fftmag_t *out, int fft_size) {
+  int fft_bins = fft_size / 2;
+  int cepstrum_bins = 1 + fft_bins / 2;
+  for (int i = 0; i < fft_bins; ++i) {
+    fft_buf[i] = fft_buf[i] / fft_bins;
+  }
+  fftval_t tmp[cepstrum_bins];
+  fft(fft_buf, tmp, fft_bins);
+  magnitude(tmp, out, cepstrum_bins, FALSE);
+}
+
 void smooth_fft_val(fftval_t *in, fftval_t *out, int length, float factor) {
   double factor_in = 1.0 - factor;
   for (int i = 0; i < length; ++i) {
@@ -79,42 +91,20 @@ void smooth_fft_mag(fftmag_t *in, fftmag_t *out, int length, float factor) {
   }
 }
 
-void magnitude(fftval_t *in, fftmag_t *out, int length) {
+void magnitude(fftval_t *in, fftmag_t *out, int length, int decibels) {
   for (int i = 0; i < length; ++i) {
-    out[i] = sqrt(in[i].r * in[i].r + in[i].i * in[i].i);
-  }
-}
-
-void magnitude_to_decibels(
-  fftmag_t *in,
-  fftmag_t *out,
-  int length,
-  fftmag_t reference,
-  fftmag_t min_decibels,
-  fftmag_t max_decibels
-) {
-  for (int i = 0; i < length; ++i) {
-    double val = in[i];
-    val /= reference;
-    if (val < DBL_EPSILON) {
-      val = min_decibels;
+    double val = in[i].r * in[i].r + in[i].i * in[i].i;
+    if (decibels) {
+      val /= DB_REF;
+      if (val < DBL_EPSILON) {
+        val = DB_MIN;
+      } else {
+        val = 10 * log10(val);
+        val = clamp(val, DB_MIN, DB_MAX);
+      }
     } else {
-      val = 10 * log10(val);
-      val = clamp(val, min_decibels, max_decibels);
+      val = sqrt(val);
     }
-    out[i] = val;
-  }
-}
-
-void magnitude_from_decibels(
-  fftmag_t *in,
-  fftmag_t *out,
-  int length,
-  fftmag_t reference
-) {
-  for (int i = 0; i < length; ++i) {
-    double val = in[i];
-    val = pow(10.0, val / 10.0) * reference;
     out[i] = val;
   }
 }
@@ -132,8 +122,24 @@ fftmag_t max_magnitude(fftmag_t *fft, int start, int end) {
   return ret;
 }
 
+int index_of_max_peak(fftmag_t *mag, int bin_count, int start, int end) {
+  int ret = -1;
+  fftmag_t val;
+  start = clamp(start, 1, bin_count - 2);
+  end = clamp(end, 1, bin_count - 2);
+  for (int i = start; i <= end; ++i) {
+    if (mag[i] > mag[i - 1] && mag[i] > mag[i + 1]) {
+      if (ret < 0 || val < mag[i]) {
+        ret = i;
+        val = mag[i];
+      }
+    }
+  }
+  return ret;
+}
+
 double interpolate_peak(fftmag_t *mag, int bin_count, int i, fftmag_t *value) {
-  if (i <= 0 || i >= bin_count) {
+  if (i <= 0 || i >= bin_count - 1) {
     if (value) {
       *value = mag[i];
     }

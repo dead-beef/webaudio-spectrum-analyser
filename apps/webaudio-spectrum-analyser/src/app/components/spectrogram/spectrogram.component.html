@@ -1,0 +1,11 @@
+<app-canvas (pointChange)="setPoint($event)" pointStyle="cross">
+</app-canvas>
+
+<div class="chart-footer">
+  <span *ngIf="pointTime$ | async as t">
+    {{ t | units:'s' }}
+  </span>
+  <span *ngIf="pointFrequency$ | async as f">
+    {{ f | units:'Hz' }}
+  </span>
+</div>

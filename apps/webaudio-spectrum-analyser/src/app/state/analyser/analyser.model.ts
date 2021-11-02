@@ -6,19 +6,26 @@ export type AnalyserStateModel = AnalyserState;
 
 export const ANALYSER_STATE_DEFAULTS: AnalyserStateModel = {
   debug: false,
+  historySize: 240,
+  rmsThreshold: 0,
   pitch: {
     min: 20,
     max: 20000,
   },
   functions: {
+    autocorr: false,
+    prominence: false,
+    cepstrum: false,
     RMS: true,
     ZCR: true,
     FFTM: false,
     FFTP: false,
     AC: false,
+    CM: false,
+    CP: false,
   },
   fftp: {
-    type: FftPeakType.MAX_MAGNITUDE,
+    type: FftPeakType.MIN_FREQUENCY,
     prominence: {
       radius: 0,
       threshold: 0.1,

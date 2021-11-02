@@ -2,29 +2,27 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { getComponentImports, getMockProviders } from '../../utils/test.util';
-import { AnalyserFunctionValuesComponent } from '../analyser-function-values/analyser-function-values.component';
 import { CanvasComponent } from '../canvas/canvas.component';
-import { TimeDomainChartComponent } from './time-domain-chart.component';
+import { AnalyserFunctionChartComponent } from './analyser-function-chart.component';
 
-describe('TimeDomainChartComponent', () => {
-  let component: TimeDomainChartComponent;
-  let fixture: ComponentFixture<TimeDomainChartComponent>;
+describe('FunctionChartComponent', () => {
+  let component: AnalyserFunctionChartComponent;
+  let fixture: ComponentFixture<AnalyserFunctionChartComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: getComponentImports(),
       declarations: [
-        TimeDomainChartComponent,
+        AnalyserFunctionChartComponent,
         CanvasComponent,
         UnitsPipe,
-        AnalyserFunctionValuesComponent,
       ],
       providers: getMockProviders(),
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TimeDomainChartComponent);
+    fixture = TestBed.createComponent(AnalyserFunctionChartComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -19,7 +19,6 @@ void remove_harmonics(
   int min_harmonic,
   int max_harmonic,
   int step,
-  fftmag_t prominence_threshold,
   float f_scale_radius,
   float harmonic_search_radius,
   int smooth_scale
@@ -34,7 +33,6 @@ void add_harmonics(
   int min_harmonic,
   int max_harmonic,
   int step,
-  fftmag_t prominence_threshold,
   float f_copy_radius,
   float harmonic_search_radius,
   int smooth_copy

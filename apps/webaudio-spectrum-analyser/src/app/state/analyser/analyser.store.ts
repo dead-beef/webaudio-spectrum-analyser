@@ -58,6 +58,24 @@ export class AnalyserState {
    * @param state
    */
   @Selector()
+  public static historySize(state: AnalyserStateModel) {
+    return state.historySize;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static rmsThreshold(state: AnalyserStateModel) {
+    return state.rmsThreshold;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
   public static minPitch(state: AnalyserStateModel) {
     return state.pitch.min;
   }
@@ -142,7 +160,35 @@ export class AnalyserState {
     { payload }: StoreAction<boolean>
   ) {
     this.analyser.debug = payload;
+    this.analyser.stateChanged = true;
     return ctx.patchState({ debug: payload });
+  }
+
+  /**
+   * Action
+   * @param ctx
+   */
+  @Action(analyserAction.setRmsThreshold)
+  public setRmsThreshold(
+    ctx: StateContext<AnalyserStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    this.analyser.rmsThreshold = payload;
+    this.analyser.stateChanged = true;
+    return ctx.patchState({ rmsThreshold: payload });
+  }
+
+  /**
+   * Action
+   * @param ctx
+   */
+  @Action(analyserAction.setHistorySize)
+  public setHistorySize(
+    ctx: StateContext<AnalyserStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    //this.analyser.stateChanged = true;
+    return ctx.patchState({ historySize: payload });
   }
 
   /**

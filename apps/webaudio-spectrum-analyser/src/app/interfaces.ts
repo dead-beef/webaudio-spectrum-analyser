@@ -20,6 +20,12 @@ export interface Size {
   height: number;
 }
 
+export interface RgbColor {
+  r: number;
+  g: number;
+  b: number;
+}
+
 export interface FileData {
   name: string;
   url: string;

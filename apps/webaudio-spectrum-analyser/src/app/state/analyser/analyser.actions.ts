@@ -6,6 +6,8 @@ const action = actionConstructor('Analyser');
 
 export const analyserAction: StoreActions = {
   setDebug: action<boolean>('set debug'),
+  setHistorySize: action<number>('set history size'),
+  setRmsThreshold: action<number>('set rms threshold'),
 
   setState: action<AnalyserStateModel>('set state'),
 

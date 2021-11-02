@@ -16,6 +16,15 @@ void prominence(
 );
 
 int prominencepeak(
+  fftmag_t *prdata,
+  int length,
+  int start,
+  int end,
+  fftmag_t threshold,
+  fftpeak_t type
+);
+
+int prominencepeak2(
   fftmag_t *fft,
   fftmag_t *prdata,
   int length,

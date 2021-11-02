@@ -458,11 +458,15 @@ export class AudioGraphState {
     { payload }: StoreAction<number>
   ) {
     return this.graph.workletReady.then(() => {
-      const param: AudioParam = this.graph.nodes.worklet!.parameters.get(
+      const param: Optional<AudioParam> = this.graph.nodes.worklet!.parameters.get(
         'type'
       );
       //console.log(param);
-      param.value = payload;
+      if (param) {
+        param.value = payload;
+      } else {
+        console.warn('setWorkletType !param');
+      }
       return ctx.setState(patch({ worklet: patch({ type: payload }) }));
     });
   }

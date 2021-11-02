@@ -2,29 +2,23 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { getComponentImports, getMockProviders } from '../../utils/test.util';
-import { AnalyserFunctionValuesComponent } from '../analyser-function-values/analyser-function-values.component';
 import { CanvasComponent } from '../canvas/canvas.component';
-import { TimeDomainChartComponent } from './time-domain-chart.component';
+import { SpectrogramComponent } from './spectrogram.component';
 
-describe('TimeDomainChartComponent', () => {
-  let component: TimeDomainChartComponent;
-  let fixture: ComponentFixture<TimeDomainChartComponent>;
+describe('SpectrogramComponent', () => {
+  let component: SpectrogramComponent;
+  let fixture: ComponentFixture<SpectrogramComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: getComponentImports(),
-      declarations: [
-        TimeDomainChartComponent,
-        CanvasComponent,
-        UnitsPipe,
-        AnalyserFunctionValuesComponent,
-      ],
+      declarations: [SpectrogramComponent, CanvasComponent, UnitsPipe],
       providers: getMockProviders(),
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TimeDomainChartComponent);
+    fixture = TestBed.createComponent(SpectrogramComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -4,20 +4,9 @@ export interface WasmBuffer {
   type: WasmMemoryType;
 }
 
-export interface Autocorrelation {
-  value: Float32Array;
-  peak: number;
-}
-
-export interface Prominence {
-  value: Float32Array;
-  peak: number;
-}
-
 export enum FftPeakType {
   MIN_FREQUENCY = 1,
-  MAX_MAGNITUDE = 2,
-  MAX_PROMINENCE = 3,
+  MAX_PROMINENCE = 2,
 }
 
 export interface AudioMathWasmFunctions {
@@ -32,7 +21,6 @@ export interface AudioMathWasmFunctions {
   ) => void;
 
   autocorrpeak: (
-    tdata: number,
     acdata: number,
     length: number,
     minOffset: number,
@@ -52,16 +40,13 @@ export interface AudioMathWasmFunctions {
   ) => void;
 
   prominencepeak: (
-    fft: number,
     pdata: number,
     length: number,
     start: number,
     end: number,
-    radius: number,
-    fftvalMin: number,
-    fftvalMax: number,
     threshold: number,
-    type: number,
-    normalize: boolean
+    type: number
   ) => number;
+
+  cepstrum: (fft: number, res: number, fftSize: number) => void;
 }
