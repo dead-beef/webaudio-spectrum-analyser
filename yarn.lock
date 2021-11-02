@@ -2007,6 +2007,11 @@
   dependencies:
     tslib "^2.1.0"
 
+"@capacitor/splash-screen@^1.1.5":
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/@capacitor/splash-screen/-/splash-screen-1.1.5.tgz#3c67870656d3db53b7e0c732ad4eafaf142d3a7e"
+  integrity sha512-8hllDeHZkefb3R7sIWR0oRDXG/8FCXaHlh2OndeKxubeiRQhhTZk88vFIfPMphylxOsrWS3ExTZbbl3x6HdqGQ==
+
 "@cds/city@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@cds/city/-/city-1.1.0.tgz#5b7323750d3d64671ce2e3a804bcf260fbea1154"
