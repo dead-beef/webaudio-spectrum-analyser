@@ -24,7 +24,7 @@ const cwd = __dirname;
  */
 const root = `${cwd}/../..`;
 
-type TUpdatablePackages = Record<string, string>;
+type UpdatablePackages = Record<string, string>;
 
 /**
  * Prints script usage instructions.
@@ -76,14 +76,14 @@ function spawnCommandSync(
       spawnSyncOutput.error
     );
   }
-  if (spawnSyncOutput.stdout !== null && spawnSyncOutput.stdout.length) {
+  if (spawnSyncOutput?.stdout.length) {
     console.log(
       `${COLORS.CYAN}%s:${COLORS.DEFAULT}\n%s`,
       'stdout',
       spawnSyncOutput.stdout
     );
   }
-  if (spawnSyncOutput.stderr !== null && spawnSyncOutput.stderr.length) {
+  if (spawnSyncOutput?.stderr.length) {
     console.log(
       `${COLORS.CYAN}%s:${COLORS.DEFAULT}\n%s`,
       'stderr',
@@ -117,8 +117,8 @@ function executeMigrations(): Observable<SpawnSyncReturns<string> | null> {
       );
       subscriber.next(null);
     }
-    while(--i >= 0) {
-      const path = `migrations.${i}.json`
+    while (--i >= 0) {
+      const path = `migrations.${i}.json`;
       console.log(
         `\n${COLORS.YELLOW}%s${COLORS.DEFAULT}\n`,
         `<< EXECUTING MIGRATIONS ${path} >>`
@@ -143,7 +143,11 @@ function executeMigrations(): Observable<SpawnSyncReturns<string> | null> {
   return result;
 }
 
-function writeUpdateSummary(packages: TUpdatablePackages) {
+/**
+ * Write update summary.
+ * @param packages
+ */
+function writeUpdateSummary(packages: UpdatablePackages) {
   const path = `${root}/migrations-packages.json`;
   fs.writeFile(
     path,
@@ -166,7 +170,7 @@ function writeUpdateSummary(packages: TUpdatablePackages) {
  * Check for available updates.
  * @param [jsonUpgraded] defaults to true; passes flag to ncu cli, as a result output is in json format;
  */
-function checkForUpdates(jsonUpgraded = false): TUpdatablePackages {
+function checkForUpdates(jsonUpgraded = false): UpdatablePackages {
   const args = jsonUpgraded ? ['--jsonUpgraded'] : [];
   console.log(
     `\n${COLORS.YELLOW}%s${COLORS.DEFAULT}\n`,
@@ -175,7 +179,7 @@ function checkForUpdates(jsonUpgraded = false): TUpdatablePackages {
   const ncuOutput = spawnCommandSync('ncu', args, {
     stdio: ['ignore', 'pipe', 'inherit'],
   });
-  const updatablePackages: TUpdatablePackages = jsonUpgraded
+  const updatablePackages: UpdatablePackages = jsonUpgraded
     ? JSON.parse(ncuOutput.stdout.substr(ncuOutput.stdout.indexOf('{'))) ?? {}
     : {};
   if (jsonUpgraded) {
@@ -251,7 +255,7 @@ function migratePackages() {
     }
 
     if (typeof data !== 'undefined') {
-      const updatablePackages: TUpdatablePackages = JSON.parse(data.toString());
+      const updatablePackages: UpdatablePackages = JSON.parse(data.toString());
 
       console.log(
         `\n${COLORS.CYAN}%s${COLORS.DEFAULT}\n%s\n`,
