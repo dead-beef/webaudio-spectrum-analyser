@@ -46,9 +46,9 @@ export class ColorService {
    */
   private setRgb(key: string) {
     const colorString = this.get(key);
-    const colorArray: number[] = (
-      colorString.match(/[0-9a-f]{2}/gi) ?? []
-    ).map(x => parseInt(x, 16));
+    const colorArray: number[] = (colorString.match(/[0-9a-f]{2}/gi) ?? []).map(
+      x => parseInt(x, 16)
+    );
     const color: RgbColor = {
       r: colorArray[0] || 0,
       g: colorArray[1] || 0,

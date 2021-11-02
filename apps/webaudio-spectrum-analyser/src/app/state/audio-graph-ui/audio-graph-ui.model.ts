@@ -10,6 +10,5 @@ export const AUDIO_GRAPH_UI_STATE_DEFAULTS: AudioGraphUiStateModel = {
   chartLayout: ChartLayout.VERTICAL,
 };
 
-export const AUDIO_GRAPH_UI_STATE_TOKEN = new StateToken<AudioGraphUiStateModel>(
-  'AudioGraphUi'
-);
+export const AUDIO_GRAPH_UI_STATE_TOKEN =
+  new StateToken<AudioGraphUiStateModel>('AudioGraphUi');

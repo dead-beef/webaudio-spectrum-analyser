@@ -23,9 +23,8 @@ import { stateFormControl } from '../../utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AudioGraphComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('audio') public audioRef: Nullable<
-    ElementRef<HTMLAudioElement>
-  > = null;
+  @ViewChild('audio') public audioRef: Nullable<ElementRef<HTMLAudioElement>> =
+    null;
 
   public readonly form = new FormGroup({
     volume: stateFormControl(

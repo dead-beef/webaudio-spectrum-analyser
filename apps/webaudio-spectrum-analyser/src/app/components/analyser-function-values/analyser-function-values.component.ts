@@ -21,7 +21,8 @@ import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnalyserFunctionValuesComponent
-  implements OnInit, OnDestroy, OnChanges {
+  implements OnInit, OnDestroy, OnChanges
+{ // eslint-disable-line @typescript-eslint/brace-style, prettier/prettier
   @Input() public ids: AnalyserNumberFunctionId[] = [];
 
   @Input() public unit = '';

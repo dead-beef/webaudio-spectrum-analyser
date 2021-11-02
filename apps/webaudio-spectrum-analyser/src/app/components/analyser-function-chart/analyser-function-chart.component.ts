@@ -28,7 +28,8 @@ import { CanvasComponent } from '../canvas/canvas.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnalyserFunctionChartComponent
-  implements OnInit, AfterViewInit, OnDestroy {
+  implements OnInit, AfterViewInit, OnDestroy
+{ // eslint-disable-line @typescript-eslint/brace-style, prettier/prettier
   @Input() public domain: 'time' | 'frequency' = 'frequency';
 
   @ViewChild(CanvasComponent) public canvas: Nullable<CanvasComponent> = null;

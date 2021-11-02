@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { getComponentImports, getMockProviders } from '../../utils/test.util';
@@ -10,24 +10,26 @@ describe('GraphOptionsComponent', () => {
   let component: GraphOptionsComponent;
   let fixture: ComponentFixture<GraphOptionsComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      imports: getComponentImports(),
-      declarations: [
-        GraphOptionsComponent,
-        UnitsPipe,
-        InputFrequencyComponent,
-        InputRangeComponent,
-      ],
-      providers: getMockProviders(),
+  beforeEach(
+    waitForAsync(() => {
+      void TestBed.configureTestingModule({
+        imports: getComponentImports(),
+        declarations: [
+          GraphOptionsComponent,
+          UnitsPipe,
+          InputFrequencyComponent,
+          InputRangeComponent,
+        ],
+        providers: getMockProviders(),
+      })
+        .compileComponents()
+        .then(() => {
+          fixture = TestBed.createComponent(GraphOptionsComponent);
+          component = fixture.componentInstance;
+          fixture.detectChanges();
+        });
     })
-      .compileComponents()
-      .then(() => {
-        fixture = TestBed.createComponent(GraphOptionsComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-      });
-  }));
+  );
 
   it('should create', () => {
     expect(component).toBeTruthy();

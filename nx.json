@@ -7,32 +7,53 @@
     "nx.json": "*",
     "tsconfig.base.json": "*"
   },
-  "projects": {
-    "webaudio-spectrum-analyser-e2e": {
-      "tags": ["scope:webaudio-spectrum-analyser-e2e", "type:e2e"]
-    },
-    "webaudio-spectrum-analyser": {
-      "tags": [
-        "scope:webaudio-spectrum-analyser",
-        "type:application",
-        "platform:browser"
-      ]
-    },
-    "tools": {
-      "tags": ["scope:tools", "type:workspace"]
-    }
-  },
   "tasksRunnerOptions": {
     "default": {
       "runner": "@nrwl/workspace/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"],
-        "runtimeCacheInputs": ["node -v", "echo $IMPORTANT_ENV_VAR"],
+        "cacheableOperations": [
+          "build",
+          "lint",
+          "test",
+          "e2e"
+        ],
+        "runtimeCacheInputs": [
+          "node -v",
+          "echo $IMPORTANT_ENV_VAR"
+        ],
         "cacheDirectory": "/tmp/nx/webaudio-spectrum-analyser"
       }
     }
   },
   "affected": {
     "defaultBase": "master"
+  },
+  "targetDependencies": {
+    "build": [
+      {
+        "target": "build",
+        "projects": "dependencies"
+      }
+    ]
+  },
+  "cli": {
+    "defaultCollection": "@nrwl/angular"
+  },
+  "defaultProject": "webaudio-spectrum-analyser",
+  "generators": {
+    "@nrwl/angular:application": {
+      "e2eTestRunner": "cypress",
+      "unitTestRunner": "jest"
+    },
+    "@nrwl/angular:library": {
+      "unitTestRunner": "jest"
+    },
+    "@nrwl/schematics:application": {
+      "framework": "angular",
+      "style": "scss"
+    },
+    "@nrwl/schematics:library": {
+      "style": "scss"
+    }
   }
 }

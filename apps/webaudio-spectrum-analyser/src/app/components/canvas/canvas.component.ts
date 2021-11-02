@@ -23,9 +23,8 @@ import { hoverPoints, updateCanvasSize } from '../../utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CanvasComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('canvas') public canvas: Nullable<
-    ElementRef<HTMLCanvasElement>
-  > = null;
+  @ViewChild('canvas') public canvas: Nullable<ElementRef<HTMLCanvasElement>> =
+    null;
 
   //@Input() public contextType = '2d';
 
@@ -138,7 +137,7 @@ left: ${(point.x * 100).toFixed(2)}%`;
   /**
    * TODO: description
    */
-  public hline(y: number, color: string = 'grid', lineWidth: number = 2) {
+  public hline(y: number, color = 'grid', lineWidth = 2) {
     const ctx = this.context;
     if (ctx === null) {
       return;
@@ -155,7 +154,7 @@ left: ${(point.x * 100).toFixed(2)}%`;
   /**
    * TODO: description
    */
-  public vline(x: number, color: string = 'grid', lineWidth: number = 2) {
+  public vline(x: number, color = 'grid', lineWidth = 2) {
     const ctx = this.context;
     if (ctx === null) {
       return;
@@ -176,9 +175,9 @@ left: ${(point.x * 100).toFixed(2)}%`;
     x0: number,
     x1: number,
     xscale: (x: number) => number = x => x,
-    horizontal: boolean = true,
-    color: string = 'grid',
-    lineWidth: number = 2
+    horizontal = true,
+    color = 'grid',
+    lineWidth = 2
   ) {
     const ctx = this.context;
     if (ctx === null) {
@@ -229,8 +228,8 @@ left: ${(point.x * 100).toFixed(2)}%`;
     data: T,
     xscale: (x: number, i: number) => number = (x, i) => x,
     yscale: (y: number) => number = y => y,
-    color: string = 'chart',
-    lineWidth: number = 2
+    color = 'chart',
+    lineWidth = 2
   ): void {
     const ctx = this.context;
     if (ctx === null) {
@@ -269,8 +268,8 @@ left: ${(point.x * 100).toFixed(2)}%`;
     data: T,
     xscale: (x: number, i: number) => number = (x, i) => x,
     yscale: (y: number) => number = y => y,
-    color: string = 'chart',
-    lineWidth: number = 2
+    color = 'chart',
+    lineWidth = 2
   ): void {
     const ctx = this.context;
     if (ctx === null) {

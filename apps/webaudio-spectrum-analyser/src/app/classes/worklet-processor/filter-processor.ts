@@ -128,17 +128,11 @@ export class FilterProcessor extends AudioWorkletProcessor {
     fftSize: number
   ) => void = () => {};
 
-  public wasmFilterEnd: (
-    input: number,
-    fft: number,
-    fftSize: number
-  ) => void = () => {};
+  public wasmFilterEnd: (input: number, fft: number, fftSize: number) => void =
+    () => {};
 
-  public wasmGain: (
-    fft: number,
-    fftSize: number,
-    gain: number
-  ) => void = () => {};
+  public wasmGain: (fft: number, fftSize: number, gain: number) => void =
+    () => {};
 
   public wasmAddHarmonics: (
     fft: number,

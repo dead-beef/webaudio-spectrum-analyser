@@ -84,6 +84,16 @@ yarn install:global
 yarn install
 ```
 
+#### Updating
+
+```bash
+yarn workspace:update:check
+```
+
+```bash
+yarn workspace:update:migrate
+```
+
 ## Building
 
 ### Web

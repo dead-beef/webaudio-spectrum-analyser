@@ -203,11 +203,7 @@ class AudioMathInstance {
    * @param arr
    * @param size
    */
-  public resize<T extends TypedArray>(
-    arr: T,
-    size: number,
-    fill: number = 0
-  ): T {
+  public resize<T extends TypedArray>(arr: T, size: number, fill = 0): T {
     if (arr.length !== size) {
       arr = new (arr.constructor as TypedArrayConstructor<T>)(size);
       arr.fill(fill);
@@ -234,7 +230,7 @@ class AudioMathInstance {
    */
   public indexOfMax<T extends TypedArray>(
     data: T,
-    start: number = 0,
+    start = 0,
     end: number = data.length - 1
   ): number {
     if (!data.length) {
@@ -263,7 +259,7 @@ class AudioMathInstance {
    */
   public indexOfMaxPeak<T extends TypedArray>(
     data: T,
-    start: number = 1,
+    start = 1,
     end: number = data.length - 2
   ): number {
     if (!data.length) {
@@ -378,7 +374,7 @@ class AudioMathInstance {
     radius: number,
     fftMin: number,
     fftMax: number,
-    normalize: boolean = false
+    normalize = false
   ): Float32Array {
     const wasm = this.wasm;
     if (!wasm) {
@@ -406,9 +402,9 @@ class AudioMathInstance {
   public prominencepeak(
     prominence: Float32Array,
     peakType: FftPeakType = FftPeakType.MIN_FREQUENCY,
-    start: number = 0,
+    start = 0,
     end: number = prominence.length,
-    threshold: number = 10
+    threshold = 10
   ): number {
     const wasm = this.wasm;
     if (!wasm) {
@@ -491,8 +487,8 @@ class AudioMathInstance {
   public sawtoothWave(
     sampleRate: number,
     duration: number,
-    phase: number = 0,
-    reverse: boolean = false
+    phase = 0,
+    reverse = false
   ): Float32Array {
     const size = sampleRate * duration;
     const ret = new Float32Array(size);
@@ -512,7 +508,7 @@ class AudioMathInstance {
   public triangleWave(
     sampleRate: number,
     duration: number,
-    phase: number = 0
+    phase = 0
   ): Float32Array {
     const size = sampleRate * duration;
     const size2 = size / 2;
@@ -530,7 +526,7 @@ class AudioMathInstance {
   public fadeWave(
     sampleRate: number,
     duration: number,
-    phase: number = 0
+    phase = 0
   ): Float32Array {
     const size = sampleRate * duration;
     const size2 = size / 2;
