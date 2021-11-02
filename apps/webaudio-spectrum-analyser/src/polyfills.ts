@@ -55,7 +55,7 @@
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
  */
-import 'zone.js/dist/zone'; // Included with Angular CLI.
+import 'zone.js'; // Included with Angular CLI.
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
@@ -68,14 +68,16 @@ import '@cds/core/icon/register.js';
 import { default as Stats } from 'stats.js/src/Stats';
 window['Stats'] = Stats;
 
-import { ClarityIcons } from '@cds/core/icon';
-import { loadChartIconSet } from '@cds/core/icon/collections/chart';
-import { loadCoreIconSet } from '@cds/core/icon/collections/core';
-import { loadEssentialIconSet } from '@cds/core/icon/collections/essential';
-import { loadMediaIconSet } from '@cds/core/icon/collections/media';
+import {
+  ClarityIcons,
+  loadChartIconSet,
+  loadCoreIconSet,
+  loadEssentialIconSet,
+  loadMediaIconSet,
+} from '@cds/core/icon';
 
 window['ClarityIcons'] = ClarityIcons;
-loadCoreIconSet();
 loadChartIconSet();
+loadCoreIconSet();
 loadMediaIconSet();
 loadEssentialIconSet();

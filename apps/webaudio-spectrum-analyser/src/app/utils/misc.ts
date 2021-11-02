@@ -3,11 +3,7 @@ import { Point, Size } from '../interfaces';
 /**
  * TODO: description
  */
-export function getEventPoint(
-  ev: Event,
-  ox: number = 0,
-  oy: number = 0
-): Point {
+export function getEventPoint(ev: Event, ox = 0, oy = 0): Point {
   let x: number;
   let y: number;
   if ('touches' in ev) {

@@ -1,6 +1,56 @@
 {
   "version": 1,
   "projects": {
+    "tools": {
+      "architect": {
+        "help": {
+          "builder": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              {
+                "command": "npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/package-commands.ts"
+              }
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "eslintConfig": "tools/.eslintrc.json",
+            "lintFilePatterns": [
+              "tools/ts/**/*.{js,ts}"
+            ]
+          }
+        },
+        "update-check": {
+          "builder": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              {
+                "command": "npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --check"
+              }
+            ]
+          }
+        },
+        "update-migrate": {
+          "builder": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              {
+                "command": "npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --check --jsonUpgraded && npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --migrate=start && yarn install && yarn ngcc && npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --migrate=execute && rm -f migrations-packages.json"
+              }
+            ]
+          }
+        }
+      },
+      "projectType": "application",
+      "root": "tools",
+      "sourceRoot": "tools/src",
+      "tags": [
+        "scope:tools",
+        "type:workspace"
+      ]
+    },
     "webaudio-spectrum-analyser": {
       "projectType": "application",
       "schematics": {
@@ -21,6 +71,15 @@
             "polyfills": "apps/webaudio-spectrum-analyser/src/polyfills.ts",
             "tsConfig": "apps/webaudio-spectrum-analyser/tsconfig.app.json",
             "aot": true,
+            "extractCss": true,
+            "optimization": {
+              "scripts": true,
+              "styles": {
+                "minify": true,
+                "inlineCritical": false
+              },
+              "fonts": true
+            },
             "customWebpackConfig": {
               "path": "webpack.config.js"
             },
@@ -39,11 +98,11 @@
             "styles": [
               {
                 "input": "apps/webaudio-spectrum-analyser/src/css/vendor.scss",
-                "bundleName": "css/vendor"
+                "bundleName": "vendorstyles"
               },
               {
                 "input": "apps/webaudio-spectrum-analyser/src/css/styles.scss",
-                "bundleName": "css/styles"
+                "bundleName": "styles"
               }
             ],
             "scripts": [
@@ -75,7 +134,14 @@
           },
           "configurations": {
             "analyze-bundle": {
-              "optimization": true,
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": true
+              },
               "outputHashing": "all",
               "sourceMap": false,
               "namedChunks": true,
@@ -91,8 +157,15 @@
                   "with": "apps/webaudio-spectrum-analyser/src/environments/environment.prod.ts"
                 }
               ],
-              "optimization": true,
-              "outputHashing": "none",
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": true
+              },
+              "outputHashing": "all",
               "sourceMap": false,
               "namedChunks": false,
               "aot": true,
@@ -135,7 +208,9 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "eslintConfig": "apps/webaudio-spectrum-analyser/.eslintrc",
-            "lintFilePatterns": ["apps/webaudio-spectrum-analyser/**/*.ts"]
+            "lintFilePatterns": [
+              "apps/webaudio-spectrum-analyser/**/*.ts"
+            ]
           }
         },
         "test": {
@@ -143,53 +218,16 @@
           "options": {
             "jestConfig": "apps/webaudio-spectrum-analyser/jest.config.js"
           },
-          "outputs": ["coverage/apps/webaudio-spectrum-analyser"]
-        }
-      }
-    },
-    "tools": {
-      "architect": {
-        "help": {
-          "builder": "@nrwl/workspace:run-commands",
-          "options": {
-            "commands": [
-              {
-                "command": "npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/package-commands.ts"
-              }
-            ]
-          }
-        },
-        "lint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "eslintConfig": "tools/.eslintrc.json",
-            "lintFilePatterns": ["tools/ts/**/*.{js,ts}"]
-          }
-        },
-        "update-check": {
-          "builder": "@nrwl/workspace:run-commands",
-          "options": {
-            "commands": [
-              {
-                "command": "npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --check"
-              }
-            ]
-          }
-        },
-        "update-migrate": {
-          "builder": "@nrwl/workspace:run-commands",
-          "options": {
-            "commands": [
-              {
-                "command": "npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --check --jsonUpgraded && npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --migrate=start && yarn install && yarn ngcc && npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --migrate=execute && rm -f migrations.*.json migrations-packages.json"
-              }
-            ]
-          }
+          "outputs": [
+            "coverage/apps/webaudio-spectrum-analyser"
+          ]
         }
       },
-      "projectType": "application",
-      "root": "tools",
-      "sourceRoot": "tools/src"
+      "tags": [
+        "scope:webaudio-spectrum-analyser",
+        "type:application",
+        "platform:browser"
+      ]
     },
     "webaudio-spectrum-analyser-e2e": {
       "root": "apps/webaudio-spectrum-analyser-e2e",
@@ -213,30 +251,16 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "eslintConfig": "apps/webaudio-spectrum-analyser-e2e/.eslintrc",
-            "lintFilePatterns": ["apps/webaudio-spectrum-analyser-e2e/**/*.ts"]
+            "lintFilePatterns": [
+              "apps/webaudio-spectrum-analyser-e2e/**/*.ts"
+            ]
           }
         }
-      }
+      },
+      "tags": [
+        "scope:webaudio-spectrum-analyser-e2e",
+        "type:e2e"
+      ]
     }
-  },
-  "cli": {
-    "defaultCollection": "@nrwl/angular"
-  },
-  "schematics": {
-    "@nrwl/angular:application": {
-      "e2eTestRunner": "cypress",
-      "unitTestRunner": "jest"
-    },
-    "@nrwl/angular:library": {
-      "unitTestRunner": "jest"
-    },
-    "@nrwl/schematics:application": {
-      "framework": "angular",
-      "style": "scss"
-    },
-    "@nrwl/schematics:library": {
-      "style": "scss"
-    }
-  },
-  "defaultProject": "webaudio-spectrum-analyser"
+  }
 }

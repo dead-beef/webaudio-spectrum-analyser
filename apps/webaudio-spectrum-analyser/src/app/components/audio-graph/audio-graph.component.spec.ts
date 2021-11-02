@@ -1,5 +1,5 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ErrorPipe } from '../../pipes/error/error.pipe';
 import { UnitsPipe } from '../../pipes/units/units.pipe';
@@ -24,40 +24,42 @@ describe('AudioGraphComponent', () => {
   let component: AudioGraphComponent;
   let fixture: ComponentFixture<AudioGraphComponent>;
 
-  beforeEach(async(() => {
-    void TestBed.configureTestingModule({
-      imports: getComponentImports(),
-      declarations: [
-        AudioGraphComponent,
-        FrequencyChartComponent,
-        AlertComponent,
-        CommonOptionsComponent,
-        WaveOptionsComponent,
-        UnitsPipe,
-        ErrorPipe,
-        InputFrequencyComponent,
-        InputRangeComponent,
-        TimeDomainChartComponent,
-        ChartComponent,
-        ChartsComponent,
-        CanvasComponent,
-        mockComponent('audio', {
-          nativeElement: {
-            play: () => null,
-            pause: () => null,
-          },
-        }),
-      ],
-      providers: getMockProviders(),
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
-  }));
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(AudioGraphComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+  beforeEach(
+    waitForAsync(() => {
+      void TestBed.configureTestingModule({
+        imports: getComponentImports(),
+        declarations: [
+          AudioGraphComponent,
+          FrequencyChartComponent,
+          AlertComponent,
+          CommonOptionsComponent,
+          WaveOptionsComponent,
+          UnitsPipe,
+          ErrorPipe,
+          InputFrequencyComponent,
+          InputRangeComponent,
+          TimeDomainChartComponent,
+          ChartComponent,
+          ChartsComponent,
+          CanvasComponent,
+          mockComponent('audio', {
+            nativeElement: {
+              play: () => null,
+              pause: () => null,
+            },
+          }),
+        ],
+        providers: getMockProviders(),
+        schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      })
+        .compileComponents()
+        .then(() => {
+          fixture = TestBed.createComponent(AudioGraphComponent);
+          component = fixture.componentInstance;
+          fixture.detectChanges();
+        });
+    })
+  );
 
   it('should create', () => {
     expect(component).toBeTruthy();

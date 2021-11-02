@@ -62,17 +62,7 @@ export class AudioGraph {
   public readonly maxDelay = 5;
 
   public readonly fftSizes: number[] = [
-    32,
-    64,
-    128,
-    256,
-    512,
-    1024,
-    2048,
-    4096,
-    8192,
-    16384,
-    32768,
+    32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768,
   ];
 
   private _fftSize = 2048;

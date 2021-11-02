@@ -20,7 +20,7 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'prettier/@typescript-eslint',
+    'prettier',
     'plugin:prettier/recommended',
     'plugin:eslint-comments/recommended',
     'plugin:@angular-eslint/recommended',
@@ -42,13 +42,13 @@ module.exports = {
     'eslint-comments/no-use': [
       'error',
       {
-        allow: ['eslint-disable-next-line'],
+        allow: ['eslint-disable-next-line', 'eslint-disable-line'],
       },
     ],
     'eslint-comments/disable-enable-pair': ['error', { allowWholeFile: false }],
-    'eslint-comments/require-description': ['warn', { ignore: [] }],
+    'eslint-comments/require-description': ['off', { ignore: [] }],
     'eslint-comments/no-restricted-disable': [
-      'warn',
+      'off',
       '*',
       '!no-console',
       '!prettier',

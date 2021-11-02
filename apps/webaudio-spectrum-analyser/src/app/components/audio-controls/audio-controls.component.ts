@@ -18,7 +18,8 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AudioControlsComponent
-  implements AfterViewInit, OnDestroy, OnChanges {
+  implements AfterViewInit, OnDestroy, OnChanges
+{ // eslint-disable-line @typescript-eslint/brace-style, prettier/prettier
   @Input() public src = '';
 
   @Input() public paused: Nullable<boolean> = true;

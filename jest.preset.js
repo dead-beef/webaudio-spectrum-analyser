@@ -21,19 +21,19 @@ module.exports = {
     'ts-jest': {
       tsconfig: '<rootDir>/tsconfig.spec.json',
       stringifyContentPathRegex: '\\.html$',
-      astTransformers: {
+      /*astTransformers: {
         before: [
           'jest-preset-angular/build/InlineFilesTransformer',
           'jest-preset-angular/build/StripStylesTransformer',
         ],
-      },
+      },*/
     },
   },
   transform: {
-    '^.+\\.(ts|js|html)$': 'ts-jest',
+    '^.+\\.(ts|js|html)$': 'jest-preset-angular', //'ts-jest',
     '^.+\\.(c|cpp)$': ['jest-cpp-wasm', getWasmOptions()],
   },
-  transformIgnorePatterns: ['node_modules/(?!@ngrx|@cds|lit-|ramda)'],
+  transformIgnorePatterns: ['node_modules/(?!@ngrx|@cds|@lit|lit-?|ramda)/'],
   moduleFileExtensions: ['ts', 'html', 'js', 'json'],
   resolver: '@nrwl/jest/plugins/resolver',
   coverageReporters: ['html-spa', 'json-summary'],

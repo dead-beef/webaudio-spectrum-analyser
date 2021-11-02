@@ -36,9 +36,9 @@ export class UnitsPipe implements PipeTransform {
    */
   public transform(
     value: Nullable<number>,
-    unitName: string = '',
-    usePrefix: boolean = true,
-    precision: number = 1
+    unitName = '',
+    usePrefix = true,
+    precision = 1
   ): string {
     if (value === null || isNaN(value)) {
       return 'N/A';

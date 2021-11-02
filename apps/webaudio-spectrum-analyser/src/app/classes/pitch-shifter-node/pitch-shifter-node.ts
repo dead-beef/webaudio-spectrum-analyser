@@ -150,7 +150,7 @@ export class PitchShifterNode extends GainNode implements IPitchShifterNode {
   /**
    * TODO: description
    */
-  public start(time: number = 0) {
+  public start(time = 0) {
     for (const node of this.shiftUp) {
       node.start(time);
     }
@@ -165,7 +165,7 @@ export class PitchShifterNode extends GainNode implements IPitchShifterNode {
   /**
    * TODO: description
    */
-  public stop(time: number = 0) {
+  public stop(time = 0) {
     for (const node of this.shiftUp) {
       try {
         node.stop(time);
