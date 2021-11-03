@@ -358,12 +358,11 @@ export class Analyser {
     const end: number = this.indexOfFrequency(this.maxPitch);
     return AudioMath.prominence(
       this.fdata,
+      this.get('fftPeaks'),
       prev,
       start,
       end,
       this.prominenceRadius,
-      this.minDecibels,
-      this.maxDecibels,
       this.prominenceNormalize
     );
   }
@@ -447,8 +446,7 @@ export class Analyser {
    * TODO: description
    */
   public fftpd(prev: PeakDistance): PeakDistance {
-    const peaks = this.get('fftPeaks');
-    return AudioMath.mpd(peaks.data, peaks.count, prev);
+    return AudioMath.mpd(this.get('fftPeaks'), prev);
   }
 
   /**

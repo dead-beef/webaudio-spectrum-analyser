@@ -5,13 +5,13 @@
 
 void prominence(
   fftmag_t *fft,
+  fftmag_t *peaks,
   fftmag_t *res,
-  int length,
+  int bin_count,
+  int peak_count,
   int start,
   int end,
   int radius,
-  fftmag_t fftmag_min,
-  fftmag_t fftmag_max,
   int normalize
 );
 
@@ -24,7 +24,7 @@ int prominencepeak(
   fftpeak_t type
 );
 
-int prominencepeak2(
+/*int prominencepeak2(
   fftmag_t *fft,
   fftmag_t *prdata,
   int length,
@@ -36,6 +36,6 @@ int prominencepeak2(
   fftmag_t threshold,
   fftpeak_t type,
   int normalize
-);
+);*/
 
 #endif

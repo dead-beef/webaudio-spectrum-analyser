@@ -21,6 +21,12 @@ class AudioMathInstance {
     byteLength: 0,
   };
 
+  public input2Buffer: WasmBuffer = {
+    ptr: [],
+    type: 40,
+    byteLength: 0,
+  };
+
   public outputBuffer: WasmBuffer = {
     ptr: [],
     type: 40,
@@ -375,12 +381,11 @@ class AudioMathInstance {
    */
   public prominence(
     fft: Float32Array,
+    peaks: Peaks,
     output: Float32Array,
     start: number,
     end: number,
     radius: number,
-    fftMin: number,
-    fftMax: number,
     normalize = false
   ): Float32Array {
     const wasm = this.wasm;
@@ -388,16 +393,17 @@ class AudioMathInstance {
       return output;
     }
     this.copyToBuffer(this.inputBuffer, fft);
+    this.copyToBuffer(this.input2Buffer, peaks.data);
     this.resizeBuffer(this.outputBuffer, fft.length);
     wasm.exports.prominence(
       this.inputBuffer.ptr[0],
+      this.input2Buffer.ptr[0],
       this.outputBuffer.ptr[0],
       fft.length,
+      peaks.count,
       start,
       end,
       radius,
-      fftMin,
-      fftMax,
       normalize
     );
     return this.copyFromBuffer(output, this.outputBuffer);
@@ -479,22 +485,18 @@ class AudioMathInstance {
   /**
    * TODO: description
    */
-  public mpd(
-    fftpeaks: Float32Array,
-    fftPeakCount: number,
-    output: PeakDistance
-  ): PeakDistance {
+  public mpd(fftpeaks: Peaks, output: PeakDistance): PeakDistance {
     const wasm = this.wasm;
     if (!wasm) {
       return output;
     }
-    this.copyToBuffer(this.inputBuffer, fftpeaks);
-    this.resizeBuffer(this.outputBuffer, fftpeaks.length);
+    this.copyToBuffer(this.inputBuffer, fftpeaks.data);
+    this.resizeBuffer(this.outputBuffer, fftpeaks.data.length);
     output.median = wasm.exports.mpd(
       this.inputBuffer.ptr[0],
       this.outputBuffer.ptr[0],
-      fftpeaks.length,
-      fftPeakCount
+      fftpeaks.data.length,
+      fftpeaks.count
     );
     output.histogram = this.copyFromBuffer(output.histogram, this.outputBuffer);
     if (output.median < 0) {

@@ -53,13 +53,13 @@ export interface AudioMathWasmFunctions {
 
   prominence: (
     fft: number,
+    peaks: number,
     res: number,
-    length: number,
+    binCount: number,
+    peakCount: number,
     start: number,
     end: number,
     radius: number,
-    fftvalMin: number,
-    fftvalMax: number,
     normalize: boolean
   ) => void;
 
