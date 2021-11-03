@@ -33,6 +33,8 @@ typedef struct {
   float max_frequency;
   float min_prominence;
   float threshold;
+  peakmask_t peak_mask;
+  float peak_mask_radius;
 } options_t;
 
 typedef struct {
@@ -42,9 +44,10 @@ typedef struct {
   fftmag_t *fft_mag_buf;
   fftmag_t *smooth_fft_mag_buf;
   fftmag_t *prominence_buf;
-  int *peak_buf;
+  fftmag_t *peak_buf;
   float bin_size;
   int bins;
+  int peaks;
   int init;
   int sample_rate;
   int frame;
@@ -92,7 +95,7 @@ int init_data(data_t *data, int sample_rate, int fft_size) {
 
   if (data->options->output_type == OT_FFT_PEAKS) {
     HANDLE_NULL(data->prominence_buf = calloc(data->bins, sizeof(*data->prominence_buf)), "Could not allocate prominence buffer");
-    HANDLE_NULL(data->peak_buf = calloc(data->options->max_peaks, sizeof(*data->peak_buf)), "Could not allocate fft peak index buffer");
+    HANDLE_NULL(data->peak_buf = calloc(data->bins, sizeof(*data->peak_buf)), "Could not allocate fft peak index buffer");
   } else {
     data->prominence_buf = NULL;
     data->peak_buf = NULL;
@@ -181,46 +184,50 @@ void print_fft_peaks(data_t *data) {
   //fftval_t *fft_buf = data->fft_buf;
   fftmag_t *fft_mag_buf = data->smooth_fft_mag_buf;
   fftmag_t *prominence_buf = data->prominence_buf;
+  fftmag_t *peak_buf = data->peak_buf;
+
+  int peaks = fftpeaks(
+    fft_mag_buf,
+    peak_buf,
+    data->bins,
+    data->options->peak_mask,
+    data->options->peak_mask_radius
+  );
 
   prominence(
     fft_mag_buf,
+    peak_buf,
     prominence_buf,
     data->bins,
+    peaks,
     data->min_peak_index,
     data->max_peak_index + 1,
     -1,
-    DB_MIN,
-    DB_MAX,
-    TRUE
+    FALSE
   );
 
-  int peaks = 0;
-  int *peak_buf = data->peak_buf;
-  int peak_buf_size = data->options->max_peaks;
-  memset(peak_buf, 0, peak_buf_size * sizeof(*peak_buf));
+  int res_peaks = 0;
 
-  int start = clamp(data->min_peak_index, 0, data->bins - 1);
-  int end = clamp(data->max_peak_index, 0, data->bins - 1);
+  int start = data->min_peak_index;
+  int end = data->max_peak_index;
   float threshold = data->options->min_prominence;
 
-  for (int i = start; i <= end && peaks < peak_buf_size; ++i) {
-    if (prominence_buf[i] > threshold) {
-      peak_buf[peaks++] = i;
+  for (int i = 0; i < peaks; ++i) {
+    int peak = round(peak_buf[2 * i]);
+    if (peak >= start && peak <= end && prominence_buf[peak] > threshold) {
+      peak_buf[2 * res_peaks] = peak_buf[2 * i];
+      peak_buf[2 * res_peaks + 1] = peak_buf[2 * i + 1];
+      ++res_peaks;
     }
   }
 
   const char *FMT = "  %7.1lf %7.1lf";
-  if (peaks >= data->options->min_peaks) {
+  if (res_peaks >= data->options->min_peaks) {
     int i;
-    for (i = 0; i < peaks; ++i) {
-      int j = peak_buf[i];
-      fftmag_t peak;
-      double offset = interpolate_peak(fft_mag_buf, data->bins, j, &peak);
-      //print_log("%f %f %f %f %f", j * data->bin_size, fft_mag_buf[j - 1], fft_mag_buf[j], fft_mag_buf[j + 1], offset);
-      double frequency = data->bin_size * (j + offset);
-      fprintf(stdout, FMT, frequency, peak);
+    for (i = 0; i < res_peaks; ++i) {
+      fprintf(stdout, FMT, data->bin_size * peak_buf[2 * i], peak_buf[2 * i + 1]);
     }
-    for (; i < peak_buf_size; ++i) {
+    for (; i < data->options->max_peaks; ++i) {
       fprintf(stdout, FMT, 0.0f, 0.0f);
     }
     fprintf(stdout, "\n\n");
@@ -397,7 +404,9 @@ int parse_args(int argc, char **argv, options_t *opts) {
     .min_frequency = 20.0,
     .max_frequency = 20000.0,
     .min_prominence = 10.0,
-    .threshold = -100.0
+    .threshold = -100.0,
+    .peak_mask = PM_LINEAR,
+    .peak_mask_radius = 20
   };
   *opts = defaults;
 

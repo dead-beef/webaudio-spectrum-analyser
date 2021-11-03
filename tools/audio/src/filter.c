@@ -56,7 +56,7 @@ void do_filter_frame(float *input, int length, int sample_rate, data_t *data) {
     case FT_NONE:
       break;
     case FT_REMOVE_HARMONICS:
-      remove_harmonics(
+      scale_harmonics(
         data->fft_buf,
         length,
         sample_rate,
@@ -65,6 +65,7 @@ void do_filter_frame(float *input, int length, int sample_rate, data_t *data) {
         data->options->min_harmonic,
         data->options->max_harmonic,
         data->options->step,
+        0.0,
         data->options->f_scale_radius,
         data->options->harmonic_search_radius,
         data->options->smooth_scale

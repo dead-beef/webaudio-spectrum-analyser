@@ -28,7 +28,7 @@ export interface AnyScriptNode extends AudioNode {
 
 export enum WorkletFilterType {
   NONE,
-  REMOVE_HARMONICS,
+  SCALE_HARMONICS,
   ADD_HARMONICS,
   _MAX_VALUE,
 }
@@ -42,6 +42,7 @@ export type WorkletFilterParam =
   | 'minHarmonic'
   | 'maxHarmonic'
   | 'step'
+  | 'harmonicGain'
   | 'fScaleRadius'
   | 'harmonicSearchRadius'
   | 'smoothScale';

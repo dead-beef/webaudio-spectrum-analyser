@@ -8,7 +8,7 @@ import {
   skip,
 } from 'rxjs/operators';
 
-import { deepCopy } from './misc';
+import { deepCopy, extend } from './misc';
 import { throttleTime_ } from './rxjs.util';
 
 export class StoreAction<T> {
@@ -107,10 +107,7 @@ export function initState<T>(
   let state = store.selectSnapshot(selector);
   console.log('state', state);
   if (state !== null && state !== undefined) {
-    state = {
-      ...defaults,
-      ...state,
-    };
+    state = extend(defaults, state);
   } else {
     state = defaults;
   }

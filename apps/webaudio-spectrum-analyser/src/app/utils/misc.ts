@@ -25,6 +25,25 @@ export function getEventPoint(ev: Event, ox = 0, oy = 0): Point {
 /**
  * TODO: description
  */
+export function extend<T>(x: T, y: T): T {
+  if (x === null || y === null || Array.isArray(x) || Array.isArray(y)) {
+    return y;
+  }
+  const res = {
+    ...x,
+    ...y,
+  };
+  for (const key in res) {
+    if (typeof x[key] === 'object' && typeof y[key] === 'object') {
+      res[key] = extend(x[key], y[key]);
+    }
+  }
+  return res;
+}
+
+/**
+ * TODO: description
+ */
 export function deepCopy(x: any): any {
   if (x === null || typeof x !== 'object') {
     return x;

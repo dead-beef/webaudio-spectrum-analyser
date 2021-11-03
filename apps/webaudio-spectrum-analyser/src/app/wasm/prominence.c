@@ -108,25 +108,3 @@ int prominencepeak(
   }
   return res;
 }
-
-/*int prominencepeak2(
-  fftmag_t *fft,
-  fftmag_t *prdata,
-  int length,
-  int start,
-  int end,
-  int radius,
-  fftmag_t fftmag_min,
-  fftmag_t fftmag_max,
-  fftmag_t threshold,
-  fftpeak_t type,
-  int normalize
-) {
-  prominence(
-    fft, prdata, length,
-    start, end, radius,
-    fftmag_min, fftmag_max,
-    normalize
-  );
-  return prominencepeak(prdata, length, start, end, threshold, type);
-}*/

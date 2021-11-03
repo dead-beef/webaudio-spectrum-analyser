@@ -22,7 +22,7 @@ export class ColorService {
     CP: '#96996f',
     MPD: '#76996f',
     'mpd-histogram': '#29ff00',
-    'spectrogram-min': '#000000',//'#26262c',
+    'spectrogram-min': '#000000', //'#26262c',
     'spectrogram-max': '#4aaed9',
   };
 

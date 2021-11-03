@@ -10,7 +10,7 @@ void filter_end(tdval_t *output, fftval_t *fft_buf, int length);
 
 void gain(fftval_t *fft_buf, int fft_size, float db);
 
-void remove_harmonics(
+void scale_harmonics(
   fftval_t *fft_buf,
   int fft_size,
   int sample_rate,
@@ -19,6 +19,7 @@ void remove_harmonics(
   int min_harmonic,
   int max_harmonic,
   int step,
+  float factor,
   float f_scale_radius,
   float harmonic_search_radius,
   int smooth_scale

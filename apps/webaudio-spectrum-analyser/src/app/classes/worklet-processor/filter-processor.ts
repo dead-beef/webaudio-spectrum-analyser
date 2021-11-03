@@ -79,6 +79,13 @@ export class FilterProcessor extends AudioWorkletProcessor {
         automationRate: 'k-rate',
       },
       {
+        name: 'harmonicGain',
+        defaultValue: -100,
+        minValue: -100,
+        maxValue: 100,
+        automationRate: 'k-rate',
+      },
+      {
         name: 'fScaleRadius',
         defaultValue: 60,
         minValue: 0,
@@ -148,7 +155,7 @@ export class FilterProcessor extends AudioWorkletProcessor {
     smoothScale: number
   ) => void = () => {};
 
-  public wasmRemoveHarmonics: (
+  public wasmScaleHarmonics: (
     fft: number,
     fftSize: number,
     sampleRate: number,
@@ -157,6 +164,7 @@ export class FilterProcessor extends AudioWorkletProcessor {
     minHarmonic: number,
     maxHarmonic: number,
     step: number,
+    factor: number,
     fScaleRadius: number,
     harmonicSearchRadius: number,
     smoothScale: number
@@ -255,7 +263,7 @@ export class FilterProcessor extends AudioWorkletProcessor {
         this.wasmFilterEnd = this.wasm.exports.filter_end as any;
         this.wasmGain = this.wasm.exports.gain as any;
         this.wasmAddHarmonics = this.wasm.exports.add_harmonics as any;
-        this.wasmRemoveHarmonics = this.wasm.exports.remove_harmonics as any;
+        this.wasmScaleHarmonics = this.wasm.exports.scale_harmonics as any;
         console.log('instance', instance);
       });
     }
@@ -325,7 +333,7 @@ export class FilterProcessor extends AudioWorkletProcessor {
       case 0:
         break;
       case 1:
-        this.wasmRemoveHarmonics(
+        this.wasmScaleHarmonics(
           fftPtr,
           this.fftSize,
           this.sampleRate,
@@ -334,6 +342,7 @@ export class FilterProcessor extends AudioWorkletProcessor {
           parameters.minHarmonic[0],
           parameters.maxHarmonic[0],
           parameters.step[0],
+          Math.pow(10, parameters.harmonicGain[0] / 10),
           parameters.fScaleRadius[0],
           parameters.harmonicSearchRadius[0],
           parameters.smoothScale[0]

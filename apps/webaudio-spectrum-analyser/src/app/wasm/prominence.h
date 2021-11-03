@@ -24,18 +24,4 @@ int prominencepeak(
   fftpeak_t type
 );
 
-/*int prominencepeak2(
-  fftmag_t *fft,
-  fftmag_t *prdata,
-  int length,
-  int start,
-  int end,
-  int radius,
-  fftmag_t fftmag_min,
-  fftmag_t fftmag_max,
-  fftmag_t threshold,
-  fftpeak_t type,
-  int normalize
-);*/
-
 #endif

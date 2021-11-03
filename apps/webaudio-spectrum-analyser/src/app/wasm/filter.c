@@ -54,7 +54,7 @@ static double get_pitch(
 }
 
 EMSCRIPTEN_KEEPALIVE
-void remove_harmonics(
+void scale_harmonics(
   fftval_t *fft_buf,
   int fft_size,
   int sample_rate,
@@ -63,6 +63,7 @@ void remove_harmonics(
   int min_harmonic,
   int max_harmonic,
   int step,
+  float factor,
   float f_scale_radius,
   float harmonic_search_radius,
   int smooth_scale
@@ -94,7 +95,7 @@ void remove_harmonics(
       fft_scale(
         fft_buf, bins,
         peak, scale_radius,
-        0.0, smooth_scale
+        factor, smooth_scale
       );
       h += step;
     }
@@ -111,7 +112,7 @@ void remove_harmonics(
         fft_scale(
           fft_buf, bins,
           peak, scale_radius,
-          0.0, smooth_scale
+          factor, smooth_scale
         );
       }
     }

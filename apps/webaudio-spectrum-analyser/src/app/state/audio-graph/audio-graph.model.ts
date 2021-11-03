@@ -59,6 +59,7 @@ export const AUDIO_GRAPH_STATE_DEFAULTS: AudioGraphStateModel = {
       minHarmonic: 1,
       maxHarmonic: 200,
       step: 2,
+      harmonicGain: -100,
       fScaleRadius: 60,
       harmonicSearchRadius: 0.3,
       smoothScale: false,
