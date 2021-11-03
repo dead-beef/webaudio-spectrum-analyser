@@ -23,10 +23,8 @@ export interface AnalyserFunctions {
 
   RMS: AnalyserFunction<number>;
   ZCR: AnalyserFunction<number>;
-  FFTM: AnalyserFunction<number>;
   FFTP: AnalyserFunction<number>;
   AC: AnalyserFunction<number>;
-  CM: AnalyserFunction<number>;
   CP: AnalyserFunction<number>;
   MPD: AnalyserFunction<number>;
 }

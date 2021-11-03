@@ -84,10 +84,8 @@ export class Analyser {
 
     RMS: this.func('RMS', 'Root mean square', 'rms', 0),
     ZCR: this.func('ZCR', 'Zero-crossing rate', 'zcr', 0),
-    FFTM: this.func('FFTM', 'FFT max', 'fftmax', 0),
     FFTP: this.func('FFTP', 'FFT peak', 'fftpeak', 0),
     AC: this.func('AC', 'Autocorrelation peak', 'autocorrpeak', 0),
-    CM: this.func('CM', 'Cepstrum max', 'cmax', 0),
     CP: this.func('CP', 'Cepstrum peak', 'cpeak', 0),
     MPD: this.func('MPD', 'Median FFT peak distance', 'mpd', 0),
   };
@@ -98,10 +96,8 @@ export class Analyser {
 
   public readonly FREQUENCY_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
     'ZCR',
-    'FFTM',
     'FFTP',
     'AC',
-    'CM',
     'CP',
     'MPD',
   ];
@@ -342,17 +338,6 @@ export class Analyser {
   /**
    * TODO: description
    */
-  public fftmax(): number {
-    const start: number = this.indexOfFrequency(this.minPitch);
-    const end: number = this.indexOfFrequency(this.maxPitch);
-    let res: number = AudioMath.indexOfMax(this.fdata, start, end);
-    res = AudioMath.interpolatePeak(this.fdata, res);
-    return this.frequencyOfIndex(res);
-  }
-
-  /**
-   * TODO: description
-   */
   public prominence(prev: Float32Array): Float32Array {
     const start: number = this.indexOfFrequency(this.minPitch);
     const end: number = this.indexOfFrequency(this.maxPitch);
@@ -408,18 +393,6 @@ export class Analyser {
    */
   public cepstrum(prev: Float32Array): Float32Array {
     return AudioMath.cepstrum(this.fdata, prev);
-  }
-
-  /**
-   * TODO: description
-   */
-  public cmax(): number {
-    const cdata = this.get('cepstrum');
-    const start: number = this.indexOfQuefrency(1 / this.maxPitch);
-    const end: number = this.indexOfQuefrency(1 / this.minPitch);
-    let res = AudioMath.indexOfMax(cdata, start, end);
-    res = AudioMath.interpolatePeak(cdata, res);
-    return 1 / this.quefrencyOfIndex(res);
   }
 
   /**
