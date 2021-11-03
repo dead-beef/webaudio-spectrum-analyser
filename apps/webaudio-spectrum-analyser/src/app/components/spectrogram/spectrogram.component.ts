@@ -95,6 +95,7 @@ export class SpectrogramComponent implements AfterViewInit, OnDestroy {
     const width = this.frames;
     const height = this.analyser.fftSize / 2;
     this.canvas.setSize(width, height);
+    this.clearCanvas();
     this.imageData = this.canvas.context.createImageData(1, height);
     this.frameTimestamp = new Uint32Array(width);
     this.nextFrame = 0;
@@ -127,8 +128,15 @@ export class SpectrogramComponent implements AfterViewInit, OnDestroy {
     console.log('clear');
     this.nextFrame = 0;
     this.frameTimestamp.fill(0);
+    this.clearCanvas();
+  }
+
+  /**
+   * TODO: description
+   */
+  public clearCanvas(): void {
     if (this.canvas !== null) {
-      this.canvas.clear();
+      this.canvas.fill(this.color.get('spectrogram-min'));
     }
   }
 
@@ -230,9 +238,6 @@ export class SpectrogramComponent implements AfterViewInit, OnDestroy {
       this.analyser.minDecibels,
       this.analyser.maxDecibels
     );
-    if (resized) {
-      this.canvas.clear();
-    }
     if (shift) {
       this.canvas.shift(-1, 0);
     }

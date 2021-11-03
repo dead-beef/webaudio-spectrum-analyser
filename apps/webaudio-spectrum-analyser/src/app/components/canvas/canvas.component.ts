@@ -128,6 +128,21 @@ left: ${(point.x * 100).toFixed(2)}%`;
   /**
    * TODO: description
    */
+  public fill(color: string): void {
+    if (this.context !== null) {
+      this.context.fillStyle = color;
+      this.context.fillRect(
+        0,
+        0,
+        this.context.canvas.width,
+        this.context.canvas.height
+      );
+    }
+  }
+
+  /**
+   * TODO: description
+   */
   public shift(x: number, y: number): void {
     if (this.context !== null) {
       this.context.drawImage(this.context.canvas, x, y);
