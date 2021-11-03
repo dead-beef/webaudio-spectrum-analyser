@@ -12,6 +12,7 @@ import { Analyser } from '../../classes/analyser/analyser';
 import {
   AnalyserFunctionId,
   AnalyserFunctionState,
+  FftPeakMask,
   FftPeakType,
 } from '../../interfaces';
 import { ANALYSER, StoreAction } from '../../utils';
@@ -134,6 +135,24 @@ export class AnalyserState {
   @Selector()
   public static fftPeakProminenceNormalize(state: AnalyserStateModel) {
     return state.fftp.prominence.normalize;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static fftPeakMask(state: AnalyserStateModel) {
+    return state.fftpeaks.mask;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static fftPeakMaskRadius(state: AnalyserStateModel) {
+    return state.fftpeaks.maskRadius;
   }
 
   /**
@@ -325,6 +344,48 @@ export class AnalyserState {
           prominence: patch({
             normalize: payload,
           }),
+        }),
+      })
+    );
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(analyserAction.setFftPeakMask)
+  public setFftPeakMask(
+    ctx: StateContext<AnalyserStateModel>,
+    { payload }: StoreAction<FftPeakMask>
+  ) {
+    this.analyser.fftPeakMask = payload;
+    this.analyser.stateChanged = true;
+    return ctx.setState(
+      patch({
+        fftpeaks: patch({
+          mask: payload,
+        }),
+      })
+    );
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(analyserAction.setFftPeakMaskRadius)
+  public setFftPeakMaskRadius(
+    ctx: StateContext<AnalyserStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    this.analyser.fftPeakMaskRadius = payload;
+    this.analyser.stateChanged = true;
+    return ctx.setState(
+      patch({
+        fftpeaks: patch({
+          maskRadius: payload,
         }),
       })
     );

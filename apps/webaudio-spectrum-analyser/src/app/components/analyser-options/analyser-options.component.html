@@ -45,6 +45,17 @@
   </app-input-frequency>
 
   <clr-select-container>
+    <label>FFT peak mask type</label>
+    <select clrSelect formControlName="peakMask">
+      <option *ngFor="let t of peakMaskTypes" [ngValue]="t.id">
+        {{ t.name }}
+      </option>
+    </select>
+  </clr-select-container>
+  <app-input-frequency name="FFT peak mask radius" formControlName="peakMaskRadius">
+  </app-input-frequency>
+
+  <clr-select-container>
     <label>FFT peak type</label>
     <select clrSelect formControlName="peakType">
       <option *ngFor="let t of peakTypes" [ngValue]="t.id">

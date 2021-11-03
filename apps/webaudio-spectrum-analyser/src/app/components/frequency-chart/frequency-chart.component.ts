@@ -162,6 +162,43 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
   /**
    * TODO: description
    */
+  public drawPeaks(data: Float32Array, count: number): void {
+    if (this.canvas === null) {
+      return;
+    }
+    const fscale = this.analyser.sampleRate / this.analyser.fftSize;
+    const yscale = 1 / (this.analyser.maxDecibels - this.analyser.minDecibels);
+    const y0 = this.analyser.minDecibels;
+    this.canvas.dots(
+      data.subarray(0, count * 2),
+      (x: number) => this.frequencyToCanvas(x * fscale),
+      (y: number) => yscale * (y - y0),
+      'fftpeaks'
+    );
+  }
+
+  /**
+   * TODO: description
+   */
+  public drawPeakDistanceHistogram(data: Float32Array): void {
+    if (this.canvas === null) {
+      return;
+    }
+    const sr2 = this.analyser.sampleRate / 2;
+    const dx = -sr2 / (data.length * 2);
+    const yscale = 1 / data.reduce((p, x) => p + x, 0);
+    this.canvas.step(
+      data,
+      (x: number) => this.frequencyToCanvas(x * sr2 + dx),
+      (y: number) => y * yscale,
+      'mpd-histogram',
+      0
+    );
+  }
+
+  /**
+   * TODO: description
+   */
   public setPoint(p: Nullable<Point>): void {
     if (p) {
       this.pointFrequency.next(this.canvasToFrequency(p.x));
@@ -226,6 +263,16 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
       data = this.analyser.getOptional('prominence');
       if (data !== null) {
         this.drawProminenceData(data);
+      }
+
+      const ps = this.analyser.getOptional('fftPeaks');
+      if (ps !== null) {
+        this.drawPeaks(ps.data, ps.count);
+      }
+
+      const pd = this.analyser.getOptional('fftPeakDistance');
+      if (pd !== null) {
+        this.drawPeakDistanceHistogram(pd.histogram);
       }
     }
   }

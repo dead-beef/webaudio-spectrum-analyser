@@ -3,7 +3,12 @@ import { FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { environment } from '../../../environments/environment';
-import { AnalyserFunctionId, FftPeakType, Layouts } from '../../interfaces';
+import {
+  AnalyserFunctionId,
+  FftPeakMask,
+  FftPeakType,
+  Layouts,
+} from '../../interfaces';
 import { AnalyserService } from '../../state/analyser/analyser.service';
 import { AnalyserState } from '../../state/analyser/analyser.store';
 import { stateFormControl } from '../../utils';
@@ -20,6 +25,12 @@ export class AnalyserOptionsComponent {
   public readonly peakTypes = [
     { id: FftPeakType.MIN_FREQUENCY, name: 'Min frequency' },
     { id: FftPeakType.MAX_PROMINENCE, name: 'Max prominence' },
+  ];
+
+  public readonly peakMaskTypes = [
+    { id: FftPeakMask.NONE, name: 'None' },
+    { id: FftPeakMask.CONST, name: 'Constant' },
+    { id: FftPeakMask.LINEAR, name: 'Linear' },
   ];
 
   public readonly functionId: AnalyserFunctionId[] = [
@@ -59,13 +70,15 @@ export class AnalyserOptionsComponent {
       null,
       this.analyser.select(AnalyserState.rmsThreshold),
       (t: number) => this.analyser.dispatch('setRmsThreshold', t),
-      untilDestroyed(this)
+      untilDestroyed(this),
+      environment.throttle
     ),
     historySize: stateFormControl(
       null,
       this.analyser.select(AnalyserState.historySize),
       (s: number) => this.analyser.dispatch('setHistorySize', s),
-      untilDestroyed(this)
+      untilDestroyed(this),
+      environment.throttle
     ),
     minPitch: stateFormControl(
       null,
@@ -81,12 +94,28 @@ export class AnalyserOptionsComponent {
       untilDestroyed(this),
       environment.throttle
     ),
+    peakMask: stateFormControl(
+      null,
+      this.analyser.select(AnalyserState.fftPeakMask),
+      (x: FftPeakMask) => {
+        return this.analyser.dispatch('setFftPeakMask', x);
+      },
+      untilDestroyed(this)
+    ),
+    peakMaskRadius: stateFormControl(
+      null,
+      this.analyser.select(AnalyserState.fftPeakMaskRadius),
+      (x: number) => {
+        return this.analyser.dispatch('setFftPeakMaskRadius', x);
+      },
+      untilDestroyed(this),
+      environment.throttle
+    ),
     peakType: stateFormControl(
       null,
       this.analyser.select(AnalyserState.fftPeakType),
       (t: FftPeakType) => this.analyser.dispatch('setFftPeakType', t),
-      untilDestroyed(this),
-      environment.throttle
+      untilDestroyed(this)
     ),
     prominenceRadius: stateFormControl(
       null,
@@ -108,8 +137,7 @@ export class AnalyserOptionsComponent {
       (x: boolean) => {
         return this.analyser.dispatch('setFftPeakProminenceNormalize', x);
       },
-      untilDestroyed(this),
-      environment.throttle
+      untilDestroyed(this)
     ),
   });
 

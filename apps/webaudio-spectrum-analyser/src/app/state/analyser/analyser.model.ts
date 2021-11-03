@@ -1,13 +1,13 @@
 import { StateToken } from '@ngxs/store';
 
-import { AnalyserState, FftPeakType } from '../../interfaces';
+import { AnalyserState, FftPeakMask, FftPeakType } from '../../interfaces';
 
 export type AnalyserStateModel = AnalyserState;
 
 export const ANALYSER_STATE_DEFAULTS: AnalyserStateModel = {
   debug: false,
   historySize: 240,
-  rmsThreshold: 0,
+  rmsThreshold: 0.01,
   pitch: {
     min: 20,
     max: 20000,
@@ -16,6 +16,8 @@ export const ANALYSER_STATE_DEFAULTS: AnalyserStateModel = {
     autocorr: false,
     prominence: false,
     cepstrum: false,
+    fftPeaks: false,
+    fftPeakDistance: false,
     RMS: true,
     ZCR: true,
     FFTM: false,
@@ -23,14 +25,19 @@ export const ANALYSER_STATE_DEFAULTS: AnalyserStateModel = {
     AC: false,
     CM: false,
     CP: false,
+    MPD: false,
   },
   fftp: {
     type: FftPeakType.MIN_FREQUENCY,
     prominence: {
-      radius: 0,
-      threshold: 0.1,
+      radius: 100,
+      threshold: 10,
       normalize: false,
     },
+  },
+  fftpeaks: {
+    mask: FftPeakMask.NONE,
+    maskRadius: 100,
   },
 };
 

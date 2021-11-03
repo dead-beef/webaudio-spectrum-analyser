@@ -37,9 +37,13 @@ void magnitude(fftval_t *in, fftmag_t *out, int length, int decibels);
 
 fftmag_t max_magnitude(fftmag_t *fft, int start, int end);
 
-int index_of_max_peak(fftmag_t *mag, int bin_count, int start, int end);
-
-double interpolate_peak(fftmag_t *mag, int bin_count, int i, fftmag_t *value);
+int fftpeaks(
+  fftmag_t *data,
+  fftmag_t *output,
+  int length,
+  peakmask_t mask,
+  fftmag_t mask_radius
+);
 
 void fft_scale(
   fftval_t *fft_buf,

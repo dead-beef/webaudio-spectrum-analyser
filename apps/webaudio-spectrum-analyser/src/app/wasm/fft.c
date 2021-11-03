@@ -122,43 +122,90 @@ fftmag_t max_magnitude(fftmag_t *fft, int start, int end) {
   return ret;
 }
 
-int index_of_max_peak(fftmag_t *mag, int bin_count, int start, int end) {
-  int ret = -1;
-  fftmag_t val;
-  start = clamp(start, 1, bin_count - 2);
-  end = clamp(end, 1, bin_count - 2);
-  for (int i = start; i <= end; ++i) {
-    if (mag[i] > mag[i - 1] && mag[i] > mag[i + 1]) {
-      if (ret < 0 || val < mag[i]) {
-        ret = i;
-        val = mag[i];
-      }
-    }
-  }
-  return ret;
+static fftmag_t mask_const(
+  fftmag_t distance __attribute__((unused)),
+  fftmag_t radius __attribute__((unused))
+) {
+  return 1.0;
 }
 
-double interpolate_peak(fftmag_t *mag, int bin_count, int i, fftmag_t *value) {
-  if (i <= 0 || i >= bin_count - 1) {
-    if (value) {
-      *value = mag[i];
+static fftmag_t mask_linear(fftmag_t distance, fftmag_t radius) {
+  return 1.0 - distance / radius;
+}
+
+EMSCRIPTEN_KEEPALIVE
+int fftpeaks(
+  fftmag_t *data,
+  fftmag_t *output,
+  int length,
+  peakmask_t mask,
+  fftmag_t mask_radius
+) {
+  unsigned char discard[length];
+  int peaks_2 = 0;
+  peakmask_func_t mask_;
+
+  switch (mask) {
+    case PM_CONST:
+      mask_ = mask_const;
+      break;
+    case PM_LINEAR:
+      mask_ = mask_linear;
+      break;
+    default:
+      mask_ = NULL;
+      break;
+  }
+
+  for (int i = 1; i < length - 1; ++i) {
+    if (data[i] >= data[i - 1] && data[i] > data[i + 1]) {
+      output[peaks_2] = i + interpolate_peak(data, length, i, output + peaks_2 + 1);
+      discard[peaks_2] = FALSE;
+
+      if (mask_) {
+        fftmag_t peak_idx = output[peaks_2];
+        fftmag_t peak_mag = output[peaks_2 + 1];
+
+        for (int prev = peaks_2 - 2; prev >= 0; prev -= 2) {
+          fftmag_t distance = peak_idx - output[prev];
+          if (distance > mask_radius) {
+            break;
+          }
+          fftmag_t factor = mask_(distance, mask_radius);
+          fftmag_t prev_peak_mag = output[prev + 1];
+
+          if (peak_mag < prev_peak_mag) {
+            discard[peaks_2] = discard[peaks_2]
+              || peak_mag < DB_MIN + factor * (prev_peak_mag - DB_MIN);
+          } else {
+            discard[prev] = discard[prev]
+              || prev_peak_mag < DB_MIN + factor * (peak_mag - DB_MIN);
+          }
+        }
+      }
+
+      peaks_2 += 2;
     }
-    return 0.0;
-  }
-  fftmag_t left = mag[i - 1];
-  fftmag_t peak = mag[i];
-  fftmag_t right = mag[i + 1];
-
-  double c = peak;
-  double b = (right - left) / 2.0;
-  double a = left + b - c;
-
-  double x = -b / (2.0 * a);
-  if (value) {
-    *value = x * (a * x + b) + c;
   }
 
-  return x;
+  int peaks_ = 0;
+  if (mask_) {
+    for (int i = 0; i < peaks_2; i += 2) {
+      if (!discard[i]) {
+        output[peaks_] = output[i];
+        output[peaks_ + 1] = output[i + 1];
+        peaks_ += 2;
+      }
+    }
+  } else {
+    peaks_ = peaks_2;
+  }
+
+  if (peaks_ + 1 < length) {
+    output[peaks_ + 1] = -1.0;
+  }
+
+  return peaks_ / 2;
 }
 
 void fft_scale(

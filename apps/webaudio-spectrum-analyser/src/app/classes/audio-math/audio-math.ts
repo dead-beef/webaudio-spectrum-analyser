@@ -1,5 +1,12 @@
 import * as wasmModule from '../../wasm/index.c';
-import { AudioMathWasmFunctions, FftPeakType, WasmBuffer } from './interfaces';
+import {
+  AudioMathWasmFunctions,
+  FftPeakMask,
+  FftPeakType,
+  PeakDistance,
+  Peaks,
+  WasmBuffer,
+} from './interfaces';
 
 class AudioMathInstance {
   private _wasm: Nullable<WasmModule<AudioMathWasmFunctions>> = null;
@@ -441,6 +448,60 @@ class AudioMathInstance {
       fft.length * 2
     );
     return this.copyFromBuffer(output, this.outputBuffer);
+  }
+
+  /**
+   * TODO: description
+   */
+  public fftpeaks(
+    fft: Float32Array,
+    output: Peaks,
+    mask: FftPeakMask,
+    maskRadius: number
+  ): Peaks {
+    const wasm = this.wasm;
+    if (!wasm) {
+      return output;
+    }
+    this.copyToBuffer(this.inputBuffer, fft);
+    this.resizeBuffer(this.outputBuffer, fft.length);
+    console.log(wasm.exports);
+    output.count = wasm.exports.fftpeaks(
+      this.inputBuffer.ptr[0],
+      this.outputBuffer.ptr[0],
+      fft.length,
+      mask,
+      maskRadius
+    );
+    output.data = this.copyFromBuffer(output.data, this.outputBuffer);
+    return output;
+  }
+
+  /**
+   * TODO: description
+   */
+  public mpd(
+    fftpeaks: Float32Array,
+    fftPeakCount: number,
+    output: PeakDistance
+  ): PeakDistance {
+    const wasm = this.wasm;
+    if (!wasm) {
+      return output;
+    }
+    this.copyToBuffer(this.inputBuffer, fftpeaks);
+    this.resizeBuffer(this.outputBuffer, fftpeaks.length);
+    output.median = wasm.exports.mpd(
+      this.inputBuffer.ptr[0],
+      this.outputBuffer.ptr[0],
+      fftpeaks.length,
+      fftPeakCount
+    );
+    output.histogram = this.copyFromBuffer(output.histogram, this.outputBuffer);
+    if (output.median < 0) {
+      output.median = NaN;
+    }
+    return output;
   }
 
   /**

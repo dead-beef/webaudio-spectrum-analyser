@@ -1,4 +1,9 @@
-import { FftPeakType } from '../audio-math/interfaces';
+import {
+  FftPeakMask,
+  FftPeakType,
+  PeakDistance,
+  Peaks,
+} from '../audio-math/interfaces';
 
 export interface AnalyserFunction<T> {
   id: AnalyserFunctionId;
@@ -13,6 +18,8 @@ export interface AnalyserFunctions {
   autocorr: AnalyserFunction<Float32Array>;
   prominence: AnalyserFunction<Float32Array>;
   cepstrum: AnalyserFunction<Float32Array>;
+  fftPeaks: AnalyserFunction<Peaks>;
+  fftPeakDistance: AnalyserFunction<PeakDistance>;
 
   RMS: AnalyserFunction<number>;
   ZCR: AnalyserFunction<number>;
@@ -21,6 +28,7 @@ export interface AnalyserFunctions {
   AC: AnalyserFunction<number>;
   CM: AnalyserFunction<number>;
   CP: AnalyserFunction<number>;
+  MPD: AnalyserFunction<number>;
 }
 
 export type AnalyserFunctionId = keyof AnalyserFunctions;
@@ -45,6 +53,11 @@ export interface FftPeakState {
   };
 }
 
+export interface FftPeaksState {
+  mask: FftPeakMask;
+  maskRadius: number;
+}
+
 export interface AnalyserState {
   debug: boolean;
   historySize: number;
@@ -53,6 +66,7 @@ export interface AnalyserState {
     min: number;
     max: number;
   };
+  fftpeaks: FftPeaksState;
   fftp: FftPeakState;
   functions: Record<AnalyserFunctionId, boolean>;
 }

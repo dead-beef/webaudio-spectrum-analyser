@@ -9,8 +9,32 @@ export enum FftPeakType {
   MAX_PROMINENCE = 2,
 }
 
+export enum FftPeakMask {
+  NONE = 0,
+  CONST = 1,
+  LINEAR = 2,
+}
+
+export interface PeakDistance {
+  histogram: Float32Array;
+  median: number;
+}
+
+export interface Peaks {
+  data: Float32Array;
+  count: number;
+}
+
 export interface AudioMathWasmFunctions {
   rms: (tdata: number, length: number) => number;
+
+  fftpeaks: (
+    fft: number,
+    output: number,
+    length: number,
+    mask: number,
+    maskRadius: number
+  ) => number;
 
   autocorr: (
     tdata: number,
@@ -49,4 +73,11 @@ export interface AudioMathWasmFunctions {
   ) => number;
 
   cepstrum: (fft: number, res: number, fftSize: number) => void;
+
+  mpd: (
+    fft: number,
+    pdHistBuf: number,
+    binCount: number,
+    peakCount: number
+  ) => number;
 }
