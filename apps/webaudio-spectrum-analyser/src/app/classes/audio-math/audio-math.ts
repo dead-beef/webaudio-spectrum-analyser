@@ -465,7 +465,6 @@ class AudioMathInstance {
     }
     this.copyToBuffer(this.inputBuffer, fft);
     this.resizeBuffer(this.outputBuffer, fft.length);
-    console.log(wasm.exports);
     output.count = wasm.exports.fftpeaks(
       this.inputBuffer.ptr[0],
       this.outputBuffer.ptr[0],

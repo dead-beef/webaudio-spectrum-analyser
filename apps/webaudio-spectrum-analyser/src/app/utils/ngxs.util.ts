@@ -1,7 +1,12 @@
 import { AbstractControl, FormControl } from '@angular/forms';
 import { Store } from '@ngxs/store';
 import { MonoTypeOperatorFunction, Observable } from 'rxjs';
-import { catchError, distinctUntilChanged, flatMap } from 'rxjs/operators';
+import {
+  catchError,
+  distinctUntilChanged,
+  flatMap,
+  skip,
+} from 'rxjs/operators';
 
 import { deepCopy } from './misc';
 import { throttleTime_ } from './rxjs.util';
@@ -66,7 +71,7 @@ export function stateFormControl<T>(
   } else {
     fc = new FormControl(formControlOrState);
   }
-  let valueChanges$: Observable<T> = fc.valueChanges;
+  let valueChanges$: Observable<T> = fc.valueChanges.pipe(skip(1));
   if (throttle) {
     const op: (o: Observable<T>) => Observable<T> = throttleTime_(throttle);
     value$ = value$.pipe(op);
