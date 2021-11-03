@@ -23,26 +23,7 @@ void gain(fftval_t *fft_buf, int fft_size, float db) {
   }
 }
 
-void remove_frequencies(
-  fftval_t *ft,
-  int fft_size,
-  int sample_rate,
-  float start,
-  float end
-) {
-  double bin_size = (double)sample_rate / fft_size;
-  int bins = 1 + fft_size / 2;
-  int start_ = start > 0.0 ? round(start / bin_size) : 0;
-  int end_ = end > 0.0 ? round(end / bin_size) : bins - 1;
-  start_ = clamp(start_, 0, bins - 1);
-  end_ = clamp(end_, 0, bins - 1);
-  for (int i = start_; i < end_; ++i) {
-    ft[i].r = 0.0;
-    ft[i].i = 0.0;
-  }
-}
-
-double get_pitch(
+static double get_pitch(
   fftmag_t *fftmag_buf,
   int fft_bins,
   int sample_rate,
@@ -171,38 +152,56 @@ void add_harmonics(
     max_pitch
   );
 
-  if (pitch > 0) {
-    double new_pitch = pitch * 0.5;
-    int h = min_harmonic;
-    if (h == 1 && h <= max_harmonic) {
-      double new_harmonic = new_pitch;
-      int new_peak = round(new_harmonic / bin_size);
-      peak = round(pitch / bin_size);
-      fft_copy(
-        fft_buf, bins,
-        peak, new_peak, copy_radius,
-        1.0, smooth_copy
-      );
-      h += step;
+  if (pitch <= 0) {
+    return;
+  }
+
+  double new_pitch = pitch * 0.5;
+  int h = min_harmonic;
+  if (h == 1 && h <= max_harmonic) {
+    double new_harmonic = new_pitch;
+    int new_peak = round(new_harmonic / bin_size);
+    peak = round(pitch / bin_size);
+    fft_copy(
+      fft_buf, bins,
+      peak, new_peak, copy_radius,
+      1.0, smooth_copy
+    );
+    //h += step;
+  }
+  for (; h <= max_harmonic; h += step) {
+    double f_min = (h - harmonic_search_radius) * pitch;
+    double f_max = (h + harmonic_search_radius) * pitch;
+    int start = round(f_min / bin_size);
+    int end = round(f_max / bin_size);
+    if (start >= bins) {
+      break;
     }
-    for (; h <= max_harmonic; h += step) {
-      double f_min = (h - harmonic_search_radius) * pitch;
-      double f_max = (h + harmonic_search_radius) * pitch;
-      int start = round(f_min / bin_size);
-      int end = round(f_max / bin_size);
+
+    peak = index_of_max_peak(magnitude_buf, bins, start, end);
+    if (peak < 0) {
+      continue;
+    }
+
+    int next_peak = -1;
+    for (int dh = 1; dh < 3 && next_peak < 0; ++dh) {
+      start = round((f_min + dh * pitch) / bin_size);
+      end = round((f_max + dh * pitch) / bin_size);
       if (start >= bins) {
         break;
       }
-      peak = index_of_max_peak(magnitude_buf, bins, start, end);
-      if (peak > 0) {
-        double new_harmonic = (h - 0.5) * pitch;
-        int new_peak = round(new_harmonic / bin_size);
-        fft_copy(
-          fft_buf, bins,
-          peak, new_peak, copy_radius,
-          1.0, smooth_copy
-        );
-      }
+      next_peak = index_of_max_peak(magnitude_buf, bins, start, end);
     }
+    if (next_peak < 0) {
+      continue;
+    }
+
+    int new_peak = (peak + next_peak) / 2;
+    double scale = 0.5 + magnitude_buf[next_peak] / (2 * magnitude_buf[peak]);
+    fft_copy(
+      fft_buf, bins,
+      peak, new_peak, copy_radius,
+      scale, smooth_copy
+    );
   }
 }
