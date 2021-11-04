@@ -1,13 +1,13 @@
 #include "autocorr.h"
 
-double autocorr1(
-  tdval_t *tdata,
+number autocorr1(
+  number *tdata,
   int length,
-  double mean,
-  double variance,
+  number mean,
+  number variance,
   int offset
 ) {
-  double res = 0.0;
+  number res = 0.0;
   for (int i = offset; i < length; ++i) {
     res += (tdata[i] - mean) * (tdata[i - offset] - mean);
   }
@@ -17,16 +17,16 @@ double autocorr1(
 
 EMSCRIPTEN_KEEPALIVE
 void autocorr(
-  tdval_t *tdata,
-  float *res,
+  number *tdata,
+  number *res,
   int length,
   int min_offset,
   int max_offset
 ) {
   max_offset = clamp(max_offset, 0, length - 2);
   min_offset = clamp(min_offset, 0, max_offset - 1);
-  double m = mean(tdata, length);
-  double var = variance(tdata, length, m);
+  number m = mean(tdata, length);
+  number var = variance(tdata, length, m);
   memset(res, 0, length * sizeof(*res));
   for (int i = min_offset; i <= max_offset; ++i) {
     res[i] = autocorr1(tdata, length, m, var, i);
@@ -35,7 +35,7 @@ void autocorr(
 
 EMSCRIPTEN_KEEPALIVE
 int autocorrpeak(
-  float *acdata,
+  number *acdata,
   int length,
   int min_offset,
   int max_offset
@@ -47,16 +47,16 @@ int autocorrpeak(
   }
 
   int res = -1;
-  float max = 0.0;
+  number max = 0.0;
   int found_min = FALSE;
 
   //++min_offset;
   //--max_offset;
 
   for (int i = min_offset; i <= max_offset; ++i) {
-    float cur = acdata[i];
-    float prev = acdata[i - 1];
-    float next = acdata[i + 1];
+    number cur = acdata[i];
+    number prev = acdata[i - 1];
+    number next = acdata[i + 1];
     //if(cur == prev && cur == next) {
     //  continue;
     //}

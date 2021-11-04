@@ -10,35 +10,21 @@
 #define max(x, y) ((x) > (y) ? (x) : (y))
 #define min(x, y) ((x) > (y) ? (y) : (x))
 
-typedef float tdval_t;
-typedef float fftmag_t;
-
-typedef enum {
-  MIN_FREQUENCY = 1,
-  MAX_PROMINENCE = 2,
-} fftpeak_t;
-
-typedef enum {
-  PM_NONE = 0,
-  PM_CONST = 1,
-  PM_LINEAR = 2,
-} peakmask_t;
+typedef float number;
 
 enum {
   TRUE = 1,
   FALSE = 0
 };
 
-typedef fftmag_t (*peakmask_func_t)(fftmag_t, fftmag_t);
+number mean(number *data, int length);
+number variance(number *data, int length, number mean);
+number rms(number *data, int length);
+number median(number *data, int length);
+number dot(number *x, number *y, int length);
 
-double mean(tdval_t *data, int length);
-double variance(tdval_t *data, int length, double mean);
-double rms(tdval_t *data, int length);
-double median(fftmag_t *data, int length);
-double dot(fftmag_t *x, fftmag_t *y, int length);
-
-int index_of_max_peak(fftmag_t *mag, int bin_count, int start, int end);
-double interpolate_peak(fftmag_t *mag, int bin_count, int i, fftmag_t *value);
-int is_peak(fftmag_t *mag, int bin_count, int i);
+int index_of_max_peak(number *mag, int bin_count, int start, int end);
+number interpolate_peak(number *mag, int bin_count, int i, number *value);
+int is_peak(number *mag, int bin_count, int i);
 
 #endif

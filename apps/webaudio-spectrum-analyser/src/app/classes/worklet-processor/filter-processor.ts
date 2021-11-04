@@ -342,7 +342,7 @@ export class FilterProcessor extends AudioWorkletProcessor {
           parameters.minHarmonic[0],
           parameters.maxHarmonic[0],
           parameters.step[0],
-          Math.pow(10, parameters.harmonicGain[0] / 10),
+          Math.pow(10, parameters.harmonicGain[0] / 20),
           parameters.fScaleRadius[0],
           parameters.harmonicSearchRadius[0],
           parameters.smoothScale[0]

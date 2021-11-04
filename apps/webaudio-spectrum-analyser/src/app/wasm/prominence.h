@@ -2,6 +2,7 @@
 #define PROMINENCE_H_INCLUDED
 
 #include "common.h"
+#include "fft.h"
 
 void prominence(
   fftmag_t *fft,

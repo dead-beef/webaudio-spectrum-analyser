@@ -14,42 +14,42 @@ void filter_end(tdval_t *output, fftval_t *fft_buf, int length) {
 }
 
 EMSCRIPTEN_KEEPALIVE
-void gain(fftval_t *fft_buf, int fft_size, float db) {
+void gain(fftval_t *fft_buf, int fft_size, number db) {
   int bins = 1 + fft_size / 2;
-  double scale = pow(10.0, db / 20.0);
+  number scale = pow(10.0, db / 20.0);
   for (int i = 0; i < bins; ++i) {
     fft_buf[i].r *= scale;
     fft_buf[i].i *= scale;
   }
 }
 
-static double get_pitch(
+static number get_pitch(
   fftmag_t *fftmag_buf,
   int fft_bins,
   int sample_rate,
-  double min_pitch,
-  double max_pitch
+  number min_pitch,
+  number max_pitch
 ) {
   if (fft_bins % 2) {
     --fft_bins;
     ++fftmag_buf;
   }
   int fft_size = fft_bins * 2;
-  double cepstrum_bin_size = 2.0 / sample_rate;
+  number cepstrum_bin_size = 2.0 / sample_rate;
   int cepstrum_bins = 1 + fft_bins / 2;
   fftmag_t cepstrum_buf[cepstrum_bins];
   cepstrum(fftmag_buf, cepstrum_buf, fft_size);
 
-  double min_quefrency = 1.0 / max_pitch;
-  double max_quefrency = 1.0 / min_pitch;
+  number min_quefrency = 1.0 / max_pitch;
+  number max_quefrency = 1.0 / min_pitch;
   int start = round(min_quefrency / cepstrum_bin_size);
   int end = round(max_quefrency / cepstrum_bin_size);
   int peak = index_of_max_peak(cepstrum_buf, cepstrum_bins, start, end);
   if (peak < 0) {
     return -1;
   }
-  double offset = interpolate_peak(cepstrum_buf, cepstrum_bins, peak, NULL);
-  double peak_quefrency = (peak + offset) * cepstrum_bin_size;
+  number offset = interpolate_peak(cepstrum_buf, cepstrum_bins, peak, NULL);
+  number peak_quefrency = (peak + offset) * cepstrum_bin_size;
   return 1.0 / peak_quefrency;
 }
 
@@ -58,18 +58,18 @@ void scale_harmonics(
   fftval_t *fft_buf,
   int fft_size,
   int sample_rate,
-  float min_pitch,
-  float max_pitch,
+  number min_pitch,
+  number max_pitch,
   int min_harmonic,
   int max_harmonic,
   int step,
-  float factor,
-  float f_scale_radius,
-  float harmonic_search_radius,
+  number factor,
+  number f_scale_radius,
+  number harmonic_search_radius,
   int smooth_scale
 ) {
   int bins = 1 + fft_size / 2;
-  double bin_size = (double)sample_rate / fft_size;
+  number bin_size = (number)sample_rate / fft_size;
   int scale_radius = ceil(f_scale_radius / bin_size);
 
   min_harmonic = max(1, min_harmonic);
@@ -80,7 +80,7 @@ void scale_harmonics(
   magnitude(fft_buf, magnitude_buf, bins, TRUE);
 
   int peak;
-  double pitch = get_pitch(
+  number pitch = get_pitch(
     magnitude_buf,
     bins,
     sample_rate,
@@ -100,8 +100,8 @@ void scale_harmonics(
       h += step;
     }
     for (; h <= max_harmonic; h += step) {
-      double f_min = (h - harmonic_search_radius) * pitch;
-      double f_max = (h + harmonic_search_radius) * pitch;
+      number f_min = (h - harmonic_search_radius) * pitch;
+      number f_max = (h + harmonic_search_radius) * pitch;
       int start = round(f_min / bin_size);
       int end = round(f_max / bin_size);
       if (start >= bins) {
@@ -124,17 +124,17 @@ void add_harmonics(
   fftval_t *fft_buf,
   int fft_size,
   int sample_rate,
-  float min_pitch,
-  float max_pitch,
+  number min_pitch,
+  number max_pitch,
   int min_harmonic,
   int max_harmonic,
   int step,
-  float f_copy_radius,
-  float harmonic_search_radius,
+  number f_copy_radius,
+  number harmonic_search_radius,
   int smooth_copy
 ) {
   int bins = 1 + fft_size / 2;
-  double bin_size = (double)sample_rate / fft_size;
+  number bin_size = (number)sample_rate / fft_size;
   int copy_radius = ceil(f_copy_radius / bin_size);
 
   min_harmonic = max(1, min_harmonic);
@@ -145,7 +145,7 @@ void add_harmonics(
   magnitude(fft_buf, magnitude_buf, bins, TRUE);
 
   int peak;
-  double pitch = get_pitch(
+  number pitch = get_pitch(
     magnitude_buf,
     bins,
     sample_rate,
@@ -157,10 +157,10 @@ void add_harmonics(
     return;
   }
 
-  double new_pitch = pitch * 0.5;
+  number new_pitch = pitch * 0.5;
   int h = min_harmonic;
   if (h == 1 && h <= max_harmonic) {
-    double new_harmonic = new_pitch;
+    number new_harmonic = new_pitch;
     int new_peak = round(new_harmonic / bin_size);
     peak = round(pitch / bin_size);
     fft_copy(
@@ -171,8 +171,8 @@ void add_harmonics(
     //h += step;
   }
   for (; h <= max_harmonic; h += step) {
-    double f_min = (h - harmonic_search_radius) * pitch;
-    double f_max = (h + harmonic_search_radius) * pitch;
+    number f_min = (h - harmonic_search_radius) * pitch;
+    number f_max = (h + harmonic_search_radius) * pitch;
     int start = round(f_min / bin_size);
     int end = round(f_max / bin_size);
     if (start >= bins) {
@@ -198,7 +198,7 @@ void add_harmonics(
     }
 
     int new_peak = (peak + next_peak) / 2;
-    double scale = 0.5 + magnitude_buf[next_peak] / (2 * magnitude_buf[peak]);
+    number scale = 0.5 + magnitude_buf[next_peak] / (2 * magnitude_buf[peak]);
     fft_copy(
       fft_buf, bins,
       peak, new_peak, copy_radius,

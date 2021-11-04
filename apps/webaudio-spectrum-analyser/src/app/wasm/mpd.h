@@ -3,9 +3,9 @@
 
 #include "common.h"
 
-double mpd(
-  fftmag_t *fft_peak_buf,
-  fftmag_t *pd_hist_buf,
+number mpd(
+  number *fft_peak_buf,
+  number *pd_hist_buf,
   int bin_count,
   int peak_count
 );

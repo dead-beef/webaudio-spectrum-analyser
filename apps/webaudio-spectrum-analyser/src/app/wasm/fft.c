@@ -24,7 +24,7 @@ void no_fft_free(void *ptr __attribute__((unused))) {
 #include <kissfft/tools/kiss_fftr.c>
 
 void normalize(tdval_t *in, tdval_t *out, int length) {
-  //double mean_ = mean(in, length);
+  //number mean_ = mean(in, length);
   for (int i = 0; i < length; ++i) {
     out[i] = (in[i] /*- mean_*/) / length;
   }
@@ -76,16 +76,16 @@ void cepstrum(fftmag_t *fft_buf, fftmag_t *out, int fft_size) {
   magnitude(tmp, out, cepstrum_bins, FALSE);
 }
 
-void smooth_fft_val(fftval_t *in, fftval_t *out, int length, float factor) {
-  double factor_in = 1.0 - factor;
+void smooth_fft_val(fftval_t *in, fftval_t *out, int length, number factor) {
+  number factor_in = 1.0 - factor;
   for (int i = 0; i < length; ++i) {
     out[i].r = factor * out[i].r + factor_in * in[i].r;
     out[i].i = factor * out[i].i + factor_in * in[i].i;
   }
 }
 
-void smooth_fft_mag(fftmag_t *in, fftmag_t *out, int length, float factor) {
-  double factor_in = 1.0 - factor;
+void smooth_fft_mag(fftmag_t *in, fftmag_t *out, int length, number factor) {
+  number factor_in = 1.0 - factor;
   for (int i = 0; i < length; ++i) {
     out[i] = factor * out[i] + factor_in * in[i];
   }
@@ -93,7 +93,7 @@ void smooth_fft_mag(fftmag_t *in, fftmag_t *out, int length, float factor) {
 
 void magnitude(fftval_t *in, fftmag_t *out, int length, int decibels) {
   for (int i = 0; i < length; ++i) {
-    double val = in[i].r * in[i].r + in[i].i * in[i].i;
+    number val = in[i].r * in[i].r + in[i].i * in[i].i;
     if (decibels) {
       val /= DB_REF;
       if (val < DBL_EPSILON) {
@@ -122,24 +122,24 @@ fftmag_t max_magnitude(fftmag_t *fft, int start, int end) {
   return ret;
 }
 
-static fftmag_t mask_const(
-  fftmag_t distance __attribute__((unused)),
-  fftmag_t radius __attribute__((unused))
+static number mask_const(
+  number distance __attribute__((unused)),
+  number radius __attribute__((unused))
 ) {
   return 1.0;
 }
 
-static fftmag_t mask_linear(fftmag_t distance, fftmag_t radius) {
+static number mask_linear(number distance, number radius) {
   return 1.0 - distance / radius;
 }
 
 EMSCRIPTEN_KEEPALIVE
 int fftpeaks(
   fftmag_t *data,
-  fftmag_t *output,
+  number *output,
   int length,
   peakmask_t mask,
-  fftmag_t mask_radius
+  number mask_radius
 ) {
   unsigned char discard[length];
   int peaks_2 = 0;
@@ -163,16 +163,16 @@ int fftpeaks(
       discard[peaks_2] = FALSE;
 
       if (mask_) {
-        fftmag_t peak_idx = output[peaks_2];
-        fftmag_t peak_mag = output[peaks_2 + 1];
+        number peak_idx = output[peaks_2];
+        number peak_mag = output[peaks_2 + 1];
 
         for (int prev = peaks_2 - 2; prev >= 0; prev -= 2) {
-          fftmag_t distance = peak_idx - output[prev];
+          number distance = peak_idx - output[prev];
           if (distance > mask_radius) {
             break;
           }
-          fftmag_t factor = mask_(distance, mask_radius);
-          fftmag_t prev_peak_mag = output[prev + 1];
+          number factor = mask_(distance, mask_radius);
+          number prev_peak_mag = output[prev + 1];
 
           if (peak_mag < prev_peak_mag) {
             discard[peaks_2] = discard[peaks_2]
@@ -213,16 +213,16 @@ void fft_scale(
   int length,
   int i,
   int radius,
-  float factor,
+  number factor,
   int smooth
 ) {
-  double wnd_k = /* 2.0 * */ M_PI / (/* 2.0 * */ radius);
+  number wnd_k = /* 2.0 * */ M_PI / (/* 2.0 * */ radius);
   for (int j = -radius; j <= radius; ++j) {
     int k = i + j;
     if (k >= 0 && k < length) {
-      double scale;
+      number scale;
       if (smooth) {
-        double wnd = 0.5 * (1.0 - cos(wnd_k * (j + radius)));
+        number wnd = 0.5 * (1.0 - cos(wnd_k * (j + radius)));
         scale = wnd * factor + (1.0 - wnd) /* * 1.0 */;
       } else {
         scale = factor;
@@ -239,16 +239,16 @@ void fft_copy(
   int src,
   int dst,
   int radius,
-  float scale,
+  number scale,
   int smooth
 ) {
-  double wnd_k = /* 2.0 * */ M_PI / (/* 2.0 * */ radius);
+  number wnd_k = /* 2.0 * */ M_PI / (/* 2.0 * */ radius);
   for (int j = -radius; j <= radius; ++j) {
     int src_ = src + j;
     int dst_ = dst + j;
     if (src_ >= 0 && src_ < length && dst_ >= 0 && dst_ < length) {
       if (smooth) {
-        double wnd = 0.5 * (1.0 - cos(wnd_k * (j + radius)));
+        number wnd = 0.5 * (1.0 - cos(wnd_k * (j + radius)));
         fft_buf[dst_].r =
           wnd * scale * fft_buf[src_].r + (1.0 - wnd) * fft_buf[dst_].r;
         fft_buf[dst_].i =

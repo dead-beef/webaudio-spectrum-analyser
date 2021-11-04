@@ -10,14 +10,31 @@
 #endif
 #define KISS_FFT_MALLOC no_fft_malloc
 #define KISS_FFT_FREE no_fft_free
-#define kiss_fft_scalar tdval_t
-#define fftval_t kiss_fft_cpx
+#define kiss_fft_scalar number
+//#define fftval_t kiss_fft_cpx
 #include <kissfft/kiss_fft.h>
 //#include <kissfft/tools/kiss_fftr.h>
 
 #define DB_MIN -100
 #define DB_MAX 0
 #define DB_REF 1
+
+typedef number tdval_t;
+typedef number fftmag_t;
+typedef kiss_fft_cpx fftval_t;
+
+typedef enum {
+  MIN_FREQUENCY = 1,
+  MAX_PROMINENCE = 2,
+} fftpeak_t;
+
+typedef enum {
+  PM_NONE = 0,
+  PM_CONST = 1,
+  PM_LINEAR = 2,
+} peakmask_t;
+
+typedef number (*peakmask_func_t)(number, number);
 
 void normalize(tdval_t *in, tdval_t *out, int length);
 
@@ -29,9 +46,9 @@ void ifft(fftval_t *in, tdval_t *out, int length);
 
 void cepstrum(fftmag_t *fft_buf, fftmag_t *out, int fft_size);
 
-void smooth_fft_val(fftval_t *in, fftval_t *out, int length, float factor);
+void smooth_fft_val(fftval_t *in, fftval_t *out, int length, number factor);
 
-void smooth_fft_mag(fftmag_t *in, fftmag_t *out, int length, float factor);
+void smooth_fft_mag(fftmag_t *in, fftmag_t *out, int length, number factor);
 
 void magnitude(fftval_t *in, fftmag_t *out, int length, int decibels);
 
@@ -39,10 +56,10 @@ fftmag_t max_magnitude(fftmag_t *fft, int start, int end);
 
 int fftpeaks(
   fftmag_t *data,
-  fftmag_t *output,
+  number *output,
   int length,
   peakmask_t mask,
-  fftmag_t mask_radius
+  number mask_radius
 );
 
 void fft_scale(
@@ -50,7 +67,7 @@ void fft_scale(
   int length,
   int i,
   int radius,
-  float factor,
+  number factor,
   int smooth
 );
 
@@ -60,7 +77,7 @@ void fft_copy(
   int src,
   int dst,
   int radius,
-  float scale,
+  number scale,
   int smooth
 );
 
