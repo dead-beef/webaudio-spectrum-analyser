@@ -34,7 +34,7 @@ export const ANALYSER_STATE_DEFAULTS: AnalyserStateModel = {
     },
   },
   fftpeaks: {
-    mask: FftPeakMask.NONE,
+    mask: FftPeakMask.HANN,
     maskRadius: 100,
   },
 };
