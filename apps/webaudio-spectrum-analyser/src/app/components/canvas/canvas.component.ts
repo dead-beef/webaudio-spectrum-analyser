@@ -128,6 +128,21 @@ left: ${(point.x * 100).toFixed(2)}%`;
   /**
    * TODO: description
    */
+  public fill(color: string): void {
+    if (this.context !== null) {
+      this.context.fillStyle = color;
+      this.context.fillRect(
+        0,
+        0,
+        this.context.canvas.width,
+        this.context.canvas.height
+      );
+    }
+  }
+
+  /**
+   * TODO: description
+   */
   public shift(x: number, y: number): void {
     if (this.context !== null) {
       this.context.drawImage(this.context.canvas, x, y);
@@ -219,6 +234,31 @@ left: ${(point.x * 100).toFixed(2)}%`;
       }
     }
     ctx.stroke();
+  }
+
+  /**
+   * TODO: description
+   */
+  public dots<T extends TypedArray>(
+    data: T,
+    xscale: (x: number) => number = x => x,
+    yscale: (y: number) => number = y => y,
+    color = 'chart',
+    dotSize = 10
+  ): void {
+    const ctx = this.context;
+    if (ctx === null) {
+      return;
+    }
+    const w = ctx.canvas.width;
+    const h = ctx.canvas.height;
+    const d = dotSize / 2;
+    ctx.fillStyle = this.color.get(color);
+    for (let i = 0; i < data.length; i += 2) {
+      const x = w * xscale(data[i]);
+      const y = h * (1 - yscale(data[i + 1]));
+      ctx.fillRect(x - d, y - d, dotSize, dotSize);
+    }
   }
 
   /**

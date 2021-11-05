@@ -10,21 +10,21 @@
 #define max(x, y) ((x) > (y) ? (x) : (y))
 #define min(x, y) ((x) > (y) ? (y) : (x))
 
-typedef float tdval_t;
-typedef float fftmag_t;
-
-typedef enum {
-  MIN_FREQUENCY = 1,
-  MAX_PROMINENCE = 2,
-} fftpeak_t;
+typedef float number;
 
 enum {
   TRUE = 1,
   FALSE = 0
 };
 
-double mean(tdval_t *data, int length);
-double variance(tdval_t *data, int length, double mean);
-double rms(tdval_t *data, int length);
+number mean(const number *data, int length);
+number variance(const number *data, int length, number mean);
+number rms(const number *data, int length);
+number median(number *data, int length);
+number dot(const number *x, const number *y, int length);
+
+int index_of_max_peak(const number *data, int length, int start, int end);
+number interpolate_peak(const number *data, int length, int i, number *value);
+int is_peak(const number *data, int length, int i);
 
 #endif

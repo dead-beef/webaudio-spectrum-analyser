@@ -71,9 +71,8 @@
             "polyfills": "apps/webaudio-spectrum-analyser/src/polyfills.ts",
             "tsConfig": "apps/webaudio-spectrum-analyser/tsconfig.app.json",
             "aot": true,
-            "extractCss": true,
             "optimization": {
-              "scripts": true,
+              "scripts": false,
               "styles": {
                 "minify": true,
                 "inlineCritical": false

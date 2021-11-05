@@ -10,8 +10,8 @@
 #endif
 #define KISS_FFT_MALLOC no_fft_malloc
 #define KISS_FFT_FREE no_fft_free
-#define kiss_fft_scalar tdval_t
-#define fftval_t kiss_fft_cpx
+#define kiss_fft_scalar number
+//#define fftval_t kiss_fft_cpx
 #include <kissfft/kiss_fft.h>
 //#include <kissfft/tools/kiss_fftr.h>
 
@@ -19,44 +19,81 @@
 #define DB_MAX 0
 #define DB_REF 1
 
-void normalize(tdval_t *in, tdval_t *out, int length);
+typedef number tdval_t;
+typedef number fftmag_t;
+typedef kiss_fft_cpx fftval_t;
 
-void window(tdval_t *in, tdval_t *out, int length);
+typedef struct fftpeak_t {
+  number index;
+  number magnitude;
+} fftpeak_t;
 
-void fft(tdval_t *in, fftval_t *out, int length);
+typedef enum fftpeak_type_t {
+  MIN_FREQUENCY = 1,
+  MAX_PROMINENCE = 2,
+} fftpeak_type_t;
 
-void ifft(fftval_t *in, tdval_t *out, int length);
+typedef enum peakmask_t {
+  PM_NONE = 0,
+  PM_CONST = 1,
+  PM_LINEAR = 2,
+  PM_HANN = 3,
+} peakmask_t;
+
+typedef number (*peakmask_func_t)(number, number);
+
+void normalize(const tdval_t *in, tdval_t *out, int length);
+
+void window(const tdval_t *in, tdval_t *out, int length);
+
+void fft(const tdval_t *in, fftval_t *out, int length);
+
+void ifft(const fftval_t *in, tdval_t *out, int length);
 
 void cepstrum(fftmag_t *fft_buf, fftmag_t *out, int fft_size);
 
-void smooth_fft_val(fftval_t *in, fftval_t *out, int length, float factor);
+void smooth_fft_val(
+  const fftval_t *next,
+  fftval_t *cur,
+  int length,
+  number factor
+);
 
-void smooth_fft_mag(fftmag_t *in, fftmag_t *out, int length, float factor);
+void smooth_fft_mag(
+  const fftmag_t *next,
+  fftmag_t *cur,
+  int length,
+  number factor
+);
 
-void magnitude(fftval_t *in, fftmag_t *out, int length, int decibels);
+void magnitude(const fftval_t *in, fftmag_t *out, int length, int decibels);
 
-fftmag_t max_magnitude(fftmag_t *fft, int start, int end);
+fftmag_t max_magnitude(const fftmag_t *fft, int start, int end);
 
-int index_of_max_peak(fftmag_t *mag, int bin_count, int start, int end);
-
-double interpolate_peak(fftmag_t *mag, int bin_count, int i, fftmag_t *value);
+int fftpeaks(
+  const fftmag_t *mag,
+  fftpeak_t *res,
+  int bin_count,
+  peakmask_t mask,
+  number mask_radius
+);
 
 void fft_scale(
   fftval_t *fft_buf,
-  int length,
+  int bin_count,
   int i,
   int radius,
-  float factor,
+  number factor,
   int smooth
 );
 
 void fft_copy(
   fftval_t *fft_buf,
-  int length,
+  int bin_count,
   int src,
   int dst,
   int radius,
-  float scale,
+  number scale,
   int smooth
 );
 

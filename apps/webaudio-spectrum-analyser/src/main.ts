@@ -1,6 +1,6 @@
 import { enableProdMode } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { Plugins } from '@capacitor/core';
+import { SplashScreen } from '@capacitor/splash-screen';
 
 import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
@@ -19,6 +19,6 @@ platformBrowserDynamic()
   })
   .finally(() => {
     //if (environment.platform !== 'web') {
-    void Plugins.SplashScreen.hide();
+    void SplashScreen.hide();
     //}
   });

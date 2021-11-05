@@ -1,13 +1,13 @@
 {
-  "appId": "tk.dead_beef.webaudio_spectrum_analyser",
-  "appName": "webaudio-spectrum-analyser",
-  "bundledWebRuntime": false,
-  "npmClient": "yarn",
-  "webDir": "dist",
-  "plugins": {
-    "SplashScreen": {
-      "launchAutoHide": false
-    }
-  },
-  "cordova": {}
+	"appId": "tk.dead_beef.webaudio_spectrum_analyser",
+	"appName": "webaudio-spectrum-analyser",
+	"bundledWebRuntime": false,
+	"npmClient": "yarn",
+	"webDir": "dist",
+	"plugins": {
+		"SplashScreen": {
+			"launchAutoHide": false
+		}
+	},
+	"cordova": {}
 }

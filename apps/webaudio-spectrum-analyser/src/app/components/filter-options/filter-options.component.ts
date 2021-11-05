@@ -38,7 +38,7 @@ export class FilterOptionsComponent {
 
   public readonly workletFilterTypes = [
     { id: WorkletFilterType.NONE, name: 'None' },
-    { id: WorkletFilterType.REMOVE_HARMONICS, name: 'Remove harmonics' },
+    { id: WorkletFilterType.SCALE_HARMONICS, name: 'Scale harmonics' },
     { id: WorkletFilterType.ADD_HARMONICS, name: 'Add harmonics' },
   ];
 
@@ -119,6 +119,7 @@ export class FilterOptionsComponent {
         minHarmonic: 0,
         maxHarmonic: 0,
         step: 0,
+        harmonicGain: 0,
         fScaleRadius: 0,
         harmonicSearchRadius: 0,
         smoothScale: 0,

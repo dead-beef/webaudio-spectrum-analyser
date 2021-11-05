@@ -1,4 +1,8 @@
-import { AnalyserFunctionState, FftPeakType } from '../../interfaces';
+import {
+  AnalyserFunctionState,
+  FftPeakMask,
+  FftPeakType,
+} from '../../interfaces';
 import { actionConstructor, StoreActions } from '../../utils';
 import { AnalyserStateModel } from './analyser.model';
 
@@ -23,4 +27,7 @@ export const analyserAction: StoreActions = {
   setFftPeakProminenceNormalize: action<boolean>(
     'set fft peak prominence normalize'
   ),
+
+  setFftPeakMask: action<FftPeakMask>('set fft peak mask'),
+  setFftPeakMaskRadius: action<number>('set fft peak mask radius'),
 };

@@ -71,6 +71,7 @@ export interface WorkletFilterState {
   minHarmonic: number;
   maxHarmonic: number;
   step: number;
+  harmonicGain: number;
   fScaleRadius: number;
   harmonicSearchRadius: number;
   smoothScale: boolean;

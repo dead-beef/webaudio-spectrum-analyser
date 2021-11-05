@@ -3,24 +3,16 @@
 
 #include "common.h"
 
-double autocorr1(
-  tdval_t *tdata,
-  int length,
-  double mean,
-  double variance,
-  int offset
-);
-
 void autocorr(
-  tdval_t *tdata,
-  float *res,
+  const number *tdata,
+  number *res,
   int length,
   int min_offset,
   int max_offset
 );
 
 int autocorrpeak(
-  float *acdata,
+  const number *acdata,
   int length,
   int min_offset,
   int max_offset

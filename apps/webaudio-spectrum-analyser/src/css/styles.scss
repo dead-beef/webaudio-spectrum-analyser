@@ -151,6 +151,9 @@ app-chart {
           width: $icon-size-sm;
           height: $icon-size-sm;
           color: $fg;
+          &[direction=down] {
+            transform: rotate(180deg);
+          }
         }
       }
     }

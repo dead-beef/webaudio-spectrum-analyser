@@ -8,19 +8,20 @@ void filter_start(tdval_t *input, fftval_t *fft_buf, int length);
 
 void filter_end(tdval_t *output, fftval_t *fft_buf, int length);
 
-void gain(fftval_t *fft_buf, int fft_size, float db);
+void gain(fftval_t *fft_buf, int fft_size, number db);
 
-void remove_harmonics(
+void scale_harmonics(
   fftval_t *fft_buf,
   int fft_size,
   int sample_rate,
-  float min_pitch,
-  float max_pitch,
+  number min_pitch,
+  number max_pitch,
   int min_harmonic,
   int max_harmonic,
   int step,
-  float f_scale_radius,
-  float harmonic_search_radius,
+  number factor,
+  number f_scale_radius,
+  number harmonic_search_radius,
   int smooth_scale
 );
 
@@ -28,13 +29,13 @@ void add_harmonics(
   fftval_t *fft_buf,
   int fft_size,
   int sample_rate,
-  float min_pitch,
-  float max_pitch,
+  number min_pitch,
+  number max_pitch,
   int min_harmonic,
   int max_harmonic,
   int step,
-  float f_copy_radius,
-  float harmonic_search_radius,
+  number f_copy_radius,
+  number harmonic_search_radius,
   int smooth_copy
 );
 

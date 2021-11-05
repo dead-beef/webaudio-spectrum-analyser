@@ -1,5 +1,10 @@
 import { AudioMath } from '../audio-math/audio-math';
-import { FftPeakType } from '../audio-math/interfaces';
+import {
+  FftPeakMask,
+  FftPeakType,
+  PeakDistance,
+  Peaks,
+} from '../audio-math/interfaces';
 import {
   AnalyserFunction,
   AnalyserFunctionId,
@@ -37,6 +42,10 @@ export class Analyser {
 
   public fftPeakType: FftPeakType = FftPeakType.MIN_FREQUENCY;
 
+  public fftPeakMask: FftPeakMask = FftPeakMask.NONE;
+
+  public fftPeakMaskRadius = 100;
+
   public minDecibels = -100;
 
   public maxDecibels = 0;
@@ -59,14 +68,26 @@ export class Analyser {
       new Float32Array()
     ),
     cepstrum: this.func('cepstrum', 'Cepstrum', 'cepstrum', new Float32Array()),
+    fftPeaks: this.func('fftPeaks', 'FFT peaks', 'fftpeaks', {
+      data: new Float32Array(),
+      count: 0,
+    }),
+    fftPeakDistance: this.func(
+      'fftPeakDistance',
+      'FFT peak distane data',
+      'fftpd',
+      {
+        histogram: new Float32Array(),
+        median: 0,
+      }
+    ),
 
     RMS: this.func('RMS', 'Root mean square', 'rms', 0),
     ZCR: this.func('ZCR', 'Zero-crossing rate', 'zcr', 0),
-    FFTM: this.func('FFTM', 'FFT max', 'fftmax', 0),
     FFTP: this.func('FFTP', 'FFT peak', 'fftpeak', 0),
     AC: this.func('AC', 'Autocorrelation peak', 'autocorrpeak', 0),
-    CM: this.func('CM', 'Cepstrum max', 'cmax', 0),
     CP: this.func('CP', 'Cepstrum peak', 'cpeak', 0),
+    MPD: this.func('MPD', 'Median FFT peak distance', 'mpd', 0),
   };
 
   public readonly functions: AnalyserFunction<any>[] = Object.values(
@@ -75,11 +96,10 @@ export class Analyser {
 
   public readonly FREQUENCY_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
     'ZCR',
-    'FFTM',
     'FFTP',
     'AC',
-    'CM',
     'CP',
+    'MPD',
   ];
 
   public readonly TIME_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
@@ -156,6 +176,8 @@ export class Analyser {
     this.minPitch = state.pitch.min;
     this.maxPitch = state.pitch.max;
     this.fftPeakType = state.fftp.type;
+    this.fftPeakMask = state.fftpeaks.mask;
+    this.fftPeakMaskRadius = state.fftpeaks.maskRadius;
     this.prominenceRadius = state.fftp.prominence.radius;
     this.prominenceThreshold = state.fftp.prominence.threshold;
     this.prominenceNormalize = state.fftp.prominence.normalize;
@@ -316,28 +338,16 @@ export class Analyser {
   /**
    * TODO: description
    */
-  public fftmax(): number {
-    const start: number = this.indexOfFrequency(this.minPitch);
-    const end: number = this.indexOfFrequency(this.maxPitch);
-    let res: number = AudioMath.indexOfMax(this.fdata, start, end);
-    res = AudioMath.interpolatePeak(this.fdata, res);
-    return this.frequencyOfIndex(res);
-  }
-
-  /**
-   * TODO: description
-   */
   public prominence(prev: Float32Array): Float32Array {
     const start: number = this.indexOfFrequency(this.minPitch);
     const end: number = this.indexOfFrequency(this.maxPitch);
     return AudioMath.prominence(
       this.fdata,
+      this.get('fftPeaks'),
       prev,
       start,
       end,
       this.prominenceRadius,
-      this.minDecibels,
-      this.maxDecibels,
       this.prominenceNormalize
     );
   }
@@ -388,18 +398,6 @@ export class Analyser {
   /**
    * TODO: description
    */
-  public cmax(): number {
-    const cdata = this.get('cepstrum');
-    const start: number = this.indexOfQuefrency(1 / this.maxPitch);
-    const end: number = this.indexOfQuefrency(1 / this.minPitch);
-    let res = AudioMath.indexOfMax(cdata, start, end);
-    res = AudioMath.interpolatePeak(cdata, res);
-    return 1 / this.quefrencyOfIndex(res);
-  }
-
-  /**
-   * TODO: description
-   */
   public cpeak(): number {
     const cdata = this.get('cepstrum');
     const start: number = this.indexOfQuefrency(1 / this.maxPitch);
@@ -407,5 +405,27 @@ export class Analyser {
     let res = AudioMath.indexOfMaxPeak(cdata, start, end);
     res = AudioMath.interpolatePeak(cdata, res);
     return 1 / this.quefrencyOfIndex(res);
+  }
+
+  /**
+   * TODO: description
+   */
+  public fftpeaks(prev: Peaks): Peaks {
+    const r = (this.fftPeakMaskRadius * this.fftSize) / this.sampleRate;
+    return AudioMath.fftpeaks(this.fdata, prev, this.fftPeakMask, r);
+  }
+
+  /**
+   * TODO: description
+   */
+  public fftpd(prev: PeakDistance): PeakDistance {
+    return AudioMath.mpd(this.get('fftPeaks'), prev);
+  }
+
+  /**
+   * TODO: description
+   */
+  public mpd(): number {
+    return this.frequencyOfIndex(this.get('fftPeakDistance').median);
   }
 }

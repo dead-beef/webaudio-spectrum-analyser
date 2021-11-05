@@ -3,86 +3,95 @@
 
 EMSCRIPTEN_KEEPALIVE
 void prominence(
-  fftmag_t *fft,
-  fftmag_t *res,
-  int length,
+  const fftmag_t *fft,
+  const fftpeak_t *peaks,
+  number *res,
+  int bin_count,
+  int peak_count,
   int start,
   int end,
   int radius,
-  fftmag_t fftmag_min,
-  fftmag_t fftmag_max,
   int normalize
 ) {
-  start = clamp(start, 1, length - 2);
-  end = clamp(end, 1, length - 2);
+  start = clamp(start, 1, bin_count - 2);
+  end = clamp(end, 1, bin_count - 2);
   if (radius < 1) {
-    radius = length;
+    radius = bin_count;
   }
 
-  memset(res, 0, length * sizeof(*res));
+  memset(res, 0, bin_count * sizeof(*res));
 
-  for (int i = start; i <= end; ++i) {
-    fftmag_t cur = fft[i];
-    fftmag_t left = fft[i - 1];
-    fftmag_t right = fft[i + 1];
-    if (cur < left || cur < right || cur <= fftmag_min) {
+  for (int p = 0; p < peak_count; ++p) {
+    int i = round(peaks[p].index);
+    if (i < start) {
       continue;
     }
-    int start;
-    int end;
+    if (i > end) {
+      break;
+    }
+
+    fftmag_t cur = peaks[p].magnitude;
+    fftmag_t left = fft[i - 1];
+    fftmag_t right = fft[i + 1];
+
+    int start_;
+    int end_;
     int j;
     if (radius <= 0) {
-      start = 0;
-      end = length - 1;
+      start_ = 0;
+      end_ = bin_count - 1;
     } else {
-      start = max(0, i - radius);
-      end = min(i + radius, length - 1);
+      start_ = max(0, i - radius);
+      end_ = min(i + radius, bin_count - 1);
     }
-    for (j = i - 2; j >= start && fft[j] <= cur; --j) {
-      if (fft[j] < left && (left = fft[j]) <= fftmag_min) {
+
+    for (j = i - 2; j >= start_ && fft[j] <= cur; --j) {
+      if (fft[j] < left && (left = fft[j]) <= DB_MIN) {
         break;
       }
     }
-    if (j < start) {
-      left = fftmag_min;
+    if (j < start_) {
+      left = DB_MIN;
     }
-    for (j = i + 2; j <= end && fft[j] <= cur; ++j) {
-      if (fft[j] < right && (right = fft[j]) <= fftmag_min) {
+
+    for (j = i + 2; j <= end_ && fft[j] <= cur; ++j) {
+      if (fft[j] < right && (right = fft[j]) <= DB_MIN) {
         break;
       }
     }
-    if (j > end) {
-      right = fftmag_min;
+    if (j > end_) {
+      right = DB_MIN;
     }
+
     res[i] = cur - max(left, right);
   }
 
   if (normalize) {
-    float scale = (fftmag_max - fftmag_min) / max_magnitude(res, start, end);
+    fftmag_t scale = (DB_MAX - DB_MIN) / max_magnitude(res, start, end);
     for (int i = start; i < end; ++i) {
-      res[i] = res[i] * scale;
+      res[i] *= scale;
     }
   }
 }
 
 EMSCRIPTEN_KEEPALIVE
 int prominencepeak(
-  fftmag_t *prdata,
+  const number *prdata,
   int length,
   int start,
   int end,
-  fftmag_t threshold,
-  fftpeak_t type
+  number threshold,
+  fftpeak_type_t type
 ) {
   start = clamp(start, 1, length - 2);
   end = clamp(end, 1, length - 2);
-  fftmag_t max;
+  number max;
   int res = -1;
   for (int i = start; i <= end; ++i) {
-    if (prdata[i] < threshold) {
+    if (prdata[i] <= threshold) {
       continue;
     }
-    fftmag_t value;
+    number value;
     switch (type) {
       case MAX_PROMINENCE:
         value = prdata[i];
@@ -98,26 +107,4 @@ int prominencepeak(
     }
   }
   return res;
-}
-
-int prominencepeak2(
-  fftmag_t *fft,
-  fftmag_t *prdata,
-  int length,
-  int start,
-  int end,
-  int radius,
-  fftmag_t fftmag_min,
-  fftmag_t fftmag_max,
-  fftmag_t threshold,
-  fftpeak_t type,
-  int normalize
-) {
-  prominence(
-    fft, prdata, length,
-    start, end, radius,
-    fftmag_min, fftmag_max,
-    normalize
-  );
-  return prominencepeak(prdata, length, start, end, threshold, type);
 }
