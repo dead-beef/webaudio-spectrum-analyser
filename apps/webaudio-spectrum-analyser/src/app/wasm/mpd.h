@@ -4,7 +4,7 @@
 #include "common.h"
 
 number mpd(
-  number *fft_peak_buf,
+  const number *fft_peak_buf,
   number *pd_hist_buf,
   int bin_count,
   int peak_count

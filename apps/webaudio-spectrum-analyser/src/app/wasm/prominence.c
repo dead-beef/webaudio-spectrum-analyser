@@ -3,9 +3,9 @@
 
 EMSCRIPTEN_KEEPALIVE
 void prominence(
-  fftmag_t *fft,
-  fftmag_t *peaks,
-  fftmag_t *res,
+  const fftmag_t *fft,
+  const fftmag_t *peaks,
+  number *res,
   int bin_count,
   int peak_count,
   int start,
@@ -76,7 +76,7 @@ void prominence(
 
 EMSCRIPTEN_KEEPALIVE
 int prominencepeak(
-  fftmag_t *prdata,
+  const fftmag_t *prdata,
   int length,
   int start,
   int end,

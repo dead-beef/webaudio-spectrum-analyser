@@ -1,7 +1,7 @@
 #include "autocorr.h"
 
-number autocorr1(
-  number *tdata,
+static number autocorr1(
+  const number *tdata,
   int length,
   number mean,
   number variance,
@@ -17,7 +17,7 @@ number autocorr1(
 
 EMSCRIPTEN_KEEPALIVE
 void autocorr(
-  number *tdata,
+  const number *tdata,
   number *res,
   int length,
   int min_offset,
@@ -35,7 +35,7 @@ void autocorr(
 
 EMSCRIPTEN_KEEPALIVE
 int autocorrpeak(
-  number *acdata,
+  const number *acdata,
   int length,
   int min_offset,
   int max_offset

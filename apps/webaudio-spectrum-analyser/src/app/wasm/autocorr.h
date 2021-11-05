@@ -3,16 +3,8 @@
 
 #include "common.h"
 
-number autocorr1(
-  number *tdata,
-  int length,
-  number mean,
-  number variance,
-  int offset
-);
-
 void autocorr(
-  number *tdata,
+  const number *tdata,
   number *res,
   int length,
   int min_offset,
@@ -20,7 +12,7 @@ void autocorr(
 );
 
 int autocorrpeak(
-  number *acdata,
+  const number *acdata,
   int length,
   int min_offset,
   int max_offset

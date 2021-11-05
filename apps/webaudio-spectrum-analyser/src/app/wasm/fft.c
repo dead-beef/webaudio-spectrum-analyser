@@ -23,14 +23,14 @@ void no_fft_free(void *ptr __attribute__((unused))) {
 #include <kissfft/kiss_fft.c>
 #include <kissfft/tools/kiss_fftr.c>
 
-void normalize(tdval_t *in, tdval_t *out, int length) {
+void normalize(const tdval_t *in, tdval_t *out, int length) {
   //number mean_ = mean(in, length);
   for (int i = 0; i < length; ++i) {
     out[i] = (in[i] /*- mean_*/) / length;
   }
 }
 
-void window(tdval_t *in, tdval_t *out, int length) {
+void window(const tdval_t *in, tdval_t *out, int length) {
   tdval_t n = length - 1;
   for (int i = 0; i < length; ++i) {
     tdval_t w = 0.5 * (1.0 - cos(2.0 * M_PI * i / n));
@@ -38,7 +38,7 @@ void window(tdval_t *in, tdval_t *out, int length) {
   }
 }
 
-void fft(tdval_t *in, fftval_t *out, int length) {
+void fft(const tdval_t *in, fftval_t *out, int length) {
   kiss_fft_cpx _cfg_alloc[2 * length];
   size_t cfg_size = sizeof(_cfg_alloc);
   kiss_fftr_cfg cfg = (kiss_fftr_cfg)(_cfg_alloc);
@@ -51,7 +51,7 @@ void fft(tdval_t *in, fftval_t *out, int length) {
   kiss_fftr(cfg, in, out);
 }
 
-void ifft(fftval_t *in, tdval_t *out, int length) {
+void ifft(const fftval_t *in, tdval_t *out, int length) {
   kiss_fft_cpx _cfg_alloc[2 * length];
   size_t cfg_size = sizeof(_cfg_alloc);
   kiss_fftr_cfg cfg = (kiss_fftr_cfg)(_cfg_alloc);
@@ -76,22 +76,32 @@ void cepstrum(fftmag_t *fft_buf, fftmag_t *out, int fft_size) {
   magnitude(tmp, out, cepstrum_bins, FALSE);
 }
 
-void smooth_fft_val(fftval_t *in, fftval_t *out, int length, number factor) {
-  number factor_in = 1.0 - factor;
+void smooth_fft_val(
+  const fftval_t *next,
+  fftval_t *cur,
+  int length,
+  number factor
+) {
+  number factor_next = 1.0 - factor;
   for (int i = 0; i < length; ++i) {
-    out[i].r = factor * out[i].r + factor_in * in[i].r;
-    out[i].i = factor * out[i].i + factor_in * in[i].i;
+    cur[i].r = factor * cur[i].r + factor_next * next[i].r;
+    cur[i].i = factor * cur[i].i + factor_next * next[i].i;
   }
 }
 
-void smooth_fft_mag(fftmag_t *in, fftmag_t *out, int length, number factor) {
-  number factor_in = 1.0 - factor;
+void smooth_fft_mag(
+  const fftmag_t *next,
+  fftmag_t *cur,
+  int length,
+  number factor
+) {
+  number factor_next = 1.0 - factor;
   for (int i = 0; i < length; ++i) {
-    out[i] = factor * out[i] + factor_in * in[i];
+    cur[i] = factor * cur[i] + factor_next * next[i];
   }
 }
 
-void magnitude(fftval_t *in, fftmag_t *out, int length, int decibels) {
+void magnitude(const fftval_t *in, fftmag_t *out, int length, int decibels) {
   for (int i = 0; i < length; ++i) {
     number val = in[i].r * in[i].r + in[i].i * in[i].i;
     if (decibels) {
@@ -109,7 +119,7 @@ void magnitude(fftval_t *in, fftmag_t *out, int length, int decibels) {
   }
 }
 
-fftmag_t max_magnitude(fftmag_t *fft, int start, int end) {
+fftmag_t max_magnitude(const fftmag_t *fft, int start, int end) {
   if (start >= end) {
     return 0;
   }
@@ -133,9 +143,14 @@ static number mask_linear(number distance, number radius) {
   return 1.0 - distance / radius;
 }
 
+static number mask_hann(number distance, number radius) {
+  number k = /* 2.0 * */ M_PI / (/* 2.0 * */ radius);
+  return 0.5 * (1.0 - cos(k * (distance + radius)));
+}
+
 EMSCRIPTEN_KEEPALIVE
 int fftpeaks(
-  fftmag_t *data,
+  const fftmag_t *data,
   number *output,
   int length,
   peakmask_t mask,
@@ -159,7 +174,8 @@ int fftpeaks(
 
   for (int i = 1; i < length - 1; ++i) {
     if (data[i] >= data[i - 1] && data[i] > data[i + 1]) {
-      output[peaks_2] = i + interpolate_peak(data, length, i, output + peaks_2 + 1);
+      output[peaks_2] = i
+        + interpolate_peak(data, length, i, output + peaks_2 + 1);
       discard[peaks_2] = FALSE;
 
       if (mask_) {

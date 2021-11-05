@@ -3,7 +3,7 @@
 #include <math.h>
 
 static void get_peak_distances(
-  number *peak_buf,
+  const number *peak_buf,
   int peaks,
   number *peak_dist_buf,
   number *pd_hist_buf
@@ -22,7 +22,7 @@ static void get_peak_distances(
 }
 
 static int get_harmonic_numbers(
-  number *peak_buf,
+  const number *peak_buf,
   int peak_count,
   number f0,
   number *fs,
@@ -41,7 +41,7 @@ static int get_harmonic_numbers(
 
 EMSCRIPTEN_KEEPALIVE
 number mpd(
-  number *fft_peak_buf,
+  const number *fft_peak_buf,
   number *pd_hist_buf,
   int bin_count,
   int peak_count

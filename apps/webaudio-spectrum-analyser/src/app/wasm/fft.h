@@ -36,26 +36,36 @@ typedef enum {
 
 typedef number (*peakmask_func_t)(number, number);
 
-void normalize(tdval_t *in, tdval_t *out, int length);
+void normalize(const tdval_t *in, tdval_t *out, int length);
 
-void window(tdval_t *in, tdval_t *out, int length);
+void window(const tdval_t *in, tdval_t *out, int length);
 
-void fft(tdval_t *in, fftval_t *out, int length);
+void fft(const tdval_t *in, fftval_t *out, int length);
 
-void ifft(fftval_t *in, tdval_t *out, int length);
+void ifft(const fftval_t *in, tdval_t *out, int length);
 
 void cepstrum(fftmag_t *fft_buf, fftmag_t *out, int fft_size);
 
-void smooth_fft_val(fftval_t *in, fftval_t *out, int length, number factor);
+void smooth_fft_val(
+  const fftval_t *next,
+  fftval_t *cur,
+  int length,
+  number factor
+);
 
-void smooth_fft_mag(fftmag_t *in, fftmag_t *out, int length, number factor);
+void smooth_fft_mag(
+  const fftmag_t *next,
+  fftmag_t *cur,
+  int length,
+  number factor
+);
 
-void magnitude(fftval_t *in, fftmag_t *out, int length, int decibels);
+void magnitude(const fftval_t *in, fftmag_t *out, int length, int decibels);
 
-fftmag_t max_magnitude(fftmag_t *fft, int start, int end);
+fftmag_t max_magnitude(const fftmag_t *fft, int start, int end);
 
 int fftpeaks(
-  fftmag_t *data,
+  const fftmag_t *data,
   number *output,
   int length,
   peakmask_t mask,

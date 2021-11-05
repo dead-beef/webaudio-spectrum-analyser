@@ -5,9 +5,9 @@
 #include "fft.h"
 
 void prominence(
-  fftmag_t *fft,
-  fftmag_t *peaks,
-  fftmag_t *res,
+  const fftmag_t *fft,
+  const number *peaks,
+  number *res,
   int bin_count,
   int peak_count,
   int start,
@@ -17,11 +17,11 @@ void prominence(
 );
 
 int prominencepeak(
-  fftmag_t *prdata,
+  const fftmag_t *prdata,
   int length,
   int start,
   int end,
-  fftmag_t threshold,
+  number threshold,
   fftpeak_t type
 );
 
