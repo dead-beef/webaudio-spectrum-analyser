@@ -10,6 +10,7 @@ import { map, merge } from 'rxjs/operators';
 
 import { Point } from '../interfaces';
 import { getEventPoint } from './misc';
+//import { environment } from '../../environments/environment';
 
 /**
  * TODO: description
@@ -87,6 +88,7 @@ export function hoverPoints(
   return fromEvent(el, 'click').pipe(
     merge(fromEvent(el, 'mousemove'), fromEvent(el, 'touchmove')),
     untilDestroyed,
+    //throttleTime_(environment.throttle),
     map((ev: Event) => {
       const bbox: DOMRect = el.getBoundingClientRect();
       return getEventPoint(ev, bbox.x, bbox.y);

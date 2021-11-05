@@ -23,12 +23,17 @@ typedef number tdval_t;
 typedef number fftmag_t;
 typedef kiss_fft_cpx fftval_t;
 
-typedef enum {
-  MIN_FREQUENCY = 1,
-  MAX_PROMINENCE = 2,
+typedef struct fftpeak_t {
+  number index;
+  number magnitude;
 } fftpeak_t;
 
-typedef enum {
+typedef enum fftpeak_type_t {
+  MIN_FREQUENCY = 1,
+  MAX_PROMINENCE = 2,
+} fftpeak_type_t;
+
+typedef enum peakmask_t {
   PM_NONE = 0,
   PM_CONST = 1,
   PM_LINEAR = 2,
@@ -65,16 +70,16 @@ void magnitude(const fftval_t *in, fftmag_t *out, int length, int decibels);
 fftmag_t max_magnitude(const fftmag_t *fft, int start, int end);
 
 int fftpeaks(
-  const fftmag_t *data,
-  number *output,
-  int length,
+  const fftmag_t *mag,
+  fftpeak_t *res,
+  int bin_count,
   peakmask_t mask,
   number mask_radius
 );
 
 void fft_scale(
   fftval_t *fft_buf,
-  int length,
+  int bin_count,
   int i,
   int radius,
   number factor,
@@ -83,7 +88,7 @@ void fft_scale(
 
 void fft_copy(
   fftval_t *fft_buf,
-  int length,
+  int bin_count,
   int src,
   int dst,
   int radius,

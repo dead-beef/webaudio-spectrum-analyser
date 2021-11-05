@@ -44,7 +44,7 @@ typedef struct {
   fftmag_t *fft_mag_buf;
   fftmag_t *smooth_fft_mag_buf;
   fftmag_t *prominence_buf;
-  fftmag_t *peak_buf;
+  fftpeak_t *peak_buf;
   float bin_size;
   int bins;
   int peaks;
@@ -184,7 +184,7 @@ void print_fft_peaks(data_t *data) {
   //fftval_t *fft_buf = data->fft_buf;
   fftmag_t *fft_mag_buf = data->smooth_fft_mag_buf;
   fftmag_t *prominence_buf = data->prominence_buf;
-  fftmag_t *peak_buf = data->peak_buf;
+  fftpeak_t *peak_buf = data->peak_buf;
 
   int peaks = fftpeaks(
     fft_mag_buf,
@@ -213,11 +213,9 @@ void print_fft_peaks(data_t *data) {
   float threshold = data->options->min_prominence;
 
   for (int i = 0; i < peaks; ++i) {
-    int peak = round(peak_buf[2 * i]);
+    int peak = round(peak_buf[i].index);
     if (peak >= start && peak <= end && prominence_buf[peak] > threshold) {
-      peak_buf[2 * res_peaks] = peak_buf[2 * i];
-      peak_buf[2 * res_peaks + 1] = peak_buf[2 * i + 1];
-      ++res_peaks;
+      peak_buf[res_peaks++] = peak_buf[i];
     }
   }
 
@@ -225,7 +223,7 @@ void print_fft_peaks(data_t *data) {
   if (res_peaks >= data->options->min_peaks) {
     int i;
     for (i = 0; i < res_peaks; ++i) {
-      fprintf(stdout, FMT, data->bin_size * peak_buf[2 * i], peak_buf[2 * i + 1]);
+      fprintf(stdout, FMT, data->bin_size * peak_buf[i].index, peak_buf[i].magnitude);
     }
     for (; i < data->options->max_peaks; ++i) {
       fprintf(stdout, FMT, 0.0f, 0.0f);

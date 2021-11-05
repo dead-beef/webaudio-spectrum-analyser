@@ -4,7 +4,7 @@
 EMSCRIPTEN_KEEPALIVE
 void prominence(
   const fftmag_t *fft,
-  const fftmag_t *peaks,
+  const fftpeak_t *peaks,
   number *res,
   int bin_count,
   int peak_count,
@@ -22,7 +22,7 @@ void prominence(
   memset(res, 0, bin_count * sizeof(*res));
 
   for (int p = 0; p < peak_count; ++p) {
-    int i = round(peaks[p * 2]);
+    int i = round(peaks[p].index);
     if (i < start) {
       continue;
     }
@@ -30,7 +30,7 @@ void prominence(
       break;
     }
 
-    fftmag_t cur = fft[i];
+    fftmag_t cur = peaks[p].magnitude;
     fftmag_t left = fft[i - 1];
     fftmag_t right = fft[i + 1];
 
@@ -76,22 +76,22 @@ void prominence(
 
 EMSCRIPTEN_KEEPALIVE
 int prominencepeak(
-  const fftmag_t *prdata,
+  const number *prdata,
   int length,
   int start,
   int end,
-  fftmag_t threshold,
-  fftpeak_t type
+  number threshold,
+  fftpeak_type_t type
 ) {
   start = clamp(start, 1, length - 2);
   end = clamp(end, 1, length - 2);
-  fftmag_t max;
+  number max;
   int res = -1;
   for (int i = start; i <= end; ++i) {
     if (prdata[i] <= threshold) {
       continue;
     }
-    fftmag_t value;
+    number value;
     switch (type) {
       case MAX_PROMINENCE:
         value = prdata[i];

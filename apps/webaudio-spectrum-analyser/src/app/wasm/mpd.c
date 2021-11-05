@@ -3,14 +3,14 @@
 #include <math.h>
 
 static void get_peak_distances(
-  const number *peak_buf,
+  const fftpeak_t *peak_buf,
   int peaks,
   number *peak_dist_buf,
   number *pd_hist_buf
 ) {
   int peak_dists = peaks - 1;
   for (int i = 0; i < peak_dists; ++i) {
-    number dist = peak_buf[(i + 1) * 2] - peak_buf[i * 2];
+    number dist = peak_buf[i + 1].index - peak_buf[i].index;
     peak_dist_buf[i] = dist;
     if (pd_hist_buf) {
       int j = floor(dist);
@@ -22,17 +22,17 @@ static void get_peak_distances(
 }
 
 static int get_harmonic_numbers(
-  const number *peak_buf,
+  const fftpeak_t *peak_buf,
   int peak_count,
   number f0,
   number *fs,
   number *harmonic_numbers
 ) {
   int i = 0;
-  for (; i < peak_count && peak_buf[i * 2] / f0 < 0.8; ++i);
+  for (; i < peak_count && peak_buf[i].index / f0 < 0.8; ++i);
   int skip = i;
   for (; i < peak_count; ++i) {
-    number f = peak_buf[i * 2];
+    number f = peak_buf[i].index;
     fs[i - skip] = f;
     harmonic_numbers[i - skip] = round(f / f0);
   }
@@ -41,7 +41,7 @@ static int get_harmonic_numbers(
 
 EMSCRIPTEN_KEEPALIVE
 number mpd(
-  const number *fft_peak_buf,
+  const fftpeak_t *fft_peak_buf,
   number *pd_hist_buf,
   int bin_count,
   int peak_count

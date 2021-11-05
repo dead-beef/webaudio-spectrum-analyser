@@ -6,7 +6,7 @@
 
 void prominence(
   const fftmag_t *fft,
-  const number *peaks,
+  const fftpeak_t *peaks,
   number *res,
   int bin_count,
   int peak_count,
@@ -17,12 +17,12 @@ void prominence(
 );
 
 int prominencepeak(
-  const fftmag_t *prdata,
+  const number *prdata,
   int length,
   int start,
   int end,
   number threshold,
-  fftpeak_t type
+  fftpeak_type_t type
 );
 
 #endif

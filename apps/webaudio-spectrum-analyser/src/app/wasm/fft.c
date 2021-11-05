@@ -150,48 +150,49 @@ static number mask_hann(number distance, number radius) {
 
 EMSCRIPTEN_KEEPALIVE
 int fftpeaks(
-  const fftmag_t *data,
-  number *output,
-  int length,
+  const fftmag_t *mag,
+  fftpeak_t *res,
+  int bin_count,
   peakmask_t mask,
   number mask_radius
 ) {
-  unsigned char discard[length];
-  int peaks_2 = 0;
-  peakmask_func_t mask_;
+  unsigned char discard[1 + bin_count / 2];
+  int peaks = 0;
+  peakmask_func_t mask_func;
 
   switch (mask) {
     case PM_CONST:
-      mask_ = mask_const;
+      mask_func = mask_const;
       break;
     case PM_LINEAR:
-      mask_ = mask_linear;
+      mask_func = mask_linear;
       break;
     default:
-      mask_ = NULL;
+      mask_func = NULL;
       break;
   }
 
-  for (int i = 1; i < length - 1; ++i) {
-    if (data[i] >= data[i - 1] && data[i] > data[i + 1]) {
-      output[peaks_2] = i
-        + interpolate_peak(data, length, i, output + peaks_2 + 1);
-      discard[peaks_2] = FALSE;
+  for (int i = 1; i < bin_count - 1; ++i) {
+    if (mag[i] >= mag[i - 1] && mag[i] > mag[i + 1]) {
+      number peak_mag;
+      number peak_idx = i
+        + interpolate_peak(mag, bin_count, i, &peak_mag);
 
-      if (mask_) {
-        number peak_idx = output[peaks_2];
-        number peak_mag = output[peaks_2 + 1];
+      res[peaks].index = peak_idx;
+      res[peaks].magnitude = peak_mag;
+      discard[peaks] = FALSE;
 
-        for (int prev = peaks_2 - 2; prev >= 0; prev -= 2) {
-          number distance = peak_idx - output[prev];
+      if (mask_func) {
+        for (int prev = peaks - 1; prev >= 0; --prev) {
+          number distance = peak_idx - res[prev].index;
           if (distance > mask_radius) {
             break;
           }
-          number factor = mask_(distance, mask_radius);
-          number prev_peak_mag = output[prev + 1];
+          number factor = mask_func(distance, mask_radius);
+          number prev_peak_mag = res[prev].magnitude;
 
           if (peak_mag < prev_peak_mag) {
-            discard[peaks_2] = discard[peaks_2]
+            discard[peaks] = discard[peaks]
               || peak_mag < DB_MIN + factor * (prev_peak_mag - DB_MIN);
           } else {
             discard[prev] = discard[prev]
@@ -200,33 +201,32 @@ int fftpeaks(
         }
       }
 
-      peaks_2 += 2;
+      ++peaks;
     }
   }
 
-  int peaks_ = 0;
-  if (mask_) {
-    for (int i = 0; i < peaks_2; i += 2) {
+  if (mask_func) {
+    int filtered_peaks = 0;
+    for (int i = 0; i < peaks; ++i) {
       if (!discard[i]) {
-        output[peaks_] = output[i];
-        output[peaks_ + 1] = output[i + 1];
-        peaks_ += 2;
+        res[filtered_peaks++] = res[i];
       }
     }
-  } else {
-    peaks_ = peaks_2;
+    peaks = filtered_peaks;
   }
 
-  if (peaks_ + 1 < length) {
-    output[peaks_ + 1] = -1.0;
+  if (peaks + 1 < bin_count / 2) {
+    ++peaks;
+    res[peaks].index = -1.0;
+    res[peaks].magnitude = -1.0;
   }
 
-  return peaks_ / 2;
+  return peaks;
 }
 
 void fft_scale(
   fftval_t *fft_buf,
-  int length,
+  int bin_count,
   int i,
   int radius,
   number factor,
@@ -235,7 +235,7 @@ void fft_scale(
   number wnd_k = /* 2.0 * */ M_PI / (/* 2.0 * */ radius);
   for (int j = -radius; j <= radius; ++j) {
     int k = i + j;
-    if (k >= 0 && k < length) {
+    if (k >= 0 && k < bin_count) {
       number scale;
       if (smooth) {
         number wnd = 0.5 * (1.0 - cos(wnd_k * (j + radius)));
@@ -251,7 +251,7 @@ void fft_scale(
 
 void fft_copy(
   fftval_t *fft_buf,
-  int length,
+  int bin_count,
   int src,
   int dst,
   int radius,
@@ -262,7 +262,7 @@ void fft_copy(
   for (int j = -radius; j <= radius; ++j) {
     int src_ = src + j;
     int dst_ = dst + j;
-    if (src_ >= 0 && src_ < length && dst_ >= 0 && dst_ < length) {
+    if (src_ >= 0 && src_ < bin_count && dst_ >= 0 && dst_ < bin_count) {
       if (smooth) {
         number wnd = 0.5 * (1.0 - cos(wnd_k * (j + radius)));
         fft_buf[dst_].r =
