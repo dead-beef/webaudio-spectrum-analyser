@@ -13,6 +13,7 @@ export enum FftPeakMask {
   NONE = 0,
   CONST = 1,
   LINEAR = 2,
+  HANN = 3,
 }
 
 export interface PeakDistance {

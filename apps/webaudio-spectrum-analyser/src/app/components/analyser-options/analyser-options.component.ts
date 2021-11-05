@@ -31,6 +31,7 @@ export class AnalyserOptionsComponent {
     { id: FftPeakMask.NONE, name: 'None' },
     { id: FftPeakMask.CONST, name: 'Constant' },
     { id: FftPeakMask.LINEAR, name: 'Linear' },
+    { id: FftPeakMask.HANN, name: 'Hann' },
   ];
 
   public readonly functionId: AnalyserFunctionId[] = [

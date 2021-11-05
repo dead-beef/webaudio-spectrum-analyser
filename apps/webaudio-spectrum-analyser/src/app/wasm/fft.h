@@ -37,6 +37,7 @@ typedef enum peakmask_t {
   PM_NONE = 0,
   PM_CONST = 1,
   PM_LINEAR = 2,
+  PM_HANN = 3,
 } peakmask_t;
 
 typedef number (*peakmask_func_t)(number, number);

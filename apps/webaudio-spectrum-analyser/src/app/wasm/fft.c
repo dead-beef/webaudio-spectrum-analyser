@@ -167,6 +167,9 @@ int fftpeaks(
     case PM_LINEAR:
       mask_func = mask_linear;
       break;
+    case PM_HANN:
+      mask_func = mask_hann;
+      break;
     default:
       mask_func = NULL;
       break;
