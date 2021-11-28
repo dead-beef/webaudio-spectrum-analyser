@@ -5,10 +5,12 @@
     "enableResourceInlining": true,
     "fullTemplateTypeCheck": true,
     "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
     "strictTemplates": true
   },
   "compileOnSave": false,
   "compilerOptions": {
+    "noEmit": false,
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "declaration": false,

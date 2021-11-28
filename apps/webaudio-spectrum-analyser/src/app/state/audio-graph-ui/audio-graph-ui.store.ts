@@ -27,7 +27,6 @@ import { AudioGraphUiStateModel, SetChartType } from './interfaces';
   name: AUDIO_GRAPH_UI_STATE_TOKEN,
   defaults: AUDIO_GRAPH_UI_STATE_DEFAULTS,
 })
-// eslint-disable-next-line @angular-eslint/use-injectable-provided-in
 @Injectable()
 export class AudioGraphUiState {
   /**

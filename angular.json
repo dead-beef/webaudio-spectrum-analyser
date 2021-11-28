@@ -1,14 +1,35 @@
 {
-  "version": 1,
   "projects": {
     "tools": {
       "architect": {
+        "compodoc-build": {
+          "builder": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              {
+                "command": "npx compodoc -p tsconfig.compodoc.json -d ./dist/compodoc",
+                "forwardAllArgs": false
+              }
+            ]
+          }
+        },
+        "compodoc-serve": {
+          "builder": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              {
+                "command": "npx compodoc -p tsconfig.compodoc.json -s",
+                "forwardAllArgs": false
+              }
+            ]
+          }
+        },
         "help": {
           "builder": "@nrwl/workspace:run-commands",
           "options": {
             "commands": [
               {
-                "command": "npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/package-commands.ts"
+                "command": "npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/package-commands.ts"
               }
             ]
           }
@@ -17,9 +38,7 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "eslintConfig": "tools/.eslintrc.json",
-            "lintFilePatterns": [
-              "tools/ts/**/*.{js,ts}"
-            ]
+            "lintFilePatterns": ["tools/ts/**/*.{js,ts}"]
           }
         },
         "update-check": {
@@ -27,7 +46,7 @@
           "options": {
             "commands": [
               {
-                "command": "npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --check"
+                "command": "npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/update.ts --check"
               }
             ]
           }
@@ -37,7 +56,7 @@
           "options": {
             "commands": [
               {
-                "command": "npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --check --jsonUpgraded && npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --migrate=start && yarn install && yarn ngcc && npx ts-node -P ./tools/tsconfig.tools.json ./tools/ts/update.ts --migrate=execute && rm -f migrations-packages.json"
+                "command": "npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/update.ts --check --jsonUpgraded && npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/update.ts --migrate=start && yarn install && yarn ngcc && npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/update.ts --migrate=execute && rm -f migrations-packages.json"
               }
             ]
           }
@@ -46,74 +65,67 @@
       "projectType": "application",
       "root": "tools",
       "sourceRoot": "tools/src",
-      "tags": [
-        "scope:tools",
-        "type:workspace"
-      ]
+      "tags": ["scope:tools", "type:workspace"]
     },
     "webaudio-spectrum-analyser": {
-      "projectType": "application",
-      "schematics": {
-        "@nrwl/angular:component": {
-          "style": "scss"
-        }
-      },
-      "root": "apps/webaudio-spectrum-analyser",
-      "sourceRoot": "apps/webaudio-spectrum-analyser/src",
-      "prefix": "webaudio-spectrum-analyser",
       "architect": {
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
+          "configurations": {
+            "analyze-bundle": {
+              "aot": true,
+              "buildOptimizer": true,
+              "extractLicenses": true,
+              "namedChunks": true,
+              "optimization": {
+                "fonts": true,
+                "scripts": true,
+                "styles": {
+                  "inlineCritical": false,
+                  "minify": true
+                }
+              },
+              "outputHashing": "all",
+              "sourceMap": false,
+              "vendorChunk": true
+            },
+            "production": {
+              "aot": true,
+              "budgets": [
+                {
+                  "maximumError": "5mb",
+                  "maximumWarning": "2mb",
+                  "type": "initial"
+                },
+                {
+                  "maximumError": "10kb",
+                  "maximumWarning": "6kb",
+                  "type": "anyComponentStyle"
+                }
+              ],
+              "buildOptimizer": true,
+              "extractLicenses": true,
+              "fileReplacements": [
+                {
+                  "replace": "apps/webaudio-spectrum-analyser/src/environments/environment.ts",
+                  "with": "apps/webaudio-spectrum-analyser/src/environments/environment.prod.ts"
+                }
+              ],
+              "namedChunks": false,
+              "optimization": {
+                "fonts": true,
+                "scripts": true,
+                "styles": {
+                  "inlineCritical": false,
+                  "minify": true
+                }
+              },
+              "outputHashing": "all",
+              "sourceMap": false,
+              "vendorChunk": true
+            }
+          },
           "options": {
-            "outputPath": "dist/",
-            "index": "apps/webaudio-spectrum-analyser/src/index.html",
-            "main": "apps/webaudio-spectrum-analyser/src/main.ts",
-            "polyfills": "apps/webaudio-spectrum-analyser/src/polyfills.ts",
-            "tsConfig": "apps/webaudio-spectrum-analyser/tsconfig.app.json",
-            "aot": true,
-            "optimization": {
-              "scripts": false,
-              "styles": {
-                "minify": true,
-                "inlineCritical": false
-              },
-              "fonts": true
-            },
-            "customWebpackConfig": {
-              "path": "webpack.config.js"
-            },
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "apps/webaudio-spectrum-analyser/src/img",
-                "output": "img/"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/font-awesome/fonts",
-                "output": "fonts/"
-              }
-            ],
-            "styles": [
-              {
-                "input": "apps/webaudio-spectrum-analyser/src/css/vendor.scss",
-                "bundleName": "vendorstyles"
-              },
-              {
-                "input": "apps/webaudio-spectrum-analyser/src/css/styles.scss",
-                "bundleName": "styles"
-              }
-            ],
-            "scripts": [
-              {
-                "input": "node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
-                "bundleName": "custom-elements-es5-adapter"
-              },
-              {
-                "input": "node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js",
-                "bundleName": "webcomponents-bundle"
-              }
-            ],
             "allowedCommonJsDependencies": [
               "core-js/modules/es.array.filter",
               "core-js/modules/es.array.for-each",
@@ -129,72 +141,56 @@
               "core-js/modules/es.string.match",
               "core-js/modules/es.string.replace",
               "core-js/modules/es.regexp.exec"
-            ]
-          },
-          "configurations": {
-            "analyze-bundle": {
-              "optimization": {
-                "scripts": true,
-                "styles": {
-                  "minify": true,
-                  "inlineCritical": false
-                },
-                "fonts": true
+            ],
+            "aot": true,
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "apps/webaudio-spectrum-analyser/src/img",
+                "output": "img/"
               },
-              "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": true,
-              "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": true,
-              "buildOptimizer": true
+              {
+                "glob": "**/*",
+                "input": "node_modules/font-awesome/fonts",
+                "output": "fonts/"
+              }
+            ],
+            "customWebpackConfig": {
+              "path": "webpack.config.js"
             },
-            "production": {
-              "fileReplacements": [
-                {
-                  "replace": "apps/webaudio-spectrum-analyser/src/environments/environment.ts",
-                  "with": "apps/webaudio-spectrum-analyser/src/environments/environment.prod.ts"
-                }
-              ],
-              "optimization": {
-                "scripts": true,
-                "styles": {
-                  "minify": true,
-                  "inlineCritical": false
-                },
-                "fonts": true
+            "index": "apps/webaudio-spectrum-analyser/src/index.html",
+            "main": "apps/webaudio-spectrum-analyser/src/main.ts",
+            "optimization": {
+              "fonts": true,
+              "scripts": false,
+              "styles": {
+                "inlineCritical": false,
+                "minify": true
+              }
+            },
+            "outputPath": "dist/",
+            "polyfills": "apps/webaudio-spectrum-analyser/src/polyfills.ts",
+            "scripts": [
+              {
+                "bundleName": "custom-elements-es5-adapter",
+                "input": "node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js"
               },
-              "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
-              "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": true,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
-              ]
-            }
-          }
-        },
-        "serve": {
-          "builder": "@angular-builders/custom-webpack:dev-server",
-          "options": {
-            "browserTarget": "webaudio-spectrum-analyser:build"
-          },
-          "configurations": {
-            "production": {
-              "browserTarget": "webaudio-spectrum-analyser:build:production"
-            }
+              {
+                "bundleName": "webcomponents-bundle",
+                "input": "node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"
+              }
+            ],
+            "styles": [
+              {
+                "bundleName": "vendorstyles",
+                "input": "apps/webaudio-spectrum-analyser/src/css/vendor.scss"
+              },
+              {
+                "bundleName": "styles",
+                "input": "apps/webaudio-spectrum-analyser/src/css/styles.scss"
+              }
+            ],
+            "tsConfig": "apps/webaudio-spectrum-analyser/tsconfig.app.json"
           }
         },
         "extract-i18n": {
@@ -207,9 +203,18 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "eslintConfig": "apps/webaudio-spectrum-analyser/.eslintrc",
-            "lintFilePatterns": [
-              "apps/webaudio-spectrum-analyser/**/*.ts"
-            ]
+            "lintFilePatterns": ["apps/webaudio-spectrum-analyser/**/*.ts"]
+          }
+        },
+        "serve": {
+          "builder": "@angular-builders/custom-webpack:dev-server",
+          "configurations": {
+            "production": {
+              "browserTarget": "webaudio-spectrum-analyser:build:production"
+            }
+          },
+          "options": {
+            "browserTarget": "webaudio-spectrum-analyser:build"
           }
         },
         "test": {
@@ -217,11 +222,18 @@
           "options": {
             "jestConfig": "apps/webaudio-spectrum-analyser/jest.config.js"
           },
-          "outputs": [
-            "coverage/apps/webaudio-spectrum-analyser"
-          ]
+          "outputs": ["coverage/apps/webaudio-spectrum-analyser"]
         }
       },
+      "prefix": "webaudio-spectrum-analyser",
+      "projectType": "application",
+      "root": "apps/webaudio-spectrum-analyser",
+      "schematics": {
+        "@nrwl/angular:component": {
+          "style": "scss"
+        }
+      },
+      "sourceRoot": "apps/webaudio-spectrum-analyser/src",
       "tags": [
         "scope:webaudio-spectrum-analyser",
         "type:application",
@@ -229,37 +241,33 @@
       ]
     },
     "webaudio-spectrum-analyser-e2e": {
-      "root": "apps/webaudio-spectrum-analyser-e2e",
-      "sourceRoot": "apps/webaudio-spectrum-analyser-e2e/src",
-      "projectType": "application",
       "architect": {
         "e2e": {
           "builder": "@nrwl/cypress:cypress",
-          "options": {
-            "cypressConfig": "apps/webaudio-spectrum-analyser-e2e/cypress.json",
-            "tsConfig": "apps/webaudio-spectrum-analyser-e2e/tsconfig.e2e.json",
-            "devServerTarget": "webaudio-spectrum-analyser:serve"
-          },
           "configurations": {
             "production": {
               "devServerTarget": "webaudio-spectrum-analyser:serve:production"
             }
+          },
+          "options": {
+            "cypressConfig": "apps/webaudio-spectrum-analyser-e2e/cypress.json",
+            "devServerTarget": "webaudio-spectrum-analyser:serve",
+            "tsConfig": "apps/webaudio-spectrum-analyser-e2e/tsconfig.e2e.json"
           }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "eslintConfig": "apps/webaudio-spectrum-analyser-e2e/.eslintrc",
-            "lintFilePatterns": [
-              "apps/webaudio-spectrum-analyser-e2e/**/*.ts"
-            ]
+            "lintFilePatterns": ["apps/webaudio-spectrum-analyser-e2e/**/*.ts"]
           }
         }
       },
-      "tags": [
-        "scope:webaudio-spectrum-analyser-e2e",
-        "type:e2e"
-      ]
+      "projectType": "application",
+      "root": "apps/webaudio-spectrum-analyser-e2e",
+      "sourceRoot": "apps/webaudio-spectrum-analyser-e2e/src",
+      "tags": ["scope:webaudio-spectrum-analyser-e2e", "type:e2e"]
     }
-  }
+  },
+  "version": 1
 }

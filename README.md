@@ -126,6 +126,14 @@ adb install -r android/build/release-signed.apk
 
 ### Tools
 
+First of all init submodules if you haven't yet
+
+```bash
+git submodule update --init --recursive
+```
+
+TODO: update instruction on working with submodules
+
 ```bash
 make -C tools/audio
 ```

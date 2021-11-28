@@ -1,40 +1,6 @@
 {
-  "npmScope": "webaudio-spectrum-analyser",
-  "implicitDependencies": {
-    "angular.json": "*",
-    "package.json": "*",
-    "tslint.json": "*",
-    "nx.json": "*",
-    "tsconfig.base.json": "*"
-  },
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "@nrwl/workspace/tasks-runners/default",
-      "options": {
-        "cacheableOperations": [
-          "build",
-          "lint",
-          "test",
-          "e2e"
-        ],
-        "runtimeCacheInputs": [
-          "node -v",
-          "echo $IMPORTANT_ENV_VAR"
-        ],
-        "cacheDirectory": "/tmp/nx/webaudio-spectrum-analyser"
-      }
-    }
-  },
   "affected": {
     "defaultBase": "master"
-  },
-  "targetDependencies": {
-    "build": [
-      {
-        "target": "build",
-        "projects": "dependencies"
-      }
-    ]
   },
   "cli": {
     "defaultCollection": "@nrwl/angular"
@@ -54,6 +20,32 @@
     },
     "@nrwl/schematics:library": {
       "style": "scss"
+    }
+  },
+  "implicitDependencies": {
+    "angular.json": "*",
+    "nx.json": "*",
+    "package.json": "*",
+    "tsconfig.base.json": "*",
+    "tslint.json": "*"
+  },
+  "npmScope": "webaudio-spectrum-analyser",
+  "targetDependencies": {
+    "build": [
+      {
+        "projects": "dependencies",
+        "target": "build"
+      }
+    ]
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "options": {
+        "cacheDirectory": "/tmp/nx/webaudio-spectrum-analyser",
+        "cacheableOperations": ["build", "lint", "test", "e2e"],
+        "runtimeCacheInputs": ["node -v", "echo $IMPORTANT_ENV_VAR"]
+      },
+      "runner": "@nrwl/workspace/tasks-runners/default"
     }
   }
 }

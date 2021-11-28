@@ -7,7 +7,7 @@
 
 html:not([cds-text]) {
   font-size: $font-size;
-  @media (max-width: $width-md - 1px) {
+  @media (max-width: ($width-md - 1px)) {
     font-size: $font-size-sm;
   }
 }
@@ -59,14 +59,14 @@ header,
 section,
 .section {
   margin-top: $content-padding;
-  @media (max-width: $width-md - 1px) {
+  @media (max-width: ($width-md - 1px)) {
     margin-top: $content-padding-sm;
   }
 }
 
 .clr-form-control {
   margin-top: $content-padding;
-  @media (max-width: $width-md - 1px) {
+  @media (max-width: ($width-md - 1px)) {
     margin-top: $content-padding-sm;
   }
 }
@@ -81,7 +81,7 @@ section,
     padding-right: ($content-padding + $scrollbar-size) * 0.5;
     overflow-x: hidden;
   }
-  @media (max-width: $width-md - 1px) {
+  @media (max-width: ($width-md - 1px)) {
     padding: $content-padding-sm;
     padding-right: ($content-padding-sm - $scrollbar-size) * 0.5;
 
@@ -98,7 +98,7 @@ section,
 
 .alert-items {
   max-width: calc(100% - #{$content-padding});
-  @media (max-width: $width-md - 1px) {
+  @media (max-width: ($width-md - 1px)) {
     max-width: calc(100% - #{$content-padding-sm});
   }
 }
@@ -126,13 +126,15 @@ cds-icon {
   }
 
   .btn & {
-    &[direction="right"] {
+    &[direction='right'] {
       transform: translate3d(0, -0.1rem, 0) rotate(90deg);
     }
-    &[direction="down"] {
+
+    &[direction='down'] {
       transform: translate3d(0, -0.1rem, 0) rotate(180deg);
     }
-    &[direction="left"] {
+
+    &[direction='left'] {
       transform: translate3d(0, -0.1rem, 0) rotate(270deg);
     }
   }

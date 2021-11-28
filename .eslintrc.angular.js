@@ -58,5 +58,26 @@ module.exports = {
         '@angular-eslint/prefer-on-push-component-change-detection': 'off',
       },
     },
+    {
+      files: ['**/hammerjs-gesture.config.ts', '**/*.store.ts'],
+      rules: {
+        '@angular-eslint/use-injectable-provided-in': 'off',
+      },
+    },
+    {
+      files: '**/test.util.ts',
+      rules: {
+        '@angular-eslint/use-component-selector': 'off',
+      },
+    },
+    {
+      files: ['**/*.html'],
+      excludedFiles: ['*inline-template-*.component.html'],
+      extends: [
+        'plugin:prettier/recommended',
+        'plugin:@angular-eslint/template/recommended',
+      ],
+      rules: {},
+    },
   ],
 };

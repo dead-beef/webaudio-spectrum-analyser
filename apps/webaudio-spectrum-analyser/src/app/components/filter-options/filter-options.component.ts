@@ -44,8 +44,7 @@ export class FilterOptionsComponent {
 
   public readonly iirFilterOrder = [0, 1, 2];
 
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  public readonly AudioGraphFilterNode = AudioGraphFilterNode;
+  public readonly audioGraphFilterNode = AudioGraphFilterNode;
 
   public readonly form = new FormGroup({
     type: stateFormControl(

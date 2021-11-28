@@ -29,13 +29,13 @@
 
 .btn {
   margin-top: 0;
+  margin-right: 0;
   margin-bottom: 0;
   margin-left: 0;
-  margin-right: 0;
 }
 
 .charts-container {
-  @media (max-width: $width-md - 1px) {
+  @media (max-width: ($width-md - 1px)) {
     &,
     app-charts {
       height: calc(40vh + 2.5rem);
@@ -44,13 +44,13 @@
 }
 
 app-charts {
-  background-color: $bg;
   position: fixed;
   top: $header-size;
   right: $content-padding-sm;
   left: $content-padding-sm;
   z-index: 999;
   padding-top: $content-padding-sm;
+  background-color: $bg;
   @media (min-width: $width-md) {
     right: 50%;
     bottom: 1rem;
@@ -69,6 +69,7 @@ app-charts {
     align-items: stretch;
     width: 100%;
     height: 100%;
+
     & > * {
       flex-grow: 1;
       flex-shrink: 1;
@@ -77,12 +78,15 @@ app-charts {
     &-horizontal {
       flex-direction: row;
     }
+
     &-vertical {
       flex-direction: column;
     }
+
     &-grid {
       flex-direction: row;
       flex-wrap: wrap;
+
       & > * {
         width: 50%;
         max-height: 50%;
@@ -90,91 +94,108 @@ app-charts {
     }
   }
 
-  /*canvas {
+  /* canvas {
     height: 40vh;
     @media (min-width: $width-md) {
       height: calc(100vh - 6.5rem);
     }
-  }*/
+  } */
 }
 
 app-chart {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+
   .chart-header {
     display: flex;
     flex-direction: row;
     align-items: center;
     background-color: $header;
     border: 1px solid $header-border;
+
     .chart-title {
-      /*width: 50%;*/
+
+      /* width: 50%; */
       .clr-form-control {
         margin-top: 0;
       }
-      .clr-select-wrapper::after{
+
+      .clr-select-wrapper::after {
         right: auto;
         left: 0.3rem;
       }
+
       select {
-        font-size: 0.6rem;
-        padding-left: 1.1rem;
         padding-right: 0.3rem;
-        &, &:focus {
-          border-bottom: 0;
+        padding-left: 1.1rem;
+        font-size: 0.6rem;
+
+        &,
+        &:focus {
           background-size: 0 0;
+          border-bottom: 0;
         }
-        &:active, &:hover {
+
+        &:active,
+        &:hover {
           background-color: rgba(255, 255, 255, 0.1);
         }
       }
     }
+
     .chart-buttons {
       display: flex;
       flex-direction: row;
       align-items: center;
       margin-left: auto;
+
       .btn {
-        border: 0;
-        min-width: unset;
-        max-height: unset;
         width: auto;
+        min-width: unset;
         height: auto;
-        line-height: unset;
+        max-height: unset;
         margin-top: 0;
+        margin-right: 0;
         margin-bottom: 0;
         margin-left: 0;
-        margin-right: 0;
         padding: 0 0.3rem;
+        line-height: unset;
+        border: 0;
+
         cds-icon {
           width: $icon-size-sm;
           height: $icon-size-sm;
           color: $fg;
-          &[direction=down] {
+
+          &[direction='down'] {
             transform: rotate(180deg);
           }
         }
       }
     }
   }
+
   .chart-body {
-    &, & > *, app-canvas {
+    &,
+    & > *,
+    app-canvas {
       display: flex;
       flex-direction: column;
-      align-items: stretch;
       flex-grow: 1;
       flex-shrink: 1;
+      align-items: stretch;
     }
     border: 1px solid $border;
     border-top: 0;
+
     .chart-footer {
       display: block;
-      border-top: 1px solid $border;
+      min-height: 1.1rem;
       padding: 0 0.3rem;
       font-size: 0.6rem;
-      min-height: 1.1rem;
       line-height: 1.05rem;
+      border-top: 1px solid $border;
     }
   }
 }
@@ -182,47 +203,58 @@ app-chart {
 app-canvas {
   position: relative;
   overflow: hidden;
+
   canvas {
     position: absolute;
     top: 0;
+    right: 0;
     bottom: 0;
     left: 0;
-    right: 0;
+    z-index: 1;
     width: 100%;
     height: 100%;
-    z-index: 1;
   }
+
   div {
     position: absolute;
+    z-index: 2;
     background-color: $fg;
+    transform: translate(-50%, -50%);
     opacity: 0.5;
     pointer-events: none;
-    z-index: 2;
-    transform: translate(-50%, -50%);
   }
-  .line-v, .cross::before {
+
+  .line-v,
+  .cross::before {
     width: 2px;
     height: 200%;
   }
-  .line-h, .cross::after {
+
+  .line-h,
+  .cross::after {
     width: 200%;
     height: 2px;
   }
+
   .cross {
     width: 100%;
     height: 100%;
     background-color: transparent;
     transform: translate(-100%, -100%);
-    &::before, &::after {
+
+    &::before,
+    &::after {
       position: absolute;
       display: block;
-      content: "";
       background-color: $fg;
+      content: '';
     }
+
     &::before {
       left: 100%;
       transform: translateX(-50%);
     }
+
     &::after {
       top: 100%;
       transform: translateY(-50%);
