@@ -6,6 +6,8 @@
 
 ## Requirements
 
+In order to run own copy of the project one must fulfill the following requirements.
+
 ### Mandatory
 
 - [Node.js](https://nodejs.org/)
