@@ -228,7 +228,7 @@ export class FilterProcessor extends AudioWorkletProcessor {
       const importObj = {
         env: {
           table: new WebAssembly.Table({
-            initial: 4,
+            initial: WebAssembly.Module.imports(mod).length,
             maximum: 64,
             //initial: 0,
             //maximum: 0,
