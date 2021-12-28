@@ -27,7 +27,6 @@ import {
   name: ANALYSER_STATE_TOKEN,
   defaults: ANALYSER_STATE_DEFAULTS,
 })
-// eslint-disable-next-line @angular-eslint/use-injectable-provided-in
 @Injectable()
 export class AnalyserState {
   /**

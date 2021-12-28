@@ -20,9 +20,10 @@ import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
   templateUrl: './analyser-function-values.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+/* eslint-disable prettier/prettier -- prettier conflicts with eslint (brace style) */
 export class AnalyserFunctionValuesComponent
-  implements OnInit, OnDestroy, OnChanges
-{ // eslint-disable-line @typescript-eslint/brace-style, prettier/prettier
+  implements OnInit, OnDestroy, OnChanges {
+  /* eslint-enable prettier/prettier -- prettier conflicts with eslint (brace style) */
   @Input() public ids: AnalyserNumberFunctionId[] = [];
 
   @Input() public unit = '';

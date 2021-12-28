@@ -27,9 +27,10 @@ import { CanvasComponent } from '../canvas/canvas.component';
   templateUrl: './analyser-function-chart.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+/* eslint-disable prettier/prettier -- prettier conflicts with eslint (brace style) */
 export class AnalyserFunctionChartComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{ // eslint-disable-line @typescript-eslint/brace-style, prettier/prettier
+  implements OnInit, AfterViewInit, OnDestroy {
+  /* eslint-enable prettier/prettier -- prettier conflicts with eslint (brace style) */
   @Input() public domain: 'time' | 'frequency' = 'frequency';
 
   @ViewChild(CanvasComponent) public canvas: Nullable<CanvasComponent> = null;

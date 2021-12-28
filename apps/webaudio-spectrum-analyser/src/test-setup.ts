@@ -110,7 +110,6 @@ export class MockAudioContext {
   }
 }
 
-// eslint-disable-next-line require-jsdoc
 export function mockAudioContext() {
   Object.defineProperty(window.URL, 'createObjectURL', {
     value: () => 'objectUrl',

@@ -6,6 +6,8 @@
 
 ## Requirements
 
+In order to run own copy of the project one must fulfill the following requirements.
+
 ### Mandatory
 
 - [Node.js](https://nodejs.org/)
@@ -52,39 +54,11 @@ git cz
 
 ## Installation
 
-### Install all: system, global, and project
-
-```bash
-yarn install:all
-```
-
-### Install system
-
-#### Local
-
-```bash
-yarn install:shellcheck
-```
-
-#### CI
-
-```bash
-yarn install:shellcheck:ci
-```
-
-## Global dependencies installation
-
-```bash
-yarn install:global
-```
-
-### Project dependencies
-
 ```bash
 yarn install
 ```
 
-#### Updating
+### Updating
 
 ```bash
 yarn workspace:update:check
@@ -125,6 +99,14 @@ adb install -r android/build/release-signed.apk
 ```
 
 ### Tools
+
+First of all init submodules if you haven't yet
+
+```bash
+git submodule update --init --recursive
+```
+
+TODO: update instruction on working with submodules
 
 ```bash
 make -C tools/audio

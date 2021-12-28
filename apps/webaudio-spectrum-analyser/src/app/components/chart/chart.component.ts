@@ -34,8 +34,7 @@ export class ChartComponent implements OnInit, OnChanges {
     type: new FormControl(0),
   });
 
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  public readonly ChartType = ChartType;
+  public readonly chartType = ChartType;
 
   public readonly types = [
     { id: ChartType.TIME_DOMAIN, name: 'Time domain' },

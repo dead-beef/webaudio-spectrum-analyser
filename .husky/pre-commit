@@ -1,0 +1,60 @@
+#!/bin/sh
+
+. "$(dirname "$0")/_/husky.sh"
+
+STAGED_FILES=
+
+onexit() {
+  [ -f "$STAGED_FILES" ] && rm -f "$STAGED_FILES"
+}
+
+trap onexit EXIT
+
+STAGED_FILES="$(mktemp)"
+git diff --cached --name-only --diff-filter=ACM >"$STAGED_FILES" || true
+
+STAGED_JS=0
+STAGED_CSS=0
+STAGED_HTML=0
+
+if egrep -q '\.[jt]s$' "$STAGED_FILES"; then
+  STAGED_JS=1
+fi
+
+if egrep -q '\.s?css$' "$STAGED_FILES"; then
+  STAGED_CSS=1
+fi
+
+if egrep -q '\.html$' "$STAGED_FILES"; then
+  STAGED_HTML=1
+fi
+
+LINT=0
+
+if [ $STAGED_JS = '1' ]; then
+  LINT=1
+  yarn nx:lint:fix
+fi
+
+if [ $STAGED_CSS = '1' ]; then
+  LINT=1
+  yarn stylelint:all:fix
+fi
+
+if [ $STAGED_HTML = '1' ]; then
+  LINT=1
+  yarn prettier:all:html:fix
+fi
+
+#echo "STAGED_FILES="
+#cat "$STAGED_FILES"
+#echo "STAGED_HTML=$STAGED_HTML"
+#echo "STAGED_JS=$STAGED_JS"
+#echo "STAGED_CSS=$STAGED_CSS"
+#echo "LINT=$LINT"
+#echo "LINT_CMD=$LINT_CMD"
+#exit 2
+
+if [ $LINT = '1' ]; then
+  xargs -a "$STAGED_FILES" git add
+fi

@@ -10,12 +10,7 @@ import { AudioGraphStoreModule } from '../state/audio-graph/audio-graph.module';
 import { AudioGraphUiStoreModule } from '../state/audio-graph-ui/audio-graph-ui.module';
 import { ANALYSER, AUDIO_GRAPH } from './injection-tokens';
 
-/**
- * TODO: description
- * @param selector
- */
 export function mockComponent(selector: string, props?: Record<string, any>) {
-  // eslint-disable-next-line @angular-eslint/use-component-selector
   @Component({
     selector: selector,
     template: '',
@@ -34,10 +29,7 @@ export function mockComponent(selector: string, props?: Record<string, any>) {
   return MockComponent;
 }
 
-/**
- * TODO: description
- */
-// eslint-disable-next-line max-lines-per-function, require-jsdoc
+// eslint-disable-next-line max-lines-per-function -- TODO: refactor
 export function getMockAudioGraph() {
   const ctx = new AudioContext();
   return {
