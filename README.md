@@ -54,39 +54,11 @@ git cz
 
 ## Installation
 
-### Install all: system, global, and project
-
-```bash
-yarn install:all
-```
-
-### Install system
-
-#### Local
-
-```bash
-yarn install:shellcheck
-```
-
-#### CI
-
-```bash
-yarn install:shellcheck:ci
-```
-
-## Global dependencies installation
-
-```bash
-yarn install:global
-```
-
-### Project dependencies
-
 ```bash
 yarn install
 ```
 
-#### Updating
+### Updating
 
 ```bash
 yarn workspace:update:check
