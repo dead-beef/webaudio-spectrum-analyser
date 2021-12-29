@@ -51,8 +51,6 @@ module.exports = {
     '**/*.ts',
     '!**/node_modules/**',
     '!**/coverage/**',
-    '!**/generated/**',
-    '!**/grpc/**',
     '!**/ts/**',
     '!**/*.js',
     '!**/*.stories.ts',
