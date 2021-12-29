@@ -1,4 +1,4 @@
-import { WorkletGeneratorParam } from './interfaces';
+import { AudioParamDescriptor, WorkletGeneratorParam } from './interfaces';
 import { AudioWorkletProcessor } from './util';
 
 export class GeneratorProcessor extends AudioWorkletProcessor {
@@ -45,6 +45,30 @@ export class GeneratorProcessor extends AudioWorkletProcessor {
     ];
   }
 
+  public stopped = false;
+
+  /**
+   * Constructor.
+   */
+  constructor() {
+    super();
+
+    const port: MessagePort = this['port'];
+    if (port) {
+      port.onmessage = (ev: MessageEvent) => this.onmessage(ev.data);
+    }
+  }
+
+  /**
+   * TODO: description
+   */
+  public onmessage(data: Record<string, any>) {
+    console.log('onmessage', data);
+    if (data.type === 'stop') {
+      this.stopped = true;
+    }
+  }
+
   /**
    * TODO: description
    */
@@ -72,6 +96,9 @@ export class GeneratorProcessor extends AudioWorkletProcessor {
     parameters: AudioWorkletProcessorParmeters<WorkletGeneratorParam>
   ): boolean {
     try {
+      if (this.stopped) {
+        return false;
+      }
       const type_ = parameters.type[0];
       const channels: Float32Array[] = outputs[0];
       for (let i = 0; i < channels.length; ++i) {

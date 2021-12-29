@@ -43,7 +43,8 @@
       "options": {
         "cacheDirectory": "/tmp/nx/webaudio-spectrum-analyser",
         "cacheableOperations": ["build", "lint", "test", "e2e"],
-        "runtimeCacheInputs": ["node -v", "echo $IMPORTANT_ENV_VAR"]
+        "runtimeCacheInputs": ["node -v", "echo $IMPORTANT_ENV_VAR"],
+        "parallel": 1
       },
       "runner": "@nrwl/workspace/tasks-runners/default"
     }

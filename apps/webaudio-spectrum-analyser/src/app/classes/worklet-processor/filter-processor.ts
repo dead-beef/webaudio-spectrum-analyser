@@ -1,4 +1,4 @@
-import { WorkletFilterParam } from './interfaces';
+import { AudioParamDescriptor, WorkletFilterParam } from './interfaces';
 import { AudioWorkletProcessor } from './util';
 
 export class FilterProcessor extends AudioWorkletProcessor {
@@ -110,6 +110,8 @@ export class FilterProcessor extends AudioWorkletProcessor {
   }
 
   public readonly blockSize = 128;
+
+  public stopped = false;
 
   public wasm: Nullable<WebAssembly.Instance> = null;
 
@@ -266,6 +268,8 @@ export class FilterProcessor extends AudioWorkletProcessor {
         this.wasmScaleHarmonics = this.wasm.exports.scale_harmonics as any;
         console.log('instance', instance);
       });
+    } else if (data.type === 'stop') {
+      this.stopped = true;
     }
   }
 
@@ -379,6 +383,9 @@ export class FilterProcessor extends AudioWorkletProcessor {
     parameters: AudioWorkletProcessorParmeters<WorkletFilterParam>
   ): boolean {
     try {
+      if (this.stopped) {
+        return false;
+      }
       if (this.wasm === null || this.memory === null) {
         //this.copy(inputs, outputs);
         return true;

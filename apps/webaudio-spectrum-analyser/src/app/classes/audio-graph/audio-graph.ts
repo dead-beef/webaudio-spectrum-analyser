@@ -207,6 +207,12 @@ export class AudioGraph {
       this.stream.getTracks().forEach(track => track.stop());
       //this.stream = null;
     }
+    void this.workletReady.then(() => {
+      this.nodes.worklet!.port.postMessage({ type: 'stop' });
+    });
+    void this.workletFilterReady.then(() => {
+      this.nodes.filter.worklet!.port.postMessage({ type: 'stop' });
+    });
   }
 
   /**

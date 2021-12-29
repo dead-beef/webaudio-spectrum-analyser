@@ -91,7 +91,7 @@ export class InputFileUrlDirective implements OnInit, OnDestroy {
       const input: HTMLInputElement = this.createInput();
       this.click(input);
     } catch (err) {
-      this.fileError.emit(err);
+      this.fileError.emit(<Error>err);
     }
   }
 
@@ -115,7 +115,7 @@ export class InputFileUrlDirective implements OnInit, OnDestroy {
         url: url,
       });
     } catch (err) {
-      this.fileError.emit(err);
+      this.fileError.emit(<Error>err);
     } finally {
       input.remove();
     }

@@ -39,6 +39,7 @@ wasm/*.js
 !.vscode/extensions.json
 
 # misc
+/.angular/cache
 /mochawesome_report/
 /coverage
 /documentation
