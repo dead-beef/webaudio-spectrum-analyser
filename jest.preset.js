@@ -31,7 +31,7 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'html', 'js', 'mjs', 'json'],
   transformIgnorePatterns: [
-    'node_modules/(?!.*\\.mjs$|@cds/|@lit/|lit-?/|ramda/)',
+    'node_modules/(?!@ngrx|@cds|@lit|lit-?|ramda|.*\\.mjs$)',
   ],
   // resolver: '@nrwl/jest/plugins/resolver',
   resolver: 'jest-preset-angular/build/resolvers/ng-jest-resolver.js',
