@@ -195,9 +195,8 @@ function checkForUpdates(jsonUpgraded = false): UpdatablePackages {
 
 /**
  * Executes packages migration procedure.
- * @param config migration configuration
  */
-function doMigratePackages(packageNames: string[]) {
+function migratePackages(packageNames: string[]) {
   const migrate: string[] = [];
   let skipQuestion = false;
   let answer = false;
@@ -246,7 +245,7 @@ function doMigratePackages(packageNames: string[]) {
 /**
  * Starts migration for all packages defined in the migrations-packages.json that should have been creaed previously.
  */
-function migratePackages() {
+function startPackagesMigration() {
   const path = `${root}/migrations-packages.json`;
   fs.readFile(path, (error: NodeJS.ErrnoException | null, data?: Buffer) => {
     if (error !== null) {
@@ -263,14 +262,9 @@ function migratePackages() {
         updatablePackages
       );
 
-      /**
-       * Do live update check to veryfy that json is not outdated.
-       */
-      //checkForUpdates(false);
-
       const packageNames = Object.keys(updatablePackages);
 
-      doMigratePackages(packageNames);
+      migratePackages(packageNames);
     }
   });
 }
@@ -285,7 +279,7 @@ function readInputAndRun(): void {
     const jsonUpgraded = Boolean(argv.jsonUpgraded);
     checkForUpdates(jsonUpgraded);
   } else if (migrate === 'start') {
-    migratePackages();
+    startPackagesMigration();
   } else if (migrate === 'execute') {
     void executeMigrations().subscribe();
   } else {

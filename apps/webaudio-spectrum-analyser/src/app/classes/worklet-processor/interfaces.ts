@@ -1,3 +1,11 @@
+export interface AudioParamDescriptor {
+  name: string;
+  defaultValue: number;
+  minValue?: number;
+  maxValue?: number;
+  automationRate: string;
+}
+
 export interface WorkletProcessorStatic {
   readonly key: string;
   readonly inputs: number;

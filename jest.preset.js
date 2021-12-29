@@ -1,4 +1,6 @@
 const nxPreset = require('@nrwl/jest/preset');
+const { pathsToModuleNameMapper } = require('ts-jest/utils');
+const { paths } = require('./tsconfig.base.json').compilerOptions;
 const webpackConfig = require('./webpack.config');
 
 function getWasmOptions() {
@@ -20,24 +22,23 @@ module.exports = {
   globals: {
     'ts-jest': {
       tsconfig: '<rootDir>/tsconfig.spec.json',
-      stringifyContentPathRegex: '\\.html$',
-      /*astTransformers: {
-        before: [
-          'jest-preset-angular/build/InlineFilesTransformer',
-          'jest-preset-angular/build/StripStylesTransformer',
-        ],
-      },*/
+      stringifyContentPathRegex: '\\.(html|svg)$',
     },
   },
   transform: {
-    '^.+\\.(ts|js|html)$': 'jest-preset-angular', //'ts-jest',
+    '^.+\\.(ts|js|mjs|html|svg)$': 'jest-preset-angular', //'ts-jest',
     '^.+\\.(c|cpp)$': ['jest-cpp-wasm', getWasmOptions()],
   },
-  transformIgnorePatterns: ['node_modules/(?!@ngrx|@cds|@lit|lit-?|ramda)/'],
-  moduleFileExtensions: ['ts', 'html', 'js', 'json'],
-  resolver: '@nrwl/jest/plugins/resolver',
+  moduleFileExtensions: ['ts', 'html', 'js', 'mjs', 'json'],
+  transformIgnorePatterns: [
+    'node_modules/(?!.*\\.mjs$|@cds/|@lit/|lit-?/|ramda/)',
+  ],
+  // resolver: '@nrwl/jest/plugins/resolver',
+  resolver: 'jest-preset-angular/build/resolvers/ng-jest-resolver.js',
+  moduleNameMapper: pathsToModuleNameMapper(paths, {
+    prefix: '<rootDir>/../../',
+  }),
   coverageReporters: ['html-spa', 'json-summary'],
-  collectCoverage: true,
   coverageThreshold: {
     global: {
       branches: 0,
@@ -46,5 +47,17 @@ module.exports = {
       statements: 0,
     },
   },
+  collectCoverageFrom: [
+    '**/*.ts',
+    '!**/node_modules/**',
+    '!**/coverage/**',
+    '!**/generated/**',
+    '!**/grpc/**',
+    '!**/ts/**',
+    '!**/*.js',
+    '!**/*.stories.ts',
+    '!**/*.module.ts',
+  ],
+  collectCoverage: true,
   cacheDirectory: '/tmp/jest_rs/webaudio-spectrum-analyser',
 };

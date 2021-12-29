@@ -1,4 +1,4 @@
-import { WorkletProcessor } from './interfaces';
+import { AudioParamDescriptor, WorkletProcessor } from './interfaces';
 
 export class AudioWorkletProcessor implements WorkletProcessor {
   /**
