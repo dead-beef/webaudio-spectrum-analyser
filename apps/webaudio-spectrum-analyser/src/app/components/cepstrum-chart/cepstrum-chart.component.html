@@ -5,6 +5,6 @@
   <span *ngIf="pointFrequency$ | async as f">
     1 / {{ f | units:'Hz' }} {{ pointValue$ | async | units:'':false:2 }}
   </span>
-  <app-analyser-function-values class="float-right" [ids]="functions" unit="Hz">
+  <app-analyser-function-values class="float-right" [ids]="functions">
   </app-analyser-function-values>
 </div>

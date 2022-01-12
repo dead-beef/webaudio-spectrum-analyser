@@ -8,6 +8,11 @@ export const AUDIO_GRAPH_UI_STATE_DEFAULTS: AudioGraphUiStateModel = {
   chartCount: 2,
   chartType: [ChartType.TIME_DOMAIN, ChartType.FREQUENCY],
   chartLayout: ChartLayout.VERTICAL,
+  frequencyUnit: {
+    frequency: true,
+    midiNumber: false,
+    midiNote: false,
+  },
 };
 
 export const AUDIO_GRAPH_UI_STATE_TOKEN =

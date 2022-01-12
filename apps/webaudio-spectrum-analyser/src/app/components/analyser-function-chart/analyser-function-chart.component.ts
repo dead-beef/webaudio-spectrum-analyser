@@ -13,7 +13,11 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 import { Analyser } from '../../classes/analyser/analyser';
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
-import { AnalyserNumberFunctionId, Point } from '../../interfaces';
+import {
+  AnalyserFunctionDomain as FD,
+  AnalyserNumberFunctionId,
+  Point,
+} from '../../interfaces';
 import { ColorService } from '../../services/color/color.service';
 import { AnalyserService } from '../../state/analyser/analyser.service';
 import { AnalyserState } from '../../state/analyser/analyser.store';
@@ -31,7 +35,7 @@ import { CanvasComponent } from '../canvas/canvas.component';
 export class AnalyserFunctionChartComponent
   implements OnInit, AfterViewInit, OnDestroy {
   /* eslint-enable prettier/prettier -- prettier conflicts with eslint (brace style) */
-  @Input() public domain: 'time' | 'frequency' = 'frequency';
+  @Input() public domain: FD = FD.FREQUENCY;
 
   @ViewChild(CanvasComponent) public canvas: Nullable<CanvasComponent> = null;
 
@@ -68,12 +72,6 @@ export class AnalyserFunctionChartComponent
   private logGrid = false;
 
   private rmsThreshold = false;
-
-  public unit = '';
-
-  public unitPrefix = false;
-
-  public precision = 2;
 
   private _frames = 0;
 
@@ -117,23 +115,17 @@ export class AnalyserFunctionChartComponent
    */
   public ngOnInit() {
     switch (this.domain) {
-      case 'time':
+      case FD.TIME:
         this.functions = this.analyser.TIME_DOMAIN_FUNCTION_IDS;
         this.yScale = (y: number) => y;
         this.logGrid = false;
         this.rmsThreshold = true;
-        this.unit = '';
-        this.unitPrefix = false;
-        this.precision = 2;
         break;
-      case 'frequency':
+      case FD.FREQUENCY:
         this.functions = this.analyser.FREQUENCY_DOMAIN_FUNCTION_IDS;
         this.yScale = (y: number) => this.frequencyToCanvas(y);
         this.logGrid = true;
         this.rmsThreshold = false;
-        this.unit = 'Hz';
-        this.unitPrefix = true;
-        this.precision = 1;
         break;
       default:
         throw new Error(

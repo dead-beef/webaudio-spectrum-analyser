@@ -1,11 +1,17 @@
 import { ChartLayout } from '../../interfaces';
 import { actionConstructor, StoreActions } from '../../utils';
-import { AudioGraphUiStateModel, SetChartType } from './interfaces';
+import {
+  AudioGraphUiStateModel,
+  FrequencyUnitState,
+  SetChartType,
+} from './interfaces';
 
 const action = actionConstructor('AudioGraphUi');
 
 export const audioGraphUiAction: StoreActions = {
   setState: action<AudioGraphUiStateModel>('set state'),
+
+  setFrequencyUnits: action<FrequencyUnitState>('set frequency units'),
 
   setChartCount: action<number>('set chart count'),
   setChartType: action<SetChartType>('set chart type'),

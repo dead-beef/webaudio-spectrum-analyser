@@ -21,7 +21,11 @@ import {
   AUDIO_GRAPH_UI_STATE_DEFAULTS,
   AUDIO_GRAPH_UI_STATE_TOKEN,
 } from './audio-graph-ui.model';
-import { AudioGraphUiStateModel, SetChartType } from './interfaces';
+import {
+  AudioGraphUiStateModel,
+  FrequencyUnitState,
+  SetChartType,
+} from './interfaces';
 
 @State<AudioGraphUiStateModel>({
   name: AUDIO_GRAPH_UI_STATE_TOKEN,
@@ -42,6 +46,15 @@ export class AudioGraphUiState {
   @Selector()
   public static state(state: AudioGraphUiStateModel) {
     return state;
+  }
+
+  /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static frequencyUnits(state: AudioGraphUiStateModel) {
+    return state.frequencyUnit;
   }
 
   /**
@@ -85,6 +98,31 @@ export class AudioGraphUiState {
         return state.chartType[index];
       }
     );
+  }
+
+  /**
+   * Set state action
+   * @param ctx
+   * @param payload
+   */
+  @Action(audioGraphUiAction.setState)
+  public setState(
+    ctx: StateContext<AudioGraphUiStateModel>,
+    { payload }: StoreAction<AudioGraphUiStateModel>
+  ) {
+    return ctx.patchState(payload);
+  }
+
+  /**
+   * Action
+   * @param ctx
+   */
+  @Action(audioGraphUiAction.setFrequencyUnits)
+  public setFrequencyUnits(
+    ctx: StateContext<AudioGraphUiStateModel>,
+    { payload }: StoreAction<FrequencyUnitState>
+  ) {
+    return ctx.patchState({ frequencyUnit: payload });
   }
 
   /**

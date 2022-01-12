@@ -11,7 +11,7 @@ module.exports = {
       'error',
       { type: 'element', prefix: 'app', style: 'kebab-case' },
     ],
-    '@angular-eslint/no-pipe-impure': 'error',
+    '@angular-eslint/no-pipe-impure': 'off',
     '@angular-eslint/contextual-lifecycle': 'error',
     '@angular-eslint/use-lifecycle-interface': 'error',
     '@angular-eslint/use-injectable-provided-in': 'error',

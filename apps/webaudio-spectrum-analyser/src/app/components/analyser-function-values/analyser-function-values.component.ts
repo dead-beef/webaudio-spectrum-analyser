@@ -9,7 +9,10 @@ import {
 } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import { AnalyserNumberFunctionId } from '../../interfaces';
+import {
+  AnalyserFunctionDomain,
+  AnalyserNumberFunctionId,
+} from '../../interfaces';
 import { ColorService } from '../../services/color/color.service';
 import { AnalyserService } from '../../state/analyser/analyser.service';
 import { AnalyserState } from '../../state/analyser/analyser.store';
@@ -26,17 +29,13 @@ export class AnalyserFunctionValuesComponent
   /* eslint-enable prettier/prettier -- prettier conflicts with eslint (brace style) */
   @Input() public ids: AnalyserNumberFunctionId[] = [];
 
-  @Input() public unit = '';
-
-  @Input() public unitPrefix = true;
-
-  @Input() public precision = 1;
-
   private readonly graph = this.graphService.graph;
 
   private readonly analyser = this.analyserService.analyser;
 
   public functionColor: string[] = [];
+
+  public functionDomain: AnalyserFunctionDomain[] = [];
 
   private readonly updateBound = this.update.bind(this);
 
@@ -77,6 +76,9 @@ export class AnalyserFunctionValuesComponent
     if (changes.ids) {
       this.completeSubjects();
       this.functionColor = this.ids.map(id => this.color.get(id));
+      this.functionDomain = this.ids.map(
+        id => this.analyser.functionById[id].domain
+      );
       this.values = this.ids.map(_ => new BehaviorSubject<number>(0));
       this.values$ = this.values.map(subject => {
         return subject.asObservable();

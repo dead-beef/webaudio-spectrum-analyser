@@ -5,6 +5,6 @@
   <span *ngIf="pointTime$ | async as t">
     {{ t | units:'s' }} {{ pointValue$ | async | units:'':false:2 }}
   </span>
-  <app-analyser-function-values class="float-right" [ids]="functions" [unitPrefix]="false" [precision]="2">
+  <app-analyser-function-values class="float-right" [ids]="functions">
   </app-analyser-function-values>
 </div>

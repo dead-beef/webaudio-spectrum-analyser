@@ -16,7 +16,8 @@ describe('CommonOptionsComponent', () => {
           CommonOptionsComponent,
           mockComponent('app-graph-options'),
           mockComponent('app-filter-options'),
-          mockComponent('app-pitch-options'),
+          mockComponent('app-analyser-options'),
+          mockComponent('app-ui-options'),
         ],
       })
         .compileComponents()

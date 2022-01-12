@@ -7,6 +7,7 @@ import {
 } from '../audio-math/interfaces';
 import {
   AnalyserFunction,
+  AnalyserFunctionDomain as FD,
   AnalyserFunctionId,
   AnalyserFunctions,
   AnalyserNumberFunctionId,
@@ -59,16 +60,24 @@ export class Analyser {
       'autocorr',
       'Autocorrelation',
       'autocorr',
+      FD.OTHER,
       new Float32Array()
     ),
     prominence: this.func(
       'prominence',
       'FFT peak prominence',
       'prominence',
+      FD.OTHER,
       new Float32Array()
     ),
-    cepstrum: this.func('cepstrum', 'Cepstrum', 'cepstrum', new Float32Array()),
-    fftPeaks: this.func('fftPeaks', 'FFT peaks', 'fftpeaks', {
+    cepstrum: this.func(
+      'cepstrum',
+      'Cepstrum',
+      'cepstrum',
+      FD.OTHER,
+      new Float32Array()
+    ),
+    fftPeaks: this.func('fftPeaks', 'FFT peaks', 'fftpeaks', FD.OTHER, {
       data: new Float32Array(),
       count: 0,
     }),
@@ -76,35 +85,46 @@ export class Analyser {
       'fftPeakDistance',
       'FFT peak distane data',
       'fftpd',
+      FD.OTHER,
       {
         histogram: new Float32Array(),
         median: 0,
       }
     ),
 
-    RMS: this.func('RMS', 'Root mean square', 'rms', 0),
-    ZCR: this.func('ZCR', 'Zero-crossing rate', 'zcr', 0),
-    FFTP: this.func('FFTP', 'FFT peak', 'fftpeak', 0),
-    AC: this.func('AC', 'Autocorrelation peak', 'autocorrpeak', 0),
-    CP: this.func('CP', 'Cepstrum peak', 'cpeak', 0),
-    MPD: this.func('MPD', 'Median FFT peak distance', 'mpd', 0),
+    RMS: this.func('RMS', 'Root mean square', 'rms', FD.TIME, 0),
+    ZCR: this.func('ZCR', 'Zero-crossing rate', 'zcr', FD.FREQUENCY, 0),
+    FFTP: this.func('FFTP', 'FFT peak', 'fftpeak', FD.FREQUENCY, 0),
+    AC: this.func(
+      'AC',
+      'Autocorrelation peak',
+      'autocorrpeak',
+      FD.FREQUENCY,
+      0
+    ),
+    CP: this.func('CP', 'Cepstrum peak', 'cpeak', FD.FREQUENCY, 0),
+    MPD: this.func('MPD', 'Median FFT peak distance', 'mpd', FD.FREQUENCY, 0),
   };
 
   public readonly functions: AnalyserFunction<any>[] = Object.values(
     this.functionById
   );
 
-  public readonly FREQUENCY_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
-    'ZCR',
-    'FFTP',
-    'AC',
-    'CP',
-    'MPD',
-  ];
+  public readonly numberFunctionIds: AnalyserNumberFunctionId[] = (
+    Object.keys(this.functionById) as AnalyserFunctionId[]
+  ).filter(
+    id => typeof this.functionById[id].value === 'number'
+  ) as AnalyserNumberFunctionId[];
 
-  public readonly TIME_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
-    'RMS',
-  ];
+  public readonly FREQUENCY_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] =
+    this.numberFunctionIds.filter(
+      id => this.functionById[id].domain === FD.FREQUENCY
+    );
+
+  public readonly TIME_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] =
+    this.numberFunctionIds.filter(
+      id => this.functionById[id].domain === FD.TIME
+    );
 
   /**
    * Constructor.
@@ -118,12 +138,14 @@ export class Analyser {
     id: FilterKeysByPropertyType<AnalyserFunctions, 'value', T>,
     name: string,
     calc: MethodOf<Analyser, (prev: T) => T>,
+    domain: FD,
     value: T
   ): AnalyserFunction<T> {
     const fn: (prev: T) => T = this[calc] as any;
     return {
       id,
       name,
+      domain,
       calc: fn.bind(this),
       enabled: false,
       value,

@@ -19,8 +19,15 @@ export interface SetChartType {
   type: ChartType;
 }
 
+export interface FrequencyUnitState {
+  frequency: boolean;
+  midiNumber: boolean;
+  midiNote: boolean;
+}
+
 export interface AudioGraphUiStateModel {
   chartCount: number;
   chartType: ChartType[];
   chartLayout: ChartLayout;
+  frequencyUnit: FrequencyUnitState;
 }

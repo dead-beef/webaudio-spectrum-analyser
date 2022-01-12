@@ -3,5 +3,5 @@
   [class.hide]="!(functionEnabled$[i] | async)"
 >
   <span [style.color]="functionColor[i]">{{ id }}</span>:
-  {{ values$[i] | async | units:unit:unitPrefix:precision }}
+  {{ values$[i] | async | units2:functionDomain[i] }}
 </span>
