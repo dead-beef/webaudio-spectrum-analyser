@@ -15,6 +15,7 @@ import { AppComponent } from './app.component';
 import { ROUTES } from './app.routes';
 import { AlertComponent } from './components/alert/alert.component';
 import { AnalyserFunctionChartComponent } from './components/analyser-function-chart/analyser-function-chart.component';
+import { AnalyserFunctionValueComponent } from './components/analyser-function-value/analyser-function-value.component';
 import { AnalyserFunctionValuesComponent } from './components/analyser-function-values/analyser-function-values.component';
 import { AnalyserOptionsComponent } from './components/analyser-options/analyser-options.component';
 import { AudioControlsComponent } from './components/audio-controls/audio-controls.component';
@@ -43,7 +44,6 @@ import { FrequencyUnitsPipe } from './pipes/frequency-units/frequency-units.pipe
 import { SafeUrlPipe } from './pipes/safe-url/safe-url.pipe';
 import { TimePipe } from './pipes/time/time.pipe';
 import { UnitsPipe } from './pipes/units/units.pipe';
-import { Units2Pipe } from './pipes/units2/units2.pipe';
 import { AnalyserStoreModule } from './state/analyser/analyser.module';
 import { AudioGraphStoreModule } from './state/audio-graph/audio-graph.module';
 import { AudioGraphUiStoreModule } from './state/audio-graph-ui/audio-graph-ui.module';
@@ -91,8 +91,8 @@ import {
     AnalyserFunctionValuesComponent,
     AnalyserFunctionChartComponent,
     FrequencyUnitsPipe,
-    Units2Pipe,
     UiOptionsComponent,
+    AnalyserFunctionValueComponent,
   ],
   imports: [
     BrowserModule,
@@ -119,7 +119,6 @@ import {
   ],
   providers: [
     UnitsPipe,
-    FrequencyUnitsPipe,
     { provide: WINDOW, useFactory: getWindow },
     { provide: DOCUMENT, useFactory: getDocument },
     { provide: APP_ENV, useValue: environment },

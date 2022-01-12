@@ -29,6 +29,7 @@ export class FrequencyUnitsPipe implements OnDestroy, PipeTransform {
     .subscribe(units_ => {
       this.units = units_;
       this.unitsChanged = true;
+      //console.log(this.changeDetector);
       this.changeDetector.markForCheck();
     });
 
@@ -67,6 +68,7 @@ export class FrequencyUnitsPipe implements OnDestroy, PipeTransform {
   }
 
   public transform(value: Nullable<number>): string {
+    //console.log('transform', value);
     if (value === null || isNaN(value)) {
       return 'N/A';
     }

@@ -59,6 +59,9 @@ export class AnalyserFunctionValuesComponent
    */
   public ngOnInit(): void {
     this.graph.onUpdate(this.updateBound);
+    if (this.graph.paused) {
+      this.update(false);
+    }
   }
 
   /**
