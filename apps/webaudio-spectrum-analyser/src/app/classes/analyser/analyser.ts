@@ -403,6 +403,7 @@ export class Analyser {
     const start: number = this.indexOfQuefrency(1 / this.maxPitch);
     const end: number = this.indexOfQuefrency(1 / this.minPitch);
     let res = AudioMath.indexOfMaxPeak(cdata, start, end);
+    //console.log('cpeak', start, end, res);
     res = AudioMath.interpolatePeak(cdata, res);
     return 1 / this.quefrencyOfIndex(res);
   }

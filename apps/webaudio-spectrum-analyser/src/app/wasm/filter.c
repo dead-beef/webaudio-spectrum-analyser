@@ -24,7 +24,7 @@ void gain(fftval_t *fft_buf, int fft_size, number db) {
 }
 
 static number get_pitch(
-  fftmag_t *fftmag_buf,
+  const fftmag_t *fftmag_buf,
   int fft_bins,
   int sample_rate,
   number min_pitch,
@@ -157,6 +157,8 @@ void add_harmonics(
     return;
   }
 
+  magnitude(fft_buf, magnitude_buf, bins, FALSE);
+
   number new_pitch = pitch * 0.5;
   int h = min_harmonic;
   if (h == 1 && h <= max_harmonic) {
@@ -199,6 +201,7 @@ void add_harmonics(
 
     int new_peak = (peak + next_peak) / 2;
     number scale = 0.5 + magnitude_buf[next_peak] / (2 * magnitude_buf[peak]);
+    scale = clamp(scale, 0.0, 1.0);
     fft_copy(
       fft_buf, bins,
       peak, new_peak, copy_radius,

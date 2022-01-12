@@ -3,6 +3,27 @@
 #include <math.h>
 #include <stdlib.h>
 
+void range(const number *data, int length, number *min_, number *max_) {
+  if (length < 1) {
+    return;
+  }
+  number min__ = data[0];
+  number max__ = min__;
+  for (int i = 1; i < length; ++i) {
+    if (data[i] < min__) {
+      min__ = data[i];
+    } else if (data[i] > max__) {
+      max__ = data[i];
+    }
+  }
+  if (min_) {
+    *min_ = min__;
+  }
+  if (max_) {
+    *max_ = max__;
+  }
+}
+
 number mean(const number *data, int length) {
   number sum = 0.0;
   for (int i = 0; i < length; ++i) {
