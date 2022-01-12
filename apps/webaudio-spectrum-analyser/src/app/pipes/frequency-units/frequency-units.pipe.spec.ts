@@ -6,6 +6,9 @@ describe('FrequencyUnitsPipe', () => {
   it('create an instance', () => {
     const pipe = new FrequencyUnitsPipe(
       {
+        markForCheck: () => {},
+      } as any,
+      {
         getState: () => {
           return { frequencyUnit: {} };
         },

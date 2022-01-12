@@ -1,4 +1,9 @@
-import { OnDestroy, Pipe, PipeTransform } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  OnDestroy,
+  Pipe,
+  PipeTransform,
+} from '@angular/core';
 
 import { AudioMath } from '../../classes/audio-math/audio-math';
 import { AudioGraphUiService } from '../../state/audio-graph-ui/audio-graph-ui.service';
@@ -24,6 +29,7 @@ export class FrequencyUnitsPipe implements OnDestroy, PipeTransform {
     .subscribe(units_ => {
       this.units = units_;
       this.unitsChanged = true;
+      this.changeDetector.markForCheck();
     });
 
   private readonly notes: string[] = [
@@ -42,6 +48,7 @@ export class FrequencyUnitsPipe implements OnDestroy, PipeTransform {
   ];
 
   constructor(
+    private readonly changeDetector: ChangeDetectorRef,
     private readonly uiService: AudioGraphUiService,
     private readonly unitsPipe: UnitsPipe
   ) {
