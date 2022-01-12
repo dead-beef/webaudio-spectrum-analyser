@@ -159,6 +159,13 @@ class AudioMathInstance {
 
   /**
    * TODO: description
+   */
+  public getMidiNumber(frequency: number) {
+    return 69 + 12 * Math.log2(frequency / 440);
+  }
+
+  /**
+   * TODO: description
    * @param buf
    * @param length
    */

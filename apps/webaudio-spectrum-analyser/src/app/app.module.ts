@@ -33,14 +33,17 @@ import { InputFrequencyComponent } from './components/input-frequency/input-freq
 import { InputRangeComponent } from './components/input-range/input-range.component';
 import { SpectrogramComponent } from './components/spectrogram/spectrogram.component';
 import { TimeDomainChartComponent } from './components/time-domain-chart/time-domain-chart.component';
+import { UiOptionsComponent } from './components/ui-options/ui-options.component';
 import { WaveOptionsComponent } from './components/wave-options/wave-options.component';
 import { WorkletOptionsComponent } from './components/worklet-options/worklet-options.component';
 import { InputFileUrlDirective } from './directives/input-file-url/input-file-url.directive';
 import { StatsModule } from './modules/stats/stats.module';
 import { ErrorPipe } from './pipes/error/error.pipe';
+import { FrequencyUnitsPipe } from './pipes/frequency-units/frequency-units.pipe';
 import { SafeUrlPipe } from './pipes/safe-url/safe-url.pipe';
 import { TimePipe } from './pipes/time/time.pipe';
 import { UnitsPipe } from './pipes/units/units.pipe';
+import { Units2Pipe } from './pipes/units2/units2.pipe';
 import { AnalyserStoreModule } from './state/analyser/analyser.module';
 import { AudioGraphStoreModule } from './state/audio-graph/audio-graph.module';
 import { AudioGraphUiStoreModule } from './state/audio-graph-ui/audio-graph-ui.module';
@@ -87,6 +90,9 @@ import {
     CepstrumChartComponent,
     AnalyserFunctionValuesComponent,
     AnalyserFunctionChartComponent,
+    FrequencyUnitsPipe,
+    Units2Pipe,
+    UiOptionsComponent,
   ],
   imports: [
     BrowserModule,
@@ -112,6 +118,8 @@ import {
     }),
   ],
   providers: [
+    UnitsPipe,
+    FrequencyUnitsPipe,
     { provide: WINDOW, useFactory: getWindow },
     { provide: DOCUMENT, useFactory: getDocument },
     { provide: APP_ENV, useValue: environment },

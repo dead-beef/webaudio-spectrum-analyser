@@ -1,0 +1,17 @@
+<form
+  clrForm
+  [clrLayout]="layout"
+  [formGroup]="form"
+>
+  <clr-checkbox-container formGroupName="frequencyUnits">
+    <label>Frequency units</label>
+    <clr-checkbox-wrapper *ngFor="let id of unitIds; let i = index">
+      <input
+        type="checkbox"
+        clrCheckbox
+        [formControlName]="id"
+      />
+      <label>{{ unitNames[i] }}</label>
+    </clr-checkbox-wrapper>
+  </clr-checkbox-container>
+</form>

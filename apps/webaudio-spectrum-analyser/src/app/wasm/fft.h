@@ -44,13 +44,15 @@ typedef number (*peakmask_func_t)(number, number);
 
 void normalize(const tdval_t *in, tdval_t *out, int length);
 
+void normalize_fftmag(const fftmag_t *in, fftmag_t *out, int length);
+
 void window(const tdval_t *in, tdval_t *out, int length);
 
 void fft(const tdval_t *in, fftval_t *out, int length);
 
 void ifft(const fftval_t *in, tdval_t *out, int length);
 
-void cepstrum(fftmag_t *fft_buf, fftmag_t *out, int fft_size);
+void cepstrum(const fftmag_t *fftmag_buf, fftmag_t *out, int fft_size);
 
 void smooth_fft_val(
   const fftval_t *next,

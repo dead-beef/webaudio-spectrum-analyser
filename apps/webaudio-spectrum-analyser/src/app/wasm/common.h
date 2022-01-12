@@ -17,6 +17,7 @@ enum {
   FALSE = 0
 };
 
+void range(const number *data, int length, number *min_, number *max_);
 number mean(const number *data, int length);
 number variance(const number *data, int length, number mean);
 number rms(const number *data, int length);

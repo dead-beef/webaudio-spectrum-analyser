@@ -57,14 +57,14 @@ export function actionConstructor(scope: string) {
  * @param destroyed$
  * @param throttle
  */
-export function stateFormControl<T>(
-  formControlOrState: AbstractControl | any,
+export function stateFormControl<T, U>(
+  formControlOrState: U,
   value$: Observable<T>,
   setState: (value: T) => Observable<any>,
   untilDestroyed: MonoTypeOperatorFunction<T>,
   throttle?: number,
   compare?: (prev: T, next: T) => boolean
-): AbstractControl {
+): U extends AbstractControl ? U : FormControl {
   let fc: AbstractControl;
   if (formControlOrState instanceof AbstractControl) {
     fc = formControlOrState;
@@ -91,7 +91,7 @@ export function stateFormControl<T>(
   void value$
     .pipe(untilDestroyed, distinctUntilChanged(compare))
     .subscribe(fc.setValue.bind(fc));
-  return fc;
+  return fc as any;
 }
 
 /**

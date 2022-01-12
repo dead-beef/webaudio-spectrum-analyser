@@ -12,7 +12,7 @@ import { Store } from '@ngxs/store';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ChartType } from '../../interfaces';
+import { AnalyserFunctionDomain, ChartType } from '../../interfaces';
 import { audioGraphUiAction } from '../../state/audio-graph-ui/audio-graph-ui.actions';
 import { AudioGraphUiState } from '../../state/audio-graph-ui/audio-graph-ui.store';
 import { stateFormControl } from '../../utils';
@@ -35,6 +35,8 @@ export class ChartComponent implements OnInit, OnChanges {
   });
 
   public readonly chartType = ChartType;
+
+  public readonly anaylserFunctionDomain = AnalyserFunctionDomain;
 
   public readonly types = [
     { id: ChartType.TIME_DOMAIN, name: 'Time domain' },

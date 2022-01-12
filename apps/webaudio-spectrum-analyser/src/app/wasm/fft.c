@@ -30,6 +30,16 @@ void normalize(const tdval_t *in, tdval_t *out, int length) {
   }
 }
 
+void normalize_fftmag(const fftmag_t *in, fftmag_t *out, int length) {
+  number min_, max_;
+  number mean_ = mean(in, length);
+  range(in, length, &min_, &max_);
+  number k = 1.0 / ((max_ - mean_) * length);
+  for (int i = 0; i < length; ++i) {
+    out[i] = (in[i] - mean_) * k;
+  }
+}
+
 void window(const tdval_t *in, tdval_t *out, int length) {
   tdval_t n = length - 1;
   for (int i = 0; i < length; ++i) {
@@ -65,14 +75,13 @@ void ifft(const fftval_t *in, tdval_t *out, int length) {
 }
 
 EMSCRIPTEN_KEEPALIVE
-void cepstrum(fftmag_t *fft_buf, fftmag_t *out, int fft_size) {
+void cepstrum(const fftmag_t *fftmag_buf, fftmag_t *out, int fft_size) {
   int fft_bins = fft_size / 2;
   int cepstrum_bins = 1 + fft_bins / 2;
-  for (int i = 0; i < fft_bins; ++i) {
-    fft_buf[i] = fft_buf[i] / fft_bins;
-  }
+  fftmag_t normalized_fftmag_buf[fft_bins];
+  normalize_fftmag(fftmag_buf, normalized_fftmag_buf, fft_bins);
   fftval_t tmp[cepstrum_bins];
-  fft(fft_buf, tmp, fft_bins);
+  fft(normalized_fftmag_buf, tmp, fft_bins);
   magnitude(tmp, out, cepstrum_bins, FALSE);
 }
 

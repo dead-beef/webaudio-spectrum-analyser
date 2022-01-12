@@ -5,9 +5,16 @@ import {
   Peaks,
 } from '../audio-math/interfaces';
 
+export enum AnalyserFunctionDomain {
+  TIME = 0,
+  FREQUENCY = 1,
+  OTHER = 2,
+}
+
 export interface AnalyserFunction<T> {
   id: AnalyserFunctionId;
   name: string;
+  domain: AnalyserFunctionDomain;
   calc: (prev: T) => T;
   enabled: boolean;
   value: T;
