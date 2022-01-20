@@ -37,6 +37,15 @@ export interface AudioMathWasmFunctions {
     maskRadius: number
   ) => number;
 
+  fftharmonics: (
+    peaks: number,
+    output: number,
+    binCount: number,
+    peakCount: number,
+    f0: number,
+    searchRadius: number
+  ) => number;
+
   autocorr: (
     tdata: number,
     acdata: number,

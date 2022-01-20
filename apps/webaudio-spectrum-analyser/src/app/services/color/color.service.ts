@@ -16,7 +16,8 @@ export class ColorService {
     FFTP: '#7e6f99',
     'fftp-chart': '#ff44ff',
     'fftp-threshold': '#aa00aa',
-    fftpeaks: '#29ff00',
+    fftpeaks: '#29ffff',
+    fftharmonics: '#29ff00',
     AC: '#996f83',
     'ac-chart': '#ff4444',
     CP: '#96996f',
@@ -24,6 +25,7 @@ export class ColorService {
     'mpd-histogram': '#29ff00',
     'spectrogram-min': '#000000', //'#26262c',
     'spectrogram-max': '#4aaed9',
+    F0: '#ffffff',
   };
 
   private readonly rgbColors: Record<string, RgbColor> = {};

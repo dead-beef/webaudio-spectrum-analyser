@@ -155,6 +155,15 @@ export class AnalyserState {
   }
 
   /**
+   * Selector
+   * @param state
+   */
+  @Selector()
+  public static harmonicSearchRadius(state: AnalyserStateModel) {
+    return state.harmonicSearchRadius;
+  }
+
+  /**
    * Set Analyser state action
    * @param ctx
    * @param payload
@@ -388,5 +397,22 @@ export class AnalyserState {
         }),
       })
     );
+  }
+
+  /**
+   * Action
+   * @param ctx
+   * @param payload
+   */
+  @Action(analyserAction.setHarmonicSearchRadius)
+  public setHarmonicSearchRadius(
+    ctx: StateContext<AnalyserStateModel>,
+    { payload }: StoreAction<number>
+  ) {
+    this.analyser.harmonicSearchRadius = payload;
+    this.analyser.stateChanged = true;
+    return ctx.patchState({
+      harmonicSearchRadius: payload,
+    });
   }
 }

@@ -27,6 +27,7 @@ export interface AnalyserFunctions {
   cepstrum: AnalyserFunction<Float32Array>;
   fftPeaks: AnalyserFunction<Peaks>;
   fftPeakDistance: AnalyserFunction<PeakDistance>;
+  fftHarmonics: AnalyserFunction<Peaks>;
 
   RMS: AnalyserFunction<number>;
   ZCR: AnalyserFunction<number>;
@@ -34,6 +35,7 @@ export interface AnalyserFunctions {
   AC: AnalyserFunction<number>;
   CP: AnalyserFunction<number>;
   MPD: AnalyserFunction<number>;
+  F0: AnalyserFunction<number>;
 }
 
 export type AnalyserFunctionId = keyof AnalyserFunctions;
@@ -73,5 +75,6 @@ export interface AnalyserState {
   };
   fftpeaks: FftPeaksState;
   fftp: FftPeakState;
+  harmonicSearchRadius: number;
   functions: Record<AnalyserFunctionId, boolean>;
 }

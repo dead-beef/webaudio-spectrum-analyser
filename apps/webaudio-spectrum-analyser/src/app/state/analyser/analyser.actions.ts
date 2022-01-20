@@ -30,4 +30,6 @@ export const analyserAction: StoreActions = {
 
   setFftPeakMask: action<FftPeakMask>('set fft peak mask'),
   setFftPeakMaskRadius: action<number>('set fft peak mask radius'),
+
+  setHarmonicSearchRadius: action<number>('set harmonic search radius'),
 };

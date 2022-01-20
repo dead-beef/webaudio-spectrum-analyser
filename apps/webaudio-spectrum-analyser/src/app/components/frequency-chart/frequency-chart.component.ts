@@ -162,18 +162,22 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
   /**
    * TODO: description
    */
-  public drawPeaks(data: Float32Array, count: number): void {
+  public drawPeaks(
+    data: Float32Array,
+    count: number,
+    fscale = this.analyser.sampleRate / this.analyser.fftSize,
+    color = 'fftpeaks'
+  ): void {
     if (this.canvas === null) {
       return;
     }
-    const fscale = this.analyser.sampleRate / this.analyser.fftSize;
     const yscale = 1 / (this.analyser.maxDecibels - this.analyser.minDecibels);
     const y0 = this.analyser.minDecibels;
     this.canvas.dots(
       data.subarray(0, count * 2),
       (x: number) => this.frequencyToCanvas(x * fscale),
       (y: number) => yscale * (y - y0),
-      'fftpeaks'
+      color
     );
   }
 
@@ -268,6 +272,12 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
       const ps = this.analyser.getOptional('fftPeaks');
       if (ps !== null) {
         this.drawPeaks(ps.data, ps.count);
+      }
+
+      const f0 = this.analyser.getOptional('F0');
+      const hs = this.analyser.getOptional('fftHarmonics');
+      if (f0 !== null && hs !== null) {
+        this.drawPeaks(hs.data, hs.count, f0, 'fftharmonics');
       }
 
       const pd = this.analyser.getOptional('fftPeakDistance');

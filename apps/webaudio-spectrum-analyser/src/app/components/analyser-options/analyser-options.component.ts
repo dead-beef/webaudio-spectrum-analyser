@@ -81,6 +81,13 @@ export class AnalyserOptionsComponent {
       untilDestroyed(this),
       environment.throttle
     ),
+    harmonicSearchRadius: stateFormControl(
+      null,
+      this.analyser.select(AnalyserState.harmonicSearchRadius),
+      (r: number) => this.analyser.dispatch('setHarmonicSearchRadius', r),
+      untilDestroyed(this),
+      environment.throttle
+    ),
     minPitch: stateFormControl(
       null,
       this.analyser.select(AnalyserState.minPitch),

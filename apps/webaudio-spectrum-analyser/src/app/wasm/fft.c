@@ -236,6 +236,42 @@ int fftpeaks(
   return peaks;
 }
 
+EMSCRIPTEN_KEEPALIVE
+int fftharmonics(
+  const fftpeak_t *peaks,
+  fftpeak_t *output,
+  int bin_count,
+  int peak_count,
+  number f0,
+  number search_radius
+) {
+  int max_harmonic_count = bin_count / 2;
+  memset(output, 0, max_harmonic_count * sizeof(*output));
+  for (int i = 0; i < peak_count; ++i) {
+    number harmonic_number = peaks[i].index / f0;
+    int harmonic_index = round(harmonic_number);
+    if (fabs(harmonic_index - harmonic_number) > search_radius) {
+      continue;
+    }
+    if (harmonic_index >= max_harmonic_count) {
+      break;
+    }
+    if (!output[harmonic_index].index
+        || peaks[i].magnitude > output[harmonic_index].magnitude) {
+      output[harmonic_index].index = harmonic_number;
+      output[harmonic_index].magnitude = peaks[i].magnitude;
+    }
+  }
+  int ret = 0;
+  for (int i = 0; i < max_harmonic_count; ++i) {
+    if (output[i].index) {
+      output[ret] = output[i];
+      ++ret;
+    }
+  }
+  return ret;
+}
+
 void fft_scale(
   fftval_t *fft_buf,
   int bin_count,

@@ -8,6 +8,7 @@ export const ANALYSER_STATE_DEFAULTS: AnalyserStateModel = {
   debug: false,
   historySize: 240,
   rmsThreshold: 0.01,
+  harmonicSearchRadius: 0.3,
   pitch: {
     min: 20,
     max: 20000,
@@ -18,12 +19,14 @@ export const ANALYSER_STATE_DEFAULTS: AnalyserStateModel = {
     cepstrum: false,
     fftPeaks: false,
     fftPeakDistance: false,
+    fftHarmonics: false,
     RMS: true,
     ZCR: true,
     FFTP: false,
     AC: false,
     CP: false,
     MPD: false,
+    F0: false,
   },
   fftp: {
     type: FftPeakType.MIN_FREQUENCY,

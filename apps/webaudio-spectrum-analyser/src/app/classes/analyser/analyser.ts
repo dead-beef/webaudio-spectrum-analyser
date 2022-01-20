@@ -47,6 +47,10 @@ export class Analyser {
 
   public fftPeakMaskRadius = 100;
 
+  public harmonicSearchRadius = 0.3;
+
+  public maxF0Range = 0.3;
+
   public minDecibels = -100;
 
   public maxDecibels = 0;
@@ -91,6 +95,16 @@ export class Analyser {
         median: 0,
       }
     ),
+    fftHarmonics: this.func(
+      'fftHarmonics',
+      'FFT harmonics',
+      'harmonics',
+      FD.OTHER,
+      {
+        data: new Float32Array(),
+        count: 0,
+      }
+    ),
 
     RMS: this.func('RMS', 'Root mean square', 'rms', FD.TIME, 0),
     ZCR: this.func('ZCR', 'Zero-crossing rate', 'zcr', FD.FREQUENCY, 0),
@@ -104,6 +118,7 @@ export class Analyser {
     ),
     CP: this.func('CP', 'Cepstrum peak', 'cpeak', FD.FREQUENCY, 0),
     MPD: this.func('MPD', 'Median FFT peak distance', 'mpd', FD.FREQUENCY, 0),
+    F0: this.func('F0', 'Fundamental frequency', 'f0', FD.FREQUENCY, 0),
   };
 
   public readonly functions: AnalyserFunction<any>[] = Object.values(
@@ -125,6 +140,17 @@ export class Analyser {
     this.numberFunctionIds.filter(
       id => this.functionById[id].domain === FD.TIME
     );
+
+  public readonly PITCH_DETECTION_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
+    'ZCR',
+    'AC',
+    'CP',
+    'MPD',
+    'FFTP',
+  ];
+
+  public readonly PITCH_DETECTION_FUNCTION_DEFAULT: AnalyserNumberFunctionId =
+    'FFTP';
 
   /**
    * Constructor.
@@ -203,6 +229,7 @@ export class Analyser {
     this.prominenceRadius = state.fftp.prominence.radius;
     this.prominenceThreshold = state.fftp.prominence.threshold;
     this.prominenceNormalize = state.fftp.prominence.normalize;
+    this.harmonicSearchRadius = state.harmonicSearchRadius;
     for (const fn of this.functions) {
       fn.enabled = Boolean(state.functions[fn.id]);
     }
@@ -448,7 +475,41 @@ export class Analyser {
   /**
    * TODO: description
    */
+  public harmonics(prev: Peaks): Peaks {
+    const f0 = this.get('F0');
+    if (isNaN(f0)) {
+      prev.count = 0;
+      return prev;
+    }
+    return AudioMath.fftharmonics(
+      (f0 * this.fftSize) / this.sampleRate,
+      this.get('fftPeaks'),
+      prev,
+      this.harmonicSearchRadius
+    );
+  }
+
+  /**
+   * TODO: description
+   */
   public mpd(): number {
     return this.frequencyOfIndex(this.get('fftPeakDistance').median);
+  }
+
+  /**
+   * TODO: description
+   */
+  public f0(): number {
+    const values: number[] = [];
+    for (const fn of this.PITCH_DETECTION_FUNCTION_IDS) {
+      const val = this.getOptional(fn);
+      if (val !== null && !isNaN(val)) {
+        values.push(val);
+      }
+    }
+    if (!values.length) {
+      return this.get(this.PITCH_DETECTION_FUNCTION_DEFAULT);
+    }
+    return AudioMath.f0(values, this.maxF0Range);
   }
 }

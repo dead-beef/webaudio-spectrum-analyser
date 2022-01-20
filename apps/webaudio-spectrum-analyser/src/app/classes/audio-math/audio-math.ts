@@ -235,7 +235,7 @@ class AudioMathInstance {
    * TODO: description
    * @param data
    */
-  public mean<T extends TypedArray>(data: T): number {
+  public mean<T extends NumberArray>(data: T): number {
     if (!data.length) {
       return 0;
     }
@@ -492,6 +492,33 @@ class AudioMathInstance {
   /**
    * TODO: description
    */
+  public fftharmonics(
+    f0: number,
+    fftpeaks: Peaks,
+    output: Peaks,
+    searchRadius = 0.3
+  ): Peaks {
+    const wasm = this.wasm;
+    if (!wasm) {
+      return output;
+    }
+    this.copyToBuffer(this.inputBuffer, fftpeaks.data);
+    this.resizeBuffer(this.outputBuffer, fftpeaks.data.length);
+    output.count = wasm.exports.fftharmonics(
+      this.inputBuffer.ptr[0],
+      this.outputBuffer.ptr[0],
+      fftpeaks.data.length,
+      fftpeaks.count,
+      f0,
+      searchRadius
+    );
+    output.data = this.copyFromBuffer(output.data, this.outputBuffer);
+    return output;
+  }
+
+  /**
+   * TODO: description
+   */
   public mpd(fftpeaks: Peaks, output: PeakDistance): PeakDistance {
     const wasm = this.wasm;
     if (!wasm) {
@@ -510,6 +537,19 @@ class AudioMathInstance {
       output.median = NaN;
     }
     return output;
+  }
+
+  /**
+   * TODO: description
+   */
+  public f0(values: number[], maxRange = 0.3): number {
+    const mean = this.mean(values);
+    const min = Math.min.apply(null, values);
+    const max = Math.max.apply(null, values);
+    if (max - min > maxRange * mean) {
+      return NaN;
+    }
+    return mean;
   }
 
   /**
