@@ -5,16 +5,22 @@ import {
   Peaks,
 } from '../audio-math/interfaces';
 
-export enum AnalyserFunctionDomain {
+export enum UnitType {
   TIME = 0,
-  FREQUENCY = 1,
-  OTHER = 2,
+  FREQUENCY,
+  NUMBER,
+  OTHER,
 }
+
+export type NumberUnitType =
+  | UnitType.TIME
+  | UnitType.FREQUENCY
+  | UnitType.NUMBER;
 
 export interface AnalyserFunction<T> {
   id: AnalyserFunctionId;
   name: string;
-  domain: AnalyserFunctionDomain;
+  unit: T extends number ? NumberUnitType : UnitType;
   calc: (prev: T) => T;
   enabled: boolean;
   value: T;

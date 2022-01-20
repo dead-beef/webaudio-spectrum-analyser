@@ -32,12 +32,12 @@
   <app-spectrogram *ngSwitchCase="chartType.SPECTROGRAM"> </app-spectrogram>
   <app-cepstrum-chart *ngSwitchCase="chartType.CEPSTRUM"> </app-cepstrum-chart>
   <app-analyser-function-chart
-    [domain]="anaylserFunctionDomain.TIME"
+    domain="time"
     *ngSwitchCase="chartType.TIME_DOMAIN_FUNCTIONS"
   >
   </app-analyser-function-chart>
   <app-analyser-function-chart
-    [domain]="anaylserFunctionDomain.FREQUENCY"
+    domain="frequency"
     *ngSwitchCase="chartType.FREQUENCY_DOMAIN_FUNCTIONS"
   >
   </app-analyser-function-chart>

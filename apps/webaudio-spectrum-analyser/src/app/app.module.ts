@@ -15,7 +15,6 @@ import { AppComponent } from './app.component';
 import { ROUTES } from './app.routes';
 import { AlertComponent } from './components/alert/alert.component';
 import { AnalyserFunctionChartComponent } from './components/analyser-function-chart/analyser-function-chart.component';
-import { AnalyserFunctionValueComponent } from './components/analyser-function-value/analyser-function-value.component';
 import { AnalyserFunctionValuesComponent } from './components/analyser-function-values/analyser-function-values.component';
 import { AnalyserOptionsComponent } from './components/analyser-options/analyser-options.component';
 import { AudioControlsComponent } from './components/audio-controls/audio-controls.component';
@@ -35,6 +34,7 @@ import { InputRangeComponent } from './components/input-range/input-range.compon
 import { SpectrogramComponent } from './components/spectrogram/spectrogram.component';
 import { TimeDomainChartComponent } from './components/time-domain-chart/time-domain-chart.component';
 import { UiOptionsComponent } from './components/ui-options/ui-options.component';
+import { ValueComponent } from './components/value/value.component';
 import { WaveOptionsComponent } from './components/wave-options/wave-options.component';
 import { WorkletOptionsComponent } from './components/worklet-options/worklet-options.component';
 import { InputFileUrlDirective } from './directives/input-file-url/input-file-url.directive';
@@ -92,7 +92,7 @@ import {
     AnalyserFunctionChartComponent,
     FrequencyUnitsPipe,
     UiOptionsComponent,
-    AnalyserFunctionValueComponent,
+    ValueComponent,
   ],
   imports: [
     BrowserModule,

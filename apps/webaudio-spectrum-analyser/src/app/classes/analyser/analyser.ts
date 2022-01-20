@@ -7,11 +7,12 @@ import {
 } from '../audio-math/interfaces';
 import {
   AnalyserFunction,
-  AnalyserFunctionDomain as FD,
   AnalyserFunctionId,
   AnalyserFunctions,
   AnalyserNumberFunctionId,
   AnalyserState,
+  NumberUnitType,
+  UnitType as U,
 } from './interfaces';
 
 export class Analyser {
@@ -64,24 +65,24 @@ export class Analyser {
       'autocorr',
       'Autocorrelation',
       'autocorr',
-      FD.OTHER,
+      U.OTHER,
       new Float32Array()
     ),
     prominence: this.func(
       'prominence',
       'FFT peak prominence',
       'prominence',
-      FD.OTHER,
+      U.OTHER,
       new Float32Array()
     ),
     cepstrum: this.func(
       'cepstrum',
       'Cepstrum',
       'cepstrum',
-      FD.OTHER,
+      U.OTHER,
       new Float32Array()
     ),
-    fftPeaks: this.func('fftPeaks', 'FFT peaks', 'fftpeaks', FD.OTHER, {
+    fftPeaks: this.func('fftPeaks', 'FFT peaks', 'fftpeaks', U.OTHER, {
       data: new Float32Array(),
       count: 0,
     }),
@@ -89,7 +90,7 @@ export class Analyser {
       'fftPeakDistance',
       'FFT peak distane data',
       'fftpd',
-      FD.OTHER,
+      U.OTHER,
       {
         histogram: new Float32Array(),
         median: 0,
@@ -99,47 +100,25 @@ export class Analyser {
       'fftHarmonics',
       'FFT harmonics',
       'harmonics',
-      FD.OTHER,
+      U.OTHER,
       {
         data: new Float32Array(),
         count: 0,
       }
     ),
 
-    RMS: this.func('RMS', 'Root mean square', 'rms', FD.TIME, 0),
-    ZCR: this.func('ZCR', 'Zero-crossing rate', 'zcr', FD.FREQUENCY, 0),
-    FFTP: this.func('FFTP', 'FFT peak', 'fftpeak', FD.FREQUENCY, 0),
-    AC: this.func(
-      'AC',
-      'Autocorrelation peak',
-      'autocorrpeak',
-      FD.FREQUENCY,
-      0
-    ),
-    CP: this.func('CP', 'Cepstrum peak', 'cpeak', FD.FREQUENCY, 0),
-    MPD: this.func('MPD', 'Median FFT peak distance', 'mpd', FD.FREQUENCY, 0),
-    F0: this.func('F0', 'Fundamental frequency', 'f0', FD.FREQUENCY, 0),
+    RMS: this.func('RMS', 'Root mean square', 'rms', U.NUMBER, 0),
+    ZCR: this.func('ZCR', 'Zero-crossing rate', 'zcr', U.FREQUENCY, 0),
+    FFTP: this.func('FFTP', 'FFT peak', 'fftpeak', U.FREQUENCY, 0),
+    AC: this.func('AC', 'Autocorrelation peak', 'autocorrpeak', U.FREQUENCY, 0),
+    CP: this.func('CP', 'Cepstrum peak', 'cpeak', U.FREQUENCY, 0),
+    MPD: this.func('MPD', 'Median FFT peak distance', 'mpd', U.FREQUENCY, 0),
+    F0: this.func('F0', 'Fundamental frequency', 'f0', U.FREQUENCY, 0),
   };
 
   public readonly functions: AnalyserFunction<any>[] = Object.values(
     this.functionById
   );
-
-  public readonly numberFunctionIds: AnalyserNumberFunctionId[] = (
-    Object.keys(this.functionById) as AnalyserFunctionId[]
-  ).filter(
-    id => typeof this.functionById[id].value === 'number'
-  ) as AnalyserNumberFunctionId[];
-
-  public readonly FREQUENCY_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] =
-    this.numberFunctionIds.filter(
-      id => this.functionById[id].domain === FD.FREQUENCY
-    );
-
-  public readonly TIME_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] =
-    this.numberFunctionIds.filter(
-      id => this.functionById[id].domain === FD.TIME
-    );
 
   public readonly PITCH_DETECTION_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
     'ZCR',
@@ -151,6 +130,15 @@ export class Analyser {
 
   public readonly PITCH_DETECTION_FUNCTION_DEFAULT: AnalyserNumberFunctionId =
     'FFTP';
+
+  public readonly TIME_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
+    'RMS',
+  ];
+
+  public readonly FREQUENCY_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
+    ...this.PITCH_DETECTION_FUNCTION_IDS,
+    'F0',
+  ];
 
   /**
    * Constructor.
@@ -164,14 +152,14 @@ export class Analyser {
     id: FilterKeysByPropertyType<AnalyserFunctions, 'value', T>,
     name: string,
     calc: MethodOf<Analyser, (prev: T) => T>,
-    domain: FD,
+    unit: T extends number ? NumberUnitType : U,
     value: T
   ): AnalyserFunction<T> {
     const fn: (prev: T) => T = this[calc] as any;
     return {
       id,
       name,
-      domain,
+      unit,
       calc: fn.bind(this),
       enabled: false,
       value,

@@ -3,26 +3,22 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FrequencyUnitsPipe } from '../../pipes/frequency-units/frequency-units.pipe';
 import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { getComponentImports, getMockProviders } from '../../utils/test.util';
-import { AnalyserFunctionValueComponent } from './analyser-function-value.component';
+import { ValueComponent } from './value.component';
 
-describe('AnalyserFunctionValueComponent', () => {
-  let component: AnalyserFunctionValueComponent;
-  let fixture: ComponentFixture<AnalyserFunctionValueComponent>;
+describe('ValueComponent', () => {
+  let component: ValueComponent;
+  let fixture: ComponentFixture<ValueComponent>;
 
   beforeEach(
     waitForAsync(() => {
       void TestBed.configureTestingModule({
         imports: getComponentImports(),
-        declarations: [
-          AnalyserFunctionValueComponent,
-          UnitsPipe,
-          FrequencyUnitsPipe,
-        ],
+        declarations: [ ValueComponent, UnitsPipe, FrequencyUnitsPipe ],
         providers: getMockProviders(),
       })
         .compileComponents()
         .then(() => {
-          fixture = TestBed.createComponent(AnalyserFunctionValueComponent);
+          fixture = TestBed.createComponent(ValueComponent);
           component = fixture.componentInstance;
           fixture.detectChanges();
         });

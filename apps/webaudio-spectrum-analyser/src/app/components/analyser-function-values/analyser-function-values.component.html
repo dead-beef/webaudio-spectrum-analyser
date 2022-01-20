@@ -1,9 +1,7 @@
 <span *ngFor="let id of ids; let i = index">
   <ng-container *ngIf="functionEnabled$[i] | async">
     <span [style.color]="functionColor[i]">{{ id }}</span>:
-    <app-analyser-function-value
-      [domain]="functionDomain[i]"
-      [value]="values$[i] | async"
-    ></app-analyser-function-value>
+    <app-value [unit]="functionUnit[i]" [value]="values$[i] | async">
+    </app-value>
   </ng-container>
 </span>

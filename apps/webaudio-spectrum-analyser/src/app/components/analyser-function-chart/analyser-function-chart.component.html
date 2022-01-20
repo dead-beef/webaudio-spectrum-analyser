@@ -7,8 +7,7 @@
     <span *ngFor="let id of functions; let i = index">
       <ng-container *ngIf="pointValues$[i] | async as v">
         <span [style.color]="functionColor[i]">{{ id }}</span>:
-        <app-analyser-function-value [domain]="domain" [value]="v">
-        </app-analyser-function-value>
+        <app-value [unit]="functionUnit[i]" [value]="v"></app-value>
       </ng-container>
     </span>
   </span>
@@ -17,8 +16,7 @@
     <span *ngFor="let id of functions; let i = index">
       <ng-container *ngIf="meanValues$[i] | async as v">
         <span [style.color]="functionColor[i]">{{ id }}</span>:
-        <app-analyser-function-value [domain]="domain" [value]="v">
-        </app-analyser-function-value>
+        <app-value [unit]="functionUnit[i]" [value]="v"></app-value>
       </ng-container>
     </span>
   </span>
