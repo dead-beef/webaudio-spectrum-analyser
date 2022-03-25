@@ -46,7 +46,8 @@
           "options": {
             "commands": [
               {
-                "command": "npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/update.ts --check"
+                "command": "npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/update.ts --check",
+                "forwardAllArgs": false
               }
             ]
           }
@@ -56,7 +57,30 @@
           "options": {
             "commands": [
               {
-                "command": "npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/update.ts --check --jsonUpgraded && npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/update.ts --migrate=start && yarn install && yarn ngcc && npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/update.ts --migrate=execute && rm -f migrations-packages.json"
+                "command": "npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/update.ts --check --jsonUpgraded; npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/update.ts --migrate=update; rm -rf migrations.json migrations-packages.json",
+                "forwardAllArgs": false
+              }
+            ]
+          }
+        },
+        "update-migrate-bulk-confirm": {
+          "builder": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              {
+                "command": "npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/update.ts --check --jsonUpgraded; npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/update.ts --migrate=update --bulkUserChoice=true; rm -rf migrations.json migrations-packages.json",
+                "forwardAllArgs": false
+              }
+            ]
+          }
+        },
+        "update-migrate-only": {
+          "builder": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              {
+                "command": "yarn install && yarn ngcc && npx ts-node -P ./tools/tsconfig.ts-tools.json ./tools/ts/update.ts --migrate=only; rm -rf migrations.json migrations-packages.json",
+                "forwardAllArgs": false
               }
             ]
           }
