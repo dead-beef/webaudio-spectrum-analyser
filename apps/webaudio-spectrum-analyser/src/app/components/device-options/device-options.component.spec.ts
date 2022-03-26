@@ -9,21 +9,19 @@ describe('DeviceOptionsComponent', () => {
   let component: DeviceOptionsComponent;
   let fixture: ComponentFixture<DeviceOptionsComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        imports: getComponentImports(),
-        declarations: [DeviceOptionsComponent, AlertComponent, ErrorPipe],
-        providers: getMockProviders(),
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(DeviceOptionsComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      imports: getComponentImports(),
+      declarations: [DeviceOptionsComponent, AlertComponent, ErrorPipe],
+      providers: getMockProviders(),
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(DeviceOptionsComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

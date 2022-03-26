@@ -6,19 +6,17 @@ describe('CanvasComponent', () => {
   let component: CanvasComponent;
   let fixture: ComponentFixture<CanvasComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        declarations: [CanvasComponent],
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(CanvasComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      declarations: [CanvasComponent],
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(CanvasComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

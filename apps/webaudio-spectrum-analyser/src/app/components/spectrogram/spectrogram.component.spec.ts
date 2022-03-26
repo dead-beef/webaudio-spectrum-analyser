@@ -9,21 +9,19 @@ describe('SpectrogramComponent', () => {
   let component: SpectrogramComponent;
   let fixture: ComponentFixture<SpectrogramComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        imports: getComponentImports(),
-        declarations: [SpectrogramComponent, CanvasComponent, UnitsPipe],
-        providers: getMockProviders(),
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(SpectrogramComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      imports: getComponentImports(),
+      declarations: [SpectrogramComponent, CanvasComponent, UnitsPipe],
+      providers: getMockProviders(),
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(SpectrogramComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

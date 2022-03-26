@@ -12,31 +12,29 @@ describe('WaveOptionsComponent', () => {
   let component: WaveOptionsComponent;
   let fixture: ComponentFixture<WaveOptionsComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        imports: [
-          ClarityModule,
-          FormsModule,
-          ReactiveFormsModule,
-          NgxsModule.forRoot([]),
-        ],
-        declarations: [InputFrequencyComponent, WaveOptionsComponent],
-        providers: [
-          {
-            provide: AUDIO_GRAPH,
-            useFactory: getMockAudioGraph,
-          },
-        ],
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(WaveOptionsComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      imports: [
+        ClarityModule,
+        FormsModule,
+        ReactiveFormsModule,
+        NgxsModule.forRoot([]),
+      ],
+      declarations: [InputFrequencyComponent, WaveOptionsComponent],
+      providers: [
+        {
+          provide: AUDIO_GRAPH,
+          useFactory: getMockAudioGraph,
+        },
+      ],
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(WaveOptionsComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

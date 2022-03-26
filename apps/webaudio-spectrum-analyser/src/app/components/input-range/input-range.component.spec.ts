@@ -9,25 +9,18 @@ describe('InputRangeComponent', () => {
   let component: InputRangeComponent;
   let fixture: ComponentFixture<InputRangeComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        imports: [
-          BrowserModule,
-          FormsModule,
-          ReactiveFormsModule,
-          ClarityModule,
-        ],
-        declarations: [InputRangeComponent],
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(InputRangeComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      imports: [BrowserModule, FormsModule, ReactiveFormsModule, ClarityModule],
+      declarations: [InputRangeComponent],
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(InputRangeComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

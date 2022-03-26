@@ -10,26 +10,24 @@ describe('GraphOptionsComponent', () => {
   let component: GraphOptionsComponent;
   let fixture: ComponentFixture<GraphOptionsComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        imports: getComponentImports(),
-        declarations: [
-          GraphOptionsComponent,
-          UnitsPipe,
-          InputFrequencyComponent,
-          InputRangeComponent,
-        ],
-        providers: getMockProviders(),
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(GraphOptionsComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      imports: getComponentImports(),
+      declarations: [
+        GraphOptionsComponent,
+        UnitsPipe,
+        InputFrequencyComponent,
+        InputRangeComponent,
+      ],
+      providers: getMockProviders(),
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(GraphOptionsComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

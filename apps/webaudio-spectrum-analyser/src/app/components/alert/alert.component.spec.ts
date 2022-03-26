@@ -8,20 +8,18 @@ describe('AlertComponent', () => {
   let component: AlertComponent;
   let fixture: ComponentFixture<AlertComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        imports: [ClarityModule],
-        declarations: [AlertComponent, ErrorPipe],
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(AlertComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      imports: [ClarityModule],
+      declarations: [AlertComponent, ErrorPipe],
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(AlertComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

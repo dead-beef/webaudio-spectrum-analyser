@@ -9,21 +9,19 @@ describe('WorkletOptionsComponent', () => {
   let component: WorkletOptionsComponent;
   let fixture: ComponentFixture<WorkletOptionsComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        imports: getComponentImports(),
-        declarations: [WorkletOptionsComponent, AlertComponent, ErrorPipe],
-        providers: getMockProviders(),
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(WorkletOptionsComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      imports: getComponentImports(),
+      declarations: [WorkletOptionsComponent, AlertComponent, ErrorPipe],
+      providers: getMockProviders(),
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(WorkletOptionsComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

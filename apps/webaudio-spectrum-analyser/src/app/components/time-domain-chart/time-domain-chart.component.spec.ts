@@ -10,26 +10,24 @@ describe('TimeDomainChartComponent', () => {
   let component: TimeDomainChartComponent;
   let fixture: ComponentFixture<TimeDomainChartComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        imports: getComponentImports(),
-        declarations: [
-          TimeDomainChartComponent,
-          CanvasComponent,
-          UnitsPipe,
-          AnalyserFunctionValuesComponent,
-        ],
-        providers: getMockProviders(),
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(TimeDomainChartComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      imports: getComponentImports(),
+      declarations: [
+        TimeDomainChartComponent,
+        CanvasComponent,
+        UnitsPipe,
+        AnalyserFunctionValuesComponent,
+      ],
+      providers: getMockProviders(),
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(TimeDomainChartComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

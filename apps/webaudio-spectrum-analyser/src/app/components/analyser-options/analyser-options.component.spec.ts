@@ -9,25 +9,23 @@ describe('AnalyserOptionsComponent', () => {
   let component: AnalyserOptionsComponent;
   let fixture: ComponentFixture<AnalyserOptionsComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        imports: getComponentImports(),
-        declarations: [
-          AnalyserOptionsComponent,
-          InputFrequencyComponent,
-          InputRangeComponent,
-        ],
-        providers: getMockProviders(),
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(AnalyserOptionsComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      imports: getComponentImports(),
+      declarations: [
+        AnalyserOptionsComponent,
+        InputFrequencyComponent,
+        InputRangeComponent,
+      ],
+      providers: getMockProviders(),
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(AnalyserOptionsComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

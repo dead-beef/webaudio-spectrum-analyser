@@ -10,26 +10,24 @@ describe('CepstrumChartComponent', () => {
   let component: CepstrumChartComponent;
   let fixture: ComponentFixture<CepstrumChartComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        imports: getComponentImports(),
-        declarations: [
-          CepstrumChartComponent,
-          CanvasComponent,
-          UnitsPipe,
-          AnalyserFunctionValuesComponent,
-        ],
-        providers: getMockProviders(),
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(CepstrumChartComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      imports: getComponentImports(),
+      declarations: [
+        CepstrumChartComponent,
+        CanvasComponent,
+        UnitsPipe,
+        AnalyserFunctionValuesComponent,
+      ],
+      providers: getMockProviders(),
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(CepstrumChartComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

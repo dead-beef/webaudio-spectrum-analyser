@@ -16,34 +16,32 @@ describe('FileOptionsComponent', () => {
   let component: FileOptionsComponent;
   let fixture: ComponentFixture<FileOptionsComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        imports: getComponentImports(),
-        declarations: [
-          FileOptionsComponent,
-          AlertComponent,
-          SafeUrlPipe,
-          TimePipe,
-          ErrorPipe,
-          AudioControlsComponent,
-          mockComponent('audio', {
-            nativeElement: {
-              play: () => null,
-              pause: () => null,
-            },
-          }),
-        ],
-        providers: getMockProviders(),
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(FileOptionsComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      imports: getComponentImports(),
+      declarations: [
+        FileOptionsComponent,
+        AlertComponent,
+        SafeUrlPipe,
+        TimePipe,
+        ErrorPipe,
+        AudioControlsComponent,
+        mockComponent('audio', {
+          nativeElement: {
+            play: () => null,
+            pause: () => null,
+          },
+        }),
+      ],
+      providers: getMockProviders(),
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(FileOptionsComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

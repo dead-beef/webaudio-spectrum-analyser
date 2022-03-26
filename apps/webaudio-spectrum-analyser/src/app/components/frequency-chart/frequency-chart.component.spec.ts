@@ -10,26 +10,24 @@ describe('FrequencyChartComponent', () => {
   let component: FrequencyChartComponent;
   let fixture: ComponentFixture<FrequencyChartComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        imports: getComponentImports(),
-        declarations: [
-          FrequencyChartComponent,
-          CanvasComponent,
-          UnitsPipe,
-          AnalyserFunctionValuesComponent,
-        ],
-        providers: getMockProviders(),
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(FrequencyChartComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      imports: getComponentImports(),
+      declarations: [
+        FrequencyChartComponent,
+        CanvasComponent,
+        UnitsPipe,
+        AnalyserFunctionValuesComponent,
+      ],
+      providers: getMockProviders(),
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(FrequencyChartComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

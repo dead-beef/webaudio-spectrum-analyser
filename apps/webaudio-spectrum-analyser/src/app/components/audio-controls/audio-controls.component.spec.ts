@@ -14,37 +14,30 @@ describe('AudioControlsComponent', () => {
   let component: AudioControlsComponent;
   let fixture: ComponentFixture<AudioControlsComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        imports: [
-          BrowserModule,
-          FormsModule,
-          ReactiveFormsModule,
-          ClarityModule,
-        ],
-        declarations: [
-          AudioControlsComponent,
-          AlertComponent,
-          SafeUrlPipe,
-          TimePipe,
-          ErrorPipe,
-          mockComponent('audio', {
-            nativeElement: {
-              play: () => null,
-              pause: () => null,
-            },
-          }),
-        ],
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(AudioControlsComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      imports: [BrowserModule, FormsModule, ReactiveFormsModule, ClarityModule],
+      declarations: [
+        AudioControlsComponent,
+        AlertComponent,
+        SafeUrlPipe,
+        TimePipe,
+        ErrorPipe,
+        mockComponent('audio', {
+          nativeElement: {
+            play: () => null,
+            pause: () => null,
+          },
+        }),
+      ],
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(AudioControlsComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

@@ -13,32 +13,30 @@ describe('ChartComponent', () => {
   let component: ChartComponent;
   let fixture: ComponentFixture<ChartComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        imports: [
-          NgxsModule.forRoot([]),
-          AudioGraphUiStoreModule,
-          CommonModule,
-          ClarityModule,
-          FormsModule,
-          ReactiveFormsModule,
-        ],
-        declarations: [
-          ChartComponent,
-          mockComponent('app-frequency-chart'),
-          mockComponent('app-time-domain-chart'),
-        ],
-        schemas: [CUSTOM_ELEMENTS_SCHEMA],
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(ChartComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      imports: [
+        NgxsModule.forRoot([]),
+        AudioGraphUiStoreModule,
+        CommonModule,
+        ClarityModule,
+        FormsModule,
+        ReactiveFormsModule,
+      ],
+      declarations: [
+        ChartComponent,
+        mockComponent('app-frequency-chart'),
+        mockComponent('app-time-domain-chart'),
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(ChartComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
