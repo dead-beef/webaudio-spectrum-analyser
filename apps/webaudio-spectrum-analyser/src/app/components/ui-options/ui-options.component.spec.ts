@@ -7,21 +7,19 @@ describe('UiOptionsComponent', () => {
   let component: UiOptionsComponent;
   let fixture: ComponentFixture<UiOptionsComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        imports: getComponentImports(),
-        declarations: [UiOptionsComponent],
-        providers: getMockProviders(),
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(UiOptionsComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      imports: getComponentImports(),
+      declarations: [UiOptionsComponent],
+      providers: getMockProviders(),
     })
-  );
+      .compileComponents()
+      .then(() => {
+        fixture = TestBed.createComponent(UiOptionsComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(UiOptionsComponent);
