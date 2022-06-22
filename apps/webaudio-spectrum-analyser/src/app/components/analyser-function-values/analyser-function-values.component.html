@@ -1,7 +1,7 @@
-<span
-  *ngFor="let id of ids; let i = index"
-  [class.hide]="!(functionEnabled$[i] | async)"
->
-  <span [style.color]="functionColor[i]">{{ id }}</span>:
-  {{ values$[i] | async | units2:functionDomain[i] }}
+<span *ngFor="let id of ids; let i = index">
+  <ng-container *ngIf="functionEnabled$[i] | async">
+    <span [style.color]="functionColor[i]">{{ id }}</span>:
+    <app-value [unit]="functionUnit[i]" [value]="values$[i] | async">
+    </app-value>
+  </ng-container>
 </span>

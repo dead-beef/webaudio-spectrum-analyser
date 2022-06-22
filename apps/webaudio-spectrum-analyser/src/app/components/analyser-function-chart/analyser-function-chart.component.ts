@@ -3,8 +3,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   Input,
+  OnChanges,
   OnDestroy,
-  OnInit,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -13,11 +14,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 import { Analyser } from '../../classes/analyser/analyser';
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
-import {
-  AnalyserFunctionDomain as FD,
-  AnalyserNumberFunctionId,
-  Point,
-} from '../../interfaces';
+import { AnalyserNumberFunctionId, Point, UnitType } from '../../interfaces';
 import { ColorService } from '../../services/color/color.service';
 import { AnalyserService } from '../../state/analyser/analyser.service';
 import { AnalyserState } from '../../state/analyser/analyser.store';
@@ -33,9 +30,9 @@ import { CanvasComponent } from '../canvas/canvas.component';
 })
 /* eslint-disable prettier/prettier -- prettier conflicts with eslint (brace style) */
 export class AnalyserFunctionChartComponent
-  implements OnInit, AfterViewInit, OnDestroy {
+  implements OnChanges, AfterViewInit, OnDestroy {
   /* eslint-enable prettier/prettier -- prettier conflicts with eslint (brace style) */
-  @Input() public domain: FD = FD.FREQUENCY;
+  @Input() public domain: 'time' | 'frequency' = 'time';
 
   @ViewChild(CanvasComponent) public canvas: Nullable<CanvasComponent> = null;
 
@@ -48,6 +45,8 @@ export class AnalyserFunctionChartComponent
   public functions: AnalyserNumberFunctionId[] = [];
 
   public functionColor: string[] = [];
+
+  public functionUnit: UnitType[] = [];
 
   private readonly pointTime = new BehaviorSubject<Nullable<number>>(null);
 
@@ -113,15 +112,17 @@ export class AnalyserFunctionChartComponent
   /**
    * Lifecycle hook.
    */
-  public ngOnInit() {
+  public ngOnChanges(changes: SimpleChanges) {
+    this.completeSubjects();
+
     switch (this.domain) {
-      case FD.TIME:
+      case 'time':
         this.functions = this.analyser.TIME_DOMAIN_FUNCTION_IDS;
         this.yScale = (y: number) => y;
         this.logGrid = false;
         this.rmsThreshold = true;
         break;
-      case FD.FREQUENCY:
+      case 'frequency':
         this.functions = this.analyser.FREQUENCY_DOMAIN_FUNCTION_IDS;
         this.yScale = (y: number) => this.frequencyToCanvas(y);
         this.logGrid = true;
@@ -133,6 +134,9 @@ export class AnalyserFunctionChartComponent
         );
     }
     this.functionColor = this.functions.map(fn => this.color.get(fn));
+    this.functionUnit = this.functions.map(
+      fn => this.analyser.functionById[fn].unit
+    );
     this.pointValues = this.functions.map(_ => {
       return new BehaviorSubject<Nullable<number>>(null);
     });
@@ -171,6 +175,13 @@ export class AnalyserFunctionChartComponent
   public ngOnDestroy() {
     this.graph.offUpdate(this.updateBound);
     this.pointTime.complete();
+    this.completeSubjects();
+  }
+
+  /**
+   * TODO: description
+   */
+  private completeSubjects() {
     for (const subject of this.pointValues) {
       subject.complete();
     }

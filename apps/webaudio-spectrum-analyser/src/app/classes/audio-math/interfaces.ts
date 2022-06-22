@@ -1,8 +1,4 @@
-export interface WasmBuffer {
-  ptr: number[];
-  byteLength: number;
-  type: WasmMemoryType;
-}
+import { WasmBuffer } from '../wasm-buffer/wasm-buffer';
 
 export enum FftPeakType {
   MIN_FREQUENCY = 1,
@@ -17,12 +13,12 @@ export enum FftPeakMask {
 }
 
 export interface PeakDistance {
-  histogram: Float32Array;
+  histogram: WasmBuffer<Float32Array>;
   median: number;
 }
 
 export interface Peaks {
-  data: Float32Array;
+  data: WasmBuffer<Float32Array>;
   count: number;
 }
 
@@ -35,6 +31,15 @@ export interface AudioMathWasmFunctions {
     length: number,
     mask: number,
     maskRadius: number
+  ) => number;
+
+  fftharmonics: (
+    peaks: number,
+    output: number,
+    binCount: number,
+    peakCount: number,
+    f0: number,
+    searchRadius: number
   ) => number;
 
   autocorr: (

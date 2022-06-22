@@ -53,8 +53,6 @@ export function getMockAudioGraph() {
     },
 
     workletFactory: () => Promise.resolve(),
-    workletReady: Promise.resolve(),
-    workletFilterReady: Promise.resolve(),
     filter: 0,
 
     paused: true,

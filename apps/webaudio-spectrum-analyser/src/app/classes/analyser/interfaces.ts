@@ -4,17 +4,24 @@ import {
   PeakDistance,
   Peaks,
 } from '../audio-math/interfaces';
+import { WasmBuffer } from '../wasm-buffer/wasm-buffer';
 
-export enum AnalyserFunctionDomain {
+export enum UnitType {
   TIME = 0,
-  FREQUENCY = 1,
-  OTHER = 2,
+  FREQUENCY,
+  NUMBER,
+  OTHER,
 }
+
+export type NumberUnitType =
+  | UnitType.TIME
+  | UnitType.FREQUENCY
+  | UnitType.NUMBER;
 
 export interface AnalyserFunction<T> {
   id: AnalyserFunctionId;
   name: string;
-  domain: AnalyserFunctionDomain;
+  unit: T extends number ? NumberUnitType : UnitType;
   calc: (prev: T) => T;
   enabled: boolean;
   value: T;
@@ -22,11 +29,12 @@ export interface AnalyserFunction<T> {
 }
 
 export interface AnalyserFunctions {
-  autocorr: AnalyserFunction<Float32Array>;
-  prominence: AnalyserFunction<Float32Array>;
-  cepstrum: AnalyserFunction<Float32Array>;
+  autocorr: AnalyserFunction<WasmBuffer<Float32Array>>;
+  prominence: AnalyserFunction<WasmBuffer<Float32Array>>;
+  cepstrum: AnalyserFunction<WasmBuffer<Float32Array>>;
   fftPeaks: AnalyserFunction<Peaks>;
   fftPeakDistance: AnalyserFunction<PeakDistance>;
+  fftHarmonics: AnalyserFunction<Peaks>;
 
   RMS: AnalyserFunction<number>;
   ZCR: AnalyserFunction<number>;
@@ -34,6 +42,7 @@ export interface AnalyserFunctions {
   AC: AnalyserFunction<number>;
   CP: AnalyserFunction<number>;
   MPD: AnalyserFunction<number>;
+  F0: AnalyserFunction<number>;
 }
 
 export type AnalyserFunctionId = keyof AnalyserFunctions;
@@ -73,5 +82,6 @@ export interface AnalyserState {
   };
   fftpeaks: FftPeaksState;
   fftp: FftPeakState;
+  harmonicSearchRadius: number;
   functions: Record<AnalyserFunctionId, boolean>;
 }

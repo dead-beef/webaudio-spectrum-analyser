@@ -9,10 +9,7 @@ import {
 } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import {
-  AnalyserFunctionDomain,
-  AnalyserNumberFunctionId,
-} from '../../interfaces';
+import { AnalyserNumberFunctionId, UnitType } from '../../interfaces';
 import { ColorService } from '../../services/color/color.service';
 import { AnalyserService } from '../../state/analyser/analyser.service';
 import { AnalyserState } from '../../state/analyser/analyser.store';
@@ -35,7 +32,7 @@ export class AnalyserFunctionValuesComponent
 
   public functionColor: string[] = [];
 
-  public functionDomain: AnalyserFunctionDomain[] = [];
+  public functionUnit: UnitType[] = [];
 
   private readonly updateBound = this.update.bind(this);
 
@@ -59,6 +56,9 @@ export class AnalyserFunctionValuesComponent
    */
   public ngOnInit(): void {
     this.graph.onUpdate(this.updateBound);
+    if (this.graph.paused) {
+      this.update(false);
+    }
   }
 
   /**
@@ -76,8 +76,8 @@ export class AnalyserFunctionValuesComponent
     if (changes.ids) {
       this.completeSubjects();
       this.functionColor = this.ids.map(id => this.color.get(id));
-      this.functionDomain = this.ids.map(
-        id => this.analyser.functionById[id].domain
+      this.functionUnit = this.ids.map(
+        id => this.analyser.functionById[id].unit
       );
       this.values = this.ids.map(_ => new BehaviorSubject<number>(0));
       this.values$ = this.values.map(subject => {

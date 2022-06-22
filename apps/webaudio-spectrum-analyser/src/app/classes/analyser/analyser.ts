@@ -5,21 +5,27 @@ import {
   PeakDistance,
   Peaks,
 } from '../audio-math/interfaces';
+import { WasmBuffer } from '../wasm-buffer/wasm-buffer';
 import {
   AnalyserFunction,
-  AnalyserFunctionDomain as FD,
   AnalyserFunctionId,
   AnalyserFunctions,
   AnalyserNumberFunctionId,
   AnalyserState,
+  NumberUnitType,
+  UnitType as U,
 } from './interfaces';
 
 export class Analyser {
+  public math = AudioMath.get();
+
   public debug = false;
 
-  public fdata: Float32Array = new Float32Array(1);
+  public fdata: WasmBuffer<Float32Array> =
+    this.math.createBuffer<Float32Array>('f32');
 
-  public tdata: Float32Array = new Float32Array(1);
+  public tdata: WasmBuffer<Float32Array> =
+    this.math.createBuffer<Float32Array>('f32');
 
   public hasNan = false;
 
@@ -47,6 +53,10 @@ export class Analyser {
 
   public fftPeakMaskRadius = 100;
 
+  public harmonicSearchRadius = 0.3;
+
+  public maxF0Range = 0.3;
+
   public minDecibels = -100;
 
   public maxDecibels = 0;
@@ -60,71 +70,80 @@ export class Analyser {
       'autocorr',
       'Autocorrelation',
       'autocorr',
-      FD.OTHER,
-      new Float32Array()
+      U.OTHER,
+      this.math.createBuffer<Float32Array>('f32')
     ),
     prominence: this.func(
       'prominence',
       'FFT peak prominence',
       'prominence',
-      FD.OTHER,
-      new Float32Array()
+      U.OTHER,
+      this.math.createBuffer<Float32Array>('f32')
     ),
     cepstrum: this.func(
       'cepstrum',
       'Cepstrum',
       'cepstrum',
-      FD.OTHER,
-      new Float32Array()
+      U.OTHER,
+      this.math.createBuffer<Float32Array>('f32')
     ),
-    fftPeaks: this.func('fftPeaks', 'FFT peaks', 'fftpeaks', FD.OTHER, {
-      data: new Float32Array(),
+    fftPeaks: this.func('fftPeaks', 'FFT peaks', 'fftpeaks', U.OTHER, {
+      data: this.math.createBuffer<Float32Array>('f32'),
       count: 0,
     }),
     fftPeakDistance: this.func(
       'fftPeakDistance',
       'FFT peak distane data',
       'fftpd',
-      FD.OTHER,
+      U.OTHER,
       {
-        histogram: new Float32Array(),
+        histogram: this.math.createBuffer<Float32Array>('f32'),
         median: 0,
       }
     ),
-
-    RMS: this.func('RMS', 'Root mean square', 'rms', FD.TIME, 0),
-    ZCR: this.func('ZCR', 'Zero-crossing rate', 'zcr', FD.FREQUENCY, 0),
-    FFTP: this.func('FFTP', 'FFT peak', 'fftpeak', FD.FREQUENCY, 0),
-    AC: this.func(
-      'AC',
-      'Autocorrelation peak',
-      'autocorrpeak',
-      FD.FREQUENCY,
-      0
+    fftHarmonics: this.func(
+      'fftHarmonics',
+      'FFT harmonics',
+      'harmonics',
+      U.OTHER,
+      {
+        data: this.math.createBuffer<Float32Array>('f32'),
+        count: 0,
+      }
     ),
-    CP: this.func('CP', 'Cepstrum peak', 'cpeak', FD.FREQUENCY, 0),
-    MPD: this.func('MPD', 'Median FFT peak distance', 'mpd', FD.FREQUENCY, 0),
+
+    RMS: this.func('RMS', 'Root mean square', 'rms', U.NUMBER, 0),
+    ZCR: this.func('ZCR', 'Zero-crossing rate', 'zcr', U.FREQUENCY, 0),
+    FFTP: this.func('FFTP', 'FFT peak', 'fftpeak', U.FREQUENCY, 0),
+    AC: this.func('AC', 'Autocorrelation peak', 'autocorrpeak', U.FREQUENCY, 0),
+    CP: this.func('CP', 'Cepstrum peak', 'cpeak', U.FREQUENCY, 0),
+    MPD: this.func('MPD', 'Median FFT peak distance', 'mpd', U.FREQUENCY, 0),
+    F0: this.func('F0', 'Fundamental frequency', 'f0', U.FREQUENCY, 0),
   };
 
   public readonly functions: AnalyserFunction<any>[] = Object.values(
     this.functionById
   );
 
-  public readonly numberFunctionIds: AnalyserNumberFunctionId[] = (
-    Object.keys(this.functionById) as AnalyserFunctionId[]
-  ).filter(
-    id => typeof this.functionById[id].value === 'number'
-  ) as AnalyserNumberFunctionId[];
+  public readonly PITCH_DETECTION_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
+    'ZCR',
+    'AC',
+    'CP',
+    'MPD',
+    'FFTP',
+  ];
 
-  public readonly FREQUENCY_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] =
-    this.numberFunctionIds.filter(
-      id => this.functionById[id].domain === FD.FREQUENCY
-    );
+  public readonly PITCH_DETECTION_FUNCTION_DEFAULT: AnalyserNumberFunctionId =
+    'FFTP';
 
-  public readonly TIME_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] =
-    this.numberFunctionIds.filter(
-      id => this.functionById[id].domain === FD.TIME
-    );
+  public readonly TIME_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
+    'RMS',
+  ];
+
+  public readonly FREQUENCY_DOMAIN_FUNCTION_IDS: AnalyserNumberFunctionId[] = [
+    ...this.PITCH_DETECTION_FUNCTION_IDS,
+    //'F0',
+  ];
 
   /**
    * Constructor.
@@ -138,14 +157,14 @@ export class Analyser {
     id: FilterKeysByPropertyType<AnalyserFunctions, 'value', T>,
     name: string,
     calc: MethodOf<Analyser, (prev: T) => T>,
-    domain: FD,
+    unit: T extends number ? NumberUnitType : U,
     value: T
   ): AnalyserFunction<T> {
     const fn: (prev: T) => T = this[calc] as any;
     return {
       id,
       name,
-      domain,
+      unit,
       calc: fn.bind(this),
       enabled: false,
       value,
@@ -203,6 +222,7 @@ export class Analyser {
     this.prominenceRadius = state.fftp.prominence.radius;
     this.prominenceThreshold = state.fftp.prominence.threshold;
     this.prominenceNormalize = state.fftp.prominence.normalize;
+    this.harmonicSearchRadius = state.harmonicSearchRadius;
     for (const fn of this.functions) {
       fn.enabled = Boolean(state.functions[fn.id]);
     }
@@ -212,8 +232,8 @@ export class Analyser {
    * TODO: description
    */
   public clearData(): Analyser {
-    this.tdata.fill(0);
-    this.fdata.fill(this.minDecibels);
+    this.tdata.array.fill(0);
+    this.fdata.array.fill(this.minDecibels);
     for (const fn of this.functions) {
       if (typeof fn.value === 'number') {
         fn.value = 0;
@@ -261,17 +281,18 @@ export class Analyser {
     this.fftSize = node.fftSize;
     this.sampleRate = node.context.sampleRate;
 
-    this.tdata = AudioMath.resize(this.tdata, node.fftSize);
-    node.getFloatTimeDomainData(this.tdata);
+    this.tdata.length = node.fftSize;
+    node.getFloatTimeDomainData(this.tdata.array);
 
-    this.fdata = AudioMath.resize(this.fdata, node.frequencyBinCount);
-    node.getFloatFrequencyData(this.fdata);
-    for (let i = 0; i < this.fdata.length; ++i) {
-      const db = this.fdata[i];
+    this.fdata.length = node.frequencyBinCount;
+    const fdata = this.fdata.array;
+    node.getFloatFrequencyData(fdata);
+    for (let i = 0; i < fdata.length; ++i) {
+      const db = fdata[i];
       if (isNaN(db)) {
         nan = true;
       } else {
-        this.fdata[i] = AudioMath.clamp(db, this.minDecibels, this.maxDecibels);
+        fdata[i] = this.math.clamp(db, this.minDecibels, this.maxDecibels);
       }
     }
 
@@ -344,26 +365,26 @@ export class Analyser {
    * TODO: description
    */
   public rms(): number {
-    return AudioMath.rms(this.tdata);
+    return this.math.rms(this.tdata);
   }
 
   /**
    * TODO: description
    */
   public zcr(): number {
-    let res: number = AudioMath.zcr(this.tdata);
+    let res: number = this.math.zcr(this.tdata.array);
     res *= this.sampleRate;
-    res = AudioMath.clampPitch(res, this.minPitch, this.maxPitch);
+    res = this.math.clampPitch(res, this.minPitch, this.maxPitch);
     return res;
   }
 
   /**
    * TODO: description
    */
-  public prominence(prev: Float32Array): Float32Array {
+  public prominence(prev: WasmBuffer<Float32Array>): WasmBuffer<Float32Array> {
     const start: number = this.indexOfFrequency(this.minPitch);
     const end: number = this.indexOfFrequency(this.maxPitch);
-    return AudioMath.prominence(
+    this.math.prominence(
       this.fdata,
       this.get('fftPeaks'),
       prev,
@@ -372,6 +393,7 @@ export class Analyser {
       this.prominenceRadius,
       this.prominenceNormalize
     );
+    return prev;
   }
 
   /**
@@ -380,24 +402,25 @@ export class Analyser {
   public fftpeak(): number {
     const start: number = this.indexOfFrequency(this.minPitch);
     const end: number = this.indexOfFrequency(this.maxPitch);
-    let res = AudioMath.prominencepeak(
+    let res = this.math.prominencepeak(
       this.get('prominence'),
       this.fftPeakType,
       start,
       end,
       this.prominenceThreshold
     );
-    res = AudioMath.interpolatePeak(this.fdata, res);
+    res = this.math.interpolatePeak(this.fdata.array, res);
     return this.frequencyOfIndex(res);
   }
 
   /**
    * TODO: description
    */
-  public autocorr(prev: Float32Array): Float32Array {
+  public autocorr(prev: WasmBuffer<Float32Array>): WasmBuffer<Float32Array> {
     const start = Math.floor(this.sampleRate / this.maxPitch);
     const end = Math.floor(this.sampleRate / this.minPitch) + 1;
-    return AudioMath.autocorr(this.tdata, start, end, prev);
+    this.math.autocorr(this.tdata, start, end, prev);
+    return prev;
   }
 
   /**
@@ -406,15 +429,16 @@ export class Analyser {
   public autocorrpeak(): number {
     const start = Math.floor(this.sampleRate / this.maxPitch);
     const end = Math.floor(this.sampleRate / this.minPitch) + 1;
-    const ac = AudioMath.autocorrpeak(this.get('autocorr'), start, end);
+    const ac = this.math.autocorrpeak(this.get('autocorr'), start, end);
     return this.sampleRate / ac;
   }
 
   /**
    * TODO: description
    */
-  public cepstrum(prev: Float32Array): Float32Array {
-    return AudioMath.cepstrum(this.fdata, prev);
+  public cepstrum(prev: WasmBuffer<Float32Array>): WasmBuffer<Float32Array> {
+    this.math.cepstrum(this.fdata, prev);
+    return prev;
   }
 
   /**
@@ -424,9 +448,9 @@ export class Analyser {
     const cdata = this.get('cepstrum');
     const start: number = this.indexOfQuefrency(1 / this.maxPitch);
     const end: number = this.indexOfQuefrency(1 / this.minPitch);
-    let res = AudioMath.indexOfMaxPeak(cdata, start, end);
+    let res = this.math.indexOfMaxPeak(cdata.array, start, end);
     //console.log('cpeak', start, end, res);
-    res = AudioMath.interpolatePeak(cdata, res);
+    res = this.math.interpolatePeak(cdata.array, res);
     return 1 / this.quefrencyOfIndex(res);
   }
 
@@ -435,14 +459,34 @@ export class Analyser {
    */
   public fftpeaks(prev: Peaks): Peaks {
     const r = (this.fftPeakMaskRadius * this.fftSize) / this.sampleRate;
-    return AudioMath.fftpeaks(this.fdata, prev, this.fftPeakMask, r);
+    this.math.fftpeaks(this.fdata, prev, this.fftPeakMask, r);
+    return prev;
   }
 
   /**
    * TODO: description
    */
   public fftpd(prev: PeakDistance): PeakDistance {
-    return AudioMath.mpd(this.get('fftPeaks'), prev);
+    this.math.mpd(this.get('fftPeaks'), prev);
+    return prev;
+  }
+
+  /**
+   * TODO: description
+   */
+  public harmonics(prev: Peaks): Peaks {
+    const f0 = this.get('F0');
+    if (isNaN(f0)) {
+      prev.count = 0;
+      return prev;
+    }
+    this.math.fftharmonics(
+      (f0 * this.fftSize) / this.sampleRate,
+      this.get('fftPeaks'),
+      prev,
+      this.harmonicSearchRadius
+    );
+    return prev;
   }
 
   /**
@@ -450,5 +494,22 @@ export class Analyser {
    */
   public mpd(): number {
     return this.frequencyOfIndex(this.get('fftPeakDistance').median);
+  }
+
+  /**
+   * TODO: description
+   */
+  public f0(): number {
+    const values: number[] = [];
+    for (const fn of this.PITCH_DETECTION_FUNCTION_IDS) {
+      const val = this.getOptional(fn);
+      if (val !== null && !isNaN(val)) {
+        values.push(val);
+      }
+    }
+    if (!values.length) {
+      return this.get(this.PITCH_DETECTION_FUNCTION_DEFAULT);
+    }
+    return this.math.f0(values, this.maxF0Range);
   }
 }

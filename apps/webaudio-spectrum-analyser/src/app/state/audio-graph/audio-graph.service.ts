@@ -28,7 +28,7 @@ export class AudioGraphService {
       AudioGraphState.initState,
       audioGraphAction.setState
     );
-    graph.startUpdating();
+    this.graph.startUpdating();
   }
 
   /**

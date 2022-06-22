@@ -139,7 +139,7 @@ export class CepstrumChartComponent implements AfterViewInit, OnDestroy {
     }
     const binSize = 2.0 / this.analyser.sampleRate;
     this.canvas.step(
-      this.analyser.get('cepstrum'),
+      this.analyser.get('cepstrum').array,
       (x: number, i: number) => this.quefrencyToCanvas(binSize * (i - 0.5)),
       (y: number) => y * 10,
       'chart',

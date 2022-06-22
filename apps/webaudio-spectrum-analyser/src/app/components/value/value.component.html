@@ -1,0 +1,14 @@
+<ng-container [ngSwitch]="unit">
+  <ng-container *ngSwitchCase="units.TIME">
+    {{ value | units:'s' }}
+  </ng-container>
+  <ng-container *ngSwitchCase="units.FREQUENCY">
+    {{ value | frequencyUnits }}
+  </ng-container>
+  <ng-container *ngSwitchCase="units.NUMBER">
+    {{ value | units:'':false:2 }}
+  </ng-container>
+  <ng-container *ngSwitchDefault>
+    Invalid unit "{{ unit }}"
+  </ng-container>
+</ng-container>

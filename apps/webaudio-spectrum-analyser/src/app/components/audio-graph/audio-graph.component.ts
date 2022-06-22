@@ -12,6 +12,7 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { AudioGraphSourceNode } from '../../interfaces';
+import { AnalyserService } from '../../state/analyser/analyser.service';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
 import { AudioGraphState } from '../../state/audio-graph/audio-graph.store';
 import { stateFormControl } from '../../utils';
@@ -58,7 +59,10 @@ export class AudioGraphComponent implements AfterViewInit, OnDestroy {
    * Constructor.
    * @param graph
    */
-  constructor(private readonly graph: AudioGraphService) {}
+  constructor(
+    private readonly graph: AudioGraphService,
+    private readonly analyser: AnalyserService
+  ) {}
 
   /**
    * Lifecycle hook.
@@ -101,6 +105,7 @@ export class AudioGraphComponent implements AfterViewInit, OnDestroy {
    */
   public reset() {
     void this.graph.dispatch('reset');
+    void this.analyser.dispatch('reset');
   }
 
   /**

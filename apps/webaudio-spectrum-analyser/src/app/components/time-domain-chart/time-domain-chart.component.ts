@@ -77,7 +77,7 @@ export class TimeDomainChartComponent implements AfterViewInit, OnDestroy {
    * TODO: description
    */
   public updatePointValue() {
-    const tdata = this.analyser.tdata;
+    const tdata = this.analyser.tdata.array;
     const t = this.pointTime.value;
     if (t !== null) {
       let val = NaN;
@@ -110,7 +110,7 @@ export class TimeDomainChartComponent implements AfterViewInit, OnDestroy {
 
     this.canvas.clear();
     this.canvas.hline(0.5, 'grid');
-    this.canvas.plot(this.analyser.tdata, xscale, yscale);
+    this.canvas.plot(this.analyser.tdata.array, xscale, yscale);
     if (this.analyser.rmsThreshold > 0) {
       this.canvas.hline(yscale(this.analyser.rmsThreshold), 'rms-threshold');
     }

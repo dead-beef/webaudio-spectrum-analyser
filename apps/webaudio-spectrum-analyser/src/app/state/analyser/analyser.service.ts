@@ -27,7 +27,9 @@ export class AnalyserService {
       AnalyserState.state,
       analyserAction.setState
     );
-    graph.onUpdate(paused => analyser.update(paused, graph.nodes.analyser));
+    this.graph.onUpdate(paused => {
+      this.analyser.update(paused, this.graph.nodes.analyser);
+    });
   }
 
   /**

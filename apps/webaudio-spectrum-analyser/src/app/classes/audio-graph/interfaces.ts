@@ -6,14 +6,14 @@ export interface AudioGraphFilters {
   biquad: BiquadFilterNode;
   convolver: ConvolverNode;
   pitchShifter: IPitchShifterNode;
-  worklet: Nullable<AnyScriptNode>;
+  worklet: AnyScriptNode;
 }
 
 export interface AudioGraphNodes {
   wave: OscillatorNode;
   element: Nullable<MediaElementAudioSourceNode>;
   device: Nullable<MediaStreamAudioSourceNode>;
-  worklet: Nullable<AnyScriptNode>;
+  worklet: AnyScriptNode;
   input: DelayNode;
   filter: AudioGraphFilters;
   filteredInput: GainNode;

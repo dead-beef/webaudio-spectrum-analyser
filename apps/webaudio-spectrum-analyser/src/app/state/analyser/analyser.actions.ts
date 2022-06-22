@@ -9,6 +9,8 @@ import { AnalyserStateModel } from './analyser.model';
 const action = actionConstructor('Analyser');
 
 export const analyserAction: StoreActions = {
+  reset: action<void>('reset'),
+
   setDebug: action<boolean>('set debug'),
   setHistorySize: action<number>('set history size'),
   setRmsThreshold: action<number>('set rms threshold'),
@@ -30,4 +32,6 @@ export const analyserAction: StoreActions = {
 
   setFftPeakMask: action<FftPeakMask>('set fft peak mask'),
   setFftPeakMaskRadius: action<number>('set fft peak mask radius'),
+
+  setHarmonicSearchRadius: action<number>('set harmonic search radius'),
 };

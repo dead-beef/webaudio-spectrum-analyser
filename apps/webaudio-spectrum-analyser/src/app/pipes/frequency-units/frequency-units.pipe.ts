@@ -1,4 +1,9 @@
-import { OnDestroy, Pipe, PipeTransform } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  OnDestroy,
+  Pipe,
+  PipeTransform,
+} from '@angular/core';
 
 import { AudioMath } from '../../classes/audio-math/audio-math';
 import { AudioGraphUiService } from '../../state/audio-graph-ui/audio-graph-ui.service';
@@ -11,6 +16,8 @@ import { UnitsPipe } from '../units/units.pipe';
   pure: false,
 })
 export class FrequencyUnitsPipe implements OnDestroy, PipeTransform {
+  private readonly math = AudioMath.get();
+
   private lastValue: Nullable<number> = null;
 
   private lastResult = 'N/A';
@@ -24,6 +31,8 @@ export class FrequencyUnitsPipe implements OnDestroy, PipeTransform {
     .subscribe(units_ => {
       this.units = units_;
       this.unitsChanged = true;
+      //console.log(this.changeDetector);
+      this.changeDetector.markForCheck();
     });
 
   private readonly notes: string[] = [
@@ -42,6 +51,7 @@ export class FrequencyUnitsPipe implements OnDestroy, PipeTransform {
   ];
 
   constructor(
+    private readonly changeDetector: ChangeDetectorRef,
     private readonly uiService: AudioGraphUiService,
     private readonly unitsPipe: UnitsPipe
   ) {
@@ -60,6 +70,7 @@ export class FrequencyUnitsPipe implements OnDestroy, PipeTransform {
   }
 
   public transform(value: Nullable<number>): string {
+    //console.log('transform', value);
     if (value === null || isNaN(value)) {
       return 'N/A';
     }
@@ -71,7 +82,7 @@ export class FrequencyUnitsPipe implements OnDestroy, PipeTransform {
     if (this.units.frequency) {
       results.push(this.unitsPipe.transform(value, 'Hz'));
     }
-    value = AudioMath.getMidiNumber(value);
+    value = this.math.getMidiNumber(value);
     if (this.units.midiNumber) {
       results.push(value.toFixed(1));
     }

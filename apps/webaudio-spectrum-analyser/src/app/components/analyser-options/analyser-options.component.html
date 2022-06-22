@@ -39,6 +39,15 @@
   >
   </app-input-range>
 
+  <app-input-range
+    name="Harmonic search radius"
+    [min]="0"
+    [max]="1"
+    [step]="0.01"
+    formControlName="harmonicSearchRadius"
+  >
+  </app-input-range>
+
   <app-input-frequency name="Min pitch" formControlName="minPitch">
   </app-input-frequency>
   <app-input-frequency name="Max pitch" formControlName="maxPitch">

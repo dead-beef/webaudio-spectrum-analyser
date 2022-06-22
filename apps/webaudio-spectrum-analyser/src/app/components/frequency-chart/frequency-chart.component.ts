@@ -162,18 +162,22 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
   /**
    * TODO: description
    */
-  public drawPeaks(data: Float32Array, count: number): void {
+  public drawPeaks(
+    data: Float32Array,
+    count: number,
+    fscale = this.analyser.sampleRate / this.analyser.fftSize,
+    color = 'fftpeaks'
+  ): void {
     if (this.canvas === null) {
       return;
     }
-    const fscale = this.analyser.sampleRate / this.analyser.fftSize;
     const yscale = 1 / (this.analyser.maxDecibels - this.analyser.minDecibels);
     const y0 = this.analyser.minDecibels;
     this.canvas.dots(
       data.subarray(0, count * 2),
       (x: number) => this.frequencyToCanvas(x * fscale),
       (y: number) => yscale * (y - y0),
-      'fftpeaks'
+      color
     );
   }
 
@@ -243,7 +247,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
     this.updatePointValue();
 
     this.canvas.clear();
-    this.drawFrequencyData(this.analyser.fdata);
+    this.drawFrequencyData(this.analyser.fdata.array);
     this.drawGrid();
 
     for (let i = 0; i < this.functions.length; ++i) {
@@ -255,24 +259,30 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
     }
 
     if (this.analyser.debug) {
-      let data: Nullable<Float32Array> = this.analyser.getOptional('autocorr');
-      if (data !== null) {
-        this.drawAutocorrelationData(data);
+      const ac = this.analyser.getOptional('autocorr');
+      if (ac !== null) {
+        this.drawAutocorrelationData(ac.array);
       }
 
-      data = this.analyser.getOptional('prominence');
-      if (data !== null) {
-        this.drawProminenceData(data);
+      const pr = this.analyser.getOptional('prominence');
+      if (pr !== null) {
+        this.drawProminenceData(pr.array);
       }
 
       const ps = this.analyser.getOptional('fftPeaks');
       if (ps !== null) {
-        this.drawPeaks(ps.data, ps.count);
+        this.drawPeaks(ps.data.array, ps.count);
+      }
+
+      const f0 = this.analyser.getOptional('F0');
+      const hs = this.analyser.getOptional('fftHarmonics');
+      if (f0 !== null && hs !== null) {
+        this.drawPeaks(hs.data.array, hs.count, f0, 'fftharmonics');
       }
 
       const pd = this.analyser.getOptional('fftPeakDistance');
       if (pd !== null) {
-        this.drawPeakDistanceHistogram(pd.histogram);
+        this.drawPeakDistanceHistogram(pd.histogram.array);
       }
     }
   }

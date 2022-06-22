@@ -80,6 +80,15 @@ int fftpeaks(
   number mask_radius
 );
 
+int fftharmonics(
+  const fftpeak_t *peaks,
+  fftpeak_t *output,
+  int bin_count,
+  int peak_count,
+  number f0,
+  number search_radius
+);
+
 void fft_scale(
   fftval_t *fft_buf,
   int bin_count,
