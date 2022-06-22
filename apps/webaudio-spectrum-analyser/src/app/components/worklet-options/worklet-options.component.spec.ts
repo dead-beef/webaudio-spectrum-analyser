@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ErrorPipe } from '../../pipes/error/error.pipe';
 import { getComponentImports, getMockProviders } from '../../utils/test.util';
@@ -9,21 +9,16 @@ describe('WorkletOptionsComponent', () => {
   let component: WorkletOptionsComponent;
   let fixture: ComponentFixture<WorkletOptionsComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        imports: getComponentImports(),
-        declarations: [WorkletOptionsComponent, AlertComponent, ErrorPipe],
-        providers: getMockProviders(),
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(WorkletOptionsComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
-    })
-  );
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: getComponentImports(),
+      declarations: [WorkletOptionsComponent, AlertComponent, ErrorPipe],
+      providers: getMockProviders(),
+    }).compileComponents();
+    fixture = TestBed.createComponent(WorkletOptionsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
   it('should create', () => {
     expect(component).toBeTruthy();

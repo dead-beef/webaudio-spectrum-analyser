@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ErrorPipe } from '../../pipes/error/error.pipe';
 import { SafeUrlPipe } from '../../pipes/safe-url/safe-url.pipe';
@@ -16,34 +16,29 @@ describe('FileOptionsComponent', () => {
   let component: FileOptionsComponent;
   let fixture: ComponentFixture<FileOptionsComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        imports: getComponentImports(),
-        declarations: [
-          FileOptionsComponent,
-          AlertComponent,
-          SafeUrlPipe,
-          TimePipe,
-          ErrorPipe,
-          AudioControlsComponent,
-          mockComponent('audio', {
-            nativeElement: {
-              play: () => null,
-              pause: () => null,
-            },
-          }),
-        ],
-        providers: getMockProviders(),
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(FileOptionsComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
-    })
-  );
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: getComponentImports(),
+      declarations: [
+        FileOptionsComponent,
+        AlertComponent,
+        SafeUrlPipe,
+        TimePipe,
+        ErrorPipe,
+        AudioControlsComponent,
+        mockComponent('audio', {
+          nativeElement: {
+            play: () => null,
+            pause: () => null,
+          },
+        }),
+      ],
+      providers: getMockProviders(),
+    }).compileComponents();
+    fixture = TestBed.createComponent(FileOptionsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
   it('should create', () => {
     expect(component).toBeTruthy();

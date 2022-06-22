@@ -29,6 +29,8 @@ export class AudioGraph {
 
   private _frame = 0;
 
+  private tryInitWorkletFilter = true;
+
   private readonly _updateLoopBound = this._updateLoop.bind(this);
 
   private readonly _onUpdate: AudioGraphUpdateHandler[] = [];
@@ -128,6 +130,20 @@ export class AudioGraph {
     this.nodes.filteredInput.connect(this.nodes.analyser);
     this.nodes.analyser.connect(this.nodes.output);
     this.stream = this.nodes.output.stream;
+
+    const wasm = AudioMath.get().wasm;
+    console.log('init worklet filter (module)', wasm.raw.module);
+    this.nodes.filter.worklet.port.onmessage =
+      this.workletFilterMessage.bind(this);
+    this.nodes.filter.worklet.port.onmessageerror = err => {
+      console.error('worklet filter onmessageerror', err);
+    };
+    this.nodes.filter.worklet.port.postMessage({
+      type: 'init',
+      module: wasm.raw.module,
+      memorySize: wasm.emModule.buffer.byteLength,
+      sampleRate: context.sampleRate,
+    });
   }
 
   /**
@@ -137,24 +153,44 @@ export class AudioGraph {
     if (!window.AudioContext) {
       throw new Error('Web Audio API is not supported');
     }
+    await AudioMath.init();
+
     const context = new AudioContext();
     await context.suspend();
 
     const workletFactory = new WorkletNodeFactory(context);
-
-    const math = await AudioMath.getOrCreate();
-    const wasm = math.wasm;
-
     const workletSource = await workletFactory.create(GeneratorProcessor);
     const workletFilter = await workletFactory.create(FilterProcessor);
-    workletFilter.port.postMessage({
-      type: 'init',
-      module: wasm.raw.module,
-      memorySize: wasm.emModule.buffer.byteLength,
-      sampleRate: context.sampleRate,
-    });
 
     return new AudioGraph(context, workletSource, workletFilter);
+  }
+
+  /**
+   * TODO: description
+   */
+  private workletFilterMessage(msg: MessageEvent): void {
+    console.log('worklet filter message', msg);
+    const data: Record<string, any> = msg.data;
+    switch (data.type) {
+      case 'error':
+        if (this.tryInitWorkletFilter) {
+          this.tryInitWorkletFilter = false;
+          const wasm = AudioMath.get().wasm;
+          console.warn('could not send wasm module to worklet filter:', msg);
+          console.warn('init worklet filter (binary)', wasm.raw.binary);
+          this.nodes.filter.worklet.port.postMessage({
+            type: 'init',
+            binary: wasm.raw.binary,
+            memorySize: wasm.emModule.buffer.byteLength,
+            sampleRate: this.context.sampleRate,
+          });
+        } else {
+          console.error('worklet filter is not initialized');
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   /**

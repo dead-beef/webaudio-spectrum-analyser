@@ -1,4 +1,4 @@
-import { async, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { NgxsModule } from '@ngxs/store';
 
 import { getMockProviders } from '../../utils/test.util';
@@ -8,16 +8,13 @@ import { AnalyserService } from './analyser.service';
 describe('AnalyserService', () => {
   let service: AnalyserService;
 
-  beforeEach(async(() => {
-    void TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [NgxsModule.forRoot([]), AnalyserStoreModule],
       providers: getMockProviders(),
-    })
-      .compileComponents()
-      .then(() => {
-        service = TestBed.inject(AnalyserService);
-      });
-  }));
+    }).compileComponents();
+    service = TestBed.inject(AnalyserService);
+  });
 
   it('should be created', async () => {
     expect(service).toBeDefined();

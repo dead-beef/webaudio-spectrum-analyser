@@ -44,6 +44,8 @@ if [[ -z ${ANDROID_KEYSTORE:-} ]]; then
   ANDROID_KEYSTORE_PASSWORD='release'
 fi
 
+export PATH="${JAVA_HOME}/bin:${ANDROID_BUILD_TOOLS}:${PATH}"
+
 BUILD_APK='app/build/outputs/apk/release/app-release-unsigned.apk'
 UNSIGNED_APK='build/release-unsigned.apk'
 SIGNED_APK='build/release-signed.apk'
@@ -68,5 +70,5 @@ fi
 log 'signing apk...'
 cmd cp "$BUILD_APK" "$UNSIGNED_APK"
 cmd jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore "$ANDROID_KEYSTORE" "$UNSIGNED_APK" "$ANDROID_KEYSTORE_ALIAS" -storepass "$ANDROID_KEYSTORE_PASSWORD"
-cmd "${ANDROID_BUILD_TOOLS}/zipalign" -v 4 "$UNSIGNED_APK" "$SIGNED_APK"
-cmd "${ANDROID_BUILD_TOOLS}/apksigner" verify "$SIGNED_APK"
+cmd zipalign -v 4 "$UNSIGNED_APK" "$SIGNED_APK"
+cmd apksigner verify "$SIGNED_APK"

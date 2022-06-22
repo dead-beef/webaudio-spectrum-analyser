@@ -25,6 +25,7 @@ declare interface WasmModule<T> {
   raw: {
     instance: WebAssembly.Instance;
     module: WebAssembly.Module;
+    binary: Uint8Array | null;
   };
   emModule: {
     wasmMemory: WebAssembly.Memory;

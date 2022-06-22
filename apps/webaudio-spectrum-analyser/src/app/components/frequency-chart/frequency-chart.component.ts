@@ -134,7 +134,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
       data.subarray(2),
       (x: number, i: number) => this.frequencyToCanvas(fs / (i + 2)),
       (y: number) => 0.5 * (1 + y),
-      'ac-chart'
+      'acChart'
     );
   }
 
@@ -151,11 +151,11 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
       data,
       (x: number) => this.frequencyToCanvas(x * fscale),
       (y: number) => y * yscale,
-      'fftp-chart'
+      'fftpChart'
     );
     this.canvas.hline(
       yscale * this.analyser.prominenceThreshold,
-      'fftp-threshold'
+      'fftpThreshold'
     );
   }
 
@@ -195,7 +195,7 @@ export class FrequencyChartComponent implements AfterViewInit, OnDestroy {
       data,
       (x: number) => this.frequencyToCanvas(x * sr2 + dx),
       (y: number) => y * yscale,
-      'mpd-histogram',
+      'mpdHistogram',
       0
     );
   }

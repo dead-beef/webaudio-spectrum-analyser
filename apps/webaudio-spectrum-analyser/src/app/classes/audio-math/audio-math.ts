@@ -1,4 +1,4 @@
-import { fixWasmImports } from '../../utils';
+import { createWasmModule } from '../../utils';
 import * as wasmModule from '../../wasm/index.c';
 import { WasmBuffer } from '../wasm-buffer/wasm-buffer';
 import {
@@ -23,12 +23,7 @@ export class AudioMathInstance {
     if (!init) {
       throw new Error('wasm module not found');
     }
-    const wasm: WasmModule<AudioMathWasmFunctions> = await init(
-      (imports: WasmImports) => {
-        fixWasmImports(imports);
-        return imports;
-      }
-    );
+    const wasm = await createWasmModule(init);
     return new AudioMathInstance(wasm);
   }
 

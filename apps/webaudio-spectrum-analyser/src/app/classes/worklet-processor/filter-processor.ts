@@ -206,71 +206,109 @@ export class FilterProcessor extends AudioWorkletProcessor {
    */
   constructor() {
     super();
+    this.port.onmessage = this.onmessage.bind(this);
+    this.port.onmessageerror = this.onmessageerror.bind(this);
+  }
 
-    const port: MessagePort = this['port'];
-    if (port) {
-      port.onmessage = (ev: MessageEvent) => this.onmessage(ev.data);
+  /**
+   * TODO: description
+   */
+  private createImportObject(
+    mod: WebAssembly.Module,
+    memorySize: number
+  ): Record<string, any> {
+    const pageSize = 65536;
+    memorySize = Math.round(memorySize / pageSize);
+    this.memory = new WebAssembly.Memory({
+      initial: memorySize,
+      maximum: memorySize,
+    });
+    const tableSize = WebAssembly.Module.imports(mod).length;
+    return {
+      env: {
+        table: new WebAssembly.Table({
+          initial: tableSize,
+          maximum: tableSize,
+          element: 'anyfunc',
+        }),
+        tableBase: 0,
+        memory: this.memory,
+        memoryBase: 1024,
+        STACKTOP: 0,
+        STACK_MAX: this.memory.buffer.byteLength,
+        ['emscripten_resize_heap']: (...args) => {
+          throw new Error('emscripten_resize_heap ' + JSON.stringify(args));
+        },
+        ['emscripten_memcpy_big']: (...args) => {
+          throw new Error('emscripten_memcpy_big ' + JSON.stringify(args));
+        },
+        segfault: () => {
+          throw new Error('segfault');
+        },
+        alignfault: () => {
+          throw new Error('alignfault');
+        },
+        abort: () => {
+          throw new Error('aborted');
+        },
+      },
+    };
+  }
+
+  /**
+   * TODO: description
+   */
+  public onmessage(ev: MessageEvent) {
+    const data: Record<string, any> = ev.data;
+    console.log('onmessage', data);
+    if (data.type === 'init') {
+      let getModule: Promise<WebAssembly.Module>;
+      if (data.module) {
+        console.log('use existing module');
+        getModule = Promise.resolve(data.module);
+      } else if (data.binary) {
+        console.log('compile module');
+        getModule = WebAssembly.compile(data.binary);
+      } else {
+        throw new Error('missing wasm module');
+      }
+      //let imports: WasmImports;
+      void getModule
+        .then(mod => {
+          const imports = this.createImportObject(mod, data.memorySize);
+          return WebAssembly.instantiate(mod, imports);
+        })
+        .then(instance => {
+          this.wasm = instance;
+          //this.memory = imports.env.memory;
+          this.sampleRate = data.sampleRate;
+          this.wasmFilterStart = this.wasm.exports.filter_start as any;
+          this.wasmFilterEnd = this.wasm.exports.filter_end as any;
+          this.wasmGain = this.wasm.exports.gain as any;
+          this.wasmAddHarmonics = this.wasm.exports.add_harmonics as any;
+          this.wasmScaleHarmonics = this.wasm.exports.scale_harmonics as any;
+          console.log('instance', instance);
+        })
+        .catch(err =>
+          this.port.postMessage({
+            type: 'error',
+            error: err,
+          })
+        );
+    } else if (data.type === 'stop') {
+      this.stopped = true;
     }
   }
 
   /**
    * TODO: description
    */
-  public onmessage(data: Record<string, any>) {
-    console.log('onmessage', data);
-    if (data.type === 'init') {
-      this.sampleRate = data.sampleRate;
-      const mod: WebAssembly.Module = data.module;
-      const pageSize = 65536;
-      const memorySize: number = Math.round(data.memorySize / pageSize);
-      const memory = new WebAssembly.Memory({
-        initial: memorySize,
-        maximum: memorySize,
-      });
-      const importObj = {
-        env: {
-          table: new WebAssembly.Table({
-            initial: WebAssembly.Module.imports(mod).length,
-            maximum: 64,
-            //initial: 0,
-            //maximum: 0,
-            element: 'anyfunc',
-          }),
-          tableBase: 0,
-          memory: memory,
-          memoryBase: 1024,
-          STACKTOP: 0,
-          STACK_MAX: memory.buffer.byteLength,
-          ['emscripten_resize_heap']: (...args) => {
-            throw new Error('emscripten_resize_heap ' + JSON.stringify(args));
-          },
-          ['emscripten_memcpy_big']: (...args) => {
-            throw new Error('emscripten_memcpy_big ' + JSON.stringify(args));
-          },
-          segfault: () => {
-            throw new Error('segfault');
-          },
-          alignfault: () => {
-            throw new Error('alignfault');
-          },
-          abort: () => {
-            throw new Error('aborted');
-          },
-        },
-      };
-      void WebAssembly.instantiate(mod, importObj).then(instance => {
-        this.wasm = instance;
-        this.memory = memory;
-        this.wasmFilterStart = this.wasm.exports.filter_start as any;
-        this.wasmFilterEnd = this.wasm.exports.filter_end as any;
-        this.wasmGain = this.wasm.exports.gain as any;
-        this.wasmAddHarmonics = this.wasm.exports.add_harmonics as any;
-        this.wasmScaleHarmonics = this.wasm.exports.scale_harmonics as any;
-        console.log('instance', instance);
-      });
-    } else if (data.type === 'stop') {
-      this.stopped = true;
-    }
+  public onmessageerror(err: Record<string, any>) {
+    console.warn('FilterProcessor onmessageerror', err);
+    this.port.postMessage({
+      type: 'error',
+      error: JSON.stringify(err),
+    });
   }
 
   /**
