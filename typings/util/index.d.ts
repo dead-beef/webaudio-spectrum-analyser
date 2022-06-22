@@ -22,6 +22,10 @@ declare type MethodOf<T, M = (...args: any[]) => any> = {
   [P in keyof T]-?: T[P] extends M ? P : never;
 }[keyof T];
 
+declare type FilterKeysByType<T, V> = {
+  [K in keyof T]-?: T[K] extends V ? K : never;
+}[keyof T];
+
 declare type FilterKeysByPropertyType<T, P extends keyof T[keyof T], V> = {
   [K in keyof T]-?: T[K][P] extends V ? K : never;
 }[keyof T];

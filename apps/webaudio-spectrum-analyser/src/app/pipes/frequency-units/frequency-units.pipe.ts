@@ -16,6 +16,8 @@ import { UnitsPipe } from '../units/units.pipe';
   pure: false,
 })
 export class FrequencyUnitsPipe implements OnDestroy, PipeTransform {
+  private readonly math = AudioMath.get();
+
   private lastValue: Nullable<number> = null;
 
   private lastResult = 'N/A';
@@ -80,7 +82,7 @@ export class FrequencyUnitsPipe implements OnDestroy, PipeTransform {
     if (this.units.frequency) {
       results.push(this.unitsPipe.transform(value, 'Hz'));
     }
-    value = AudioMath.getMidiNumber(value);
+    value = this.math.getMidiNumber(value);
     if (this.units.midiNumber) {
       results.push(value.toFixed(1));
     }

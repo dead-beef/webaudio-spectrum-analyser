@@ -13,7 +13,7 @@ describe('ValueComponent', () => {
     waitForAsync(() => {
       void TestBed.configureTestingModule({
         imports: getComponentImports(),
-        declarations: [ ValueComponent, UnitsPipe, FrequencyUnitsPipe ],
+        declarations: [ValueComponent, UnitsPipe, FrequencyUnitsPipe],
         providers: getMockProviders(),
       })
         .compileComponents()

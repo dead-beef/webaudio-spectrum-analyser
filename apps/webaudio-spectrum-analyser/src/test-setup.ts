@@ -1,6 +1,14 @@
 import 'jest-preset-angular/setup-jest';
 import 'jest-canvas-mock';
 
+import { getTestBed } from '@angular/core/testing';
+import {
+  BrowserDynamicTestingModule,
+  platformBrowserDynamicTesting,
+} from '@angular/platform-browser-dynamic/testing';
+
+//import { AudioMath } from './app/classes/audio-math/audio-math';
+
 export class MockAudioNode {
   public connect() {}
 
@@ -15,6 +23,8 @@ export class MockAudioContext {
   };
 
   public suspend() {}
+
+  public close() {}
 
   public createBuffer() {
     return {
@@ -155,13 +165,10 @@ export function mockAudioContext() {
   });
 }
 
+//module.exports = async () => {
 mockAudioContext();
 
-import { getTestBed } from '@angular/core/testing';
-import {
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting,
-} from '@angular/platform-browser-dynamic/testing';
+//await AudioMath.init();
 
 getTestBed().resetTestEnvironment();
 getTestBed().initTestEnvironment(
@@ -169,3 +176,4 @@ getTestBed().initTestEnvironment(
   platformBrowserDynamicTesting(),
   { teardown: { destroyAfterEach: false } }
 );
+//};

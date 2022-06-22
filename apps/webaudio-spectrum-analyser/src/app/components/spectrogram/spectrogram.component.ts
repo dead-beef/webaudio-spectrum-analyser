@@ -234,7 +234,7 @@ export class SpectrogramComponent implements AfterViewInit, OnDestroy {
       return;
     }
     const shift = this.updateData(
-      this.analyser.fdata,
+      this.analyser.fdata.array,
       this.analyser.minDecibels,
       this.analyser.maxDecibels
     );

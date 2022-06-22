@@ -4,6 +4,7 @@ import {
   PeakDistance,
   Peaks,
 } from '../audio-math/interfaces';
+import { WasmBuffer } from '../wasm-buffer/wasm-buffer';
 
 export enum UnitType {
   TIME = 0,
@@ -28,9 +29,9 @@ export interface AnalyserFunction<T> {
 }
 
 export interface AnalyserFunctions {
-  autocorr: AnalyserFunction<Float32Array>;
-  prominence: AnalyserFunction<Float32Array>;
-  cepstrum: AnalyserFunction<Float32Array>;
+  autocorr: AnalyserFunction<WasmBuffer<Float32Array>>;
+  prominence: AnalyserFunction<WasmBuffer<Float32Array>>;
+  cepstrum: AnalyserFunction<WasmBuffer<Float32Array>>;
   fftPeaks: AnalyserFunction<Peaks>;
   fftPeakDistance: AnalyserFunction<PeakDistance>;
   fftHarmonics: AnalyserFunction<Peaks>;

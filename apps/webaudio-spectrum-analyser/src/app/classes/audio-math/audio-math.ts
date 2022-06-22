@@ -1,99 +1,44 @@
+import { fixWasmImports } from '../../utils';
 import * as wasmModule from '../../wasm/index.c';
+import { WasmBuffer } from '../wasm-buffer/wasm-buffer';
 import {
   AudioMathWasmFunctions,
   FftPeakMask,
   FftPeakType,
   PeakDistance,
   Peaks,
-  WasmBuffer,
 } from './interfaces';
 
-class AudioMathInstance {
-  private _wasm: Nullable<WasmModule<AudioMathWasmFunctions>> = null;
-
-  public wasmReady: Promise<WasmModule<AudioMathWasmFunctions>>;
-
-  public wasmError: Nullable<Error> = null;
-
-  public inputBuffer: WasmBuffer = {
-    ptr: [],
-    type: 40,
-    byteLength: 0,
-  };
-
-  public input2Buffer: WasmBuffer = {
-    ptr: [],
-    type: 40,
-    byteLength: 0,
-  };
-
-  public outputBuffer: WasmBuffer = {
-    ptr: [],
-    type: 40,
-    byteLength: 0,
-  };
-
-  /**
-   * Getter.
-   */
-  public get wasm(): Nullable<WasmModule<AudioMathWasmFunctions>> {
-    if (this._wasm !== null) {
-      return this._wasm;
-    }
-    if (this.wasmError !== null) {
-      throw this.wasmError;
-    }
-    return null;
-  }
-
-  /**
-   * Setter.
-   */
-  public set wasm(wasm_: Nullable<WasmModule<AudioMathWasmFunctions>>) {
-    this._wasm = wasm_;
-  }
-
+export class AudioMathInstance {
   /**
    * Constructor.
    */
-  constructor() {
-    const init: WasmModuleFactory<AudioMathWasmFunctions> | undefined =
-      wasmModule.init;
-    if (!init) {
-      this.wasmError = new Error('wasm module not found');
-      this.wasmReady = Promise.reject(this.wasmError);
-    } else {
-      this.wasmReady = init((imports: WasmImports) => {
-        //console.warn('imports', imports);
-        imports['emscripten_resize_heap'] = (...args) => {
-          console.warn('emscripten_resize_heap', args);
-        };
-        imports['emscripten_memcpy_big'] = (...args) => {
-          console.warn('emscripten_memcpy_big', args);
-        };
-        imports['segfault'] = () => {
-          throw new Error('segfault');
-        };
-        imports['alignfault'] = () => {
-          throw new Error('alignfault');
-        };
-        imports['abort'] = () => {
-          throw new Error('aborted');
-        };
+  constructor(public readonly wasm: WasmModule<AudioMathWasmFunctions>) {}
 
-        return imports;
-      }).then((wasm_: WasmModule<AudioMathWasmFunctions>) => {
-        /*if (!environment.production) {
-          window['wasm'] = wasm_;
-        }*/
-        this.wasm = wasm_;
-        return this.wasm;
-      });
-      this.wasmReady.catch((err: Error) => {
-        console.error(err);
-        this.wasmError = err;
-      });
+  /**
+   * TODO: description
+   */
+  public static async create(): Promise<AudioMathInstance> {
+    const init: WasmModuleFactory<AudioMathWasmFunctions> = wasmModule.init;
+    if (!init) {
+      throw new Error('wasm module not found');
     }
+    const wasm: WasmModule<AudioMathWasmFunctions> = await init(
+      (imports: WasmImports) => {
+        fixWasmImports(imports);
+        return imports;
+      }
+    );
+    return new AudioMathInstance(wasm);
+  }
+
+  /**
+   * TODO: description
+   */
+  public createBuffer<T extends TypedArray>(
+    type: FilterKeysByType<WasmMemory, T>
+  ): WasmBuffer<T> {
+    return new WasmBuffer<T>(this.wasm, type);
   }
 
   /**
@@ -140,7 +85,7 @@ class AudioMathInstance {
    * @param min
    * @param max
    */
-  public clampPitch(p: number, min: number, max: number) {
+  public clampPitch(p: number, min: number, max: number): number {
     if (p > max) {
       const scale = Math.ceil(p / max);
       p /= scale;
@@ -160,62 +105,8 @@ class AudioMathInstance {
   /**
    * TODO: description
    */
-  public getMidiNumber(frequency: number) {
+  public getMidiNumber(frequency: number): number {
     return 69 + 12 * Math.log2(frequency / 440);
-  }
-
-  /**
-   * TODO: description
-   * @param buf
-   * @param length
-   */
-  public resizeBuffer(
-    buf: WasmBuffer,
-    length: number,
-    type: WasmMemoryType = 40
-  ) {
-    const wasm = this.wasm!;
-    const byteLength = length * wasm.memoryManager.mem[type].BYTES_PER_ELEMENT;
-    if (byteLength === buf.byteLength && buf.type === type) {
-      return;
-    }
-    //console.log('realloc', buf);
-    //console.log('  free', buf.ptr);
-    wasm.memoryManager.free(buf.ptr, buf.type);
-    //console.log('  malloc', length);
-    buf.ptr = wasm.memoryManager.malloc(length, type);
-    buf.byteLength = byteLength;
-    buf.type = type;
-    //console.log('  ', buf);
-  }
-
-  /**
-   * TODO: description
-   * @param dst
-   * @param src
-   */
-  public copyToBuffer<T extends TypedArray>(dst: WasmBuffer, src: T) {
-    const type_: WasmMemoryType = dst.type;
-    this.resizeBuffer(dst, src.length, type_);
-    const dst_ = this.wasm!.memoryManager.mem[type_];
-    dst_.set(src, dst.ptr[0] / src.BYTES_PER_ELEMENT);
-  }
-
-  /**
-   * TODO: description
-   * @param dst
-   * @param src
-   */
-  public copyFromBuffer<T extends TypedArray>(dst: T, src: WasmBuffer): T {
-    const length = src.ptr.length;
-    dst = this.resize(dst, length);
-    const src_ = new (dst.constructor as TypedArrayConstructor<T>)(
-      this.wasm!.memory,
-      src.ptr[0],
-      length
-    );
-    dst.set(src_);
-    return dst;
   }
 
   /**
@@ -327,55 +218,39 @@ class AudioMathInstance {
    * TODO: description
    * @param data
    */
-  public rms(data: Float32Array): number {
-    const wasm = this.wasm;
-    if (!wasm) {
-      return 0;
-    }
-    this.copyToBuffer(this.inputBuffer, data);
-    return wasm.exports.rms(this.inputBuffer.ptr[0], data.length);
+  public rms(data: WasmBuffer<Float32Array>): number {
+    return this.wasm.exports.rms(data.pointer, data.length);
   }
 
   /**
    * TODO: description
    */
   public autocorr(
-    tdata: Float32Array,
+    tdata: WasmBuffer<Float32Array>,
     minOffset: number,
     maxOffset: number,
-    output: Float32Array
-  ): Float32Array {
-    const wasm = this.wasm;
-    if (!wasm) {
-      return output;
-    }
-    this.copyToBuffer(this.inputBuffer, tdata);
-    this.resizeBuffer(this.outputBuffer, tdata.length);
-    wasm.exports.autocorr(
-      this.inputBuffer.ptr[0],
-      this.outputBuffer.ptr[0],
+    output: WasmBuffer<Float32Array>
+  ): void {
+    output.length = tdata.length;
+    this.wasm.exports.autocorr(
+      tdata.pointer,
+      output.pointer,
       tdata.length,
       minOffset,
       maxOffset
     );
-    return this.copyFromBuffer(output, this.outputBuffer);
   }
 
   /**
    * TODO: description
    */
   public autocorrpeak(
-    acdata: Float32Array,
+    acdata: WasmBuffer<Float32Array>,
     minOffset: number,
     maxOffset: number
   ): number {
-    const wasm = this.wasm;
-    if (!wasm) {
-      return NaN;
-    }
-    this.copyToBuffer(this.inputBuffer, acdata);
-    const ret = wasm.exports.autocorrpeak(
-      this.inputBuffer.ptr[0],
+    const ret = this.wasm.exports.autocorrpeak(
+      acdata.pointer,
       acdata.length,
       minOffset,
       maxOffset
@@ -387,25 +262,19 @@ class AudioMathInstance {
    * TODO: description
    */
   public prominence(
-    fft: Float32Array,
+    fft: WasmBuffer<Float32Array>,
     peaks: Peaks,
-    output: Float32Array,
+    output: WasmBuffer<Float32Array>,
     start: number,
     end: number,
     radius: number,
     normalize = false
-  ): Float32Array {
-    const wasm = this.wasm;
-    if (!wasm) {
-      return output;
-    }
-    this.copyToBuffer(this.inputBuffer, fft);
-    this.copyToBuffer(this.input2Buffer, peaks.data);
-    this.resizeBuffer(this.outputBuffer, fft.length);
-    wasm.exports.prominence(
-      this.inputBuffer.ptr[0],
-      this.input2Buffer.ptr[0],
-      this.outputBuffer.ptr[0],
+  ): void {
+    output.length = fft.length;
+    this.wasm.exports.prominence(
+      fft.pointer,
+      peaks.data.pointer,
+      output.pointer,
       fft.length,
       peaks.count,
       start,
@@ -413,26 +282,20 @@ class AudioMathInstance {
       radius,
       normalize
     );
-    return this.copyFromBuffer(output, this.outputBuffer);
   }
 
   /**
    * TODO: description
    */
   public prominencepeak(
-    prominence: Float32Array,
+    prominence: WasmBuffer<Float32Array>,
     peakType: FftPeakType = FftPeakType.MIN_FREQUENCY,
     start = 0,
     end: number = prominence.length,
     threshold = 10
   ): number {
-    const wasm = this.wasm;
-    if (!wasm) {
-      return NaN;
-    }
-    this.copyToBuffer(this.inputBuffer, prominence);
-    const ret = wasm.exports.prominencepeak(
-      this.inputBuffer.ptr[0],
+    const ret = this.wasm.exports.prominencepeak(
+      prominence.pointer,
       prominence.length,
       start,
       end,
@@ -445,48 +308,34 @@ class AudioMathInstance {
   /**
    * TODO: description
    */
-  public cepstrum(fft: Float32Array, output: Float32Array): Float32Array {
+  public cepstrum(
+    fft: WasmBuffer<Float32Array>,
+    output: WasmBuffer<Float32Array>
+  ): void {
     if (fft.length < 2) {
-      return output;
+      return;
     }
-    const wasm = this.wasm;
-    if (!wasm) {
-      return output;
-    }
-    this.copyToBuffer(this.inputBuffer, fft);
-    this.resizeBuffer(this.outputBuffer, 1 + fft.length / 2);
-    wasm.exports.cepstrum(
-      this.inputBuffer.ptr[0],
-      this.outputBuffer.ptr[0],
-      fft.length * 2
-    );
-    return this.copyFromBuffer(output, this.outputBuffer);
+    output.length = 1 + Math.floor(fft.length / 2);
+    this.wasm.exports.cepstrum(fft.pointer, output.pointer, fft.length * 2);
   }
 
   /**
    * TODO: description
    */
   public fftpeaks(
-    fft: Float32Array,
+    fft: WasmBuffer<Float32Array>,
     output: Peaks,
     mask: FftPeakMask,
     maskRadius: number
-  ): Peaks {
-    const wasm = this.wasm;
-    if (!wasm) {
-      return output;
-    }
-    this.copyToBuffer(this.inputBuffer, fft);
-    this.resizeBuffer(this.outputBuffer, fft.length);
-    output.count = wasm.exports.fftpeaks(
-      this.inputBuffer.ptr[0],
-      this.outputBuffer.ptr[0],
+  ): void {
+    output.data.length = fft.length;
+    output.count = this.wasm.exports.fftpeaks(
+      fft.pointer,
+      output.data.pointer,
       fft.length,
       mask,
       maskRadius
     );
-    output.data = this.copyFromBuffer(output.data, this.outputBuffer);
-    return output;
   }
 
   /**
@@ -497,46 +346,32 @@ class AudioMathInstance {
     fftpeaks: Peaks,
     output: Peaks,
     searchRadius = 0.3
-  ): Peaks {
-    const wasm = this.wasm;
-    if (!wasm) {
-      return output;
-    }
-    this.copyToBuffer(this.inputBuffer, fftpeaks.data);
-    this.resizeBuffer(this.outputBuffer, fftpeaks.data.length);
-    output.count = wasm.exports.fftharmonics(
-      this.inputBuffer.ptr[0],
-      this.outputBuffer.ptr[0],
+  ): void {
+    output.data.length = fftpeaks.data.length;
+    output.count = this.wasm.exports.fftharmonics(
+      fftpeaks.data.pointer,
+      output.data.pointer,
       fftpeaks.data.length,
       fftpeaks.count,
       f0,
       searchRadius
     );
-    output.data = this.copyFromBuffer(output.data, this.outputBuffer);
-    return output;
   }
 
   /**
    * TODO: description
    */
-  public mpd(fftpeaks: Peaks, output: PeakDistance): PeakDistance {
-    const wasm = this.wasm;
-    if (!wasm) {
-      return output;
-    }
-    this.copyToBuffer(this.inputBuffer, fftpeaks.data);
-    this.resizeBuffer(this.outputBuffer, fftpeaks.data.length);
-    output.median = wasm.exports.mpd(
-      this.inputBuffer.ptr[0],
-      this.outputBuffer.ptr[0],
+  public mpd(fftpeaks: Peaks, output: PeakDistance): void {
+    output.histogram.length = fftpeaks.data.length;
+    output.median = this.wasm.exports.mpd(
+      fftpeaks.data.pointer,
+      output.histogram.pointer,
       fftpeaks.data.length,
       fftpeaks.count
     );
-    output.histogram = this.copyFromBuffer(output.histogram, this.outputBuffer);
     if (output.median < 0) {
       output.median = NaN;
     }
-    return output;
   }
 
   /**
@@ -653,4 +488,28 @@ class AudioMathInstance {
   }
 }
 
-export const AudioMath: AudioMathInstance = new AudioMathInstance();
+export class AudioMath {
+  private static instance: Nullable<AudioMathInstance> = null;
+
+  private static initPromise: Nullable<Promise<AudioMathInstance>> = null;
+
+  public static async init(): Promise<AudioMathInstance> {
+    if (this.initPromise === null) {
+      this.initPromise = AudioMathInstance.create();
+    }
+    const instance = await this.initPromise;
+    AudioMath.instance = instance;
+    return instance;
+  }
+
+  public static get(): AudioMathInstance {
+    if (AudioMath.instance === null) {
+      throw new Error('audio math is not initialized');
+    }
+    return AudioMath.instance;
+  }
+
+  public static async getOrCreate(): Promise<AudioMathInstance> {
+    return AudioMath.init();
+  }
+}

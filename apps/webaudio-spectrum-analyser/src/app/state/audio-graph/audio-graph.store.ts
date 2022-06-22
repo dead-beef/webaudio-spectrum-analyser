@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@angular/core';
 import { Action, Selector, State, StateContext } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
 
-import { Analyser } from '../../classes/analyser/analyser';
 import { AudioGraph } from '../../classes/audio-graph/audio-graph';
 import {
   AudioGraphFilterNode,
@@ -14,7 +13,7 @@ import {
   PitchShifterState,
   WorkletFilterState,
 } from '../../interfaces';
-import { ANALYSER, AUDIO_GRAPH, StoreAction } from '../../utils';
+import { AUDIO_GRAPH, StoreAction } from '../../utils';
 import { audioGraphAction } from './audio-graph.actions';
 import {
   AUDIO_GRAPH_STATE_DEFAULTS,
@@ -32,10 +31,7 @@ export class AudioGraphState {
    * Constructor
    * @param store
    */
-  constructor(
-    @Inject(AUDIO_GRAPH) public readonly graph: AudioGraph,
-    @Inject(ANALYSER) public readonly analyser: Analyser
-  ) {}
+  constructor(@Inject(AUDIO_GRAPH) public readonly graph: AudioGraph) {}
 
   /**
    * State selector
@@ -294,7 +290,6 @@ export class AudioGraphState {
   @Action(audioGraphAction.reset)
   public reset(ctx: StateContext<AudioGraphStateModel>) {
     this.graph.resetAnalyserNode();
-    this.analyser.clearData();
     return ctx;
   }
 
@@ -311,9 +306,8 @@ export class AudioGraphState {
   ) {
     const state: AudioGraphStateModel = ctx.getState();
     this.graph.disable(state.sourceNode);
-    return this.graph.enable(node, data).then(() => {
-      return ctx.patchState({ sourceNode: node });
-    });
+    this.graph.enable(node, data);
+    return ctx.patchState({ sourceNode: node });
   }
 
   /**
@@ -456,17 +450,15 @@ export class AudioGraphState {
     ctx: StateContext<AudioGraphStateModel>,
     { payload }: StoreAction<number>
   ) {
-    return this.graph.workletReady.then(() => {
-      const param: Optional<AudioParam> =
-        this.graph.nodes.worklet!.parameters.get('type');
-      //console.log(param);
-      if (param) {
-        param.value = payload;
-      } else {
-        console.warn('setWorkletType !param');
-      }
-      return ctx.setState(patch({ worklet: patch({ type: payload }) }));
-    });
+    const param: Optional<AudioParam> =
+      this.graph.nodes.worklet.parameters.get('type');
+    //console.log(param);
+    if (param) {
+      param.value = payload;
+    } else {
+      console.warn('setWorkletType !param');
+    }
+    return ctx.setState(patch({ worklet: patch({ type: payload }) }));
   }
 
   /**
@@ -557,11 +549,11 @@ export class AudioGraphState {
    * @param payload
    */
   @Action(audioGraphAction.setWorkletFilterState)
-  public async setWorkletFilterState(
+  public setWorkletFilterState(
     ctx: StateContext<AudioGraphStateModel>,
     { payload }: StoreAction<WorkletFilterState>
   ) {
-    await this.graph.setWorkletFilterParameters(payload);
+    this.graph.setWorkletFilterParameters(payload);
     return ctx.setState(
       patch({
         filter: patch({

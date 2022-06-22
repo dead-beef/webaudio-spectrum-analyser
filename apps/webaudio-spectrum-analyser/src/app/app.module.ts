@@ -47,18 +47,7 @@ import { UnitsPipe } from './pipes/units/units.pipe';
 import { AnalyserStoreModule } from './state/analyser/analyser.module';
 import { AudioGraphStoreModule } from './state/audio-graph/audio-graph.module';
 import { AudioGraphUiStoreModule } from './state/audio-graph-ui/audio-graph-ui.module';
-import {
-  getAnalyser,
-  getAudioGraph,
-  getDocument,
-  getWindow,
-} from './utils/factories';
-import {
-  ANALYSER,
-  APP_ENV,
-  AUDIO_GRAPH,
-  WINDOW,
-} from './utils/injection-tokens';
+import { APP_ENV, getDocument, getWindow, WINDOW } from './utils';
 
 @NgModule({
   declarations: [
@@ -122,8 +111,6 @@ import {
     { provide: WINDOW, useFactory: getWindow },
     { provide: DOCUMENT, useFactory: getDocument },
     { provide: APP_ENV, useValue: environment },
-    { provide: AUDIO_GRAPH, useFactory: getAudioGraph },
-    { provide: ANALYSER, useFactory: getAnalyser },
   ],
   bootstrap: [AppComponent],
 })

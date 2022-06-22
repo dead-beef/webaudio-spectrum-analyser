@@ -21,17 +21,9 @@ import {
 } from './interfaces';
 
 export class AudioGraph {
-  public context: AudioContext;
-
   public nodes: AudioGraphNodes;
 
   public stream: MediaStream;
-
-  public workletFactory: WorkletNodeFactory;
-
-  public workletReady: Promise<void>;
-
-  public workletFilterReady: Promise<void>;
 
   public filter: AudioGraphFilterNode = AudioGraphFilterNode.NONE;
 
@@ -109,16 +101,14 @@ export class AudioGraph {
   /**
    * Constructor.
    */
-  constructor() {
-    if (!window.AudioContext) {
-      throw new Error('Web Audio API is not supported');
-    }
-    this.context = new AudioContext();
-    void this.context.suspend();
-
+  constructor(
+    public readonly context: AudioContext,
+    workletSource: AnyScriptNode,
+    workletFilter: AnyScriptNode
+  ) {
     this.nodes = {
       wave: this.context.createOscillator(),
-      worklet: null,
+      worklet: workletSource,
       device: null,
       element: null,
       input: this.context.createDelay(this.maxDelay),
@@ -127,7 +117,7 @@ export class AudioGraph {
         biquad: this.context.createBiquadFilter(),
         convolver: this.context.createConvolver(),
         pitchShifter: new PitchShifterNode(this.context),
-        worklet: null,
+        worklet: workletFilter,
       },
       filteredInput: this.context.createGain(),
       analyser: this.createAnalyserNode(),
@@ -138,33 +128,33 @@ export class AudioGraph {
     this.nodes.filteredInput.connect(this.nodes.analyser);
     this.nodes.analyser.connect(this.nodes.output);
     this.stream = this.nodes.output.stream;
+  }
 
-    this.workletFactory = new WorkletNodeFactory(this.context);
+  /**
+   * TODO: description
+   */
+  public static async create(): Promise<AudioGraph> {
+    if (!window.AudioContext) {
+      throw new Error('Web Audio API is not supported');
+    }
+    const context = new AudioContext();
+    await context.suspend();
 
-    this.workletReady = this.workletFactory
-      .create(GeneratorProcessor)
-      .then(node => {
-        this.nodes.worklet = node;
-        //window['params'] = node.parameters;
-      });
-    this.workletReady.catch(err => console.warn(err));
+    const workletFactory = new WorkletNodeFactory(context);
 
-    this.workletFilterReady = this.workletFactory
-      .create(FilterProcessor)
-      .then(node => {
-        this.nodes.filter.worklet = node;
-        //window['params'] = node.parameters;
-        return AudioMath.wasmReady;
-      })
-      .then(wasm => {
-        this.nodes.filter.worklet!.port.postMessage({
-          type: 'init',
-          module: wasm.raw.module,
-          memorySize: wasm.emModule.buffer.byteLength,
-          sampleRate: this.sampleRate,
-        });
-      });
-    this.workletFilterReady.catch(err => console.warn(err));
+    const math = await AudioMath.getOrCreate();
+    const wasm = math.wasm;
+
+    const workletSource = await workletFactory.create(GeneratorProcessor);
+    const workletFilter = await workletFactory.create(FilterProcessor);
+    workletFilter.port.postMessage({
+      type: 'init',
+      module: wasm.raw.module,
+      memorySize: wasm.emModule.buffer.byteLength,
+      sampleRate: context.sampleRate,
+    });
+
+    return new AudioGraph(context, workletSource, workletFilter);
   }
 
   /**
@@ -187,8 +177,8 @@ export class AudioGraph {
     this.setPitchShifter(state.filter.pitchShifter);
     this.setConvolver(state.filter.convolver);
 
-    void this.setWorkletSourceParameters(state.worklet);
-    void this.setWorkletFilterParameters(state.filter.worklet);
+    this.setWorkletSourceParameters(state.worklet);
+    this.setWorkletFilterParameters(state.filter.worklet);
   }
 
   /**
@@ -207,12 +197,8 @@ export class AudioGraph {
       this.stream.getTracks().forEach(track => track.stop());
       //this.stream = null;
     }
-    void this.workletReady.then(() => {
-      this.nodes.worklet!.port.postMessage({ type: 'stop' });
-    });
-    void this.workletFilterReady.then(() => {
-      this.nodes.filter.worklet!.port.postMessage({ type: 'stop' });
-    });
+    this.nodes.worklet.port.postMessage({ type: 'stop' });
+    this.nodes.filter.worklet.port.postMessage({ type: 'stop' });
   }
 
   /**
@@ -290,7 +276,7 @@ export class AudioGraph {
    * @param node
    * @param data
    */
-  public async enable(node: AudioGraphSourceNode, data?: any): Promise<void> {
+  public enable(node: AudioGraphSourceNode, data?: any) {
     console.log('enable', node /*, data*/);
     switch (node) {
       case AudioGraphSourceNode.DEVICE:
@@ -303,9 +289,8 @@ export class AudioGraph {
         this.nodes.wave.connect(this.nodes.input);
         break;
       case AudioGraphSourceNode.WORKLET:
-        await this.workletReady;
         //console.log(this.nodes.worklet);
-        this.nodes.worklet!.connect(this.nodes.input);
+        this.nodes.worklet.connect(this.nodes.input);
         break;
       default:
         throw new Error('invalid node ' + String(node));
@@ -371,27 +356,12 @@ export class AudioGraph {
     this.nodes.input.disconnect();
     for (const k in this.nodes.filter) {
       if (Object.prototype.hasOwnProperty.call(this.nodes.filter, k)) {
-        const node_ = this.nodes.filter[k as keyof AudioGraphFilters];
-        if (node_ !== null) {
-          node_.disconnect();
-        }
+        this.nodes.filter[k as keyof AudioGraphFilters].disconnect();
       }
     }
 
     if (node === null) {
-      if (filter === AudioGraphFilterNode.WORKLET) {
-        void this.workletFilterReady.then(() => {
-          node = this.nodes.filter.worklet;
-          if (node === null) {
-            console.error('no worklet filter node');
-            return;
-          }
-          this.nodes.input.connect(node);
-          node.connect(this.nodes.filteredInput);
-        });
-      } else {
-        this.nodes.input.connect(this.nodes.filteredInput);
-      }
+      this.nodes.input.connect(this.nodes.filteredInput);
     } else {
       this.nodes.input.connect(node);
       node.connect(this.nodes.filteredInput);
@@ -446,7 +416,7 @@ export class AudioGraph {
    * TODO: description
    */
   public setConvolver(state: ConvolverState): AudioGraph {
-    const data = AudioMath.impulseResponse(
+    const data = AudioMath.get().impulseResponse(
       this.sampleRate,
       state.duration,
       state.decay,
@@ -488,21 +458,15 @@ export class AudioGraph {
   /**
    * TODO: description
    */
-  public async setWorkletSourceParameters(
-    params: Record<string, number>
-  ): Promise<void> {
-    await this.workletReady;
-    this.setWorkletNodeParameters(this.nodes.worklet!, params);
+  public setWorkletSourceParameters(params: Record<string, number>): void {
+    this.setWorkletNodeParameters(this.nodes.worklet, params);
   }
 
   /**
    * TODO: description
    */
-  public async setWorkletFilterParameters(
-    params: Partial<WorkletFilterState>
-  ): Promise<void> {
-    await this.workletFilterReady;
-    this.setWorkletNodeParameters(this.nodes.filter.worklet!, params as any);
+  public setWorkletFilterParameters(params: Partial<WorkletFilterState>): void {
+    this.setWorkletNodeParameters(this.nodes.filter.worklet, params as any);
   }
 
   /**

@@ -181,6 +181,16 @@ export class AnalyserState {
    * Action
    * @param ctx
    */
+  @Action(analyserAction.reset)
+  public reset(ctx: StateContext<AnalyserStateModel>) {
+    this.analyser.clearData();
+    return ctx;
+  }
+
+  /**
+   * Action
+   * @param ctx
+   */
   @Action(analyserAction.setDebug)
   public setDebug(
     ctx: StateContext<AnalyserStateModel>,

@@ -36,20 +36,21 @@ export class PitchShifterNode extends GainNode implements IPitchShifterNode {
    * @param time
    */
   public set bufferTime(time: number) {
+    const math = AudioMath.get();
     for (let i = 0; i < 2; ++i) {
       this._createOscillator(
         this.context,
-        AudioMath.sawtoothWave(this.context.sampleRate, time, i * 180),
+        math.sawtoothWave(this.context.sampleRate, time, i * 180),
         this.shiftDown[i]
       );
       this._createOscillator(
         this.context,
-        AudioMath.sawtoothWave(this.context.sampleRate, time, i * 180, true),
+        math.sawtoothWave(this.context.sampleRate, time, i * 180, true),
         this.shiftUp[i]
       );
       this._createOscillator(
         this.context,
-        AudioMath.triangleWave(this.context.sampleRate, time, i * 180),
+        math.triangleWave(this.context.sampleRate, time, i * 180),
         this.fade[i]
       );
     }
