@@ -152,26 +152,3 @@ export function updateCanvasSize(
   }
   return resized;
 }
-
-/**
- * TODO: description
- */
-export function fixWasmImports(imports: WasmImports): WasmImports {
-  //console.warn('imports', imports);
-  imports['emscripten_resize_heap'] = (...args) => {
-    console.warn('emscripten_resize_heap', args);
-  };
-  imports['emscripten_memcpy_big'] = (...args) => {
-    console.warn('emscripten_memcpy_big', args);
-  };
-  imports['segfault'] = () => {
-    throw new Error('segfault');
-  };
-  imports['alignfault'] = () => {
-    throw new Error('alignfault');
-  };
-  imports['abort'] = () => {
-    throw new Error('aborted');
-  };
-  return imports;
-}

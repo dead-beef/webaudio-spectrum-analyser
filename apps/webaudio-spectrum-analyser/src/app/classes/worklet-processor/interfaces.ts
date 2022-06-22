@@ -14,6 +14,7 @@ export interface WorkletProcessorStatic {
 }
 
 export interface WorkletProcessor /*extends WorkletProcessorStatic*/ {
+  readonly port: MessagePort;
   process(
     inputs: Float32Array[][],
     outputs: Float32Array[][],

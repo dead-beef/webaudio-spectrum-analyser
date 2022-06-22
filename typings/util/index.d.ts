@@ -6,6 +6,9 @@ declare interface NumberArray extends ArrayLike<number> {
 
 declare interface TypedArray extends NumberArray {
   readonly BYTES_PER_ELEMENT: number;
+  readonly buffer: ArrayBuffer;
+  readonly byteLength: number;
+  readonly byteOffset: number;
 
   slice(start?: number, end?: number): TypedArray;
   set(array: ArrayLike<number>, offset?: number): void;

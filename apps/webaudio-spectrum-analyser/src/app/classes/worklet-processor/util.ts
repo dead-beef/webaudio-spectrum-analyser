@@ -29,6 +29,17 @@ export class AudioWorkletProcessor implements WorkletProcessor {
     return [];
   }
 
+  public readonly port: MessagePort = {
+    start: () => {},
+    close: () => {},
+    postMessage: () => {},
+    onmessage: () => {},
+    onmessageerror: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  };
+
   /**
    * TODO: description
    */
