@@ -83,6 +83,9 @@ int prominencepeak(
   number threshold,
   fftpeak_type_t type
 ) {
+  if (length < 3) {
+    return -1;
+  }
   start = clamp(start, 1, length - 2);
   end = clamp(end, 1, length - 2);
   number max;

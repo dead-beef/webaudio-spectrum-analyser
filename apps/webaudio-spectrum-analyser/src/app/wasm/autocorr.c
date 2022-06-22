@@ -23,7 +23,10 @@ void autocorr(
   int min_offset,
   int max_offset
 ) {
-  max_offset = clamp(max_offset, 0, length - 2);
+  if (length < 3) {
+    return;
+  }
+  max_offset = clamp(max_offset, 0, length / 2);
   min_offset = clamp(min_offset, 0, max_offset - 1);
   number m = mean(tdata, length);
   number var = variance(tdata, length, m);
