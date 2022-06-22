@@ -112,7 +112,7 @@ export class TimeDomainChartComponent implements AfterViewInit, OnDestroy {
     this.canvas.hline(0.5, 'grid');
     this.canvas.plot(this.analyser.tdata.array, xscale, yscale);
     if (this.analyser.rmsThreshold > 0) {
-      this.canvas.hline(yscale(this.analyser.rmsThreshold), 'rms-threshold');
+      this.canvas.hline(yscale(this.analyser.rmsThreshold), 'rmsThreshold');
     }
     for (let i = 0; i < this.functions.length; ++i) {
       const fn = this.functions[i];

@@ -136,7 +136,7 @@ export class SpectrogramComponent implements AfterViewInit, OnDestroy {
    */
   public clearCanvas(): void {
     if (this.canvas !== null) {
-      this.canvas.fill(this.color.get('spectrogram-min'));
+      this.canvas.fill(this.color.get('spectrogramMin'));
     }
   }
 
@@ -179,8 +179,8 @@ export class SpectrogramComponent implements AfterViewInit, OnDestroy {
     this.frameTimestamp[i] = Date.now();
 
     const img = this.imageData!.data;
-    const minColor = this.color.getRgb('spectrogram-min');
-    const maxColor = this.color.getRgb('spectrogram-max');
+    const minColor = this.color.getRgb('spectrogramMin');
+    const maxColor = this.color.getRgb('spectrogramMax');
     for (i = 0; i < data.length; ++i) {
       const kMax = (data[i] - min) / (max - min);
       const kMin = 1.0 - kMax;
