@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ErrorPipe } from '../../pipes/error/error.pipe';
 import { UnitsPipe } from '../../pipes/units/units.pipe';
@@ -11,8 +11,8 @@ describe('FilterOptionsComponent', () => {
   let component: FilterOptionsComponent;
   let fixture: ComponentFixture<FilterOptionsComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: getComponentImports(),
       declarations: [
         FilterOptionsComponent,
@@ -22,14 +22,11 @@ describe('FilterOptionsComponent', () => {
         InputRangeComponent,
       ],
       providers: getMockProviders(),
-    })
-      .compileComponents()
-      .then(() => {
-        fixture = TestBed.createComponent(FilterOptionsComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-      });
-  }));
+    }).compileComponents();
+    fixture = TestBed.createComponent(FilterOptionsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
   it('should create', () => {
     expect(component).toBeTruthy();

@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { ClarityModule } from '@clr/angular';
@@ -14,8 +14,8 @@ describe('AudioControlsComponent', () => {
   let component: AudioControlsComponent;
   let fixture: ComponentFixture<AudioControlsComponent>;
 
-  beforeEach(waitForAsync(() => {
-    void TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [BrowserModule, FormsModule, ReactiveFormsModule, ClarityModule],
       declarations: [
         AudioControlsComponent,
@@ -30,14 +30,11 @@ describe('AudioControlsComponent', () => {
           },
         }),
       ],
-    })
-      .compileComponents()
-      .then(() => {
-        fixture = TestBed.createComponent(AudioControlsComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-      });
-  }));
+    }).compileComponents();
+    fixture = TestBed.createComponent(AudioControlsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
   it('should create', () => {
     expect(component).toBeTruthy();

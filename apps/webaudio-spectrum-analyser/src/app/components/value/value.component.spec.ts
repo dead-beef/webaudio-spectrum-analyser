@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FrequencyUnitsPipe } from '../../pipes/frequency-units/frequency-units.pipe';
 import { UnitsPipe } from '../../pipes/units/units.pipe';
@@ -9,21 +9,16 @@ describe('ValueComponent', () => {
   let component: ValueComponent;
   let fixture: ComponentFixture<ValueComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        imports: getComponentImports(),
-        declarations: [ValueComponent, UnitsPipe, FrequencyUnitsPipe],
-        providers: getMockProviders(),
-      })
-        .compileComponents()
-        .then(() => {
-          fixture = TestBed.createComponent(ValueComponent);
-          component = fixture.componentInstance;
-          fixture.detectChanges();
-        });
-    })
-  );
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: getComponentImports(),
+      declarations: [ValueComponent, UnitsPipe, FrequencyUnitsPipe],
+      providers: getMockProviders(),
+    }).compileComponents();
+    fixture = TestBed.createComponent(ValueComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
   it('should create', () => {
     expect(component).toBeTruthy();

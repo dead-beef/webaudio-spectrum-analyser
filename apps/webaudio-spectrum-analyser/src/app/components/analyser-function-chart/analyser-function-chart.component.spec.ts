@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { UnitsPipe } from '../../pipes/units/units.pipe';
 import { getComponentImports, getMockProviders } from '../../utils/test.util';
@@ -9,8 +9,8 @@ describe('FunctionChartComponent', () => {
   let component: AnalyserFunctionChartComponent;
   let fixture: ComponentFixture<AnalyserFunctionChartComponent>;
 
-  beforeEach(waitForAsync(() => {
-    void TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: getComponentImports(),
       declarations: [
         AnalyserFunctionChartComponent,
@@ -18,14 +18,11 @@ describe('FunctionChartComponent', () => {
         UnitsPipe,
       ],
       providers: getMockProviders(),
-    })
-      .compileComponents()
-      .then(() => {
-        fixture = TestBed.createComponent(AnalyserFunctionChartComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-      });
-  }));
+    }).compileComponents();
+    fixture = TestBed.createComponent(AnalyserFunctionChartComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
   it('should create', () => {
     expect(component).toBeTruthy();
