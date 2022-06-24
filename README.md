@@ -2,7 +2,7 @@
 
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
-[![Master](https://github.com/dead-beef/webaudio-spectrum-analyser/actions/workflows/master.yml/badge.svg)](https://github.com/dead-beef/webaudio-spectrum-analyser/actions/workflows/master.yml) [![PR validation](https://github.com/dead-beef/webaudio-spectrum-analyser/actions/workflows/pr-validation.yml/badge.svg)](https://github.com/dead-beef/webaudio-spectrum-analyser/actions/workflows/pr-validation.yml) [![CodeQL](https://github.com/dead-beef/webaudio-spectrum-analyser/actions/workflows/codeql-analisis.yml/badge.svg)](https://github.com/dead-beef/webaudio-spectrum-analyser/actions/workflows/codeql-analisis.yml)
+[![Master](https://github.com/dead-beef/webaudio-spectrum-analyser/actions/workflows/master.yml/badge.svg)](https://github.com/dead-beef/webaudio-spectrum-analyser/actions/workflows/master.yml) [![PR validation](https://github.com/dead-beef/webaudio-spectrum-analyser/actions/workflows/pr-validation.yml/badge.svg)](https://github.com/dead-beef/webaudio-spectrum-analyser/actions/workflows/pr-validation.yml) [![CodeQL](https://github.com/dead-beef/webaudio-spectrum-analyser/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/dead-beef/webaudio-spectrum-analyser/actions/workflows/codeql-analysis.yml)
 
 ## Requirements
 
