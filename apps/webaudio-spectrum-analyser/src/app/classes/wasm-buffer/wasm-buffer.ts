@@ -21,7 +21,11 @@ export class WasmBuffer<T extends TypedArray> {
       return;
     }
     this.free(this._ptr);
-    this._ptr = this.malloc(length);
+    if (length > 0) {
+      this._ptr = this.malloc(length);
+    } else {
+      this._ptr = [];
+    }
     this._wasmMemory = null;
   }
 

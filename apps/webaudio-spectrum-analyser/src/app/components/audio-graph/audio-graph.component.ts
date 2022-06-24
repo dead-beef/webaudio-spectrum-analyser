@@ -3,6 +3,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  ErrorHandler,
+  Inject,
   OnDestroy,
   ViewChild,
 } from '@angular/core';
@@ -11,6 +13,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { ErrorHandler as CustomErrorHandler } from '../../classes/error-handler/error-handler';
 import { AudioGraphSourceNode } from '../../interfaces';
 import { AnalyserService } from '../../state/analyser/analyser.service';
 import { AudioGraphService } from '../../state/audio-graph/audio-graph.service';
@@ -51,6 +54,8 @@ export class AudioGraphComponent implements AfterViewInit, OnDestroy {
 
   public readonly source = AudioGraphSourceNode;
 
+  public readonly error$: Observable<any> = this.errorHandler.error;
+
   public audio: Nullable<HTMLAudioElement> = null;
 
   public volume = 0.5;
@@ -61,7 +66,8 @@ export class AudioGraphComponent implements AfterViewInit, OnDestroy {
    */
   constructor(
     private readonly graph: AudioGraphService,
-    private readonly analyser: AnalyserService
+    private readonly analyser: AnalyserService,
+    @Inject(ErrorHandler) private readonly errorHandler: CustomErrorHandler
   ) {}
 
   /**

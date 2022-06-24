@@ -1,5 +1,5 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -13,6 +13,7 @@ import { SimplebarAngularModule } from 'simplebar-angular';
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { ROUTES } from './app.routes';
+import { ErrorHandler as CustomErrorHandler } from './classes/error-handler/error-handler';
 import { AlertComponent } from './components/alert/alert.component';
 import { AnalyserFunctionChartComponent } from './components/analyser-function-chart/analyser-function-chart.component';
 import { AnalyserFunctionValuesComponent } from './components/analyser-function-values/analyser-function-values.component';
@@ -108,6 +109,7 @@ import { APP_ENV, getDocument, getWindow, WINDOW } from './utils';
   ],
   providers: [
     UnitsPipe,
+    { provide: ErrorHandler, useClass: CustomErrorHandler },
     { provide: WINDOW, useFactory: getWindow },
     { provide: DOCUMENT, useFactory: getDocument },
     { provide: APP_ENV, useValue: environment },
