@@ -1,10 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ErrorHandler,
+} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { ClarityModule } from '@clr/angular';
 import { NgxsModule } from '@ngxs/store';
 
+import { ErrorHandler as CustomErrorHandler } from '../classes/error-handler/error-handler';
 import { AnalyserStoreModule } from '../state/analyser/analyser.module';
 import { AudioGraphStoreModule } from '../state/audio-graph/audio-graph.module';
 import { AudioGraphUiStoreModule } from '../state/audio-graph-ui/audio-graph-ui.module';
@@ -217,6 +222,10 @@ export function getMockProviders() {
     {
       provide: ANALYSER,
       useFactory: getMockAnalyser,
+    },
+    {
+      provide: ErrorHandler,
+      useClass: CustomErrorHandler,
     },
   ];
 }

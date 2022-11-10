@@ -6,6 +6,8 @@
   </div>
 
   <div class="clr-col-12 clr-col-md-6 clr-col-lg-5 clr-col-xl-4">
+    <app-alert [error]="error$ | async"></app-alert>
+
     <form clrForm [formGroup]="form" class="clr-row clr-align-items-center">
       <div class="clr-col-auto padding-none">
         <button class="btn btn-icon btn-flat" (click)="toggle()">
