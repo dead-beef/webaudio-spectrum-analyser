@@ -17,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [16]
         em-version: [2.0.2]
 
     steps:
@@ -31,8 +31,8 @@ jobs:
       - name: Get variables (yarn cache directory path, commit hash)
         id: get-variables
         run: |
-          echo "::set-output name=yarncachedir::$(yarn cache dir)"
-          echo "::set-output name=commitsha::$(echo ${GITHUB_SHA})"
+          echo "yarncachedir=$(yarn cache dir)" >> "$GITHUB_OUTPUT"
+          echo "commitsha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: Workspace cache (npm, yarn, nx, jest)
         uses: actions/cache@v2
